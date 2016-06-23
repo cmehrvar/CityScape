@@ -8,19 +8,35 @@
 
 import UIKit
 import FLAnimatedImage
+import DownPicker
+import FBSDKLoginKit
 
 class ProfileSignUpController: UIViewController {
     
-    @IBOutlet weak var nextButtonOutlet: UIBarButtonItem!
-    @IBOutlet weak var gif: FLAnimatedImageView!
+    //Global Variables
+    var nextButton: UIBarButtonItem!
+    let cities = ["Vancouver", "Edmonton", "Toronto", "Montreal", "Halifax", "St. Johns"]
+    var realDownPicker: DownPicker = DownPicker()
+    var firstNameVar: String!
+    var lastNameVar: String!
+    var profileVar: String!
     
-    @IBAction func nextButton(sender: AnyObject) {
+    //Outlets
+    @IBOutlet weak var gif: FLAnimatedImageView!
+    @IBOutlet weak var downPicker: UITextField!
+    @IBOutlet weak var firstName: UITextField!
+    @IBOutlet weak var lastName: UITextField!
+    @IBOutlet weak var profilePicture: ProfilePictureView!
+    
+    
+    //Actions
+    func done(sender: UIBarButtonItem) {
         
-        
-        
+        print("next hit")
         
     }
-    
+
+    //Functions
     func loadGif() {
         
         guard let filePath: String = NSBundle.mainBundle().pathForResource("background", ofType: "gif") else {return}
@@ -29,23 +45,76 @@ class ProfileSignUpController: UIViewController {
         gif.animatedImage = image
         
     }
+    
+    func handleDownPicker() {
+        
+        realDownPicker = DownPicker(textField: downPicker, withData: cities)
+        realDownPicker.setPlaceholder("Tap to choose your city")
+        realDownPicker.shouldDisplayCancelButton = false
+        
+    }
+    
+    func fillFormFromFacebook() {
+        
+        if firstNameVar != nil {
+            
+            firstName.text = firstNameVar
+            
+        }
+        
+        if lastNameVar != nil {
+            
+            lastName.text = lastNameVar
+            
+        }
+        
+        if profileVar != nil {
+            
+            print(profileVar)
+            profilePicture.sd_setImageWithURL(NSURL(string: profileVar))
+            
+        }
+        
+        
+    }
 
 
+    //Launch Calls
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        
+        
+        
+        
+        nextButton = UIBarButtonItem(title: "Next", style: .Plain, target: self, action: "done:")
+        self.navigationItem.rightBarButtonItem = nextButton
+        nextButton.enabled = false
         loadGif()
         
-        nextButtonOutlet.enabled = false
-
         // Do any additional setup after loading the view.
     }
     
     override func viewDidAppear(animated: Bool) {
         
+        fillFormFromFacebook()
+        handleDownPicker()
         loadGif()
         
     }
+    
+    
+    override func willMoveToParentViewController(parent: UIViewController?) {
+        
+        if parent == nil {
+            
+            FBSDKLoginManager().logOut()
+            
+            print("back button hit")
+            
+        }
+    }
+    
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()

@@ -11,6 +11,7 @@ import FBSDKLoginKit
 import FLAnimatedImage
 import Firebase
 import FirebaseAuth
+import SDWebImage
 
 
 class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonDelegate {
@@ -46,6 +47,10 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
     
     @IBAction func NextButton(sender: AnyObject) {
         
+        let vc = self.storyboard?.instantiateViewControllerWithIdentifier("createProfile") as! ProfileSignUpController
+        self.navigationController?.showViewController(vc, sender: self)
+        
+        /*
         if let actualEmail = emailOutlet.text, actualPassword = passwordOutlet.text {
             
             FIRAuth.auth()?.createUserWithEmail(actualEmail, password: actualPassword, completion: { (user, error) -> Void in
@@ -71,7 +76,10 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
             })
         }
         
+        */
+        
         print("next button hit")
+
         
     }
     
@@ -81,11 +89,49 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
     //Functions
     func loginButton(loginButton: FBSDKLoginButton!, didCompleteWithResult result: FBSDKLoginManagerLoginResult!, error: NSError!) {
         
-        
         if error == nil {
             
             print("good sign in")
             
+            
+            let req = FBSDKGraphRequest(graphPath: "me", parameters: ["fields":"email, first_name, last_name, hometown"], tokenString: result.token.tokenString, version: nil, HTTPMethod: "GET")
+            
+            req.startWithCompletionHandler({ (connection, result, error) -> Void in
+                
+                if error == nil {
+                    
+                    print(result)
+                    
+                    if let firstname = result["first_name"] as? String, lastname = result["last_name"] as? String, id = result["id"] {
+                        
+                        let vc = self.storyboard?.instantiateViewControllerWithIdentifier("createProfile") as! ProfileSignUpController
+                        vc.firstNameVar = firstname
+                        vc.lastNameVar = lastname
+                        
+                        if let id = id {
+                            vc.profileVar = "https://graph.facebook.com/\(id)/picture?type=large"
+                        }
+                        
+                        self.navigationController?.showViewController(vc, sender: self)
+                        
+                    }
+                    
+
+                } else {
+                    print(error)
+                }
+                
+            })
+            
+            
+            //vc.firstName.text = FBSDKProfile().firstName
+            //vc.lastName.text = FBSDKProfile().lastName
+            //vc.profilePicture.sd_setImageWithURL(FBSDKProfile().linkURL)
+            
+            
+            
+            
+            /*
             let credential = FIRFacebookAuthProvider.credentialWithAccessToken(FBSDKAccessToken.currentAccessToken().tokenString)
             
             FIRAuth.auth()?.signInWithCredential(credential, completion: { (user, error) -> Void in
@@ -110,6 +156,7 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
                 }
 
             })
+*/
             
         } else {
             

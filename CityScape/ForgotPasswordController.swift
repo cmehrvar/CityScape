@@ -7,13 +7,38 @@
 //
 
 import UIKit
+import FLAnimatedImage
 
 class ForgotPasswordController: UIViewController {
+    
+    
+    //Outlets
+    @IBOutlet weak var gifImage: FLAnimatedImageView!
 
+    
+    
+    
+    //Functions
+    func loadGif() {
+        
+        guard let filePath: String = NSBundle.mainBundle().pathForResource("background", ofType: "gif") else {return}
+        let gifData: NSData = NSData.dataWithContentsOfMappedFile(filePath) as! NSData
+        let image: FLAnimatedImage = FLAnimatedImage.init(GIFData: gifData)
+        gifImage.animatedImage = image
+        
+    }
+    
+    //Launch Calls
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         // Do any additional setup after loading the view.
+    }
+    
+    override func viewDidAppear(animated: Bool) {
+        
+        loadGif()
+        
     }
 
     override func didReceiveMemoryWarning() {
