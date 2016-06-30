@@ -13,7 +13,7 @@ class ProfilePictureView: UIImageView {
     override func awakeFromNib() {
         
         super.awakeFromNib()
-        layer.cornerRadius = 49
+        layer.cornerRadius = 20
         layer.borderWidth = 1
         layer.borderColor = UIColor.blackColor().CGColor
         self.clipsToBounds = true

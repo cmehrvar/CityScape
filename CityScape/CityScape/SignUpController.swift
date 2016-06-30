@@ -9,9 +9,10 @@
 import UIKit
 import FBSDKLoginKit
 import FLAnimatedImage
+import SDWebImage
 import Firebase
 import FirebaseAuth
-import SDWebImage
+import FirebaseDatabase
 
 
 class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonDelegate {
@@ -27,7 +28,7 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
     @IBOutlet weak var mobileChecker: UIImageView!
     @IBOutlet weak var passwordChecker: UIImageView!
     @IBOutlet weak var facebookLogInOutlet: FBSDKLoginButton!
-
+    
     var mobileValid: Bool = false
     var emailValid: Bool = false
     var passwordValid: Bool = false
@@ -48,38 +49,19 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
     @IBAction func NextButton(sender: AnyObject) {
         
         let vc = self.storyboard?.instantiateViewControllerWithIdentifier("createProfile") as! ProfileSignUpController
+        
+        vc.dontFillFormFromFacebook = true
+        vc.email = self.emailOutlet.text
+        vc.mobileNumberVar = self.mobileOutlet.text
+        vc.password = self.passwordOutlet.text
+        vc.textFieldAlpha = 0
+        
+        vc.mobileValid = true
+        
         self.navigationController?.showViewController(vc, sender: self)
         
-        /*
-        if let actualEmail = emailOutlet.text, actualPassword = passwordOutlet.text {
-            
-            FIRAuth.auth()?.createUserWithEmail(actualEmail, password: actualPassword, completion: { (user, error) -> Void in
-                
-                if error == nil {
-                    
-                    print("good sign up")
-                    
-                    if let vc = self.storyboard?.instantiateViewControllerWithIdentifier("ProfileSignUp") as? UINavigationController {
-                        
-                        vc.modalTransitionStyle = UIModalTransitionStyle.FlipHorizontal
-                        
-                        self.presentViewController(vc, animated: true, completion: { () -> Void in
-                            print("View Controller Presented")
-                        })
-                    }
-                    
-                } else {
-                    
-                    print("bad sign up")
-                    
-                }
-            })
-        }
-        
-        */
-        
         print("next button hit")
-
+        
         
     }
     
@@ -87,6 +69,32 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
     
     
     //Functions
+    func checkIfTaken(key: String, credential: String, completion: (taken: Bool) -> ()) {
+        
+        var taken = false
+        
+        let ref = FIRDatabase.database().reference()
+        
+        ref.child(key).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+            
+            if let values = snapshot.value {
+                
+                for (key, value) in values as! [NSObject : String] {
+                    
+                    if credential == value {
+                        
+                        taken = true
+                        
+                    }
+                }
+            }
+            
+            completion(taken: taken)
+            print("is taken: " + String(taken))
+            
+        })
+    }
+    
     func loginButton(loginButton: FBSDKLoginButton!, didCompleteWithResult result: FBSDKLoginManagerLoginResult!, error: NSError!) {
         
         if error == nil {
@@ -94,7 +102,9 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
             print("good sign in")
             
             
-            let req = FBSDKGraphRequest(graphPath: "me", parameters: ["fields":"email, first_name, last_name, hometown"], tokenString: result.token.tokenString, version: nil, HTTPMethod: "GET")
+            //CHECK TO SEE IF EMAIL TAKEN. IF SO, USER MUST HAVE AN ACCOUNT. SKIP NEXT STEP, LOG USER IN WITH FIREBASE AND GO STRAIGHT TO MAIN APP.
+            
+            let req = FBSDKGraphRequest(graphPath: "me", parameters: ["fields":"email, first_name, last_name"], tokenString: result.token.tokenString, version: nil, HTTPMethod: "GET")
             
             req.startWithCompletionHandler({ (connection, result, error) -> Void in
                 
@@ -102,67 +112,35 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
                     
                     print(result)
                     
-                    if let firstname = result["first_name"] as? String, lastname = result["last_name"] as? String, id = result["id"] {
+                    self.checkIfTaken("takenEmails", credential: result["email"] as! String, completion: { (taken) in
                         
-                        let vc = self.storyboard?.instantiateViewControllerWithIdentifier("createProfile") as! ProfileSignUpController
-                        vc.firstNameVar = firstname
-                        vc.lastNameVar = lastname
-                        
-                        if let id = id {
-                            vc.profileVar = "https://graph.facebook.com/\(id)/picture?type=large"
+                        if taken {
+                            
+                            print("facebook account already signed up!")
+                            
+                            
+                            
+                        } else {
+                            
+                            let vc = self.storyboard?.instantiateViewControllerWithIdentifier("createProfile") as! ProfileSignUpController
+                            vc.result = result as! [String:String]
+                            vc.textFieldAlpha = 1
+                            self.navigationController?.showViewController(vc, sender: self)
+                            
                         }
-                        
-                        self.navigationController?.showViewController(vc, sender: self)
-                        
-                    }
+                    })
                     
-
                 } else {
                     print(error)
                 }
                 
             })
             
-            
-            //vc.firstName.text = FBSDKProfile().firstName
-            //vc.lastName.text = FBSDKProfile().lastName
-            //vc.profilePicture.sd_setImageWithURL(FBSDKProfile().linkURL)
-            
-            
-            
-            
-            /*
-            let credential = FIRFacebookAuthProvider.credentialWithAccessToken(FBSDKAccessToken.currentAccessToken().tokenString)
-            
-            FIRAuth.auth()?.signInWithCredential(credential, completion: { (user, error) -> Void in
-                
-                if error == nil {
-                    
-                    if let vc = self.storyboard?.instantiateViewControllerWithIdentifier("ProfileSignUp") as? UINavigationController {
-                        
-                        vc.modalTransitionStyle = UIModalTransitionStyle.FlipHorizontal
-                        
-                        self.presentViewController(vc, animated: true, completion: { () -> Void in
-                            print("View Controller Presented")
-                        })
-                    }
-                    
-                    print("good sign up")
-                    
-                } else {
-                    
-                    print("bad sign up")
-                    
-                }
-
-            })
-*/
-            
         } else {
             
             print("bad sign in")
             
-        }  
+        }
     }
     
     func loginButtonDidLogOut(loginButton: FBSDKLoginButton!) {
@@ -172,8 +150,6 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
         
     }
     
-    
-    
     func isValidEmail(testStr: String) -> Bool {
         
         let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
@@ -181,7 +157,6 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
         return emailTest.evaluateWithObject(testStr)
         
     }
-    
     
     func loadGif() {
         
@@ -200,15 +175,14 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
             
             if let numberToCheck = textField.text {
                 
-                if numberToCheck.characters.count == 14 {
+                if textField.text == "" {
                     
-                    mobileChecker.image = UIImage(named: "Checkmark")
+                    return
                     
-                    mobileValid = true
-                    
-                    print("good number")
-                    
-                } else {
+                }
+                
+                
+                if numberToCheck.characters.count < 14 {
                     
                     mobileChecker.image = UIImage(named: "RedX")
                     
@@ -227,20 +201,58 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
                     
                     print("bad number")
                     
+                } else {
+                    
+                    checkIfTaken("takenNumbers", credential: numberToCheck, completion: { (taken) in
+                        
+                        if taken {
+                            
+                            self.mobileChecker.image = UIImage(named: "RedX")
+                            
+                            let alertController = UIAlertController(title: "Sorry", message: "Number already taken", preferredStyle:  UIAlertControllerStyle.Alert)
+                            
+                            alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
+                                
+                                self.mobileOutlet.becomeFirstResponder()
+                                
+                                
+                            }))
+                            
+                            self.presentViewController(alertController, animated: true, completion: nil)
+                            
+                            self.mobileValid = false
+                            
+                            
+                            
+                        } else {
+                            
+                            self.mobileChecker.image = UIImage(named: "Checkmark")
+                            
+                            self.mobileValid = true
+                            
+                            
+                        }
+                    })
                 }
             }
         }
         
-        
         if textField == passwordOutlet {
+            
+            if textField.text == "" {
+                
+                return
+                
+            }
+            
             
             if let passwordToCheck = textField.text {
                 
-                if passwordToCheck.characters.count < 5 {
+                if passwordToCheck.characters.count < 6 {
                     
                     passwordChecker.image = UIImage(named: "RedX")
                     
-                    let alertController = UIAlertController(title: "Hey", message: "Password must be at least 5 characters", preferredStyle:  UIAlertControllerStyle.Alert)
+                    let alertController = UIAlertController(title: "Hey", message: "Password must be at least 6 characters", preferredStyle:  UIAlertControllerStyle.Alert)
                     
                     alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
                         
@@ -263,7 +275,6 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
             }
         }
         
-        
         if textField == emailOutlet {
             
             if textField.text == "" {
@@ -277,11 +288,37 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
                 
                 if isValidEmail(emailToCheck) {
                     
-                    emailChecker.image = UIImage(named: "Checkmark")
+                    //IF IS VALID EMAIL, CHECK TO SEE IF TAKEN, ELSE GOOD EMAIL
                     
-                    emailValid = true
+                    checkIfTaken("takenEmails", credential: emailToCheck, completion: { (taken) in
+                        
+                        if taken {
+                            
+                            self.emailChecker.image = UIImage(named: "RedX")
+                            
+                            let alertController = UIAlertController(title: "Whoops", message: "Email is already taken", preferredStyle:  UIAlertControllerStyle.Alert)
+                            
+                            alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
+                                
+                                self.emailOutlet.becomeFirstResponder()
+                                
+                                
+                            }))
+                            
+                            self.presentViewController(alertController, animated: true, completion: nil)
+                            
+                            self.emailValid = false
+                            
+                            
+                        } else {
+                            
+                            self.emailChecker.image = UIImage(named: "Checkmark")
+                            
+                            self.emailValid = true
+                            
+                        }
+                    })
                     
-                    print("Good Email")
                     
                 } else {
                     
@@ -297,7 +334,7 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
                     }))
                     
                     self.presentViewController(alertController, animated: true, completion: nil)
-
+                    
                     emailValid = false
                     
                     print("Bad Email")
@@ -375,7 +412,6 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
             return true
         }
     }
-
     
     func textFieldShouldReturn(textField: UITextField) -> Bool {
         
@@ -394,12 +430,13 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
     func textFieldDelegates() {
         
         facebookLogInOutlet.delegate = self
+        facebookLogInOutlet.readPermissions = ["email"]
         emailOutlet.delegate = self
         mobileOutlet.delegate = self
         passwordOutlet.delegate = self
         
     }
-
+    
     
     //Keyboard Calls
     func addDismissKeyboard() {
@@ -408,13 +445,12 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
         view.addGestureRecognizer(dismissKeyboard)
         
     }
-    
     func dismissKeyboard() {
         
         view.endEditing(true)
         
     }
-
+    
     
     
     //Launch Calls
@@ -434,12 +470,12 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
         loadGif()
     }
     
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
-
+    
+    
 }
 

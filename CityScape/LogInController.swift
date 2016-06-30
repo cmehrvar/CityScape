@@ -9,6 +9,7 @@
 import UIKit
 import FLAnimatedImage
 import Firebase
+import FirebaseDatabase
 
 class LogInController: UIViewController {
     
@@ -39,7 +40,7 @@ class LogInController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         // Do any additional setup after loading the view.
     }
     
@@ -65,6 +66,27 @@ class LogInController: UIViewController {
         gifBackground.animatedImage = image
         
     }
+    
+    
+    
+    /*
+     var actualNumber: String = ""
+     
+     if let actualCharacters = self.mobileNumber.text?.characters {
+     
+     for char in actualCharacters {
+     
+     if char == "0" || char == "1" || char == "2" || char == "3" || char == "4" || char == "5" || char == "6" || char == "7" || char == "8" || char == "9" {
+     
+     actualNumber.append(char)
+     
+     }
+     }
+     }
+     
+     print(actualNumber)
+     */
+
 
     
 
