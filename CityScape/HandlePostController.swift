@@ -1,43 +1,41 @@
 //
-//  ForgotPasswordController.swift
+//  HandlePostController.swift
 //  CityScape
 //
-//  Created by Cina Mehrvar on 2016-06-23.
+//  Created by Cina Mehrvar on 2016-07-01.
 //  Copyright © 2016 Cina Mehrvar. All rights reserved.
 //
 
 import UIKit
-import FLAnimatedImage
 
-class ForgotPasswordController: UIViewController {
+class HandlePostController: UIViewController {
     
-    
-    //Outlets
-    @IBOutlet weak var gifImage: FLAnimatedImageView!
-
-    
-    
-    
-    //Functions
-    func loadGif() {
+    @IBAction func backButton(sender: AnyObject) {
         
-        guard let filePath: String = NSBundle.mainBundle().pathForResource("background", ofType: "gif") else {return}
-        let gifData: NSData = NSData.dataWithContentsOfMappedFile(filePath) as! NSData
-        let image: FLAnimatedImage = FLAnimatedImage.init(GIFData: gifData)
-        gifImage.animatedImage = image
+        let transition: CATransition = CATransition()
+        transition.duration = 0.3
+        transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+        transition.type = kCATransitionPush
+        transition.subtype = kCATransitionFromLeft
+        self.view.window?.layer.addAnimation((transition), forKey: nil)
+        let vc = self.storyboard?.instantiateViewControllerWithIdentifier("fusumaController") as! FusumaController
+        self.presentViewController(vc, animated: false) { 
+            vc.presentFusumaCamera()
+        }
+
+        
+        
         
     }
-    
-    //Launch Calls
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         // Do any additional setup after loading the view.
     }
     
     override func viewDidAppear(animated: Bool) {
-
-        loadGif()
+        
+        //dismissViewControllerAnimated(true, completion: nil)
         
     }
 

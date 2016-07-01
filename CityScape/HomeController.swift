@@ -7,9 +7,49 @@
 //
 
 import UIKit
+import Fusuma
 
 class HomeController: UIViewController {
 
+    weak var rootController: MainRootController?
+
+    //Outlets
+    @IBOutlet weak var closeMenuOutlet: UIView!
+    
+    
+    
+    @IBAction func gotToCamera(sender: AnyObject) {
+        
+        let vc = self.storyboard?.instantiateViewControllerWithIdentifier("fusumaController") as! FusumaController
+        vc.modalTransitionStyle = UIModalTransitionStyle.CrossDissolve
+        self.presentViewController(vc, animated: true) { 
+            vc.presentFusumaCamera()
+        }
+    }
+    
+        
+    
+    
+    
+    //Actions
+    @IBAction func closeMenu(sender: AnyObject) {
+        
+        rootController?.toggleMenu({ (complete) in
+            
+            print("menu toggled")
+            
+        })
+        
+    }
+    
+    @IBAction func toggleMenu(sender: AnyObject) {
+        
+        rootController?.toggleMenu({ (complete) in
+            
+            print("menu toggled")
+            
+        })
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
 

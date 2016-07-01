@@ -1,5 +1,5 @@
 //
-//  MenuController.swift
+//  InitialController.swift
 //  CityScape
 //
 //  Created by Cina Mehrvar on 2016-06-30.
@@ -8,30 +8,31 @@
 
 import UIKit
 import FBSDKLoginKit
+import FBSDKCoreKit
 import Firebase
 import FirebaseAuth
+import FirebaseDatabase
 
-class MenuController: UIViewController {
+class InitialController: UIViewController {
 
-    weak var rootController: MainRootController?
-    
-    @IBAction func logOut(sender: AnyObject) {
-        
-        FBSDKLoginManager().logOut()
-        
-        do {
-            try FIRAuth.auth()?.signOut()
-        } catch let error {
-            print(error)
-        }
-        
-        let vc = self.storyboard?.instantiateViewControllerWithIdentifier("initial") as! LogInController
-        presentViewController(vc, animated: true, completion: nil)
-        
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        FIRAuth.auth()?.addAuthStateDidChangeListener({ (auth, user) in
+            
+            if user != nil {
+                
+                let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
+                self.presentViewController(vc, animated: true, completion: nil)
+                
+            } else {
+                
+                FBSDKLoginManager().logOut()
+                let vc = self.storyboard?.instantiateViewControllerWithIdentifier("initial") as! LogInController
+                self.presentViewController(vc, animated: true, completion: nil)
+
+            }
+        })
 
         // Do any additional setup after loading the view.
     }

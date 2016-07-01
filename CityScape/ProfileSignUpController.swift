@@ -115,6 +115,12 @@ class ProfileSignUpController: UIViewController, UIImagePickerControllerDelegate
                             }
                         }
                     }
+                    
+                    let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
+                    vc.modalTransitionStyle = UIModalTransitionStyle.FlipHorizontal
+                    self.presentViewController(vc, animated: true, completion: nil)
+                    
+                    
                 } else {
                     
                     print(error)
@@ -172,6 +178,11 @@ class ProfileSignUpController: UIViewController, UIImagePickerControllerDelegate
                         }
                     }
                     
+                    let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
+                    vc.modalTransitionStyle = UIModalTransitionStyle.FlipHorizontal
+                    self.presentViewController(vc, animated: true, completion: nil)
+
+                    
                     
                 } else {
                     
@@ -194,7 +205,7 @@ class ProfileSignUpController: UIViewController, UIImagePickerControllerDelegate
             
             if let values = snapshot.value {
                 
-                for (key, value) in values as! [NSObject : String] {
+                for (_, value) in values as! [NSObject : String] {
                     
                     if credential == value {
                         

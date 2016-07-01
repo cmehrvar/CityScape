@@ -79,7 +79,7 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
             
             if let values = snapshot.value {
                 
-                for (key, value) in values as! [NSObject : String] {
+                for (_, value) in values as! [NSObject : String] {
                     
                     if credential == value {
                         
@@ -93,6 +93,7 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
             print("is taken: " + String(taken))
             
         })
+        
     }
     
     func loginButton(loginButton: FBSDKLoginButton!, didCompleteWithResult result: FBSDKLoginManagerLoginResult!, error: NSError!) {
@@ -101,44 +102,59 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
             
             print("good sign in")
             
-            
-            //CHECK TO SEE IF EMAIL TAKEN. IF SO, USER MUST HAVE AN ACCOUNT. SKIP NEXT STEP, LOG USER IN WITH FIREBASE AND GO STRAIGHT TO MAIN APP.
-            
-            let req = FBSDKGraphRequest(graphPath: "me", parameters: ["fields":"email, first_name, last_name"], tokenString: result.token.tokenString, version: nil, HTTPMethod: "GET")
-            
-            req.startWithCompletionHandler({ (connection, result, error) -> Void in
+            if FBSDKAccessToken.currentAccessToken() != nil {
                 
-                if error == nil {
+                //CHECK TO SEE IF EMAIL TAKEN. IF SO, USER MUST HAVE AN ACCOUNT. SKIP NEXT STEP, LOG USER IN WITH FIREBASE AND GO STRAIGHT TO MAIN APP.
+                
+                let req = FBSDKGraphRequest(graphPath: "me", parameters: ["fields":"email, first_name, last_name"], tokenString: result.token.tokenString, version: nil, HTTPMethod: "GET")
+                
+                req.startWithCompletionHandler({ (connection, result, error) -> Void in
                     
-                    print(result)
-                    
-                    self.checkIfTaken("takenEmails", credential: result["email"] as! String, completion: { (taken) in
+                    if error == nil {
                         
-                        if taken {
+                        if let email = result["email"] {
                             
-                            print("facebook account already signed up!")
-                            
-                            
-                            
+                            self.checkIfTaken("takenEmails", credential: email as! String, completion: { (taken) in
+                                
+                                if taken {
+                                    
+                                    print("facebook account already signed up!")
+                                    
+                                    let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
+                                    vc.modalTransitionStyle = UIModalTransitionStyle.FlipHorizontal
+                                    self.presentViewController(vc, animated: true, completion: nil)
+                                    
+                                    
+                                } else {
+                                    
+                                    let vc = self.storyboard?.instantiateViewControllerWithIdentifier("createProfile") as! ProfileSignUpController
+                                    vc.result = result as! [String:String]
+                                    vc.textFieldAlpha = 1
+                                    self.navigationController?.showViewController(vc, sender: self)
+                                    
+                                }
+                            })
                         } else {
-                            
-                            let vc = self.storyboard?.instantiateViewControllerWithIdentifier("createProfile") as! ProfileSignUpController
-                            vc.result = result as! [String:String]
-                            vc.textFieldAlpha = 1
-                            self.navigationController?.showViewController(vc, sender: self)
-                            
+                            print("error")
                         }
-                    })
+                        
+                        
+                    } else {
+                        print(error)
+                    }
                     
-                } else {
-                    print(error)
-                }
+                })
                 
-            })
-            
+            } else {
+                
+                FBSDKLoginManager().logOut()
+                
+            }
+
         } else {
             
             print("bad sign in")
+            print(error)
             
         }
     }
@@ -177,6 +193,7 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
                 
                 if textField.text == "" {
                     
+                    mobileValid = false
                     return
                     
                 }
@@ -241,6 +258,7 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
             
             if textField.text == "" {
                 
+                passwordValid = false
                 return
                 
             }
@@ -279,6 +297,7 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
             
             if textField.text == "" {
                 
+                emailValid = false
                 return
                 
             }
@@ -420,13 +439,6 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
         
     }
     
-    func textFieldDidBeginEditing(textField: UITextField) {
-        
-        if textField == emailOutlet {
-            print("Email Began Editting")
-        }
-    }
-    
     func textFieldDelegates() {
         
         facebookLogInOutlet.delegate = self
@@ -457,8 +469,7 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
     override func viewDidLoad() {
         super.viewDidLoad()
         nextButtonOutlet.enabled = false
-        
-        
+
         textFieldDelegates()
         addDismissKeyboard()
         
