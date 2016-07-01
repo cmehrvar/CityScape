@@ -18,9 +18,10 @@ class HandlePostController: UIViewController {
         transition.type = kCATransitionPush
         transition.subtype = kCATransitionFromLeft
         self.view.window?.layer.addAnimation((transition), forKey: nil)
-        let vc = self.storyboard?.instantiateViewControllerWithIdentifier("fusumaController") as! FusumaController
+        let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
+        vc.modalTransitionStyle = UIModalTransitionStyle.CrossDissolve
         self.presentViewController(vc, animated: false) { 
-            vc.presentFusumaCamera()
+            vc.homeController?.presentFusumaCamera()
         }
 
         

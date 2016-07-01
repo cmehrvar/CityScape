@@ -27,7 +27,6 @@
 		A3BB982D1D1C5DC200BD384F /* ForgotPasswordController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BB982C1D1C5DC200BD384F /* ForgotPasswordController.swift */; };
 		A3BB982F1D1C8E2600BD384F /* ProfilePictureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BB982E1D1C8E2600BD384F /* ProfilePictureView.swift */; };
 		A3D119731D262290009D7EAB /* HandlePostController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3D119721D262290009D7EAB /* HandlePostController.swift */; };
-		A3D119751D262B36009D7EAB /* FusumaController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3D119741D262B36009D7EAB /* FusumaController.swift */; };
 		A3E1388E1D25B57E002A5031 /* MainRootController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E1388D1D25B57E002A5031 /* MainRootController.swift */; };
 		A3E138901D25B592002A5031 /* HomeController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E1388F1D25B592002A5031 /* HomeController.swift */; };
 		A3E138921D25B5A0002A5031 /* MenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E138911D25B5A0002A5031 /* MenuController.swift */; };
@@ -77,7 +76,6 @@
 		A3BB982C1D1C5DC200BD384F /* ForgotPasswordController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForgotPasswordController.swift; sourceTree = "<group>"; };
 		A3BB982E1D1C8E2600BD384F /* ProfilePictureView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfilePictureView.swift; sourceTree = "<group>"; };
 		A3D119721D262290009D7EAB /* HandlePostController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HandlePostController.swift; sourceTree = "<group>"; };
-		A3D119741D262B36009D7EAB /* FusumaController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FusumaController.swift; sourceTree = "<group>"; };
 		A3E1388D1D25B57E002A5031 /* MainRootController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainRootController.swift; sourceTree = "<group>"; };
 		A3E1388F1D25B592002A5031 /* HomeController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeController.swift; sourceTree = "<group>"; };
 		A3E138911D25B5A0002A5031 /* MenuController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MenuController.swift; sourceTree = "<group>"; };
@@ -243,7 +241,6 @@
 				A3E138911D25B5A0002A5031 /* MenuController.swift */,
 				A3E138931D25B5B3002A5031 /* CameraController.swift */,
 				A3D119721D262290009D7EAB /* HandlePostController.swift */,
-				A3D119741D262B36009D7EAB /* FusumaController.swift */,
 			);
 			name = MainApp;
 			sourceTree = "<group>";
@@ -437,7 +434,6 @@
 				A3E1388E1D25B57E002A5031 /* MainRootController.swift in Sources */,
 				A3D119731D262290009D7EAB /* HandlePostController.swift in Sources */,
 				A353F0CE1D1224BC009A2182 /* SignUpController.swift in Sources */,
-				A3D119751D262B36009D7EAB /* FusumaController.swift in Sources */,
 				A3E138901D25B592002A5031 /* HomeController.swift in Sources */,
 				A3BB982F1D1C8E2600BD384F /* ProfilePictureView.swift in Sources */,
 				A3E138921D25B5A0002A5031 /* MenuController.swift in Sources */,
