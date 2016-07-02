@@ -47,7 +47,7 @@ class ProfileSignUpController: UIViewController, UIImagePickerControllerDelegate
     @IBOutlet weak var downPicker: UITextField!
     @IBOutlet weak var firstName: UITextField!
     @IBOutlet weak var lastName: UITextField!
-    @IBOutlet weak var profilePicture: ProfilePictureView!
+    @IBOutlet weak var profilePicture: UIImageView!
     @IBOutlet weak var mobileNumber: UITextField!
     @IBOutlet weak var mobileField: TextFields!
     @IBOutlet weak var mobileCheckerImage: UIImageView!

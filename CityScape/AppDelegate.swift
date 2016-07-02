@@ -34,6 +34,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         AdobeUXAuthManager.sharedManager().setAuthenticationParametersWithClientID(CLIENT_ID, withClientSecret: CLIENT_SECRET)
         
+        application.statusBarHidden = true
+        
         // Override point for customization after application launch.
         return true
     }

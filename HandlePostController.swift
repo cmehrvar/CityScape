@@ -24,12 +24,14 @@ class HandlePostController: UIViewController, AdobeUXImageEditorViewControllerDe
     var videoURL: NSURL!
     var exportedVideoURL: NSURL!
     
+    
     //Outlets
     @IBOutlet weak var imageOutlet: UIImageView!
     @IBOutlet weak var videoOutlet: UIView!
     @IBOutlet weak var caption: UITextField!
     @IBOutlet weak var shareOutlet: UIBarButtonItem!
     @IBOutlet weak var uploadingViewOutlet: UIView!
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     
     //Player Delegates
@@ -264,7 +266,6 @@ class HandlePostController: UIViewController, AdobeUXImageEditorViewControllerDe
                         
                         let userData = snapshot.value as! [NSObject:AnyObject]
                         let currentDate = NSDate().timeIntervalSince1970
-                        print(snapshot.value)
                         
                         let firstName: AnyObject! = userData["firstName"]
                         let lastName: AnyObject! = userData["lastName"]
@@ -284,20 +285,10 @@ class HandlePostController: UIViewController, AdobeUXImageEditorViewControllerDe
                         
                         let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
                         self.presentViewController(vc, animated: true, completion: nil)
-
-                        
-                        
                 
                     })
-                    
-                    
-                    
                 }
-                
-                
-                
-                
-                
+
             } else {
                 
                 print("error uploading: \(task.error)")

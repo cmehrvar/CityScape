@@ -25,7 +25,10 @@
 		A3BB98291D1B63D800BD384F /* ProfileSignUpController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BB98281D1B63D800BD384F /* ProfileSignUpController.swift */; };
 		A3BB982B1D1C5ACD00BD384F /* SignInController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BB982A1D1C5ACD00BD384F /* SignInController.swift */; };
 		A3BB982D1D1C5DC200BD384F /* ForgotPasswordController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BB982C1D1C5DC200BD384F /* ForgotPasswordController.swift */; };
-		A3BB982F1D1C8E2600BD384F /* ProfilePictureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BB982E1D1C8E2600BD384F /* ProfilePictureView.swift */; };
+		A3CA895C1D283B9C00590516 /* ImageContentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3CA895B1D283B9C00590516 /* ImageContentCell.swift */; };
+		A3CA895E1D283BAD00590516 /* VideoContentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3CA895D1D283BAD00590516 /* VideoContentCell.swift */; };
+		A3CA89601D28445500590516 /* SignUpProfilePic.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3CA895F1D28445500590516 /* SignUpProfilePic.swift */; };
+		A3CA89621D284AB200590516 /* TableViewProfilePic.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3CA89611D284AB200590516 /* TableViewProfilePic.swift */; };
 		A3D119731D262290009D7EAB /* HandlePostController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3D119721D262290009D7EAB /* HandlePostController.swift */; };
 		A3D119771D26F0AA009D7EAB /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A3D119761D26F0AA009D7EAB /* MobileCoreServices.framework */; };
 		A3D119791D26F0B0009D7EAB /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A3D119781D26F0B0009D7EAB /* SystemConfiguration.framework */; };
@@ -81,7 +84,10 @@
 		A3BB98281D1B63D800BD384F /* ProfileSignUpController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileSignUpController.swift; sourceTree = "<group>"; };
 		A3BB982A1D1C5ACD00BD384F /* SignInController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignInController.swift; sourceTree = "<group>"; };
 		A3BB982C1D1C5DC200BD384F /* ForgotPasswordController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForgotPasswordController.swift; sourceTree = "<group>"; };
-		A3BB982E1D1C8E2600BD384F /* ProfilePictureView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfilePictureView.swift; sourceTree = "<group>"; };
+		A3CA895B1D283B9C00590516 /* ImageContentCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageContentCell.swift; sourceTree = "<group>"; };
+		A3CA895D1D283BAD00590516 /* VideoContentCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoContentCell.swift; sourceTree = "<group>"; };
+		A3CA895F1D28445500590516 /* SignUpProfilePic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignUpProfilePic.swift; sourceTree = "<group>"; };
+		A3CA89611D284AB200590516 /* TableViewProfilePic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TableViewProfilePic.swift; sourceTree = "<group>"; };
 		A3D119721D262290009D7EAB /* HandlePostController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HandlePostController.swift; sourceTree = "<group>"; };
 		A3D119761D26F0AA009D7EAB /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		A3D119781D26F0B0009D7EAB /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
@@ -156,6 +162,7 @@
 		A353F0BF1D1224BC009A2182 = {
 			isa = PBXGroup;
 			children = (
+				A3CA89581D283B4A00590516 /* Table View Cells */,
 				A3D1198A1D271472009D7EAB /* Adobe Frameworks */,
 				A3BB98171D12E66E00BD384F /* Views */,
 				A3BB98161D12E65300BD384F /* ViewControllers */,
@@ -243,9 +250,19 @@
 			children = (
 				A3BB98181D12E67E00BD384F /* TextFields.swift */,
 				A3BB981A1D12E89E00BD384F /* ExploreButton.swift */,
-				A3BB982E1D1C8E2600BD384F /* ProfilePictureView.swift */,
+				A3CA895F1D28445500590516 /* SignUpProfilePic.swift */,
+				A3CA89611D284AB200590516 /* TableViewProfilePic.swift */,
 			);
 			name = Views;
+			sourceTree = "<group>";
+		};
+		A3CA89581D283B4A00590516 /* Table View Cells */ = {
+			isa = PBXGroup;
+			children = (
+				A3CA895B1D283B9C00590516 /* ImageContentCell.swift */,
+				A3CA895D1D283BAD00590516 /* VideoContentCell.swift */,
+			);
+			name = "Table View Cells";
 			sourceTree = "<group>";
 		};
 		A3D1198A1D271472009D7EAB /* Adobe Frameworks */ = {
@@ -473,14 +490,17 @@
 				A3E1388E1D25B57E002A5031 /* MainRootController.swift in Sources */,
 				A3D119731D262290009D7EAB /* HandlePostController.swift in Sources */,
 				A353F0CE1D1224BC009A2182 /* SignUpController.swift in Sources */,
+				A3CA895E1D283BAD00590516 /* VideoContentCell.swift in Sources */,
 				A3E138901D25B592002A5031 /* HomeController.swift in Sources */,
-				A3BB982F1D1C8E2600BD384F /* ProfilePictureView.swift in Sources */,
 				A3E138921D25B5A0002A5031 /* MenuController.swift in Sources */,
 				A3BB982D1D1C5DC200BD384F /* ForgotPasswordController.swift in Sources */,
 				A3BB981B1D12E89E00BD384F /* ExploreButton.swift in Sources */,
 				A3BB981D1D136CB600BD384F /* LogInController.swift in Sources */,
 				A3E138961D25C937002A5031 /* InitialController.swift in Sources */,
 				A353F0CC1D1224BC009A2182 /* AppDelegate.swift in Sources */,
+				A3CA89601D28445500590516 /* SignUpProfilePic.swift in Sources */,
+				A3CA895C1D283B9C00590516 /* ImageContentCell.swift in Sources */,
+				A3CA89621D284AB200590516 /* TableViewProfilePic.swift in Sources */,
 				A3BB982B1D1C5ACD00BD384F /* SignInController.swift in Sources */,
 				A3BB98291D1B63D800BD384F /* ProfileSignUpController.swift in Sources */,
 				A3BB98191D12E67E00BD384F /* TextFields.swift in Sources */,

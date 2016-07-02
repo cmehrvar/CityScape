@@ -14,12 +14,48 @@ import FirebaseAuth
 import FirebaseDatabase
 
 
-class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewControllerDelegate {
+class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewControllerDelegate, UITableViewDataSource, UITableViewDelegate {
     
     weak var rootController: MainRootController?
     
+    //Outlets
+    @IBOutlet weak var closeMenuOutlet: UIView!
+    @IBOutlet weak var transitionToFusumaOutlet: UIView!
     
-    //AdobeDelegate
+    
+    //Actions
+    @IBAction func closeMenu(sender: AnyObject) {
+        
+        rootController?.toggleMenu({ (complete) in
+            
+            print("menu toggled")
+            
+        })
+        
+    }
+    
+    @IBAction func toggleMenu(sender: AnyObject) {
+        
+        rootController?.toggleMenu({ (complete) in
+            
+            print("menu toggled")
+            
+        })
+    }
+    
+    
+    @IBAction func gotToCamera(sender: AnyObject) {
+        
+        presentFusumaCamera()
+        
+        
+    }
+
+    
+    // DELEGATES //
+    
+    
+    //Adobe Delegates
     func photoEditor(editor: AdobeUXImageEditorViewController, finishedWithImage image: UIImage?) {
         
         let transition: CATransition = CATransition()
@@ -54,43 +90,7 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         
     }
     
-    
-    //Outlets
-    @IBOutlet weak var closeMenuOutlet: UIView!
-    
-    
-    //Actions
-    @IBAction func closeMenu(sender: AnyObject) {
-        
-        rootController?.toggleMenu({ (complete) in
-            
-            print("menu toggled")
-            
-        })
-        
-    }
-    
-    @IBAction func toggleMenu(sender: AnyObject) {
-        
-        rootController?.toggleMenu({ (complete) in
-            
-            print("menu toggled")
-            
-        })
-    }
-    
-    
-    @IBAction func gotToCamera(sender: AnyObject) {
-        
-        presentFusumaCamera()
-        
-        
-    }
-    
-    
-    
-    
-    //Fusuma Functions
+    //Fusuma Delegates
     func fusumaImageSelected(image: UIImage) {
         
         print("image selected")
@@ -112,8 +112,10 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         
         let editorController = AdobeUXImageEditorViewController(image: image)
         editorController.delegate = self
-        self.presentViewController(editorController, animated: false, completion: nil)
         
+        self.presentViewController(editorController, animated: false) { 
+            self.transitionToFusumaOutlet.alpha = 0
+        }
     }
     
     func fusumaVideoCompleted(withFileURL fileURL: NSURL) {
@@ -128,7 +130,10 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         let vc = navVc.viewControllers.first as! HandlePostController
         vc.videoURL = fileURL
         vc.isImage = false
-        self.presentViewController(navVc, animated: false, completion: nil)
+        
+        self.presentViewController(navVc, animated: false) {
+            self.transitionToFusumaOutlet.alpha = 0
+        }
         print("fusuma video completed")
         
         
@@ -136,13 +141,17 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
     
     func fusumaCameraRollUnauthorized() {
         
+        let alertController = UIAlertController(title: "Sorry", message: "Camera not authorized", preferredStyle:  UIAlertControllerStyle.Alert)
+        alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Cancel, handler: nil))
+        self.presentViewController(alertController, animated: true, completion: nil)
+
         print("camera unauthorized")
         
     }
     
     func fusumaClosed() {
         
-        
+        transitionToFusumaOutlet.alpha = 0
         
     }
     
@@ -153,10 +162,32 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         fusuma.delegate = self
         fusuma.hasVideo = true
         fusuma.modalTransitionStyle = UIModalTransitionStyle.CrossDissolve
-        presentViewController(fusuma, animated: true, completion: nil)
+        
+        presentViewController(fusuma, animated: true) { 
+            self.transitionToFusumaOutlet.alpha = 1
+        }
     }
     
     
+    
+    //TableView Delegates
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        
+        tableView.allowsSelection = false
+        
+        let cell = tableView.dequeueReusableCellWithIdentifier("imageCell") as! ImageContentCell
+        
+        
+        return cell
+    }
+    
+    
+    
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
+        
+        return 1
+    }
     
     
     
