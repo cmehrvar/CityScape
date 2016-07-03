@@ -118,7 +118,10 @@ class ProfileSignUpController: UIViewController, UIImagePickerControllerDelegate
                     
                     let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
                     vc.modalTransitionStyle = UIModalTransitionStyle.FlipHorizontal
-                    self.presentViewController(vc, animated: true, completion: nil)
+                    
+                    self.presentViewController(vc, animated: true, completion: {
+                        vc.homeController?.getFirebaseData()
+                    })
                     
                     
                 } else {
@@ -149,7 +152,7 @@ class ProfileSignUpController: UIViewController, UIImagePickerControllerDelegate
                                 
                                 ref.child("takenEmails").childByAutoId().setValue(actualEmail)
                                 ref.child("takenNumbers").childByAutoId().setValue(actualNumber)
-
+                                
                                 if let email = self.result["email"] {
                                     
                                     user?.updateEmail(email, completion: { (error) in
@@ -180,8 +183,10 @@ class ProfileSignUpController: UIViewController, UIImagePickerControllerDelegate
                     
                     let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
                     vc.modalTransitionStyle = UIModalTransitionStyle.FlipHorizontal
-                    self.presentViewController(vc, animated: true, completion: nil)
-
+                    
+                    self.presentViewController(vc, animated: true, completion: {
+                        vc.homeController?.getFirebaseData()
+                    })
                     
                     
                 } else {
@@ -276,13 +281,13 @@ class ProfileSignUpController: UIViewController, UIImagePickerControllerDelegate
         let error = NSErrorPointer()
         
         
-         do{
-         try NSFileManager.defaultManager().createDirectoryAtURL(NSURL(fileURLWithPath: NSTemporaryDirectory()).URLByAppendingPathComponent("upload"), withIntermediateDirectories: true, attributes: nil)
-         } catch let error1 as NSError {
-         error.memory = error1
-         print("Creating upload directory failed. Error: \(error)")
-         }
-         
+        do{
+            try NSFileManager.defaultManager().createDirectoryAtURL(NSURL(fileURLWithPath: NSTemporaryDirectory()).URLByAppendingPathComponent("upload"), withIntermediateDirectories: true, attributes: nil)
+        } catch let error1 as NSError {
+            error.memory = error1
+            print("Creating upload directory failed. Error: \(error)")
+        }
+        
     }
     
     
@@ -363,7 +368,7 @@ class ProfileSignUpController: UIViewController, UIImagePickerControllerDelegate
                             self.mobileCheckerImage.image = UIImage(named: "Checkmark")
                             
                             self.mobileValid = true
-
+                            
                         }
                     })
                 }

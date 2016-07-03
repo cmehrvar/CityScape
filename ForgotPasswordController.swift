@@ -8,14 +8,56 @@
 
 import UIKit
 import FLAnimatedImage
+import Firebase
+import FirebaseAuth
 
-class ForgotPasswordController: UIViewController {
+class ForgotPasswordController: UIViewController, UITextFieldDelegate {
+    
+    //GlobalVariables
+    var emailValid = false
+    var email = String()
     
     
     //Outlets
     @IBOutlet weak var gifImage: FLAnimatedImageView!
-
+    @IBOutlet weak var emailOutlet: UITextField!
+    @IBOutlet weak var resetPasswordOutlet: UIButton!
+    @IBOutlet weak var emailChecker: UIImageView!
     
+    
+    
+    
+    //Actions
+    @IBAction func resetPassword(sender: AnyObject) {
+        
+        if let email = emailOutlet.text {
+            
+            FIRAuth.auth()?.sendPasswordResetWithEmail(email, completion: { (error) in
+                
+                if error == nil {
+                    
+                    let alertController = UIAlertController(title: "Password Reset", message: "A password reset email has been sent", preferredStyle: .Alert)
+                    alertController.addAction(UIAlertAction(title: "Ok", style: .Cancel, handler: { (action) in
+                        
+                        let vc = self.storyboard?.instantiateViewControllerWithIdentifier("initial") as! LogInController
+                        self.presentViewController(vc, animated: true, completion: nil)
+                        
+                        
+                    }))
+                    
+                    self.presentViewController(alertController, animated: true, completion: nil)
+                    
+                } else {
+                    
+                    let alertController = UIAlertController(title: "Sorry", message: error?.localizedDescription, preferredStyle: .Alert)
+                    alertController.addAction(UIAlertAction(title: "Ok", style: .Cancel, handler: nil))
+                    self.presentViewController(alertController, animated: true, completion: nil)
+
+                    
+                }
+            })
+        }
+    }
     
     
     //Functions
@@ -28,33 +70,161 @@ class ForgotPasswordController: UIViewController {
         
     }
     
+    func isValidEmail(testStr: String) -> Bool {
+        
+        let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
+        let emailTest = NSPredicate(format: "SELF MATCHES %@", emailRegEx)
+        return emailTest.evaluateWithObject(testStr)
+        
+    }
+    
+    func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
+        
+        if textField == emailOutlet {
+            
+            if let emailToCheck = textField.text {
+                
+                if isValidEmail(emailToCheck) {
+                    
+                    self.emailChecker.image = UIImage(named: "Checkmark")
+                    
+                    emailValid = true
+                    
+                } else {
+                    
+                    emailChecker.image = UIImage(named: "RedX")
+                    
+                    emailValid = false
+                    
+                    print("Bad Email")
+                    
+                }
+            }
+            
+        }
+        
+        if emailValid {
+            
+            resetPasswordOutlet.enabled = true
+            
+        } else {
+            
+            resetPasswordOutlet.enabled = false
+            
+        }
+        
+        return true
+    }
+    
+    func textFieldDidEndEditing(textField: UITextField) {
+        
+        
+        if textField == emailOutlet {
+            
+            if textField.text == "" {
+                
+                return
+                
+            }
+            
+            
+            if let emailToCheck = textField.text {
+                
+                if isValidEmail(emailToCheck) {
+                    
+                    self.emailChecker.image = UIImage(named: "Checkmark")
+                    
+                    emailValid = true
+                    
+                } else {
+                    
+                    emailChecker.image = UIImage(named: "RedX")
+                    
+                    let alertController = UIAlertController(title: "Hey", message: "Please Enter a Valid Email", preferredStyle:  UIAlertControllerStyle.Alert)
+                    
+                    alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
+                        
+                        self.emailOutlet.becomeFirstResponder()
+                        
+                        
+                    }))
+                    
+                    self.presentViewController(alertController, animated: true, completion: nil)
+                    
+                    emailValid = false
+                    
+                    print("Bad Email")
+                    
+                }
+            }
+            
+        }
+        
+        if emailValid {
+            
+            resetPasswordOutlet.enabled = true
+            
+        } else {
+            
+            resetPasswordOutlet.enabled = false
+            
+        }
+        
+    }
+    
+    func addDismissKeyboard() {
+        
+        let dismissKeyboard: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "dismissKeyboard")
+        view.addGestureRecognizer(dismissKeyboard)
+        
+    }
+    
+    func dismissKeyboard() {
+        
+        view.endEditing(true)
+        
+    }
+    
+    func handleOutlets(){
+        
+        emailOutlet.text = email
+        emailOutlet.delegate = self
+        resetPasswordOutlet.enabled = emailValid
+        resetPasswordOutlet.setTitleColor(UIColor.blueColor(), forState: .Normal)
+        resetPasswordOutlet.setTitleColor(UIColor.grayColor(), forState: .Disabled)
+        
+    }
+    
+    
     //Launch Calls
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        addDismissKeyboard()
+        handleOutlets()
         // Do any additional setup after loading the view.
     }
     
     override func viewDidAppear(animated: Bool) {
-
+        
         loadGif()
         
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     
-
+    
     /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
+     // MARK: - Navigation
+     
+     // In a storyboard-based application, you will often want to do a little preparation before navigation
+     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+     // Get the new view controller using segue.destinationViewController.
+     // Pass the selected object to the new view controller.
+     }
+     */
+    
 }

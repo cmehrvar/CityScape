@@ -124,6 +124,7 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         editor.view.window?.layer.addAnimation((transition), forKey: nil)
 
         editor.dismissViewControllerAnimated(false) {
+            self.transitionToFusumaOutlet.alpha = 1
             self.presentFusumaCamera()
         }
         print("photo editor cancelled")
@@ -153,9 +154,8 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         let editorController = AdobeUXImageEditorViewController(image: image)
         editorController.delegate = self
         
-        self.presentViewController(editorController, animated: false) { 
-            self.transitionToFusumaOutlet.alpha = 0
-        }
+        self.presentViewController(editorController, animated: false, completion: nil)
+        
     }
     
     func fusumaVideoCompleted(withFileURL fileURL: NSURL) {

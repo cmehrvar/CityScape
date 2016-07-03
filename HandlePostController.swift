@@ -76,6 +76,8 @@ class HandlePostController: UIViewController, AdobeUXImageEditorViewControllerDe
         
         let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
         editor.presentViewController(vc, animated: false) {
+            vc.homeController?.getFirebaseData()
+            vc.homeController?.transitionToFusumaOutlet.alpha = 1
             vc.homeController?.presentFusumaCamera()
         }
         
@@ -121,6 +123,8 @@ class HandlePostController: UIViewController, AdobeUXImageEditorViewControllerDe
             
             let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
             self.presentViewController(vc, animated: false) {
+                vc.homeController?.getFirebaseData()
+                vc.homeController?.transitionToFusumaOutlet.alpha = 1
                 vc.homeController?.presentFusumaCamera()
             }
         }
@@ -202,12 +206,7 @@ class HandlePostController: UIViewController, AdobeUXImageEditorViewControllerDe
                 
                 
             })
-            
-            
-            
         }
-        
-        
     }
     
     
@@ -284,8 +283,12 @@ class HandlePostController: UIViewController, AdobeUXImageEditorViewControllerDe
                         ref.child("users").child(userUID).child("posts").child(userPostChildKey).updateChildValues(postData)
                         
                         let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
-                        self.presentViewController(vc, animated: true, completion: nil)
-                
+                        
+                        self.presentViewController(vc, animated: true, completion: {
+                            
+                            vc.homeController?.getFirebaseData()
+                            
+                        })
                     })
                 }
 
@@ -294,8 +297,7 @@ class HandlePostController: UIViewController, AdobeUXImageEditorViewControllerDe
                 print("error uploading: \(task.error)")
                 
                 let alertController = UIAlertController(title: "Whoops", message: "Error Uploading", preferredStyle: UIAlertControllerStyle.Alert)
-                
-                
+
                 alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Cancel, handler: { (action) in
                     
                     UIView.animateWithDuration(0.3, animations: {
@@ -303,20 +305,10 @@ class HandlePostController: UIViewController, AdobeUXImageEditorViewControllerDe
                     })
                     
                 }))
-                
-                
-                
+
                 self.presentViewController(alertController, animated: true, completion: nil)
                 
-                
-                
-                
-                
-                
-                
-                
             }
-            
             
             dispatch_async(dispatch_get_main_queue(), {
                 self.shareOutlet.enabled = true
@@ -324,11 +316,6 @@ class HandlePostController: UIViewController, AdobeUXImageEditorViewControllerDe
             
             return nil
         })
-        
-        
-        
-        
-        
     }
     
     

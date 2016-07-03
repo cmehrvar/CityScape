@@ -23,7 +23,14 @@ class InitialController: UIViewController {
             if user != nil {
                 
                 let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
-                self.presentViewController(vc, animated: true, completion: nil)
+                
+                self.presentViewController(vc, animated: true, completion: {
+                    
+                    vc.homeController?.getFirebaseData()
+                    
+                    
+                })
+                
                 
             } else {
                 
