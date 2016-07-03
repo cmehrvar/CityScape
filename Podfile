@@ -20,7 +20,6 @@ pod ‘Firebase/Auth’
 pod ‘Fusuma’
 pod ‘Player’
 
-
 end
 
 target 'CityScapeTests' do

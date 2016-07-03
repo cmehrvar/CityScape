@@ -258,12 +258,12 @@ class HandlePostController: UIViewController, AdobeUXImageEditorViewControllerDe
                         var captionVar = String()
                         
                         if let key = request.key, actualCaption = self.caption.text {
-                            captionVar = actualCaption
+                            
+                            captionVar = "\"" + actualCaption + "\""
                             contentURL = "https://s3.amazonaws.com/cityscapebucket/" + key
                             
                         }
-                        
-                        
+
                         let userData = snapshot.value as! [NSObject:AnyObject]
                         let currentDate = NSDate().timeIntervalSince1970
                         

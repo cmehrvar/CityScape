@@ -13,14 +13,23 @@ import Firebase
 import FirebaseAuth
 import FirebaseDatabase
 
-
 class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewControllerDelegate, UITableViewDataSource, UITableViewDelegate {
     
     weak var rootController: MainRootController?
     
+    //Variables
+    var data = [[NSObject:AnyObject]]()
+    
+    @IBAction func chatAction(sender: AnyObject) {
+        
+        getFirebaseData()
+        
+    }
+    
     //Outlets
     @IBOutlet weak var closeMenuOutlet: UIView!
     @IBOutlet weak var transitionToFusumaOutlet: UIView!
+    @IBOutlet weak var tableView: UITableView!
     
     
     //Actions
@@ -50,6 +59,37 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         
         
     }
+    
+    
+    //Functions
+    func getFirebaseData() {
+        
+        let ref = FIRDatabase.database().reference().child("posts")
+        
+        var funcData = [[NSObject:AnyObject]]()
+        
+        ref.queryLimitedToLast(100).observeEventType(.Value, withBlock: { (snapshot) in
+            
+            print("children count:")
+            print(snapshot.childrenCount)
+
+            for rest in snapshot.children.allObjects as! [FIRDataSnapshot] {
+                
+                
+                if let value = rest.value as? [NSObject:AnyObject] {
+                    
+                   funcData.insert(value, atIndex: 0)
+                    
+                }
+            }
+
+            self.data = funcData
+            self.tableView.reloadData()
+
+        })
+    }
+    
+    
 
     
     // DELEGATES //
@@ -154,8 +194,7 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         transitionToFusumaOutlet.alpha = 0
         
     }
-    
-    
+
     func presentFusumaCamera(){
         
         let fusuma = FusumaViewController()
@@ -174,30 +213,37 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
         tableView.allowsSelection = false
+
+        if data[indexPath.row]["isImage"] as! Bool == true {
+            
+            let cell = tableView.dequeueReusableCellWithIdentifier("imageCell") as! ImageContentCell
+            cell.data = data[indexPath.row]
+            cell.loadData()
+            return cell
+            
+        } else {
+            
+            let cell = tableView.dequeueReusableCellWithIdentifier("videoCell") as! VideoContentCell
+            cell.data = data[indexPath.row]
+            cell.loadData()
+            cell.vc = self
+            return cell
+            
+        }
         
-        let cell = tableView.dequeueReusableCellWithIdentifier("imageCell") as! ImageContentCell
-        
-        
-        return cell
     }
     
     
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        
-        
-        return 1
+
+        return data.count
     }
-    
-    
-    
-    
-    
-    
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+       
         // Do any additional setup after loading the view.
     }
     
