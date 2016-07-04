@@ -19,6 +19,7 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
     
     //Variables
     var data = [[NSObject:AnyObject]]()
+    var hasLikedArray = [Bool]()
     
     @IBAction func chatAction(sender: AnyObject) {
         
@@ -30,6 +31,8 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
     @IBOutlet weak var closeMenuOutlet: UIView!
     @IBOutlet weak var transitionToFusumaOutlet: UIView!
     @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var likeViewOutlet: UIView!
+    @IBOutlet weak var dislikeViewOutlet: UIView!
     
     
     //Actions
@@ -40,7 +43,6 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
             print("menu toggled")
             
         })
-        
     }
     
     @IBAction func toggleMenu(sender: AnyObject) {
@@ -67,6 +69,7 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         let ref = FIRDatabase.database().reference().child("posts")
         
         var funcData = [[NSObject:AnyObject]]()
+        var hasLikedData = [Bool]()
         
         ref.queryLimitedToLast(100).observeEventType(.Value, withBlock: { (snapshot) in
             
@@ -75,15 +78,35 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
 
             for rest in snapshot.children.allObjects as! [FIRDataSnapshot] {
                 
-                
                 if let value = rest.value as? [NSObject:AnyObject] {
                     
-                   funcData.insert(value, atIndex: 0)
+                    if let hasLiked = value["hasLiked"] as? [String:Bool] {
+                        
+                        var liked = false
+                        
+                        for (key, _) in hasLiked {
+                            
+                            if key == FIRAuth.auth()?.currentUser?.uid {
+                                
+                                liked = true
+                                
+                            }
+                        }
+                        
+                        hasLikedData.insert(liked, atIndex: 0)
+                        
+                    } else {
+                        
+                        hasLikedData.insert(false, atIndex: 0)
+                        
+                    }
                     
+                    funcData.insert(value, atIndex: 0)
                 }
             }
 
             self.data = funcData
+            self.hasLikedArray = hasLikedData
             self.tableView.reloadData()
 
         })
@@ -215,21 +238,27 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         tableView.allowsSelection = false
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.estimatedRowHeight = 44.0
+        
+        print(hasLikedArray[indexPath.row])
 
         if data[indexPath.row]["isImage"] as! Bool == true {
             
             let cell = tableView.dequeueReusableCellWithIdentifier("imageCell") as! ImageContentCell
             cell.data = data[indexPath.row]
+            cell.hasLiked = hasLikedArray[indexPath.row]
+            cell.homeController = self
             cell.loadData()
             return cell
-            
-        } else {
 
+        } else {
+            
             let cell = tableView.dequeueReusableCellWithIdentifier("videoCell") as! VideoContentCell
             cell.data = data[indexPath.row]
+            cell.hasLiked = hasLikedArray[indexPath.row]
             cell.loadData()
             cell.vc = self
             return cell
+            
         }
         
     }

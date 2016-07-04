@@ -19,6 +19,7 @@
 		A353F0FB1D1226D3009A2182 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A353F0F91D1226D3009A2182 /* GoogleService-Info.plist */; };
 		A353F0FC1D1226D3009A2182 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A353F0F91D1226D3009A2182 /* GoogleService-Info.plist */; };
 		A353F0FF1D122B63009A2182 /* background.gif in Resources */ = {isa = PBXBuildFile; fileRef = A353F0FE1D122B63009A2182 /* background.gif */; };
+		A37AC1C11D2A19FD00EBF813 /* LikeOrDislikeDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = A37AC1C01D2A19FD00EBF813 /* LikeOrDislikeDisplay.swift */; };
 		A3BB98191D12E67E00BD384F /* TextFields.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BB98181D12E67E00BD384F /* TextFields.swift */; };
 		A3BB981B1D12E89E00BD384F /* ExploreButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BB981A1D12E89E00BD384F /* ExploreButton.swift */; };
 		A3BB981D1D136CB600BD384F /* LogInController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BB981C1D136CB600BD384F /* LogInController.swift */; };
@@ -78,6 +79,7 @@
 		A353F0ED1D1224BC009A2182 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A353F0F91D1226D3009A2182 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "CityScape/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		A353F0FE1D122B63009A2182 /* background.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = background.gif; sourceTree = "<group>"; };
+		A37AC1C01D2A19FD00EBF813 /* LikeOrDislikeDisplay.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LikeOrDislikeDisplay.swift; sourceTree = "<group>"; };
 		A3BB98181D12E67E00BD384F /* TextFields.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextFields.swift; sourceTree = "<group>"; };
 		A3BB981A1D12E89E00BD384F /* ExploreButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExploreButton.swift; sourceTree = "<group>"; };
 		A3BB981C1D136CB600BD384F /* LogInController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogInController.swift; sourceTree = "<group>"; };
@@ -252,6 +254,7 @@
 				A3BB981A1D12E89E00BD384F /* ExploreButton.swift */,
 				A3CA895F1D28445500590516 /* SignUpProfilePic.swift */,
 				A3CA89611D284AB200590516 /* TableViewProfilePic.swift */,
+				A37AC1C01D2A19FD00EBF813 /* LikeOrDislikeDisplay.swift */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -493,6 +496,7 @@
 				A3CA895E1D283BAD00590516 /* VideoContentCell.swift in Sources */,
 				A3E138901D25B592002A5031 /* HomeController.swift in Sources */,
 				A3E138921D25B5A0002A5031 /* MenuController.swift in Sources */,
+				A37AC1C11D2A19FD00EBF813 /* LikeOrDislikeDisplay.swift in Sources */,
 				A3BB982D1D1C5DC200BD384F /* ForgotPasswordController.swift in Sources */,
 				A3BB981B1D12E89E00BD384F /* ExploreButton.swift in Sources */,
 				A3BB981D1D136CB600BD384F /* LogInController.swift in Sources */,

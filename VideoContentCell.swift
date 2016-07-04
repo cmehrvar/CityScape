@@ -10,6 +10,9 @@ import UIKit
 import SDWebImage
 import AVFoundation
 import Player
+import Firebase
+import FirebaseDatabase
+import FirebaseAuth
 
 class VideoContentCell: UITableViewCell, PlayerDelegate {
     
@@ -17,6 +20,7 @@ class VideoContentCell: UITableViewCell, PlayerDelegate {
     //Variables
     var data: [NSObject : AnyObject]!
     var vc: HomeController!
+    var hasLiked = false
     
 
     //Outlets
@@ -33,33 +37,35 @@ class VideoContentCell: UITableViewCell, PlayerDelegate {
     @IBOutlet weak var commentName2Outlet: UILabel!
     @IBOutlet weak var comment2Outlet: UILabel!
     @IBOutlet weak var viewHowManyCommentsOutlet: UIButton!
+    @IBOutlet weak var thumbsUpImageOutlet: UIImageView!
+    @IBOutlet weak var thumbsDownImageOutlet: UIImageView!
 
     
     
     //Player Delegates
     func playerReady(player: Player) {
         
-        print("player ready")
+        //print("player ready")
         
     }
     func playerPlaybackStateDidChange(player: Player) {
         
-        print("playback state did change")
+        //print("playback state did change")
         
     }
     func playerBufferingStateDidChange(player: Player) {
         
-        print("buffer state did change")
+        //print("buffer state did change")
         
     }
     func playerPlaybackWillStartFromBeginning(player: Player) {
         
-        print("playback will start from beginning")
+        //print("playback will start from beginning")
         
     }
     func playerPlaybackDidEnd(player: Player) {
         
-        print("playback did end")
+        //print("playback did end")
         
     }
 
@@ -67,6 +73,20 @@ class VideoContentCell: UITableViewCell, PlayerDelegate {
     
     
     //Actions
+    @IBAction func like(sender: AnyObject) {
+        
+        likeDislike("like")
+    }
+    
+    
+    
+    @IBAction func dislike(sender: AnyObject) {
+        
+        likeDislike("dislike")
+    }
+    
+    
+    
     @IBAction func secondViewAllComments(sender: AnyObject) {
         
         
@@ -81,8 +101,96 @@ class VideoContentCell: UITableViewCell, PlayerDelegate {
     }
     
     
+    //Functions
+    func likeDislike(key: String) {
+        
+        if key == "like" {
+            
+            dispatch_async(dispatch_get_main_queue()) {
+                
+                UIView.animateWithDuration(0.3, animations: {
+                    
+                    self.vc.likeViewOutlet.alpha = 1
+                    
+                }) { (complete) in
+                    
+                    UIView.animateWithDuration(0.3, animations: {
+                        
+                        self.vc.likeViewOutlet.alpha = 0
+                        
+                    })
+                }
+            }
+            
+        } else {
+            
+            dispatch_async(dispatch_get_main_queue()) {
+                
+                UIView.animateWithDuration(0.3, animations: {
+                    
+                    self.vc.dislikeViewOutlet.alpha = 1
+                    
+                }) { (complete) in
+                    
+                    UIView.animateWithDuration(0.3, animations: {
+                        
+                        self.vc.dislikeViewOutlet.alpha = 0
+                        
+                    })
+                    
+                }
+            }
+        }
+        
+        
+        
+        
+        let ref = FIRDatabase.database().reference()
+        
+        if let postUID = data["postChildKey"] as? String {
+            
+            ref.child("posts").child(postUID).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                
+                if let value = snapshot.value {
+                    
+                    if let actualNumber = value[key] as? Int {
+                        
+                        if let actualUserPostUID = self.data["userPostChildKey"] as? String {
+                            
+                            if let userUID = FIRAuth.auth()?.currentUser?.uid {
+                                
+                                ref.child("posts").child(postUID).updateChildValues([key : (actualNumber + 1)])
+                                ref.child("users").child(userUID).child("posts").child(actualUserPostUID).updateChildValues([key : (actualNumber + 1)])
+                                ref.child("posts").child(postUID).child("hasLiked").child(userUID).setValue(true)
+                                
+                                
+                            }
+                        }
+                    }
+                }
+            })
+        }
+    }
+
+    
+    
     
     func loadData() {
+        
+        if hasLiked {
+            
+            thumbsUpImageOutlet.image = nil
+            thumbsDownImageOutlet.image = nil
+            viewHowManyCommentsOutlet.enabled = false
+            
+        } else {
+            
+            thumbsUpImageOutlet.image = UIImage(named: "thumbsUp")
+            thumbsDownImageOutlet.image = UIImage(named: "thumbsDown")
+            viewHowManyCommentsOutlet.enabled = false
+            
+        }
+
         
         if let actualLike = data["like"] as? Int, actualDislike = data["dislike"] as? Int, actualFirstName = data["firstName"] as? String, actualLastName = data["lastName"] as? String, actualCaption = data["caption"] as? String ,actualContent = data["contentURL"] as? String, actualProfile = data["profilePicture"] as? String, actualCity = data["city"] as? String {
             

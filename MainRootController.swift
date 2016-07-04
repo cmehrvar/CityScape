@@ -59,8 +59,7 @@ class MainRootController: UIViewController {
             self.mainLeadingConstraint.constant = mainLeading
             self.mainTrailingConstraint.constant = mainTrailing
             self.view.layoutIfNeeded()
-            
-            
+
             }) { (complete) in
                 
                 completion(complete)
