@@ -213,6 +213,8 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
         tableView.allowsSelection = false
+        tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.estimatedRowHeight = 44.0
 
         if data[indexPath.row]["isImage"] as! Bool == true {
             
@@ -222,13 +224,12 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
             return cell
             
         } else {
-            
+
             let cell = tableView.dequeueReusableCellWithIdentifier("videoCell") as! VideoContentCell
             cell.data = data[indexPath.row]
             cell.loadData()
             cell.vc = self
             return cell
-            
         }
         
     }

@@ -22,8 +22,6 @@ class ImageContentCell: UITableViewCell {
     @IBOutlet weak var nameOutlet: UILabel!
     @IBOutlet weak var cityOutlet: UILabel!
     @IBOutlet weak var captionOutlet: UILabel!
-    @IBOutlet weak var cityRankOutlet: UILabel!
-    @IBOutlet weak var viewsOutlet: UILabel!
     @IBOutlet weak var commentName1Outlet: UILabel!
     @IBOutlet weak var comment1Outlet: UILabel!
     @IBOutlet weak var commentName2Outlet: UILabel!

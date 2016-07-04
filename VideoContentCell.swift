@@ -28,14 +28,12 @@ class VideoContentCell: UITableViewCell, PlayerDelegate {
     @IBOutlet weak var cityOutlet: UILabel!
     @IBOutlet weak var captionOutlet: UILabel!
     @IBOutlet weak var cityRankOutlet: UILabel!
-    @IBOutlet weak var viewsOutlet: UILabel!
     @IBOutlet weak var commentName1Outlet: UILabel!
     @IBOutlet weak var comment1Outlet: UILabel!
     @IBOutlet weak var commentName2Outlet: UILabel!
     @IBOutlet weak var comment2Outlet: UILabel!
     @IBOutlet weak var viewHowManyCommentsOutlet: UIButton!
-    @IBOutlet weak var mediaOutletHeightConstraint: NSLayoutConstraint!
-    @IBOutlet weak var userInfoHeightConstraint: NSLayoutConstraint!
+
     
     
     //Player Delegates

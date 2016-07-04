@@ -13,7 +13,7 @@ class TableViewProfilePic: UIView {
     override func awakeFromNib() {
         
         super.awakeFromNib()
-        layer.cornerRadius = 25
+        layer.cornerRadius = 18
         layer.borderWidth = 1
         layer.borderColor = UIColor.blackColor().CGColor
         self.clipsToBounds = true
