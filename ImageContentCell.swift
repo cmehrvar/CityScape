@@ -178,35 +178,32 @@ class ImageContentCell: UITableViewCell {
                     
                     if let actualNumber = value[key] as? Int {
                         
-                        if let actualUserPostUID = self.data["userPostChildKey"] as? String {
+                        if let userUID = FIRAuth.auth()?.currentUser?.uid {
                             
-                            if let userUID = FIRAuth.auth()?.currentUser?.uid {
+                            ref.child("posts").child(postUID).updateChildValues([key : (actualNumber + 1)])
+                            ref.child("users").child(userUID).child("posts").child(postUID).updateChildValues([key : (actualNumber + 1)])
+                            ref.child("posts").child(postUID).child("hasLiked").child(userUID).setValue(true)
+                            
+                            ref.child("users").child(userUID).child("totalScore").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
                                 
-                                ref.child("posts").child(postUID).updateChildValues([key : (actualNumber + 1)])
-                                ref.child("users").child(userUID).child("posts").child(actualUserPostUID).updateChildValues([key : (actualNumber + 1)])
-                                ref.child("posts").child(postUID).child("hasLiked").child(userUID).setValue(true)
-                                
-                                ref.child("users").child(userUID).child("totalScore").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                                if let actualScore = snapshot.value as? Int {
                                     
-                                    if let actualScore = snapshot.value as? Int {
+                                    if key == "like" {
                                         
-                                        if key == "like" {
+                                        ref.child("users").child(userUID).updateChildValues(["totalScore" : actualScore + 2])
+                                        ref.child("userScores").child(userUID).setValue(actualScore + 2)
+                                        
+                                    } else if key == "dislike" {
+                                        
+                                        if actualScore > 0 {
                                             
-                                            ref.child("users").child(userUID).updateChildValues(["totalScore" : actualScore + 2])
-                                            ref.child("userScores").child(userUID).setValue(actualScore + 2)
+                                            ref.child("users").child(userUID).updateChildValues(["totalScore" : actualScore - 1])
+                                            ref.child("userScores").child(userUID).setValue(actualScore - 1)
                                             
-                                        } else if key == "dislike" {
-                                            
-                                            if actualScore > 0 {
-                                                
-                                                ref.child("users").child(userUID).updateChildValues(["totalScore" : actualScore - 1])
-                                                ref.child("userScores").child(userUID).setValue(actualScore - 1)
-                                                
-                                            }
                                         }
                                     }
-                                })
-                            }
+                                }
+                            })
                         }
                     }
                 }
