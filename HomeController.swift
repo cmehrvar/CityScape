@@ -20,6 +20,9 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
     //Variables
     var postData = [[NSObject:AnyObject]]()
     var globHasLiked = [Bool]()
+    var refreshControl = UIRefreshControl()
+    var dateFormatter = NSDateFormatter()
+    
     
     @IBAction func chatAction(sender: AnyObject) {
         
@@ -65,10 +68,13 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
     
     //Functions
     func getFirebaseData() {
-
+        
         let ref = FIRDatabase.database().reference()
         
-        ref.child("posts").observeEventType(.Value, withBlock: { (snapshot) in
+        self.postData.removeAll()
+        self.globHasLiked.removeAll()
+        
+        ref.child("posts").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
             
             if let rest = snapshot.children.allObjects as? [FIRDataSnapshot] {
                 
@@ -86,9 +92,7 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
                                     
                                     liked = true
                                     
-                                    
                                 }
-                                
                             }
                             
                             self.globHasLiked.insert(liked, atIndex: 0)
@@ -99,24 +103,61 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
                             
                         }
                         
-                        self.postData.insert(value, atIndex: 0)
+                        
+                        if let postUID = value["postChildKey"] as? String {
+                            
+                            ref.child("posts").child(postUID).observeEventType(.Value, withBlock: { (snapshot) in
+                                
+                                if let valueData = snapshot.value as? [NSObject : AnyObject] {
+                                    
+                                    self.postData.insert(valueData, atIndex: 0)
+                                    self.tableView.reloadData()
+                                    
+                                    
+                                }
+                            })
+                        }
                         
                     }
-
-                    
-                    
                 }
                 
                 
+                let now = NSDate()
                 
-            self.tableView.reloadData()
+                
+                let updateString = "Last updated: " + self.dateFormatter.stringFromDate(now)
+                self.refreshControl.attributedTitle = NSAttributedString(string: updateString)
+
+                if self.refreshControl.refreshing {
+                    
+                    self.refreshControl.endRefreshing()
+                    
+                }
+                
+                self.tableView.reloadData()
             }
             
         })
     }
+    
+    
+    func createRefresh(){
+        
+        self.refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
+        
+        self.dateFormatter.dateStyle = NSDateFormatterStyle.MediumStyle
+        self.dateFormatter.timeStyle = NSDateFormatterStyle.ShortStyle
+        
+        self.tableView.addSubview(refreshControl)
+        self.refreshControl.addTarget(self, action: #selector(HomeController.refresh(_:)), forControlEvents: UIControlEvents.ValueChanged)
+ 
+    }
+    
+    func refresh(sender: AnyObject) {
+        
+        self.getFirebaseData()
 
-    
-    
+    }
     
     
     // DELEGATES //
@@ -246,11 +287,11 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         if postData[indexPath.row]["isImage"] as? Bool == true {
             
             let cell = tableView.dequeueReusableCellWithIdentifier("imageCell") as! ImageContentCell
-
+            
             cell.globHasLiked = globHasLiked[indexPath.row]
             cell.data = postData[indexPath.row]
             cell.loadData()
-
+            
             cell.homeController = self
             return cell
             
@@ -276,9 +317,18 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         return postData.count
     }
     
+    override func viewDidAppear(animated: Bool) {
+        print("view appeared")
+        
+        self.navigationController?.navigationBarHidden = true
+        
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        print("view did load")
+        
+        createRefresh()
         
         // Do any additional setup after loading the view.
     }

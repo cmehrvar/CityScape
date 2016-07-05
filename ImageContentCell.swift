@@ -61,6 +61,17 @@ class ImageContentCell: UITableViewCell {
     
     @IBAction func viewCommentsAction(sender: AnyObject) {
         
+        let vc = homeController.storyboard?.instantiateViewControllerWithIdentifier("commentController") as! CommentController
+        
+        let transition: CATransition = CATransition()
+        transition.duration = 0.3
+        transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+        transition.type = kCATransitionPush
+        transition.subtype = kCATransitionFromRight
+        homeController.view.window?.layer.addAnimation((transition), forKey: nil)
+
+        homeController.presentViewController(vc, animated: false, completion: nil)
+        
         print("view comments tapped")
         
     }
@@ -69,6 +80,18 @@ class ImageContentCell: UITableViewCell {
     @IBAction func viewAllCommentsAction(sender: AnyObject) {
         
         print("view all comments tapped")
+        
+        let vc = homeController.storyboard?.instantiateViewControllerWithIdentifier("commentController") as! CommentController
+        
+        let transition: CATransition = CATransition()
+        transition.duration = 0.3
+        transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+        transition.type = kCATransitionPush
+        transition.subtype = kCATransitionFromRight
+        homeController.view.window?.layer.addAnimation((transition), forKey: nil)
+        
+        homeController.presentViewController(vc, animated: false, completion: nil)
+
         
     }
     
