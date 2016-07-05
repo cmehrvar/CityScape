@@ -16,6 +16,7 @@ import FirebaseDatabase
 class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewControllerDelegate, UITableViewDataSource, UITableViewDelegate {
     
     weak var rootController: MainRootController?
+    var globMostRecentTimeStamp = NSTimeInterval()
     
     //Variables
     var postData = [[NSObject:AnyObject]]()
@@ -47,7 +48,7 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
             
         })
     }
-    
+
     @IBAction func toggleMenu(sender: AnyObject) {
         
         rootController?.toggleMenu({ (complete) in
@@ -67,6 +68,21 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
     
     
     //Functions
+    func reloadFirebaseData() {
+        
+        let ref = FIRDatabase.database().reference()
+        
+        print("reload time interval: " + String(globMostRecentTimeStamp))
+        
+        
+        
+        
+        
+        
+    }
+    
+    
+    
     func getFirebaseData() {
         
         let ref = FIRDatabase.database().reference()
@@ -76,6 +92,30 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         
         ref.child("posts").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
             
+            if let posts = snapshot.value as? [NSObject : AnyObject] {
+                
+               print(posts)
+                
+                var i = 0
+                
+                for (key,value) in posts {
+                    
+                    print(i)
+                    print(value)
+                    
+                    if let firstTimeStamp = value["timeStamp"] as? Double {
+                        
+                        self.globMostRecentTimeStamp = firstTimeStamp
+                        
+                    }
+
+                    break
+                    
+                }
+                
+            
+            }
+
             if let rest = snapshot.children.allObjects as? [FIRDataSnapshot] {
                 
                 for snap in rest {
@@ -291,7 +331,7 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
             cell.globHasLiked = globHasLiked[indexPath.row]
             cell.data = postData[indexPath.row]
             cell.loadData()
-            
+            cell.mostRecentTimeStamp = globMostRecentTimeStamp
             cell.homeController = self
             return cell
             

@@ -19,6 +19,7 @@ pod ‘Firebase/Database’
 pod ‘Firebase/Auth’
 pod ‘Fusuma’
 pod ‘Player’
+pod 'JSQMessagesViewController'
 
 end
 

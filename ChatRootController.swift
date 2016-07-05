@@ -1,17 +1,17 @@
 //
-//  CommentController.swift
+//  ChatRootController.swift
 //  CityScape
 //
-//  Created by Cina Mehrvar on 2016-07-04.
+//  Created by Cina Mehrvar on 2016-07-05.
 //  Copyright © 2016 Cina Mehrvar. All rights reserved.
 //
 
 import UIKit
-import JSQMessagesViewController
 
-class CommentController: JSQMessagesViewController {
+class ChatRootController: UIViewController {
 
-    weak var rootController: ChatRootController?
+    weak var topChatController: TopChatController?
+    weak var chatController: CommentController?
     
     
     override func viewDidLoad() {
@@ -26,14 +26,31 @@ class CommentController: JSQMessagesViewController {
     }
     
 
-    /*
+    
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        
+        if segue.identifier == "chatSegue" {
+            
+            let chat = segue.destinationViewController as? CommentController
+            chatController = chat
+            chatController?.rootController = self
+            
+        } else if segue.identifier == "topChatSegue" {
+            
+            let topChat = segue.destinationViewController as? TopChatController
+            topChatController = topChat
+            topChatController?.rootController = self
+            
+        }
+        
+        
+        
         // Get the new view controller using segue.destinationViewController.
         // Pass the selected object to the new view controller.
     }
-    */
+    
 
 }

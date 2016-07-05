@@ -291,13 +291,8 @@ class HandlePostController: UIViewController, AdobeUXImageEditorViewControllerDe
                         
                         ref.child("posts").child(postChildKey).updateChildValues(postData)
                         ref.child("users").child(userUID).child("posts").child(postChildKey).updateChildValues(postData)
-                        
-                        if isImage {
-                            ref.child("postUIDs").child(postChildKey).setValue(true)
-                        } else {
-                            ref.child("postUIDs").child(postChildKey).setValue(false)
-                        }
-                        
+                        ref.child("postUIDs").child(postChildKey).setValue(currentDate)
+                                                
                         
                         
                         let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController

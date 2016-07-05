@@ -18,6 +18,7 @@ class ImageContentCell: UITableViewCell {
     var data = [NSObject : AnyObject]()
     var homeController: HomeController!
     var globHasLiked = false
+    var mostRecentTimeStamp: NSTimeInterval!
     
     //Outlets
     @IBOutlet weak var cityRankOutlet: UILabel!
@@ -61,16 +62,52 @@ class ImageContentCell: UITableViewCell {
     
     @IBAction func viewCommentsAction(sender: AnyObject) {
         
-        let vc = homeController.storyboard?.instantiateViewControllerWithIdentifier("commentController") as! CommentController
-        
+        let vc = homeController.storyboard?.instantiateViewControllerWithIdentifier("rootChatController") as! ChatRootController
+
         let transition: CATransition = CATransition()
         transition.duration = 0.3
         transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
         transition.type = kCATransitionPush
         transition.subtype = kCATransitionFromRight
         homeController.view.window?.layer.addAnimation((transition), forKey: nil)
+        
+        guard let selfUID = FIRAuth.auth()?.currentUser?.uid else {return}
+        
+        vc.chatController?.senderId = selfUID
+        
+        let ref = FIRDatabase.database().reference()
+        
+        ref.child("users").child(selfUID).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+            
+            if let userData = snapshot.value as? [NSObject : AnyObject] {
+                
+                var name = ""
+                
+                if let firstName = userData["firstName"] as? String {
+                    
+                    name = firstName + " "
+                    
+                }
+                
+                if let lastName = userData["lastName"] as? String {
+                    
+                    name += lastName
+                    
+                }
+                
+                vc.chatController?.senderDisplayName = name
 
-        homeController.presentViewController(vc, animated: false, completion: nil)
+            }
+        })
+        
+        let time = self.mostRecentTimeStamp
+        
+        homeController.presentViewController(vc, animated: false) {
+            
+            vc.topChatController?.mostRecentTimeInterval = time
+
+            
+        }
         
         print("view comments tapped")
         
