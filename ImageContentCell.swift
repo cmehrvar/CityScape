@@ -15,11 +15,12 @@ import FirebaseAuth
 class ImageContentCell: UITableViewCell {
     
     //Variables
-    var data: [NSObject : AnyObject]!
+    var data = [NSObject : AnyObject]()
     var homeController: HomeController!
-    var hasLiked = false
+    var globHasLiked = false
     
     //Outlets
+    @IBOutlet weak var cityRankOutlet: UILabel!
     @IBOutlet weak var imageOutlet: UIImageView!
     @IBOutlet weak var likeDisplayOutlet: UILabel!
     @IBOutlet weak var dislikeDisplayOutlet: UILabel!
@@ -36,7 +37,7 @@ class ImageContentCell: UITableViewCell {
     @IBOutlet weak var dislikeButtonOutlet: UIButton!
     @IBOutlet weak var thumbsDownImageOutlet: UIImageView!
     @IBOutlet weak var thumbsUpImageOutlet: UIImageView!
-
+    @IBOutlet weak var timeAgoOutlet: UILabel!
     
     //Actions
     @IBAction func dislike(sender: AnyObject) {
@@ -45,7 +46,7 @@ class ImageContentCell: UITableViewCell {
         
         
         
-            }
+    }
     
     
     
@@ -54,9 +55,9 @@ class ImageContentCell: UITableViewCell {
     @IBAction func like(sender: AnyObject) {
         
         likeDislike("like")
-
-            }
-
+        
+    }
+    
     
     @IBAction func viewCommentsAction(sender: AnyObject) {
         
@@ -72,14 +73,15 @@ class ImageContentCell: UITableViewCell {
     }
     
     
+    
     func loadData() {
         
-        if hasLiked {
+        if globHasLiked {
             
             thumbsUpImageOutlet.image = nil
             thumbsDownImageOutlet.image = nil
             viewHowManyCommentsOutlet.enabled = false
-
+            
         } else {
             
             thumbsUpImageOutlet.image = UIImage(named: "thumbsUp")
@@ -88,9 +90,18 @@ class ImageContentCell: UITableViewCell {
             
         }
         
-        if let actualLike = data["like"] as? Int, actualDislike = data["dislike"] as? Int, actualFirstName = data["firstName"] as? String, actualLastName = data["lastName"] as? String, actualCaption = data["caption"] as? String ,actualContent = data["contentURL"] as? String, actualProfile = data["profilePicture"] as? String, actualCity = data["city"] as? String {
+        if let actualLike = data["like"] as? Int, actualDislike = data["dislike"] as? Int, actualFirstName = data["firstName"] as? String, actualLastName = data["lastName"] as? String, actualCaption = data["caption"] as? String ,actualContent = data["contentURL"] as? String, actualProfile = data["profilePicture"] as? String, actualCity = data["city"] as? String, actualTimeStamp = data["timeStamp"] as? NSTimeInterval, userUID = data["userUID"] as? String {
             
-            captionOutlet.text = actualCaption
+            let postData = NSDate(timeIntervalSince1970: actualTimeStamp)
+            
+            timeAgoOutlet.text = timeAgoSince(postData)
+            
+            if actualCaption == "\"\"" {
+                captionOutlet.text = nil
+            } else {
+                captionOutlet.text = actualCaption
+            }
+            
             nameOutlet.text = actualFirstName + " " + actualLastName
             dislikeDisplayOutlet.text = "Dislikes: " + String(actualDislike)
             likeDisplayOutlet.text = "Likes: " + String(actualLike)
@@ -102,6 +113,17 @@ class ImageContentCell: UITableViewCell {
                 profilePictureOutlet.sd_setImageWithURL(actualProfileURL, placeholderImage: nil)
                 
             }
+            
+            let ref = FIRDatabase.database().reference()
+            
+            ref.child("users").child(userUID).child("cityRank").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                
+                if let rank = snapshot.value as? Int {
+                    
+                    self.cityRankOutlet.text = "City Rank: " + String(rank)
+                    
+                }
+            })
         }
     }
     
@@ -121,7 +143,7 @@ class ImageContentCell: UITableViewCell {
                         
                         self.homeController.likeViewOutlet.alpha = 0
                         
-                        })
+                    })
                 }
             }
             
@@ -139,13 +161,13 @@ class ImageContentCell: UITableViewCell {
                         
                         self.homeController.dislikeViewOutlet.alpha = 0
                         
-                        })
+                    })
                     
                 }
             }
         }
         
-
+        
         let ref = FIRDatabase.database().reference()
         
         if let postUID = data["postChildKey"] as? String {
@@ -163,8 +185,27 @@ class ImageContentCell: UITableViewCell {
                                 ref.child("posts").child(postUID).updateChildValues([key : (actualNumber + 1)])
                                 ref.child("users").child(userUID).child("posts").child(actualUserPostUID).updateChildValues([key : (actualNumber + 1)])
                                 ref.child("posts").child(postUID).child("hasLiked").child(userUID).setValue(true)
- 
                                 
+                                ref.child("users").child(userUID).child("totalScore").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                                    
+                                    if let actualScore = snapshot.value as? Int {
+                                        
+                                        if key == "like" {
+                                            
+                                            ref.child("users").child(userUID).updateChildValues(["totalScore" : actualScore + 2])
+                                            ref.child("userScores").child(userUID).setValue(actualScore + 2)
+                                            
+                                        } else if key == "dislike" {
+                                            
+                                            if actualScore > 0 {
+                                                
+                                                ref.child("users").child(userUID).updateChildValues(["totalScore" : actualScore - 1])
+                                                ref.child("userScores").child(userUID).setValue(actualScore - 1)
+                                                
+                                            }
+                                        }
+                                    }
+                                })
                             }
                         }
                     }
@@ -172,15 +213,9 @@ class ImageContentCell: UITableViewCell {
             })
         }
     }
-
+    
     override func awakeFromNib() {
         super.awakeFromNib()
-        
-        if data != nil {
-            print(data)
-        } else {
-            print("no data on start")
-        }
         
         // Initialization code
     }

@@ -273,14 +273,32 @@ class HandlePostController: UIViewController, AdobeUXImageEditorViewControllerDe
                         
                         
                         let postChildKey = ref.child("posts").childByAutoId().key
-                        let userPostChildKey = ref.child("users").child(userUID).child("posts").childByAutoId().key
+                        
+                        let postData: [NSObject:AnyObject] = ["views":0, "userUID":userUID, "firstName":firstName, "lastName":lastName, "city":city, "timeStamp":currentDate, "profilePicture":profile, "contentURL":contentURL, "caption":captionVar, "isImage":isImage, "like" : 0, "dislike" : 0, "postChildKey":postChildKey]
                         
                         
-                        let postData: [NSObject:AnyObject] = ["views":0, "userUID":userUID, "firstName":firstName, "lastName":lastName, "city":city, "timeStamp":currentDate, "profilePicture":profile, "contentURL":contentURL, "caption":captionVar, "isImage":isImage, "like" : 0, "dislike" : 0, "postChildKey":postChildKey, "userPostChildKey":userPostChildKey]
+                        
+                        ref.child("userScores").child(userUID).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                            
+                            if let score = snapshot.value as? Int {
+                                
+                                ref.child("users").child(userUID).child("totalScore").setValue(score+5)
+                                ref.child("userScores").child(userUID).setValue(score+5)
+                                
+                            }
+                        })
                         
                         
                         ref.child("posts").child(postChildKey).updateChildValues(postData)
-                        ref.child("users").child(userUID).child("posts").child(userPostChildKey).updateChildValues(postData)
+                        ref.child("users").child(userUID).child("posts").child(postChildKey).updateChildValues(postData)
+                        
+                        if isImage {
+                            ref.child("postUIDs").child(postChildKey).setValue(true)
+                        } else {
+                            ref.child("postUIDs").child(postChildKey).setValue(false)
+                        }
+                        
+                        
                         
                         let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
                         

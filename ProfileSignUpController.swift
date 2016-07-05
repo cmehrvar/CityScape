@@ -102,7 +102,7 @@ class ProfileSignUpController: UIViewController, UIImagePickerControllerDelegate
                             
                             let ref = FIRDatabase.database().reference()
                             
-                            ref.child("users").child(actualUser.uid).setValue(["mobile":self.mobileNumberVar, "email" : self.email, "firstName":actualFirstName, "lastName":actualLastName, "city":actualCity])
+                            ref.child("users").child(actualUser.uid).setValue(["mobile":self.mobileNumberVar, "email" : self.email, "firstName":actualFirstName, "lastName":actualLastName, "city":actualCity, "actualScore":0])
                             
                             ref.child("takenEmails").childByAutoId().setValue(self.email)
                             ref.child("takenNumbers").childByAutoId().setValue(self.mobileNumberVar)
@@ -148,7 +148,7 @@ class ProfileSignUpController: UIViewController, UIImagePickerControllerDelegate
                             
                             if let actualEmail = self.result["email"], actualNumber = self.mobileNumber.text {
                                 
-                                ref.child("users").child(actualUser.uid).setValue(["mobile":actualNumber, "email" : actualEmail, "firstName":actualFirstName, "lastName":actualLastName, "city":actualCity])
+                                ref.child("users").child(actualUser.uid).setValue(["mobile":actualNumber, "email" : actualEmail, "firstName":actualFirstName, "lastName":actualLastName, "city":actualCity, "totalScore":0])
                                 
                                 ref.child("takenEmails").childByAutoId().setValue(actualEmail)
                                 ref.child("takenNumbers").childByAutoId().setValue(actualNumber)

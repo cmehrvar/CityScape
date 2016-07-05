@@ -18,12 +18,12 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
     weak var rootController: MainRootController?
     
     //Variables
-    var data = [[NSObject:AnyObject]]()
-    var hasLikedArray = [Bool]()
+    var postData = [[NSObject:AnyObject]]()
+    var globHasLiked = [Bool]()
     
     @IBAction func chatAction(sender: AnyObject) {
         
-        getFirebaseData()
+        //getFirebaseData()
         
     }
     
@@ -65,55 +65,59 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
     
     //Functions
     func getFirebaseData() {
-        
-        let ref = FIRDatabase.database().reference().child("posts")
-        
-        var funcData = [[NSObject:AnyObject]]()
-        var hasLikedData = [Bool]()
-        
-        ref.queryLimitedToLast(100).observeEventType(.Value, withBlock: { (snapshot) in
-            
-            print("children count:")
-            print(snapshot.childrenCount)
 
-            for rest in snapshot.children.allObjects as! [FIRDataSnapshot] {
+        let ref = FIRDatabase.database().reference()
+        
+        ref.child("posts").observeEventType(.Value, withBlock: { (snapshot) in
+            
+            if let rest = snapshot.children.allObjects as? [FIRDataSnapshot] {
                 
-                if let value = rest.value as? [NSObject:AnyObject] {
+                for snap in rest {
                     
-                    if let hasLiked = value["hasLiked"] as? [String:Bool] {
+                    if let value = snap.value as? [NSObject : AnyObject] {
                         
-                        var liked = false
-                        
-                        for (key, _) in hasLiked {
+                        if let hasLiked = value["hasLiked"] as? [String:Bool] {
                             
-                            if key == FIRAuth.auth()?.currentUser?.uid {
+                            var liked = false
+                            
+                            for (key, _) in hasLiked {
                                 
-                                liked = true
+                                if key == FIRAuth.auth()?.currentUser?.uid {
+                                    
+                                    liked = true
+                                    
+                                    
+                                }
                                 
                             }
+                            
+                            self.globHasLiked.insert(liked, atIndex: 0)
+                            
+                        } else {
+                            
+                            self.globHasLiked.insert(false, atIndex: 0)
+                            
                         }
                         
-                        hasLikedData.insert(liked, atIndex: 0)
-                        
-                    } else {
-                        
-                        hasLikedData.insert(false, atIndex: 0)
+                        self.postData.insert(value, atIndex: 0)
                         
                     }
+
                     
-                    funcData.insert(value, atIndex: 0)
+                    
                 }
-            }
-
-            self.data = funcData
-            self.hasLikedArray = hasLikedData
+                
+                
+                
             self.tableView.reloadData()
-
+            }
+            
         })
     }
-    
-    
 
+    
+    
+    
     
     // DELEGATES //
     
@@ -145,7 +149,7 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         transition.type = kCATransitionPush
         transition.subtype = kCATransitionFromLeft
         editor.view.window?.layer.addAnimation((transition), forKey: nil)
-
+        
         editor.dismissViewControllerAnimated(false) {
             self.transitionToFusumaOutlet.alpha = 1
             self.presentFusumaCamera()
@@ -207,7 +211,7 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         let alertController = UIAlertController(title: "Sorry", message: "Camera not authorized", preferredStyle:  UIAlertControllerStyle.Alert)
         alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Cancel, handler: nil))
         self.presentViewController(alertController, animated: true, completion: nil)
-
+        
         print("camera unauthorized")
         
     }
@@ -217,7 +221,7 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         transitionToFusumaOutlet.alpha = 0
         
     }
-
+    
     func presentFusumaCamera(){
         
         let fusuma = FusumaViewController()
@@ -225,7 +229,7 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         fusuma.hasVideo = true
         fusuma.modalTransitionStyle = UIModalTransitionStyle.CrossDissolve
         
-        presentViewController(fusuma, animated: true) { 
+        presentViewController(fusuma, animated: true) {
             self.transitionToFusumaOutlet.alpha = 1
         }
     }
@@ -239,24 +243,26 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.estimatedRowHeight = 44.0
         
-        print(hasLikedArray[indexPath.row])
-
-        if data[indexPath.row]["isImage"] as! Bool == true {
+        if postData[indexPath.row]["isImage"] as? Bool == true {
             
             let cell = tableView.dequeueReusableCellWithIdentifier("imageCell") as! ImageContentCell
-            cell.data = data[indexPath.row]
-            cell.hasLiked = hasLikedArray[indexPath.row]
-            cell.homeController = self
-            cell.loadData()
-            return cell
 
+            cell.globHasLiked = globHasLiked[indexPath.row]
+            cell.data = postData[indexPath.row]
+            cell.loadData()
+
+            cell.homeController = self
+            return cell
+            
         } else {
             
-            let cell = tableView.dequeueReusableCellWithIdentifier("videoCell") as! VideoContentCell
-            cell.data = data[indexPath.row]
-            cell.hasLiked = hasLikedArray[indexPath.row]
+            let cell = tableView.dequeueReusableCellWithIdentifier("imageCell") as! ImageContentCell
+            
+            cell.globHasLiked = globHasLiked[indexPath.row]
+            cell.data = postData[indexPath.row]
             cell.loadData()
-            cell.vc = self
+            
+            cell.homeController = self
             return cell
             
         }
@@ -266,14 +272,14 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
     
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-
-        return data.count
+        
+        return postData.count
     }
-
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
-       
+        
         // Do any additional setup after loading the view.
     }
     

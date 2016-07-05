@@ -39,6 +39,7 @@ class VideoContentCell: UITableViewCell, PlayerDelegate {
     @IBOutlet weak var viewHowManyCommentsOutlet: UIButton!
     @IBOutlet weak var thumbsUpImageOutlet: UIImageView!
     @IBOutlet weak var thumbsDownImageOutlet: UIImageView!
+    @IBOutlet weak var timeAgo: UILabel!
 
     
     
@@ -163,7 +164,26 @@ class VideoContentCell: UITableViewCell, PlayerDelegate {
                                 ref.child("users").child(userUID).child("posts").child(actualUserPostUID).updateChildValues([key : (actualNumber + 1)])
                                 ref.child("posts").child(postUID).child("hasLiked").child(userUID).setValue(true)
                                 
-                                
+                                ref.child("users").child(userUID).child("totalScore").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                                    
+                                    if let actualScore = snapshot.value as? Int {
+                                        
+                                        if key == "like" {
+                                            
+                                            ref.child("users").child(userUID).updateChildValues(["totalScore" : actualScore + 2])
+                                            ref.child("userScores").child(userUID).setValue(actualScore + 2)
+                                            
+                                        } else if key == "dislike" {
+                                            
+                                            if actualScore > 0 {
+                                                
+                                                ref.child("users").child(userUID).updateChildValues(["totalScore" : actualScore - 1])
+                                                ref.child("userScores").child(userUID).setValue(actualScore - 1)
+                                                
+                                            }
+                                        }
+                                    }
+                                })
                             }
                         }
                     }
@@ -192,9 +212,16 @@ class VideoContentCell: UITableViewCell, PlayerDelegate {
         }
 
         
-        if let actualLike = data["like"] as? Int, actualDislike = data["dislike"] as? Int, actualFirstName = data["firstName"] as? String, actualLastName = data["lastName"] as? String, actualCaption = data["caption"] as? String ,actualContent = data["contentURL"] as? String, actualProfile = data["profilePicture"] as? String, actualCity = data["city"] as? String {
+        if let actualLike = data["like"] as? Int, actualDislike = data["dislike"] as? Int, actualFirstName = data["firstName"] as? String, actualLastName = data["lastName"] as? String, actualCaption = data["caption"] as? String ,actualContent = data["contentURL"] as? String, actualProfile = data["profilePicture"] as? String, actualCity = data["city"] as? String, actualTimeStamp = data["timeStamp"] as? NSTimeInterval, userUID = data["userUID"] as? String {
             
-            captionOutlet.text = actualCaption
+            
+            timeAgo.text = timeAgoSince(NSDate(timeIntervalSince1970: actualTimeStamp))
+            
+            if actualCaption == "\"\"" {
+                captionOutlet.text = nil
+            } else {
+                captionOutlet.text = actualCaption
+            }
             
             nameOutlet.text = actualFirstName + " " + actualLastName
             dislikeDisplayOutlet.text = "Likes: " + String(actualDislike)
@@ -223,6 +250,17 @@ class VideoContentCell: UITableViewCell, PlayerDelegate {
                 profilePictureOutlet.sd_setImageWithURL(actualProfileURL, placeholderImage: nil)
                 
             }
+            
+            let ref = FIRDatabase.database().reference()
+            
+            ref.child("users").child(userUID).child("cityRank").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                
+                if let rank = snapshot.value as? Int {
+                    
+                    self.cityRankOutlet.text = "City Rank: " + String(rank)
+                    
+                }
+            })
         }
     }
 
@@ -233,6 +271,8 @@ class VideoContentCell: UITableViewCell, PlayerDelegate {
         super.awakeFromNib()
         
         //print(data)
+        
+        self.mediaViewOutlet.layoutSubviews()
         
         
         // Initialization code
