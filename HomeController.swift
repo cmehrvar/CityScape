@@ -19,6 +19,7 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
     var globMostRecentTimeStamp = NSTimeInterval()
     
     //Variables
+    var globPostUIDs = [String]()
     var postData = [[NSObject:AnyObject]]()
     var globHasLiked = [Bool]()
     var refreshControl = UIRefreshControl()
@@ -48,7 +49,7 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
             
         })
     }
-
+    
     @IBAction func toggleMenu(sender: AnyObject) {
         
         rootController?.toggleMenu({ (complete) in
@@ -68,61 +69,73 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
     
     
     //Functions
-    func reloadFirebaseData() {
+    func observeData(postUIDs: [String], postData: [[NSObject : AnyObject]], funcHasLiked: [Bool]){
+        
+        self.globPostUIDs = postUIDs
+        self.postData = postData
+        self.globHasLiked = funcHasLiked
         
         let ref = FIRDatabase.database().reference()
         
-        print("reload time interval: " + String(globMostRecentTimeStamp))
-        
-        
-        
-        
-        
-        
+        for i in 0..<postUIDs.count {
+            
+            ref.child("posts").child(postUIDs[i]).observeEventType(.Value, withBlock: { (snapshot) in
+                
+                if let actualValue = snapshot.value as? [NSObject : AnyObject] {
+                    
+                    if let hasLiked = actualValue["hasLiked"] as? [String:Bool] {
+                        
+                        var liked = false
+                        
+                        for (key, _) in hasLiked {
+                            
+                            if key == FIRAuth.auth()?.currentUser?.uid {
+                                
+                                liked = true
+                                
+                            }
+                        }
+                        
+                        self.globHasLiked[i] = liked
+                        
+                    } else {
+                        
+                        self.globHasLiked[i] = false
+
+                    }
+
+                    self.postData[i] = actualValue
+                    self.tableView.reloadData()
+ 
+                }
+            })
+        }
     }
-    
     
     
     func getFirebaseData() {
         
         let ref = FIRDatabase.database().reference()
         
+        self.globPostUIDs.removeAll()
         self.postData.removeAll()
         self.globHasLiked.removeAll()
         
         ref.child("posts").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
             
-            if let posts = snapshot.value as? [NSObject : AnyObject] {
+            if let snapshots = snapshot.children.allObjects as? [FIRDataSnapshot] {
                 
-               print(posts)
+                var funcPostUIDs = [String]()
+                var funcPostData = [[NSObject : AnyObject]]()
+                var funcHasLiked = [Bool]()
                 
-                var i = 0
-                
-                for (key,value) in posts {
+                for snap in snapshots {
                     
-                    print(i)
-                    print(value)
-                    
-                    if let firstTimeStamp = value["timeStamp"] as? Double {
+                    if let actualSnap = snap.value as? [NSObject:AnyObject] {
                         
-                        self.globMostRecentTimeStamp = firstTimeStamp
+                        funcPostData.insert(actualSnap, atIndex: 0)
                         
-                    }
-
-                    break
-                    
-                }
-                
-            
-            }
-
-            if let rest = snapshot.children.allObjects as? [FIRDataSnapshot] {
-                
-                for snap in rest {
-                    
-                    if let value = snap.value as? [NSObject : AnyObject] {
-                        
-                        if let hasLiked = value["hasLiked"] as? [String:Bool] {
+                        if let hasLiked = actualSnap["hasLiked"] as? [String:Bool] {
                             
                             var liked = false
                             
@@ -135,47 +148,41 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
                                 }
                             }
                             
-                            self.globHasLiked.insert(liked, atIndex: 0)
+                            funcHasLiked.insert(liked, atIndex: 0)
                             
                         } else {
                             
-                            self.globHasLiked.insert(false, atIndex: 0)
+                            funcHasLiked.insert(false, atIndex: 0)
                             
                         }
-                        
-                        
-                        if let postUID = value["postChildKey"] as? String {
+
+                        if let postID = actualSnap["postChildKey"] as? String {
                             
-                            ref.child("posts").child(postUID).observeEventType(.Value, withBlock: { (snapshot) in
-                                
-                                if let valueData = snapshot.value as? [NSObject : AnyObject] {
-                                    
-                                    self.postData.insert(valueData, atIndex: 0)
-                                    self.tableView.reloadData()
-                                    
-                                    
-                                }
-                            })
+                            funcPostUIDs.insert(postID, atIndex: 0)
+                            
                         }
-                        
                     }
                 }
-                
-                
-                let now = NSDate()
-                
-                
-                let updateString = "Last updated: " + self.dateFormatter.stringFromDate(now)
-                self.refreshControl.attributedTitle = NSAttributedString(string: updateString)
 
-                if self.refreshControl.refreshing {
-                    
-                    self.refreshControl.endRefreshing()
-                    
-                }
-                
+                self.observeData(funcPostUIDs, postData: funcPostData, funcHasLiked: funcHasLiked)
                 self.tableView.reloadData()
             }
+            
+            
+            let now = NSDate()
+            
+            
+            let updateString = "Last updated: " + self.dateFormatter.stringFromDate(now)
+            self.refreshControl.attributedTitle = NSAttributedString(string: updateString)
+            
+            if self.refreshControl.refreshing {
+                
+                self.refreshControl.endRefreshing()
+                
+            }
+            
+            self.tableView.reloadData()
+            
             
         })
     }
@@ -190,13 +197,13 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         
         self.tableView.addSubview(refreshControl)
         self.refreshControl.addTarget(self, action: #selector(HomeController.refresh(_:)), forControlEvents: UIControlEvents.ValueChanged)
- 
+        
     }
     
     func refresh(sender: AnyObject) {
         
         self.getFirebaseData()
-
+        
     }
     
     
@@ -328,10 +335,16 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
             
             let cell = tableView.dequeueReusableCellWithIdentifier("imageCell") as! ImageContentCell
             
-            cell.globHasLiked = globHasLiked[indexPath.row]
+            cell.hasLiked = globHasLiked[indexPath.row]
             cell.data = postData[indexPath.row]
             cell.loadData()
-            cell.mostRecentTimeStamp = globMostRecentTimeStamp
+            
+            
+            cell.globPostUIDs = globPostUIDs
+            cell.globHasLiked = globHasLiked
+            cell.postData = postData
+            
+            
             cell.homeController = self
             return cell
             
@@ -339,7 +352,7 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
             
             let cell = tableView.dequeueReusableCellWithIdentifier("imageCell") as! ImageContentCell
             
-            cell.globHasLiked = globHasLiked[indexPath.row]
+            //cell.globHasLiked = globHasLiked[indexPath.row]
             cell.data = postData[indexPath.row]
             cell.loadData()
             

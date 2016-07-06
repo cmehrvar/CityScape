@@ -15,10 +15,13 @@ import FirebaseAuth
 class ImageContentCell: UITableViewCell {
     
     //Variables
+    var globPostUIDs = [String]()
+    var postData = [[NSObject:AnyObject]]()
+    var globHasLiked = [Bool]()
     var data = [NSObject : AnyObject]()
     var homeController: HomeController!
-    var globHasLiked = false
-    var mostRecentTimeStamp: NSTimeInterval!
+    var hasLiked = false
+
     
     //Outlets
     @IBOutlet weak var cityRankOutlet: UILabel!
@@ -99,13 +102,16 @@ class ImageContentCell: UITableViewCell {
 
             }
         })
-        
-        let time = self.mostRecentTimeStamp
+
+        let post = postData
+        let like = globHasLiked
+        let id = globPostUIDs
         
         homeController.presentViewController(vc, animated: false) {
             
-            vc.topChatController?.mostRecentTimeInterval = time
-
+            vc.topChatController?.globPostUIDs = id
+            vc.topChatController?.globHasLiked = like
+            vc.topChatController?.postData = post
             
         }
         
@@ -117,17 +123,6 @@ class ImageContentCell: UITableViewCell {
     @IBAction func viewAllCommentsAction(sender: AnyObject) {
         
         print("view all comments tapped")
-        
-        let vc = homeController.storyboard?.instantiateViewControllerWithIdentifier("commentController") as! CommentController
-        
-        let transition: CATransition = CATransition()
-        transition.duration = 0.3
-        transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
-        transition.type = kCATransitionPush
-        transition.subtype = kCATransitionFromRight
-        homeController.view.window?.layer.addAnimation((transition), forKey: nil)
-        
-        homeController.presentViewController(vc, animated: false, completion: nil)
 
         
     }
@@ -136,7 +131,7 @@ class ImageContentCell: UITableViewCell {
     
     func loadData() {
         
-        if globHasLiked {
+        if hasLiked {
             
             thumbsUpImageOutlet.image = nil
             thumbsDownImageOutlet.image = nil

@@ -11,7 +11,10 @@ import UIKit
 class TopChatController: UIViewController {
     
     weak var rootController: ChatRootController?
-    var mostRecentTimeInterval: NSTimeInterval!
+    
+    var globPostUIDs = [String]()
+    var postData = [[NSObject:AnyObject]]()
+    var globHasLiked = [Bool]()
     
     @IBAction func back(sender: AnyObject) {
         
@@ -23,19 +26,15 @@ class TopChatController: UIViewController {
         transition.subtype = kCATransitionFromLeft
         rootController?.view.window?.layer.addAnimation((transition), forKey: nil)
         
-        
-        vc.homeController?.globMostRecentTimeStamp = mostRecentTimeInterval
-
-        let time = mostRecentTimeInterval
+        let post = postData
+        let like = globHasLiked
+        let id = globPostUIDs
         
         rootController?.presentViewController(vc, animated: false, completion: {
-            
-            vc.homeController?.globMostRecentTimeStamp = time
-            vc.homeController?.reloadFirebaseData()
+         
+            vc.homeController?.observeData(id, postData: post, funcHasLiked: like)
             
         })
-        
- 
     }
 
     override func viewDidLoad() {
