@@ -16,14 +16,14 @@ import FirebaseDatabase
 class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewControllerDelegate, UITableViewDataSource, UITableViewDelegate {
     
     weak var rootController: MainRootController?
-    var globMostRecentTimeStamp = NSTimeInterval()
     
     //Variables
     var globPostUIDs = [String]()
-    var postData = [[NSObject:AnyObject]]()
-    var globHasLiked = [Bool]()
+    var postData = [[NSObject:AnyObject]?]()
+    var globHasLiked = [Bool?]()
     var refreshControl = UIRefreshControl()
     var dateFormatter = NSDateFormatter()
+    var cellHeightsDictionary = [Int: CGFloat]()
     
     
     @IBAction func chatAction(sender: AnyObject) {
@@ -69,11 +69,13 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
     
     
     //Functions
-    func observeData(postUIDs: [String], postData: [[NSObject : AnyObject]], funcHasLiked: [Bool]){
+    func observeData(postUIDs: [String], postData: [[NSObject : AnyObject]?], funcHasLiked: [Bool?]){
         
         self.globPostUIDs = postUIDs
         self.postData = postData
         self.globHasLiked = funcHasLiked
+        
+        self.tableView.reloadData()
         
         let ref = FIRDatabase.database().reference()
         
@@ -101,12 +103,12 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
                     } else {
                         
                         self.globHasLiked[i] = false
-
+                        
                     }
-
+                    
                     self.postData[i] = actualValue
                     self.tableView.reloadData()
- 
+                    
                 }
             })
         }
@@ -118,60 +120,50 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         let ref = FIRDatabase.database().reference()
         
         self.globPostUIDs.removeAll()
-        self.postData.removeAll()
-        self.globHasLiked.removeAll()
         
-        ref.child("posts").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+        ref.child("postUIDs").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+
+            var funcPostUIDs = [String : NSTimeInterval]()
+            var stringArray = [String]()
+            var funcPostData = [[NSObject : AnyObject]?]()
+            var funcHasLiked = [Bool?]()
             
-            if let snapshots = snapshot.children.allObjects as? [FIRDataSnapshot] {
+            
+            if let actualSnap = snapshot.value as? [String:NSTimeInterval] {
                 
-                var funcPostUIDs = [String]()
-                var funcPostData = [[NSObject : AnyObject]]()
-                var funcHasLiked = [Bool]()
-                
-                for snap in snapshots {
+                for (key, value) in actualSnap {
                     
-                    if let actualSnap = snap.value as? [NSObject:AnyObject] {
-                        
-                        funcPostData.insert(actualSnap, atIndex: 0)
-                        
-                        if let hasLiked = actualSnap["hasLiked"] as? [String:Bool] {
-                            
-                            var liked = false
-                            
-                            for (key, _) in hasLiked {
-                                
-                                if key == FIRAuth.auth()?.currentUser?.uid {
-                                    
-                                    liked = true
-                                    
-                                }
-                            }
-                            
-                            funcHasLiked.insert(liked, atIndex: 0)
-                            
-                        } else {
-                            
-                            funcHasLiked.insert(false, atIndex: 0)
-                            
-                        }
-
-                        if let postID = actualSnap["postChildKey"] as? String {
-                            
-                            funcPostUIDs.insert(postID, atIndex: 0)
-                            
-                        }
-                    }
+                    funcPostUIDs[key] = value
+                    funcPostData.append(nil)
+                    funcHasLiked.append(nil)
+                    
                 }
+                
+                let sortedSnap = funcPostUIDs.sort({ (a: (String, NSTimeInterval), b: (String, NSTimeInterval)) -> Bool in
+                    
+                    if a.1 > b.1 {
+                        return true
+                    } else {
+                        return false
+                    }
+                    
+                })
 
-                self.observeData(funcPostUIDs, postData: funcPostData, funcHasLiked: funcHasLiked)
-                self.tableView.reloadData()
+                for (key, _) in sortedSnap {
+                    
+                    stringArray.append(key)
+                    
+                    
+                }
+                
+                
+                self.observeData(stringArray, postData: funcPostData, funcHasLiked: funcHasLiked)
+
             }
             
             
             let now = NSDate()
-            
-            
+
             let updateString = "Last updated: " + self.dateFormatter.stringFromDate(now)
             self.refreshControl.attributedTitle = NSAttributedString(string: updateString)
             
@@ -182,8 +174,7 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
             }
             
             self.tableView.reloadData()
-            
-            
+
         })
     }
     
@@ -328,47 +319,97 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
         tableView.allowsSelection = false
-        tableView.rowHeight = UITableViewAutomaticDimension
+        //tableView.rowHeight = UITableViewAutomaticDimension
         tableView.estimatedRowHeight = 44.0
         
-        if postData[indexPath.row]["isImage"] as? Bool == true {
+        let defaultCell = UITableViewCell()
+        
+        if let actualData = postData[indexPath.row] {
             
-            let cell = tableView.dequeueReusableCellWithIdentifier("imageCell") as! ImageContentCell
-            
-            cell.hasLiked = globHasLiked[indexPath.row]
-            cell.data = postData[indexPath.row]
-            cell.loadData()
-            
-            
-            cell.globPostUIDs = globPostUIDs
-            cell.globHasLiked = globHasLiked
-            cell.postData = postData
-            
-            
-            cell.homeController = self
-            return cell
-            
-        } else {
-            
-            let cell = tableView.dequeueReusableCellWithIdentifier("imageCell") as! ImageContentCell
-            
-            //cell.globHasLiked = globHasLiked[indexPath.row]
-            cell.data = postData[indexPath.row]
-            cell.loadData()
-            
-            cell.homeController = self
-            return cell
-            
+            if let isImage = actualData["isImage"] as? Bool {
+                
+                if isImage {
+                    
+                    let cell = tableView.dequeueReusableCellWithIdentifier("imageCell") as! ImageContentCell
+                    
+                    cell.hasLiked = globHasLiked[indexPath.row]
+                    cell.postUID = globPostUIDs[indexPath.row]
+                    cell.data = actualData
+                    cell.loadData()
+                    
+                    
+                    cell.globPostUIDs = globPostUIDs
+                    cell.globHasLiked = globHasLiked
+                    cell.postData = postData
+                    
+                    
+                    cell.homeController = self
+                    return cell
+                    
+                    
+                } else {
+                    
+                    
+                    let cell = tableView.dequeueReusableCellWithIdentifier("imageCell") as! ImageContentCell
+                    
+                    //cell.globHasLiked = globHasLiked[indexPath.row]
+                    cell.data = actualData
+                    cell.loadData()
+                    
+                    cell.homeController = self
+                    return cell
+
+                }
+            }
         }
         
+            return defaultCell
     }
-    
-    
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         return postData.count
     }
+    
+    
+    func tableView(tableView: UITableView, willDisplayCell cell: UITableViewCell, forRowAtIndexPath indexPath: NSIndexPath) {
+        
+        let key = indexPath.row
+        let height = cell.frame.size.height
+        self.cellHeightsDictionary[key] = height
+        
+    }
+    
+    func tableView(tableView: UITableView, estimatedHeightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        
+        let key = indexPath.row
+        
+        if let actualHeight = self.cellHeightsDictionary[key] {
+            
+            if actualHeight != 0 {
+                
+                return actualHeight
+                
+            } else {
+                return UITableViewAutomaticDimension
+            }
+            
+        } else {
+            return UITableViewAutomaticDimension
+        }
+        
+    }
+    
+    
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        
+        return UITableViewAutomaticDimension
+        
+    }
+ 
+    
+    
+    
     
     override func viewDidAppear(animated: Bool) {
         print("view appeared")

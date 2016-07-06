@@ -13,8 +13,8 @@ class TopChatController: UIViewController {
     weak var rootController: ChatRootController?
     
     var globPostUIDs = [String]()
-    var postData = [[NSObject:AnyObject]]()
-    var globHasLiked = [Bool]()
+    var postData = [[NSObject:AnyObject]?]()
+    var globHasLiked = [Bool?]()
     
     @IBAction func back(sender: AnyObject) {
         
@@ -32,7 +32,13 @@ class TopChatController: UIViewController {
         
         rootController?.presentViewController(vc, animated: false, completion: {
          
+            print(post)
+            print(like)
+            print(id)
+            
+            
             vc.homeController?.observeData(id, postData: post, funcHasLiked: like)
+            //vc.homeController?.observeData(id, postData: post, funcHasLiked: like)
             
         })
     }

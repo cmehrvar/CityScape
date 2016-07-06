@@ -15,13 +15,14 @@ import FirebaseAuth
 class ImageContentCell: UITableViewCell {
     
     //Variables
+    var postUID = ""
     var globPostUIDs = [String]()
-    var postData = [[NSObject:AnyObject]]()
-    var globHasLiked = [Bool]()
+    var postData = [[NSObject:AnyObject]?]()
+    var globHasLiked = [Bool?]()
     var data = [NSObject : AnyObject]()
     var homeController: HomeController!
-    var hasLiked = false
-
+    var hasLiked: Bool?
+    
     
     //Outlets
     @IBOutlet weak var cityRankOutlet: UILabel!
@@ -66,7 +67,7 @@ class ImageContentCell: UITableViewCell {
     @IBAction func viewCommentsAction(sender: AnyObject) {
         
         let vc = homeController.storyboard?.instantiateViewControllerWithIdentifier("rootChatController") as! ChatRootController
-
+        
         let transition: CATransition = CATransition()
         transition.duration = 0.3
         transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
@@ -74,45 +75,49 @@ class ImageContentCell: UITableViewCell {
         transition.subtype = kCATransitionFromRight
         homeController.view.window?.layer.addAnimation((transition), forKey: nil)
         
-        guard let selfUID = FIRAuth.auth()?.currentUser?.uid else {return}
-        
-        vc.chatController?.senderId = selfUID
-        
-        let ref = FIRDatabase.database().reference()
-        
-        ref.child("users").child(selfUID).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+        if let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
-            if let userData = snapshot.value as? [NSObject : AnyObject] {
+            let ref = FIRDatabase.database().reference()
+            
+            ref.child("users").child(selfUID).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
                 
-                var name = ""
-                
-                if let firstName = userData["firstName"] as? String {
+                if let userData = snapshot.value as? [NSObject : AnyObject] {
                     
-                    name = firstName + " "
+                    var name = ""
+                    
+                    if let firstName = userData["firstName"] as? String {
+                        
+                        name = firstName + " "
+                        
+                    }
+                    
+                    if let lastName = userData["lastName"] as? String {
+                        
+                        name += lastName
+                        
+                    }
+                    
+                    let post = self.postData
+                    let like = self.globHasLiked
+                    let id = self.globPostUIDs
+                    
+                    let refToPass = "posts/\(self.postUID)"
+                    
+                    self.homeController.presentViewController(vc, animated: false) {
+                        
+                        vc.chatController?.senderDisplayName = name
+                        vc.chatController?.senderId = selfUID
+                        vc.chatController?.passedRef = refToPass
+                        vc.chatController?.addMessage()
+                        
+                        vc.topChatController?.globPostUIDs = id
+                        vc.topChatController?.globHasLiked = like
+                        vc.topChatController?.postData = post
+                        
+                    }
                     
                 }
-                
-                if let lastName = userData["lastName"] as? String {
-                    
-                    name += lastName
-                    
-                }
-                
-                vc.chatController?.senderDisplayName = name
-
-            }
-        })
-
-        let post = postData
-        let like = globHasLiked
-        let id = globPostUIDs
-        
-        homeController.presentViewController(vc, animated: false) {
-            
-            vc.topChatController?.globPostUIDs = id
-            vc.topChatController?.globHasLiked = like
-            vc.topChatController?.postData = post
-            
+            })
         }
         
         print("view comments tapped")
@@ -123,7 +128,7 @@ class ImageContentCell: UITableViewCell {
     @IBAction func viewAllCommentsAction(sender: AnyObject) {
         
         print("view all comments tapped")
-
+        
         
     }
     
@@ -131,58 +136,63 @@ class ImageContentCell: UITableViewCell {
     
     func loadData() {
         
-        if hasLiked {
+        if let actualLiked = hasLiked {
             
-            thumbsUpImageOutlet.image = nil
-            thumbsDownImageOutlet.image = nil
-            viewHowManyCommentsOutlet.enabled = false
-            
-        } else {
-            
-            thumbsUpImageOutlet.image = UIImage(named: "thumbsUp")
-            thumbsDownImageOutlet.image = UIImage(named: "thumbsDown")
-            viewHowManyCommentsOutlet.enabled = false
-            
-        }
-        
-        if let actualLike = data["like"] as? Int, actualDislike = data["dislike"] as? Int, actualFirstName = data["firstName"] as? String, actualLastName = data["lastName"] as? String, actualCaption = data["caption"] as? String ,actualContent = data["contentURL"] as? String, actualProfile = data["profilePicture"] as? String, actualCity = data["city"] as? String, actualTimeStamp = data["timeStamp"] as? NSTimeInterval, userUID = data["userUID"] as? String {
-            
-            let postData = NSDate(timeIntervalSince1970: actualTimeStamp)
-            
-            timeAgoOutlet.text = timeAgoSince(postData)
-            
-            if actualCaption == "\"\"" {
-                captionOutlet.text = nil
+            if actualLiked {
+                
+                thumbsUpImageOutlet.image = nil
+                thumbsDownImageOutlet.image = nil
+                viewHowManyCommentsOutlet.enabled = false
+                
             } else {
-                captionOutlet.text = actualCaption
-            }
-            
-            nameOutlet.text = actualFirstName + " " + actualLastName
-            dislikeDisplayOutlet.text = "Dislikes: " + String(actualDislike)
-            likeDisplayOutlet.text = "Likes: " + String(actualLike)
-            cityOutlet.text = actualCity
-            
-            if let actualURL = NSURL(string: actualContent), actualProfileURL = NSURL(string: actualProfile) {
                 
-                imageOutlet.sd_setImageWithURL(actualURL, placeholderImage: nil)
-                profilePictureOutlet.sd_setImageWithURL(actualProfileURL, placeholderImage: nil)
+                thumbsUpImageOutlet.image = UIImage(named: "thumbsUp")
+                thumbsDownImageOutlet.image = UIImage(named: "thumbsDown")
+                viewHowManyCommentsOutlet.enabled = false
                 
             }
             
-            let ref = FIRDatabase.database().reference()
-            
-            ref.child("users").child(userUID).child("cityRank").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+            if let actualLike = data["like"] as? Int, actualDislike = data["dislike"] as? Int, actualFirstName = data["firstName"] as? String, actualLastName = data["lastName"] as? String, actualCaption = data["caption"] as? String ,actualContent = data["contentURL"] as? String, actualProfile = data["profilePicture"] as? String, actualCity = data["city"] as? String, actualTimeStamp = data["timeStamp"] as? NSTimeInterval, userUID = data["userUID"] as? String {
                 
-                if let rank = snapshot.value as? Int {
+                let postData = NSDate(timeIntervalSince1970: actualTimeStamp)
+                
+                timeAgoOutlet.text = timeAgoSince(postData)
+                
+                if actualCaption == "\"\"" {
+                    captionOutlet.text = nil
+                } else {
+                    captionOutlet.text = actualCaption
+                }
+                
+                nameOutlet.text = actualFirstName + " " + actualLastName
+                dislikeDisplayOutlet.text = "Dislikes: " + String(actualDislike)
+                likeDisplayOutlet.text = "Likes: " + String(actualLike)
+                cityOutlet.text = actualCity
+                
+                if let actualURL = NSURL(string: actualContent), actualProfileURL = NSURL(string: actualProfile) {
                     
-                    self.cityRankOutlet.text = "City Rank: " + String(rank)
+                    imageOutlet.sd_setImageWithURL(actualURL, placeholderImage: nil)
+                    profilePictureOutlet.sd_setImageWithURL(actualProfileURL, placeholderImage: nil)
                     
                 }
-            })
+                
+                let ref = FIRDatabase.database().reference()
+                
+                ref.child("users").child(userUID).child("cityRank").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                    
+                    if let rank = snapshot.value as? Int {
+                        
+                        self.cityRankOutlet.text = "City Rank: " + String(rank)
+                        
+                    }
+                })
+            }
         }
     }
     
     func likeDislike(key: String) {
+        
+        print("liked")
         
         if key == "like" {
             
@@ -224,46 +234,43 @@ class ImageContentCell: UITableViewCell {
         
         
         let ref = FIRDatabase.database().reference()
-        
-        if let postUID = data["postChildKey"] as? String {
+        ref.child("posts").child(postUID).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
             
-            ref.child("posts").child(postUID).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+            if let value = snapshot.value {
                 
-                if let value = snapshot.value {
+                if let actualNumber = value[key] as? Int {
                     
-                    if let actualNumber = value[key] as? Int {
+                    if let userUID = FIRAuth.auth()?.currentUser?.uid {
                         
-                        if let userUID = FIRAuth.auth()?.currentUser?.uid {
+                        ref.child("posts").child(self.postUID).updateChildValues([key : (actualNumber + 1)])
+                        ref.child("users").child(userUID).child("posts").child(self.postUID).updateChildValues([key : (actualNumber + 1)])
+                        ref.child("posts").child(self.postUID).child("hasLiked").updateChildValues([userUID : true])
+                        ref.child("users").child(userUID).child("totalScore").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
                             
-                            ref.child("posts").child(postUID).updateChildValues([key : (actualNumber + 1)])
-                            ref.child("users").child(userUID).child("posts").child(postUID).updateChildValues([key : (actualNumber + 1)])
-                            ref.child("posts").child(postUID).child("hasLiked").child(userUID).setValue(true)
-                            
-                            ref.child("users").child(userUID).child("totalScore").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                            if let actualScore = snapshot.value as? Int {
                                 
-                                if let actualScore = snapshot.value as? Int {
+                                if key == "like" {
                                     
-                                    if key == "like" {
+                                    ref.child("users").child(userUID).updateChildValues(["totalScore" : actualScore + 2])
+                                    ref.child("userScores").updateChildValues([userUID : actualScore + 2])
+                                    
+                                } else if key == "dislike" {
+                                    
+                                    if actualScore > 0 {
                                         
-                                        ref.child("users").child(userUID).updateChildValues(["totalScore" : actualScore + 2])
-                                        ref.child("userScores").child(userUID).setValue(actualScore + 2)
+                                        ref.child("users").child(userUID).updateChildValues(["totalScore" : actualScore - 1])
+                                        ref.child("userScores").child(userUID).updateChildValues([userUID : actualScore - 1])
                                         
-                                    } else if key == "dislike" {
                                         
-                                        if actualScore > 0 {
-                                            
-                                            ref.child("users").child(userUID).updateChildValues(["totalScore" : actualScore - 1])
-                                            ref.child("userScores").child(userUID).setValue(actualScore - 1)
-                                            
-                                        }
                                     }
                                 }
-                            })
-                        }
+                            }
+                        })
                     }
                 }
-            })
-        }
+            }
+        })
+        
     }
     
     override func awakeFromNib() {
