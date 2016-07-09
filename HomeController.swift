@@ -70,6 +70,8 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
     
     func observeMessageData(postUID: String, index: Int){
         
+        
+        
         let ref = FIRDatabase.database().reference()
         
         ref.child("posts").child(postUID).child("messages").queryLimitedToLast(5).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
@@ -96,6 +98,8 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
     
     //Functions
     func observeData(postUIDs: [String], postData: [[NSObject : AnyObject]?]){
+        
+        //self.messageData.removeAll()
         
         for post in postUIDs {
             self.messageData.append([NSObject:AnyObject]())
