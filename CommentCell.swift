@@ -10,6 +10,7 @@ import UIKit
 import Firebase
 import FirebaseDatabase
 import FirebaseAuth
+import SDWebImage
 
 class CommentCell: UITableViewCell {
     
@@ -110,7 +111,7 @@ class CommentCell: UITableViewCell {
     func loadData(){
         
         print(messageData)
-        var textArray = [String]()
+        var messageArray = [[String : AnyObject]]()
         var i: Int = 0
         
         if let data = messageData {
@@ -130,15 +131,15 @@ class CommentCell: UITableViewCell {
                 
                 if i <= 2 {
                     
-                    if let text = message.1["text"] as? String {
-                        textArray.append(text)
+                    if let text = message.1["text"] as? String, profile = message.1["profilePicture"] as? String {
+                        messageArray.append(["text" : text, "profile" : profile])
                         i += 1
                         
                     }
                 }
             }
             
-            if textArray.count == 0 {
+            if messageArray.count == 0 {
 
                 joinConvoOutlet.text = "Start a conversation!"
                 
@@ -154,27 +155,33 @@ class CommentCell: UITableViewCell {
 
                 })
 
-            } else if textArray.count == 1 {
+            } else if messageArray.count == 1 {
                 
                 joinConvoOutlet.text = "Join the conversation!"
                 
-                comment1Outlet.text = textArray[0]
+                comment1Outlet.text = messageArray[0]["text"] as? String
                 comment2Outlet.text = ""
                 comment3Outlet.text = ""
-                
+
                 dispatch_async(dispatch_get_main_queue(), {
                     
-                    self.Com2TO3Outlet.constant = 0
-                    self.Com3TOBottomOutlet.constant = 0
+                    if let profileURLString = messageArray[0]["profile"] as? String {
 
+                        self.profile1Outlet.sd_setImageWithURL(NSURL(string: profileURLString), placeholderImage: nil)
+                        
+                        self.Com2TO3Outlet.constant = 0
+                        self.Com3TOBottomOutlet.constant = 0
+
+                        
+                    }
                 })
 
-            } else if textArray.count == 2 {
+            } else if messageArray.count == 2 {
                 
                 joinConvoOutlet.text = "Join the conversation!"
                 
-                comment1Outlet.text = textArray[0]
-                comment2Outlet.text = textArray[1]
+                comment1Outlet.text = messageArray[0]["text"] as? String
+                comment2Outlet.text = messageArray[1]["text"] as? String
                 comment3Outlet.text = ""
                 
                 dispatch_async(dispatch_get_main_queue(), {
@@ -183,13 +190,13 @@ class CommentCell: UITableViewCell {
 
                 })
 
-            } else if textArray.count == 3 {
+            } else if messageArray.count == 3 {
                 
                 joinConvoOutlet.text = "Join the conversation!"
                 
-                comment1Outlet.text = textArray[0]
-                comment2Outlet.text = textArray[1]
-                comment3Outlet.text = textArray[2]
+                comment1Outlet.text = messageArray[0]["text"] as? String
+                comment2Outlet.text = messageArray[1]["text"] as? String
+                comment3Outlet.text = messageArray[2]["text"] as? String
                 
             }
         }
@@ -199,14 +206,6 @@ class CommentCell: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        
-        firstName1Outlet.text = "Cina:"
-        comment1Outlet.text = "This better work..."
-        
-        
-        name3Outlet.text = "Channing:"
-        
-        
         
         // Initialization code
     }
