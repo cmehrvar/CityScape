@@ -19,19 +19,13 @@ class TopChatController: UIViewController {
     @IBAction func back(sender: AnyObject) {
         
         let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
-        let transition: CATransition = CATransition()
-        transition.duration = 0.3
-        transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
-        transition.type = kCATransitionPush
-        transition.subtype = kCATransitionFromLeft
-        rootController?.view.window?.layer.addAnimation((transition), forKey: nil)
         
         let post = postData
         let id = globPostUIDs
         
         let offset = tableViewOffset
         
-        rootController?.presentViewController(vc, animated: false, completion: {
+        rootController?.dismissViewControllerAnimated(true, completion: {
             
             vc.homeController?.observeData(id, postData: post)
             vc.homeController?.tableView.contentOffset = offset

@@ -8,12 +8,12 @@
 
 import UIKit
 
-class CommentProfilePic: UIImageView {
+class CommentProfilePic: UIView {
 
     override func awakeFromNib() {
         
         super.awakeFromNib()
-        layer.cornerRadius = 7
+        layer.cornerRadius = 6
         self.clipsToBounds = true
     }
 

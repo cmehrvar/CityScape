@@ -24,16 +24,53 @@ class CommentController: JSQMessagesViewController {
     var incomingBubbleImageView: JSQMessagesBubbleImage!
     var outgoingBubbleImageView: JSQMessagesBubbleImage!
     
+    
+    func beganTyping(){
+        
+        let ref = FIRDatabase.database().reference()
+        
+        if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+            
+            ref.child(passedRef).child("isTyping").child(selfUID).setValue(true)
+            
+        }
+    }
+    
+    func endedTyping(){
+        
+        let ref = FIRDatabase.database().reference()
+        
+        if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+            
+            ref.child(passedRef).child("isTyping").child(selfUID).setValue(false)
+            
+        }
+    }
+
     private func setUpBubbles() {
         
         let factory = JSQMessagesBubbleImageFactory()
         outgoingBubbleImageView = factory.outgoingMessagesBubbleImageWithColor(UIColor.jsq_messageBubbleBlueColor())
         incomingBubbleImageView = factory.incomingMessagesBubbleImageWithColor(UIColor.jsq_messageBubbleLightGrayColor())
-        
-        
+
     }
     
     
+    override func textViewDidChange(textView: UITextView) {
+        
+        super.textViewDidChange(textView)
+        
+        if textView.text != "" {
+            
+            beganTyping()
+            
+        } else {
+            
+            endedTyping()
+            
+        }
+    }
+
     override func collectionView(collectionView: JSQMessagesCollectionView!, messageDataForItemAtIndexPath indexPath: NSIndexPath!) -> JSQMessageData! {
         
         return messages[indexPath.row]
@@ -45,6 +82,9 @@ class CommentController: JSQMessagesViewController {
         return messages.count
         
     }
+
+    
+
     
     override func collectionView(collectionView: JSQMessagesCollectionView!, messageBubbleImageDataForItemAtIndexPath indexPath: NSIndexPath!) -> JSQMessageBubbleImageDataSource! {
         
@@ -86,10 +126,60 @@ class CommentController: JSQMessagesViewController {
     
     override func didPressSendButton(button: UIButton!, withMessageText text: String!, senderId: String!, senderDisplayName: String!, date: NSDate!) {
         
+        let ref = FIRDatabase.database().reference()
+        let scopePassedRef = passedRef
+        
+        ref.child("users").child(senderId).child("profilePicture").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+            
+            if let value = snapshot.value as? String {
+                
+                let timeStamp = NSDate().timeIntervalSince1970
+                
+                let messageItem = [
+                    "text" : text,
+                    "senderId":senderId,
+                    "profilePicture" : value,
+                    "timeStamp" : timeStamp
+                    
+                ]
+                
+                ref.child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
+                ref.child("users").child(senderId).child("posts").child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
+                
+            }
+        })
+        
+        JSQSystemSoundPlayer.jsq_playMessageSentSound()
+        
+        endedTyping()
+        
+        finishSendingMessage()
+
         
         
         
     }
+    
+    func observeMessages() {
+        
+        let refString = "/" + passedRef
+        
+        let ref = FIRDatabase.database().reference().child(refString).child("messages")
+        
+        ref.observeEventType(.ChildAdded, withBlock:  { (snapshot) in
+            
+            if let actualValue = snapshot.value as? [NSObject : AnyObject] {
+                
+                if let id = actualValue["senderId"] as? String, text = actualValue["text"] as? String {
+                    
+                    self.addMessage(id, text: text)
+                    self.finishReceivingMessage()
+                    
+                }
+            }
+        })
+    }
+
     
     
     
@@ -127,14 +217,7 @@ class CommentController: JSQMessagesViewController {
 
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
 

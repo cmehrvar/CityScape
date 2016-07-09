@@ -58,15 +58,7 @@ class ImageContentCell: UITableViewCell {
     
         
     
-    @IBAction func viewAllCommentsAction(sender: AnyObject) {
-        
-        print("view all comments tapped")
-        
-        
-    }
-    
-    
-    
+       
     func loadData() {
         
         /*

@@ -72,7 +72,7 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         
         let ref = FIRDatabase.database().reference()
         
-        ref.child("posts").child(postUID).child("messages").queryLimitedToLast(3).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+        ref.child("posts").child(postUID).child("messages").queryLimitedToLast(5).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
             
             if let value = snapshot.value as? [NSObject:AnyObject] {
                 
@@ -83,7 +83,7 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
             
         })
         
-        ref.child("posts").child(postUID).child("messages").queryLimitedToLast(3).observeEventType(.Value, withBlock: { (snapshot) in
+        ref.child("posts").child(postUID).child("messages").queryLimitedToLast(5).observeEventType(.Value, withBlock: { (snapshot) in
             
             if let value = snapshot.value as? [NSObject:AnyObject] {
                 
