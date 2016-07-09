@@ -127,8 +127,8 @@ class CommentCell: UITableViewCell {
                         
                         
                         
-                        if let text = message.1["text"] as? String, profile = message.1["profilePicture"] as? String {
-                            messageArray.append(["text" : text, "profile" : profile])
+                        if let text = message.1["text"] as? String, profile = message.1["profilePicture"] as? String, name = message.1["firstName"] as? String {
+                            messageArray.append(["text" : text, "profile" : profile, "firstName" : name + ":"])
                             
                             
                         }
@@ -164,7 +164,7 @@ class CommentCell: UITableViewCell {
                         
                         joinConvoOutlet.text = "Join the conversation!"
                         
-                        firstName1Outlet.text = "Cina:" //messageArray[0]["firstName"] as? String
+                        firstName1Outlet.text = messageArray[0]["firstName"] as? String
                         name2Outlet.text = ""
                         name3Outlet.text = ""
                         name4Outlet.text = ""
@@ -203,8 +203,8 @@ class CommentCell: UITableViewCell {
                         comment4Outlet.text = ""
                         comment5Outlet.text = ""
                         
-                        firstName1Outlet.text = "Cina:" //messageArray[0]["firstName"] as? String
-                        name2Outlet.text = "Sheila:" //messageArray[1]["firstName"] as? String
+                        firstName1Outlet.text = messageArray[0]["firstName"] as? String
+                        name2Outlet.text = messageArray[1]["firstName"] as? String
                         name3Outlet.text = ""
                         name4Outlet.text = ""
                         name5Outlet.text = ""
@@ -243,9 +243,11 @@ class CommentCell: UITableViewCell {
                         comment4Outlet.text = ""
                         comment5Outlet.text = ""
                         
-                        firstName1Outlet.text = "Cina:" //messageArray[0]["firstName"] as? String
-                        name2Outlet.text = "Sheila:" //messageArray[1]["firstName"] as? String
-                        name3Outlet.text = "Laleh:" //messageArray[2]["firstName"] as? String
+                        
+                        
+                        firstName1Outlet.text = messageArray[0]["firstName"] as? String
+                        name2Outlet.text = messageArray[1]["firstName"] as? String
+                        name3Outlet.text = messageArray[2]["firstName"] as? String
                         name4Outlet.text = ""
                         name5Outlet.text = ""
                         
@@ -283,10 +285,10 @@ class CommentCell: UITableViewCell {
                         comment4Outlet.text = messageArray[3]["text"] as? String
                         comment5Outlet.text = ""
                         
-                        firstName1Outlet.text = "Cina:" //messageArray[0]["firstName"] as? String
-                        name2Outlet.text = "Sheila:" //messageArray[1]["firstName"] as? String
-                        name3Outlet.text = "Laleh:" //messageArray[2]["firstName"] as? String
-                        name4Outlet.text = "Steve:"
+                        firstName1Outlet.text = messageArray[0]["firstName"] as? String
+                        name2Outlet.text = messageArray[1]["firstName"] as? String
+                        name3Outlet.text = messageArray[2]["firstName"] as? String
+                        name4Outlet.text = messageArray[3]["firstName"] as? String
                         name5Outlet.text = ""
                         
                         if let profileURLString = messageArray[0]["profile"] as? String {
@@ -330,11 +332,11 @@ class CommentCell: UITableViewCell {
                         comment4Outlet.text = messageArray[3]["text"] as? String
                         comment5Outlet.text = messageArray[4]["text"] as? String
                         
-                        firstName1Outlet.text = "Cina:" //messageArray[0]["firstName"] as? String
-                        name2Outlet.text = "Sheila:" //messageArray[1]["firstName"] as? String
-                        name3Outlet.text = "Laleh:" //messageArray[2]["firstName"] as? String
-                        name4Outlet.text = "Steve:"
-                        name5Outlet.text = "Jake:"
+                        firstName1Outlet.text = messageArray[0]["firstName"] as? String
+                        name2Outlet.text = messageArray[1]["firstName"] as? String
+                        name3Outlet.text = messageArray[2]["firstName"] as? String
+                        name4Outlet.text = messageArray[3]["firstName"] as? String
+                        name5Outlet.text = messageArray[4]["firstName"] as? String
                         
                         if let profileURLString = messageArray[0]["profile"] as? String {
                             

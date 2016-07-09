@@ -129,23 +129,28 @@ class CommentController: JSQMessagesViewController {
         let ref = FIRDatabase.database().reference()
         let scopePassedRef = passedRef
         
-        ref.child("users").child(senderId).child("profilePicture").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+        ref.child("users").child(senderId).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
             
-            if let value = snapshot.value as? String {
+            if let value = snapshot.value as? [NSObject:AnyObject] {
                 
                 let timeStamp = NSDate().timeIntervalSince1970
                 
-                let messageItem = [
-                    "text" : text,
-                    "senderId":senderId,
-                    "profilePicture" : value,
-                    "timeStamp" : timeStamp
+                if let profile = value["profilePicture"] as? String, first = value["firstName"] as? String, last = value["lastName"] as? String {
                     
-                ]
-                
-                ref.child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
-                ref.child("users").child(senderId).child("posts").child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
-                
+                    let messageItem = [
+                        "text" : text,
+                        "senderId":senderId,
+                        "profilePicture" : profile,
+                        "timeStamp" : timeStamp,
+                        "firstName" : first,
+                        "lastName" : last
+                        
+                    ]
+                    
+                    ref.child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
+                    ref.child("users").child(senderId).child("posts").child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
+                    
+                }
             }
         })
         
@@ -155,9 +160,6 @@ class CommentController: JSQMessagesViewController {
         
         finishSendingMessage()
 
-        
-        
-        
     }
     
     func observeMessages() {
