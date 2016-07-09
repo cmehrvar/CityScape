@@ -14,7 +14,7 @@ class TopChatController: UIViewController {
     
     var globPostUIDs = [String]()
     var postData = [[NSObject:AnyObject]?]()
-    var globHasLiked = [Bool?]()
+    var tableViewOffset = CGPoint()
     
     @IBAction func back(sender: AnyObject) {
         
@@ -27,18 +27,14 @@ class TopChatController: UIViewController {
         rootController?.view.window?.layer.addAnimation((transition), forKey: nil)
         
         let post = postData
-        let like = globHasLiked
         let id = globPostUIDs
         
+        let offset = tableViewOffset
+        
         rootController?.presentViewController(vc, animated: false, completion: {
-         
-            print(post)
-            print(like)
-            print(id)
             
-            
-            vc.homeController?.observeData(id, postData: post, funcHasLiked: like)
-            //vc.homeController?.observeData(id, postData: post, funcHasLiked: like)
+            vc.homeController?.observeData(id, postData: post)
+            vc.homeController?.tableView.contentOffset = offset
             
         })
     }

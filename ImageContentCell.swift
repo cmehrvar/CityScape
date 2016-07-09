@@ -16,9 +16,6 @@ class ImageContentCell: UITableViewCell {
     
     //Variables
     var postUID = ""
-    var globPostUIDs = [String]()
-    var postData = [[NSObject:AnyObject]?]()
-    var globHasLiked = [Bool?]()
     var data = [NSObject : AnyObject]()
     var homeController: HomeController!
     var hasLiked: Bool?
@@ -33,11 +30,6 @@ class ImageContentCell: UITableViewCell {
     @IBOutlet weak var nameOutlet: UILabel!
     @IBOutlet weak var cityOutlet: UILabel!
     @IBOutlet weak var captionOutlet: UILabel!
-    @IBOutlet weak var commentName1Outlet: UILabel!
-    @IBOutlet weak var comment1Outlet: UILabel!
-    @IBOutlet weak var commentName2Outlet: UILabel!
-    @IBOutlet weak var comment2Outlet: UILabel!
-    @IBOutlet weak var viewHowManyCommentsOutlet: UIButton!
     @IBOutlet weak var likeButtonOutlet: UIButton!
     @IBOutlet weak var dislikeButtonOutlet: UIButton!
     @IBOutlet weak var thumbsDownImageOutlet: UIImageView!
@@ -64,66 +56,7 @@ class ImageContentCell: UITableViewCell {
     }
     
     
-    @IBAction func viewCommentsAction(sender: AnyObject) {
         
-        let vc = homeController.storyboard?.instantiateViewControllerWithIdentifier("rootChatController") as! ChatRootController
-        
-        let transition: CATransition = CATransition()
-        transition.duration = 0.3
-        transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
-        transition.type = kCATransitionPush
-        transition.subtype = kCATransitionFromRight
-        homeController.view.window?.layer.addAnimation((transition), forKey: nil)
-        
-        if let selfUID = FIRAuth.auth()?.currentUser?.uid {
-            
-            let ref = FIRDatabase.database().reference()
-            
-            ref.child("users").child(selfUID).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
-                
-                if let userData = snapshot.value as? [NSObject : AnyObject] {
-                    
-                    var name = ""
-                    
-                    if let firstName = userData["firstName"] as? String {
-                        
-                        name = firstName + " "
-                        
-                    }
-                    
-                    if let lastName = userData["lastName"] as? String {
-                        
-                        name += lastName
-                        
-                    }
-                    
-                    let post = self.postData
-                    let like = self.globHasLiked
-                    let id = self.globPostUIDs
-                    
-                    let refToPass = "posts/\(self.postUID)"
-                    
-                    self.homeController.presentViewController(vc, animated: false) {
-                        
-                        vc.chatController?.senderDisplayName = name
-                        vc.chatController?.senderId = selfUID
-                        vc.chatController?.passedRef = refToPass
-                        vc.chatController?.addMessage()
-                        
-                        vc.topChatController?.globPostUIDs = id
-                        vc.topChatController?.globHasLiked = like
-                        vc.topChatController?.postData = post
-                        
-                    }
-                    
-                }
-            })
-        }
-        
-        print("view comments tapped")
-        
-    }
-    
     
     @IBAction func viewAllCommentsAction(sender: AnyObject) {
         
@@ -136,22 +69,23 @@ class ImageContentCell: UITableViewCell {
     
     func loadData() {
         
+        /*
         if let actualLiked = hasLiked {
             
             if actualLiked {
                 
                 thumbsUpImageOutlet.image = nil
                 thumbsDownImageOutlet.image = nil
-                viewHowManyCommentsOutlet.enabled = false
+                //viewHowManyCommentsOutlet.enabled = false
                 
             } else {
                 
                 thumbsUpImageOutlet.image = UIImage(named: "thumbsUp")
                 thumbsDownImageOutlet.image = UIImage(named: "thumbsDown")
-                viewHowManyCommentsOutlet.enabled = false
+                //viewHowManyCommentsOutlet.enabled = false
                 
             }
-            
+            */
             if let actualLike = data["like"] as? Int, actualDislike = data["dislike"] as? Int, actualFirstName = data["firstName"] as? String, actualLastName = data["lastName"] as? String, actualCaption = data["caption"] as? String ,actualContent = data["contentURL"] as? String, actualProfile = data["profilePicture"] as? String, actualCity = data["city"] as? String, actualTimeStamp = data["timeStamp"] as? NSTimeInterval, userUID = data["userUID"] as? String {
                 
                 let postData = NSDate(timeIntervalSince1970: actualTimeStamp)
@@ -187,7 +121,7 @@ class ImageContentCell: UITableViewCell {
                     }
                 })
             }
-        }
+       // }
     }
     
     func likeDislike(key: String) {

@@ -1,4 +1,4 @@
-//
+////
 //  HomeController.swift
 //  CityScape
 //
@@ -20,6 +20,7 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
     //Variables
     var globPostUIDs = [String]()
     var postData = [[NSObject:AnyObject]?]()
+    var messageData = [[NSObject : AnyObject]?]()
     var globHasLiked = [Bool?]()
     var refreshControl = UIRefreshControl()
     var dateFormatter = NSDateFormatter()
@@ -67,19 +68,52 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         
     }
     
+    func observeMessageData(postUID: String, index: Int){
+        
+        let ref = FIRDatabase.database().reference()
+        
+        ref.child("posts").child(postUID).child("messages").queryLimitedToLast(3).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+            
+            if let value = snapshot.value as? [NSObject:AnyObject] {
+                
+                self.messageData[index] = value
+                self.tableView.reloadData()
+            }
+            
+            
+        })
+        
+        ref.child("posts").child(postUID).child("messages").queryLimitedToLast(3).observeEventType(.Value, withBlock: { (snapshot) in
+            
+            if let value = snapshot.value as? [NSObject:AnyObject] {
+                
+                self.messageData[index] = value
+                self.tableView.reloadData()
+            } 
+        })
+    }
+    
     
     //Functions
-    func observeData(postUIDs: [String], postData: [[NSObject : AnyObject]?], funcHasLiked: [Bool?]){
+    func observeData(postUIDs: [String], postData: [[NSObject : AnyObject]?]){
+        
+        for post in postUIDs {
+            self.messageData.append([NSObject:AnyObject]())
+        }
+        
+        
+        //self.messageData.reserveCapacity(postUIDs.count)
         
         self.globPostUIDs = postUIDs
         self.postData = postData
-        self.globHasLiked = funcHasLiked
         
-        self.tableView.reloadData()
+        //self.tableView.reloadData()
         
         let ref = FIRDatabase.database().reference()
         
         for i in 0..<postUIDs.count {
+            
+            observeMessageData(postUIDs[i], index: i)
             
             ref.child("posts").child(postUIDs[i]).observeEventType(.Value, withBlock: { (snapshot) in
                 
@@ -98,11 +132,11 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
                             }
                         }
                         
-                        self.globHasLiked[i] = liked
+                        //globHasLiked = true
                         
                     } else {
                         
-                        self.globHasLiked[i] = false
+                        //self.globHasLiked[i] = false
                         
                     }
                     
@@ -128,7 +162,6 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
             var funcPostData = [[NSObject : AnyObject]?]()
             var funcHasLiked = [Bool?]()
             
-            
             if let actualSnap = snapshot.value as? [String:NSTimeInterval] {
                 
                 for (key, value) in actualSnap {
@@ -136,6 +169,7 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
                     funcPostUIDs[key] = value
                     funcPostData.append(nil)
                     funcHasLiked.append(nil)
+                    
                     
                 }
                 
@@ -149,15 +183,15 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
                     
                 })
 
+                
+                
                 for (key, _) in sortedSnap {
                     
                     stringArray.append(key)
                     
-                    
                 }
                 
-                
-                self.observeData(stringArray, postData: funcPostData, funcHasLiked: funcHasLiked)
+                self.observeData(stringArray, postData: funcPostData)
 
             }
             
@@ -323,52 +357,63 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         tableView.estimatedRowHeight = 44.0
         
         let defaultCell = UITableViewCell()
-        
-        if let actualData = postData[indexPath.row] {
-            
-            if let isImage = actualData["isImage"] as? Bool {
-                
-                if isImage {
-                    
-                    let cell = tableView.dequeueReusableCellWithIdentifier("imageCell") as! ImageContentCell
-                    
-                    cell.hasLiked = globHasLiked[indexPath.row]
-                    cell.postUID = globPostUIDs[indexPath.row]
-                    cell.data = actualData
-                    cell.loadData()
-                    
-                    
-                    cell.globPostUIDs = globPostUIDs
-                    cell.globHasLiked = globHasLiked
-                    cell.postData = postData
-                    
-                    
-                    cell.homeController = self
-                    return cell
-                    
-                    
-                } else {
-                    
-                    
-                    let cell = tableView.dequeueReusableCellWithIdentifier("imageCell") as! ImageContentCell
-                    
-                    //cell.globHasLiked = globHasLiked[indexPath.row]
-                    cell.data = actualData
-                    cell.loadData()
-                    
-                    cell.homeController = self
-                    return cell
 
+        if indexPath.row % 2 == 0 || indexPath.row == 0 {
+            
+            let realIndex = indexPath.row / 2
+            
+            if let actualData = postData[realIndex] {
+                
+                if let isImage = actualData["isImage"] as? Bool {
+                    
+                    if isImage {
+                        
+                        let cell = tableView.dequeueReusableCellWithIdentifier("imageCell") as! ImageContentCell
+                        
+                        //cell.hasLiked = globHasLiked[realIndex]
+                        cell.postUID = globPostUIDs[realIndex]
+                        cell.data = actualData
+                        cell.loadData()
+
+                        cell.homeController = self
+                        return cell
+                        
+                    }
                 }
             }
+            print("post")
+        } else if indexPath.row % 2 == 1 {
+            print("comment")
+
+            let realIndex = (indexPath.row / 2)
+            
+            print(realIndex)
+            
+            let cell = tableView.dequeueReusableCellWithIdentifier("commentCell") as! CommentCell
+            cell.homeController = self
+            cell.globPostUIDs = globPostUIDs
+            cell.postUID = globPostUIDs[realIndex]
+            cell.globPostData = postData
+            
+            print("message data count")
+            print(messageData.count)
+            cell.messageData = messageData[realIndex]
+            print(messageData[realIndex])
+            cell.loadData()
+            
+            return cell
+
         }
         
-            return defaultCell
+        return defaultCell
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        return postData.count
+        let numOfCells = postData.count * 2
+        
+        return numOfCells
+    
     }
     
     
@@ -406,11 +451,7 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         return UITableViewAutomaticDimension
         
     }
- 
-    
-    
-    
-    
+
     override func viewDidAppear(animated: Bool) {
         print("view appeared")
         

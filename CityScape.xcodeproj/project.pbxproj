@@ -47,6 +47,8 @@
 		A3E138901D25B592002A5031 /* HomeController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E1388F1D25B592002A5031 /* HomeController.swift */; };
 		A3E138921D25B5A0002A5031 /* MenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E138911D25B5A0002A5031 /* MenuController.swift */; };
 		A3E138961D25C937002A5031 /* InitialController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E138951D25C937002A5031 /* InitialController.swift */; };
+		A3FC188E1D303C4E0031D165 /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3FC188D1D303C4E0031D165 /* CommentCell.swift */; };
+		A3FC18901D3077250031D165 /* CommentProfilePic.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3FC188F1D3077250031D165 /* CommentProfilePic.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -112,6 +114,8 @@
 		A3E1388F1D25B592002A5031 /* HomeController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeController.swift; sourceTree = "<group>"; };
 		A3E138911D25B5A0002A5031 /* MenuController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MenuController.swift; sourceTree = "<group>"; };
 		A3E138951D25C937002A5031 /* InitialController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InitialController.swift; sourceTree = "<group>"; };
+		A3FC188D1D303C4E0031D165 /* CommentCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
+		A3FC188F1D3077250031D165 /* CommentProfilePic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentProfilePic.swift; sourceTree = "<group>"; };
 		AC87D44436C8E19921A25DF1 /* Pods-CityScape.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CityScape.debug.xcconfig"; path = "Pods/Target Support Files/Pods-CityScape/Pods-CityScape.debug.xcconfig"; sourceTree = "<group>"; };
 		EC6DFADC844B37564605F841 /* Pods-CityScape.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CityScape.release.xcconfig"; path = "Pods/Target Support Files/Pods-CityScape/Pods-CityScape.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -264,6 +268,7 @@
 				A3CA895F1D28445500590516 /* SignUpProfilePic.swift */,
 				A3CA89611D284AB200590516 /* TableViewProfilePic.swift */,
 				A37AC1C01D2A19FD00EBF813 /* LikeOrDislikeDisplay.swift */,
+				A3FC188F1D3077250031D165 /* CommentProfilePic.swift */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -273,6 +278,7 @@
 			children = (
 				A3CA895B1D283B9C00590516 /* ImageContentCell.swift */,
 				A3CA895D1D283BAD00590516 /* VideoContentCell.swift */,
+				A3FC188D1D303C4E0031D165 /* CommentCell.swift */,
 			);
 			name = "Table View Cells";
 			sourceTree = "<group>";
@@ -515,10 +521,12 @@
 				A3BB982D1D1C5DC200BD384F /* ForgotPasswordController.swift in Sources */,
 				A37B50801D2AFEF400A38FAE /* TimeAgo.swift in Sources */,
 				A3BB981B1D12E89E00BD384F /* ExploreButton.swift in Sources */,
+				A3FC188E1D303C4E0031D165 /* CommentCell.swift in Sources */,
 				A3BB981D1D136CB600BD384F /* LogInController.swift in Sources */,
 				A3E138961D25C937002A5031 /* InitialController.swift in Sources */,
 				A353F0CC1D1224BC009A2182 /* AppDelegate.swift in Sources */,
 				A3CA89601D28445500590516 /* SignUpProfilePic.swift in Sources */,
+				A3FC18901D3077250031D165 /* CommentProfilePic.swift in Sources */,
 				A3CA895C1D283B9C00590516 /* ImageContentCell.swift in Sources */,
 				A3CA89621D284AB200590516 /* TableViewProfilePic.swift in Sources */,
 				A3BB982B1D1C5ACD00BD384F /* SignInController.swift in Sources */,
