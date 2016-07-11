@@ -157,6 +157,7 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         
         let ref = FIRDatabase.database().reference()
         
+        self.messageData.removeAll()
         self.globPostUIDs.removeAll()
         
         ref.child("postUIDs").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
