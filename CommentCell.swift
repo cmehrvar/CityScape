@@ -17,7 +17,6 @@ class CommentCell: UITableViewCell {
     
     //Properties
     weak var rootController: MainRootController?
-    weak var chatRootController: ChatRootController?
     var globPostUIDs = [String]()
     var globPostData = [[NSObject : AnyObject]?]()
     var postUID: String!
@@ -87,6 +86,7 @@ class CommentCell: UITableViewCell {
                         vc.chatController?.senderId = selfUID
                         vc.chatController?.passedRef = refToPass
                         vc.chatController?.observeMessages()
+                        vc.chatController?.observeTyping()
                         
                         vc.topChatController?.globPostUIDs = id
                         vc.topChatController?.postData = post

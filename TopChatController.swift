@@ -11,12 +11,13 @@ import UIKit
 class TopChatController: UIViewController {
     
     weak var rootController: ChatRootController?
+    weak var mainRootController: MainRootController?
     
     var globPostUIDs = [String]()
     var postData = [[NSObject:AnyObject]?]()
     var tableViewOffset = CGPoint()
     
-    weak var mainRootController: MainRootController?
+    
 
     
     @IBAction func back(sender: AnyObject) {

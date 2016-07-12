@@ -16,10 +16,8 @@ import FirebaseDatabase
 class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewControllerDelegate, UITableViewDataSource, UITableViewDelegate {
     
     weak var rootController: MainRootController?
-    weak var chatRootController: ChatRootController?
-    
-    
-    
+
+
     //Variables
     var globPostUIDs = [String]()
     var postData = [[NSObject:AnyObject]?]()
@@ -30,8 +28,7 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
     var cellHeightsDictionary = [Int: CGFloat]()
     
     
-    
-    
+
     @IBAction func chatAction(sender: AnyObject) {
         
         //getFirebaseData()
@@ -401,7 +398,6 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
             cell.globPostUIDs = globPostUIDs
             cell.postUID = globPostUIDs[realIndex]
             cell.globPostData = postData
-            cell.chatRootController = chatRootController
             
             cell.messageData = messageData[realIndex]
             cell.loadData()

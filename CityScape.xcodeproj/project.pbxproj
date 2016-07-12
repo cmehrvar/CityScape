@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		920ED4E8724B324681B9E1D2 /* Pods_CityScape.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 47D374EEC079C3495602BD7E /* Pods_CityScape.framework */; };
+		A312C26B1D347AE600F272F0 /* MemoryLeak.swift in Sources */ = {isa = PBXBuildFile; fileRef = A312C26A1D347AE600F272F0 /* MemoryLeak.swift */; };
 		A353F0CC1D1224BC009A2182 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A353F0CB1D1224BC009A2182 /* AppDelegate.swift */; };
 		A353F0CE1D1224BC009A2182 /* SignUpController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A353F0CD1D1224BC009A2182 /* SignUpController.swift */; };
 		A353F0D11D1224BC009A2182 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A353F0CF1D1224BC009A2182 /* Main.storyboard */; };
@@ -71,6 +72,7 @@
 
 /* Begin PBXFileReference section */
 		47D374EEC079C3495602BD7E /* Pods_CityScape.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CityScape.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A312C26A1D347AE600F272F0 /* MemoryLeak.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MemoryLeak.swift; sourceTree = "<group>"; };
 		A353F0C81D1224BC009A2182 /* CityScape.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CityScape.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A353F0CB1D1224BC009A2182 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A353F0CD1D1224BC009A2182 /* SignUpController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = SignUpController.swift; path = CityScape/SignUpController.swift; sourceTree = "<group>"; };
@@ -327,6 +329,7 @@
 			children = (
 				A37B507F1D2AFEF400A38FAE /* TimeAgo.swift */,
 				A3FC18941D3412F30031D165 /* DateExtension.swift */,
+				A312C26A1D347AE600F272F0 /* MemoryLeak.swift */,
 			);
 			name = Extensions;
 			sourceTree = "<group>";
@@ -545,6 +548,7 @@
 				A3BB982B1D1C5ACD00BD384F /* SignInController.swift in Sources */,
 				A3BB98291D1B63D800BD384F /* ProfileSignUpController.swift in Sources */,
 				A3BB98191D12E67E00BD384F /* TextFields.swift in Sources */,
+				A312C26B1D347AE600F272F0 /* MemoryLeak.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

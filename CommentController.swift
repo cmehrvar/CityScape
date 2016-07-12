@@ -246,7 +246,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
     //Cell for item at index path
     override func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         
-        var cell = super.collectionView(collectionView, cellForItemAtIndexPath: indexPath) as! JSQMessagesCollectionViewCell
+        let cell = super.collectionView(collectionView, cellForItemAtIndexPath: indexPath) as! JSQMessagesCollectionViewCell
         
         let message = messages[indexPath.item]
         
@@ -760,10 +760,18 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                 if let key = request.key {
                     
                     let timeStamp = NSDate().timeIntervalSince1970
+
+                    var isImageText = ""
                     
+                    if isImage {
+                        isImageText = "sent a photo!"
+                    } else {
+                        isImageText = "sent a video!"
+                    }
+
                     let messageItem = [
                         "key" : fileName,
-                        "text" : "none",
+                        "text" : isImageText,
                         "senderId": self.senderId,
                         "profilePicture" : self.profileUrl,
                         "timeStamp" : timeStamp,
@@ -841,6 +849,43 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
         }
     }
     
+    
+    
+    
+    func observeTyping(){
+        
+        let refString = "/" + passedRef
+        
+        let ref = FIRDatabase.database().reference().child(refString).child("isTyping")
+        
+        if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+            
+            ref.observeEventType(.Value, withBlock:  { (snapshot) in
+
+                var showType = false
+                
+                if let data = snapshot.value as? [String : Bool] {
+                    
+                    for (key, value) in data {
+                        
+                        if key != selfUID {
+                            
+                            if value == true {
+                                showType = true
+                            }
+                        }
+                    }
+                    
+                    self.showTypingIndicator = showType
+                    
+
+                }
+            })
+        }
+    }
+    
+    
+
     //Add Upload Stuff
     func addUploadStuff(){
         
@@ -861,13 +906,18 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
         super.viewDidAppear(animated)
         
         
+        
+        
     }
+    
+   
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
+        self.collectionView.collectionViewLayout.springinessEnabled = false
+        //self.collectionView.collectionViewLayout.spring
         
         addUploadStuff()
         setUpBubbles()
