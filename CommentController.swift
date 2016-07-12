@@ -16,22 +16,52 @@ import Fusuma
 import AWSS3
 import AWSCore
 import AWSCognito
+import Player
 
-class CommentController: JSQMessagesViewController, FusumaDelegate {
+class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelegate {
     
     weak var rootController: ChatRootController?
     
+
     //JSQData
+    var videoSet = [String : Bool]()
+    var videoPlayers = [String : Player]()
+    var messageIndex = 0
     var passedRef = ""
     var messages = [JSQMessageData]()
+    var messageKeys = [String]()
     var avatars = [String : JSQMessagesAvatarImage]()
     var avatarDataSource = [JSQMessageAvatarImageDataSource]()
     var incomingBubbleImageView: JSQMessagesBubbleImage!
     var outgoingBubbleImageView: JSQMessagesBubbleImage!
     var exportedVideoURL = NSURL()
+    var sentMessages = [String : Bool]()
+    var profileUrl = ""
+    var firstName = ""
+    var lastName = ""
     
     
     
+    //Player Delegates
+    func playerReady(player: Player){
+        
+    }
+    func playerPlaybackStateDidChange(player: Player){
+        
+    }
+    func playerBufferingStateDidChange(player: Player){
+        
+    }
+    
+    func playerPlaybackWillStartFromBeginning(player: Player){
+        
+    }
+    func playerPlaybackDidEnd(player: Player){
+        
+    }
+    
+    
+
     //Fusuma Delegates
     func fusumaImageSelected(image: UIImage) {
         
@@ -43,12 +73,14 @@ class CommentController: JSQMessagesViewController, FusumaDelegate {
     func fusumaDismissedWithImage(image: UIImage) {
         
         let date = NSDate()
+        let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".jpeg")
         
         let message = JSQPhotoMediaItem(image: image)
         let messageData = JSQMessage(senderId: senderId, senderDisplayName: senderDisplayName, date: date, media: message)
         self.messages.append(messageData)
+        self.messageKeys.append(fileName)
         
-        uploadPost(image, videoURL: nil, isImage: true)
+        uploadPost(image, videoURL: nil, isImage: true, fileName: fileName)
         
         print("fusuma dismissed with image")
         
@@ -57,19 +89,23 @@ class CommentController: JSQMessagesViewController, FusumaDelegate {
     
     func fusumaVideoCompleted(withFileURL fileURL: NSURL) {
         
+        let date = NSDate()
+        
+        let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".mov")
         print("fusuma video completed")
+        
+        let message = JSQVideoMediaItem(fileURL: fileURL, isReadyToPlay: true)
+        let messageData = JSQMessage(senderId: self.senderId, senderDisplayName: self.senderDisplayName, date: date, media: message)
+        self.messages.append(messageData)
+        self.messageKeys.append(fileName)
+        
+        self.sentMessages[fileName] = false
         
         convertVideoToLowQualityWithInputURL(fileURL, handler: { (exportSession, outputURL) in
             
-            let date = NSDate()
-            
             if exportSession.status == .Completed {
                 
-                let message = JSQVideoMediaItem(fileURL: fileURL, isReadyToPlay: true)
-                let messageData = JSQMessage(senderId: self.senderId, senderDisplayName: self.senderDisplayName, date: date, media: message)
-                self.messages.append(messageData)
-                
-                self.uploadPost(nil, videoURL: fileURL, isImage: false)
+                self.uploadPost(nil, videoURL: outputURL, isImage: false, fileName: fileName)
                 
                 print("good convert")
                 
@@ -78,11 +114,19 @@ class CommentController: JSQMessagesViewController, FusumaDelegate {
                 print("bad convert")
                 
             }
-            
         })
+    }
+    
+    func presentFusumaCamera(){
         
+        let fusuma = FusumaViewController()
+        fusuma.delegate = self
+        fusuma.hasVideo = true
+        fusuma.modalTransitionStyle = UIModalTransitionStyle.CrossDissolve
         
-        
+        presentViewController(fusuma, animated: true) {
+            
+        }
     }
     
     func fusumaCameraRollUnauthorized() {
@@ -94,8 +138,6 @@ class CommentController: JSQMessagesViewController, FusumaDelegate {
         print("camera unauthorized")
         
     }
-    
-    
     func beganTyping(){
         
         let ref = FIRDatabase.database().reference()
@@ -106,7 +148,6 @@ class CommentController: JSQMessagesViewController, FusumaDelegate {
             
         }
     }
-    
     func endedTyping(){
         
         let ref = FIRDatabase.database().reference()
@@ -118,15 +159,13 @@ class CommentController: JSQMessagesViewController, FusumaDelegate {
         }
     }
     
-    private func setUpBubbles() {
-        
-        let factory = JSQMessagesBubbleImageFactory()
-        outgoingBubbleImageView = factory.outgoingMessagesBubbleImageWithColor(UIColor.jsq_messageBubbleBlueColor())
-        incomingBubbleImageView = factory.incomingMessagesBubbleImageWithColor(UIColor.jsq_messageBubbleLightGrayColor())
-        
-    }
+    
+    //**************           Override Functions             **************//
     
     
+    
+    
+    //Text Did Change
     override func textViewDidChange(textView: UITextView) {
         
         super.textViewDidChange(textView)
@@ -142,12 +181,18 @@ class CommentController: JSQMessagesViewController, FusumaDelegate {
         }
     }
     
+    
+    
+    
+    //Message Data
     override func collectionView(collectionView: JSQMessagesCollectionView!, messageDataForItemAtIndexPath indexPath: NSIndexPath!) -> JSQMessageData! {
         
         return messages[indexPath.row]
     }
     
     
+    
+    //Items in section
     override func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
         return messages.count
@@ -155,6 +200,9 @@ class CommentController: JSQMessagesViewController, FusumaDelegate {
     }
     
     
+    
+    
+    //Message bubble Image
     override func collectionView(collectionView: JSQMessagesCollectionView!, messageBubbleImageDataForItemAtIndexPath indexPath: NSIndexPath!) -> JSQMessageBubbleImageDataSource! {
         
         let message = messages[indexPath.item]
@@ -162,7 +210,9 @@ class CommentController: JSQMessagesViewController, FusumaDelegate {
         if let id = message.senderId() {
             
             if id == senderId {
+                
                 return outgoingBubbleImageView
+                
             } else {
                 return incomingBubbleImageView
             }
@@ -172,6 +222,11 @@ class CommentController: JSQMessagesViewController, FusumaDelegate {
     }
     
     
+    
+    
+    
+    
+    //Avatar
     override func collectionView(collectionView: JSQMessagesCollectionView!, avatarImageDataForItemAtIndexPath indexPath: NSIndexPath!) -> JSQMessageAvatarImageDataSource! {
         
         let message = messages[indexPath.row]
@@ -187,16 +242,18 @@ class CommentController: JSQMessagesViewController, FusumaDelegate {
     
     
     
+    
+    //Cell for item at index path
     override func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         
-        let cell = super.collectionView(collectionView, cellForItemAtIndexPath: indexPath) as! JSQMessagesCollectionViewCell
+        var cell = super.collectionView(collectionView, cellForItemAtIndexPath: indexPath) as! JSQMessagesCollectionViewCell
         
         let message = messages[indexPath.item]
         
         cell.cellBottomLabel.textColor = UIColor.blackColor()
         
         let isMedia = message.isMediaMessage()
-        
+
         if !isMedia {
             
             if let id = message.senderId() {
@@ -210,45 +267,103 @@ class CommentController: JSQMessagesViewController, FusumaDelegate {
                     cell.textView.textColor = UIColor.blackColor()
                 }
             }
+        } else {
+            
+            if let media = message.media!() as? JSQVideoMediaItem {
+
+                print("video")
+
+                let key = messageKeys[indexPath.item]
+
+                if videoSet[key] == false {
+                    
+                    if let url = media.fileURL {
+
+                        dispatch_async(dispatch_get_main_queue()) {
+                            
+                            self.videoPlayers[key] = Player()
+                            self.videoPlayers[key]?.delegate = self
+                            
+                            if let player = self.videoPlayers[key] {
+                                
+                                if let videoPlayerView = player.view {
+                                    
+                                    self.addChildViewController(player)
+                                    player.view.frame = cell.mediaView.bounds
+                                    player.didMoveToParentViewController(self)
+
+                                    player.setUrl(url)
+         
+                                    player.fillMode = AVLayerVideoGravityResizeAspectFill
+                                    player.playbackLoops = true
+                                    player.playFromBeginning()
+                                    cell.mediaView.addSubview(videoPlayerView)
+                                    self.videoSet[key] = true
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    
+                    if let player = self.videoPlayers[key] {
+                        
+                        if let videoPlayerView = player.view {
+                            
+                            self.addChildViewController(player)
+                            cell.mediaView.addSubview(videoPlayerView)
+                            player.playFromBeginning()
+   
+                        }
+                    }
+
+                }
+                
+            } else {
+                print("image")
+            }
         }
         
         return cell
         
     }
+
     
+    //Did press send button
     override func didPressSendButton(button: UIButton!, withMessageText text: String!, senderId: String!, senderDisplayName: String!, date: NSDate!) {
         
         let ref = FIRDatabase.database().reference()
         let scopePassedRef = passedRef
         
-        ref.child("users").child(senderId).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+        let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".txt")
+        self.sentMessages[fileName] = false
+        
+        let timeStamp = NSDate().timeIntervalSince1970
+        let dateFromTimeStamp = NSDate(timeIntervalSince1970: timeStamp)
+        
+        let message = JSQMessage(senderId: senderId, senderDisplayName: senderDisplayName, date: date, text: text)
+        messages.append(message)
+        messageKeys.append(fileName)
+        
+        addMessage(senderId, text: text, name: senderDisplayName, profileURL: profileUrl, isMedia: false, media: "none", isImage: false, date: dateFromTimeStamp, key: fileName)
+
+        let messageItem = [
+            "key" : fileName,
+            "text" : text,
+            "senderId":senderId,
+            "profilePicture" : profileUrl,
+            "timeStamp" : timeStamp,
+            "firstName" : firstName,
+            "lastName" : lastName,
+            "senderDisplayName" : firstName + " " + lastName,
+            "isMedia" : false,
+            "isImage" : false,
+            "media" : "none"
             
-            if let value = snapshot.value as? [NSObject:AnyObject] {
-                
-                let timeStamp = NSDate().timeIntervalSince1970
-                
-                if let profile = value["profilePicture"] as? String, first = value["firstName"] as? String, last = value["lastName"] as? String {
-                    
-                    let messageItem = [
-                        "text" : text,
-                        "senderId":senderId,
-                        "profilePicture" : profile,
-                        "timeStamp" : timeStamp,
-                        "firstName" : first,
-                        "lastName" : last,
-                        "senderDisplayName" : first + " " + last,
-                        "isMedia" : false,
-                        "isImage" : false,
-                        "media" : "none"
-                        
-                    ]
-                    
-                    ref.child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
-                    ref.child("users").child(senderId).child("posts").child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
-                    
-                }
-            }
-        })
+        ]
+        
+        ref.child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
+        ref.child("users").child(senderId).child("posts").child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
+        
         
         JSQSystemSoundPlayer.jsq_playMessageSentSound()
         
@@ -260,6 +375,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate {
     }
     
     
+    //Did press accessory button
     override func didPressAccessoryButton(sender: UIButton!) {
         
         presentFusumaCamera()
@@ -267,21 +383,97 @@ class CommentController: JSQMessagesViewController, FusumaDelegate {
         
     }
     
-    
-    func presentFusumaCamera(){
+    //Top Cell Label Text
+    override func collectionView(collectionView: JSQMessagesCollectionView!, attributedTextForCellTopLabelAtIndexPath indexPath: NSIndexPath!) -> NSAttributedString! {
         
-        let fusuma = FusumaViewController()
-        fusuma.delegate = self
-        fusuma.hasVideo = true
-        fusuma.modalTransitionStyle = UIModalTransitionStyle.CrossDissolve
+        let message = messages[indexPath.item]
         
-        presentViewController(fusuma, animated: true) {
+        if let date = message.date() {
             
+            if indexPath.item == 0 {
+                
+                let dateFormatter = NSDateFormatter()
+                dateFormatter.dateStyle = NSDateFormatterStyle.MediumStyle
+                dateFormatter.timeStyle = NSDateFormatterStyle.ShortStyle
+                let dateObj = dateFormatter.stringFromDate(date)
+                return NSAttributedString(string: dateObj)
+                
+            } else {
+                
+                let previousIndex = indexPath.item - 1
+                
+                let previousMessage = messages[previousIndex]
+                
+                if let previousDate = previousMessage.date() {
+
+                    let minutesAgo = date.minutesFrom(previousDate)
+                    
+                    let text = message.text!()
+                    
+                    if text != nil {
+                        print(text)
+                    }
+                    
+                    print(minutesAgo)
+                    
+                    if minutesAgo >= 10 {
+                        
+                        let dateFormatter = NSDateFormatter()
+                        
+                        let daysAgo = date.daysFrom(previousDate)
+                        
+                        if daysAgo > 0 {
+                            
+                            dateFormatter.dateStyle = NSDateFormatterStyle.MediumStyle
+                            dateFormatter.timeStyle = NSDateFormatterStyle.ShortStyle
+                            
+                        } else {
+                            
+                            dateFormatter.dateStyle = NSDateFormatterStyle.NoStyle
+                            dateFormatter.timeStyle = NSDateFormatterStyle.ShortStyle
+                            
+                        }
+                        
+                        let dateObj = dateFormatter.stringFromDate(date)
+                        return NSAttributedString(string: dateObj)
+                        
+                    }
+                }
+            }
         }
+        
+        return nil
+    }
+    
+    //Height for Cell Top Label Text
+    override func collectionView(collectionView: JSQMessagesCollectionView!, layout collectionViewLayout: JSQMessagesCollectionViewFlowLayout!, heightForCellTopLabelAtIndexPath indexPath: NSIndexPath!) -> CGFloat {
+        
+        let message = messages[indexPath.item]
+        
+        if indexPath.item == 0 {
+            return 15
+        } else if let date = message.date() {
+            
+            let previousIndex = indexPath.item - 1
+            
+            let previousMessage = messages[previousIndex]
+            
+            if let previousDate = previousMessage.date() {
+                
+                let minutesAgo = date.minutesFrom(previousDate)
+                
+                if minutesAgo >= 10 {
+                    return 15
+                }
+            }
+        }
+        
+        return 0
     }
     
     
-    override func collectionView(collectionView: JSQMessagesCollectionView!, attributedTextForCellTopLabelAtIndexPath indexPath: NSIndexPath!) -> NSAttributedString! {
+    
+    override func collectionView(collectionView: JSQMessagesCollectionView!, layout collectionViewLayout: JSQMessagesCollectionViewFlowLayout!, heightForCellBottomLabelAtIndexPath indexPath: NSIndexPath!) -> CGFloat {
         
         let message = messages[indexPath.item]
         
@@ -292,23 +484,62 @@ class CommentController: JSQMessagesViewController, FusumaDelegate {
                 if messageId != selfId {
                     
                     let indexPath = indexPath.item
-                    var previousIsSame = false
+                    var nextIsSame = false
                     
-                    if indexPath > 0 {
+                    if indexPath < messages.count - 1 {
                         
-                        let previousMessage = messages[indexPath - 1]
+                        let nextMessage = messages[indexPath + 1]
                         
-                        if let previousId = previousMessage.senderId() {
+                        if let nextId = nextMessage.senderId() {
                             
-                            if messageId == previousId {
+                            if messageId == nextId {
                                 
-                                previousIsSame = true
+                                nextIsSame = true
                                 
                             }
                         }
                     }
                     
-                    if !previousIsSame {
+                    if !nextIsSame {
+                        
+                        return 15
+                    }
+                }
+            }
+        }
+        
+        return 0
+    }
+    
+    
+    override func collectionView(collectionView: JSQMessagesCollectionView!, attributedTextForCellBottomLabelAtIndexPath indexPath: NSIndexPath!) -> NSAttributedString! {
+        
+        let message = messages[indexPath.item]
+        
+        if let messageId = message.senderId() {
+            
+            if let selfId = FIRAuth.auth()?.currentUser?.uid {
+                
+                if messageId != selfId {
+                    
+                    let indexPath = indexPath.item
+                    var nextIsSame = false
+                    
+                    if indexPath < messages.count - 1 {
+                        
+                        let nextMessage = messages[indexPath + 1]
+                        
+                        if let nextId = nextMessage.senderId() {
+                            
+                            if messageId == nextId {
+                                
+                                nextIsSame = true
+                                
+                            }
+                        }
+                    }
+                    
+                    if !nextIsSame {
                         
                         if let name = message.senderDisplayName() {
                             return NSAttributedString(string: name)
@@ -325,46 +556,22 @@ class CommentController: JSQMessagesViewController, FusumaDelegate {
     
     
     
+    //**************           Functions             **************//
     
-    override func collectionView(collectionView: JSQMessagesCollectionView!, layout collectionViewLayout: JSQMessagesCollectionViewFlowLayout!, heightForCellTopLabelAtIndexPath indexPath: NSIndexPath!) -> CGFloat {
+    
+    
+    //Set up bubbles
+    private func setUpBubbles() {
         
-        let message = messages[indexPath.item]
-        
-        if let messageId = message.senderId() {
-            
-            if let selfId = FIRAuth.auth()?.currentUser?.uid {
-                
-                if messageId != selfId {
-                    
-                    let indexPath = indexPath.item
-                    var previousIsSame = false
-                    
-                    if indexPath > 0 {
-                        
-                        let previousMessage = messages[indexPath - 1]
-                        
-                        if let previousId = previousMessage.senderId() {
-                            
-                            if messageId == previousId {
-                                
-                                previousIsSame = true
-                                
-                            }
-                        }
-                    }
-                    
-                    if !previousIsSame {
-                        return 15
-                        
-                    }
-                }
-            }
-        }
-        
-        return 0
+        let factory = JSQMessagesBubbleImageFactory()
+        outgoingBubbleImageView = factory.outgoingMessagesBubbleImageWithColor(UIColor.jsq_messageBubbleBlueColor())
+        incomingBubbleImageView = factory.incomingMessagesBubbleImageWithColor(UIColor.jsq_messageBubbleLightGrayColor())
         
     }
     
+    
+    
+    //Observe Messages
     func observeMessages() {
         
         let refString = "/" + passedRef
@@ -375,11 +582,22 @@ class CommentController: JSQMessagesViewController, FusumaDelegate {
             
             if let actualValue = snapshot.value as? [NSObject : AnyObject] {
                 
-                if let id = actualValue["senderId"] as? String, text = actualValue["text"] as? String, name = actualValue["senderDisplayName"] as? String, profile = actualValue["profilePicture"] as? String, media = actualValue["media"] as? String, isImage = actualValue["isImage"] as? Bool, isMedia = actualValue["isMedia"] as? Bool {
+                if let id = actualValue["senderId"] as? String, text = actualValue["text"] as? String, name = actualValue["senderDisplayName"] as? String, profile = actualValue["profilePicture"] as? String, media = actualValue["media"] as? String, isImage = actualValue["isImage"] as? Bool, isMedia = actualValue["isMedia"] as? Bool, key = actualValue["key"] as? String, timeStamp = actualValue["timeStamp"] as? NSTimeInterval {
                     
-                    self.addMessage(id, text: text, name: name, profileURL: profile, isMedia: isMedia, media: media, isImage: isImage)
+                    let sentMessage = self.sentMessages[key]
+                    let date = NSDate(timeIntervalSince1970: timeStamp)
                     
-                    
+                    if sentMessage == nil {
+                        
+                        // PUT PLACEHOLDERS AND SUCH HERE!!!!
+                        
+
+                        let message = JSQMessage(senderId: id, senderDisplayName: name, date: date, text: "")
+                        
+                        self.messages.append(message)
+                        self.messageKeys.append(key)
+                        self.addMessage(id, text: text, name: name, profileURL: profile, isMedia: isMedia, media: media, isImage: isImage, date: date, key: key)
+                    }
                 }
             }
             
@@ -388,39 +606,88 @@ class CommentController: JSQMessagesViewController, FusumaDelegate {
     }
     
     
-    func addMessage(id: String, text: String, name: String, profileURL: String, isMedia: Bool, media: String, isImage: Bool) {
+    //Add Message
+    func addMessage(id: String, text: String, name: String, profileURL: String, isMedia: Bool, media: String, isImage: Bool, date: NSDate, key: String) {
         
-        let date = NSDate()
+        let scopeIndex = self.messageIndex
         
         if isMedia {
             
             if isImage {
-
+                
                 if let url = NSURL(string: media){
                     
                     SDWebImageManager.sharedManager().downloadImageWithURL(url, options: .ContinueInBackground, progress: nil, completed: { (image, error, cache, bool, url) in
                         
-                        let message = JSQPhotoMediaItem(image: image)
-                        let messageData = JSQMessage(senderId: id, senderDisplayName: name, date: date, media: message)
-                        self.messages.append(messageData)
+                        if error == nil {
+                            
+                            let message = JSQPhotoMediaItem(image: image)
+                            
+                            if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                                
+                                if selfUID == id {
+                                    
+                                    message.appliesMediaViewMaskAsOutgoing = true
+                                    
+                                } else {
+                                    
+                                    message.appliesMediaViewMaskAsOutgoing = false
+                                    
+                                }
+                            }
+                            
+                            let messageData = JSQMessage(senderId: id, senderDisplayName: name, date: date, media: message)
+                            
+                            
+                            self.messages[scopeIndex] = messageData
+                            
+                            
+                        } else {
+                            print(error)
+                            
+                            self.addMessage(id, text: text, name: name, profileURL: profileURL, isMedia: isMedia, media: media, isImage: isImage, date: date, key: key)
+                            
+                        }
+                        
                         self.finishReceivingMessage()
                         
                     })
                 }
             } else {
                 
+                
+                //Download Video, then we need to figure out how to play???
                 if let url = NSURL(string: media) {
                     
-                    let message = JSQVideoMediaItem(fileURL: url, isReadyToPlay: true)
+                    let message = JSQVideoMediaItem(fileURL: url, isReadyToPlay: false)
+                    
+                    if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                        
+                        if selfUID == id {
+                            
+                            message.appliesMediaViewMaskAsOutgoing = true
+                            
+                        } else {
+                            
+                            message.appliesMediaViewMaskAsOutgoing = false
+                            
+                        }
+                    }
+                    
                     let messageData = JSQMessage(senderId: id, senderDisplayName: name, date: date, media: message)
-                    self.messages.append(messageData)
+                    
+                    self.videoSet[key] = false
+                    
+                    self.messages[scopeIndex] = messageData
                     
                 }
+ 
             }
+ 
         } else {
             
-            let message = JSQMessage(senderId: id, displayName: name, text: text)
-            messages.append(message)
+            let message = JSQMessage(senderId: id, senderDisplayName: name, date: date, text: text)
+            self.messages[scopeIndex] = message
             
         }
         
@@ -444,23 +711,32 @@ class CommentController: JSQMessagesViewController, FusumaDelegate {
                             let userImage = JSQMessagesAvatarImageFactory.avatarImageWithImage(image, diameter: 48)
                             self.avatars[id] = userImage
                         }
+                        
+                        self.finishReceivingMessage()
                     }
                 })
             }
         }
+        
+        
+        messageIndex += 1
     }
     
-    func uploadPost(image: UIImage!, videoURL: NSURL!, isImage: Bool) {
+    
+    
+    
+    //Upload Post
+    func uploadPost(image: UIImage!, videoURL: NSURL!, isImage: Bool, fileName: String) {
         
         var request = AWSS3TransferManagerUploadRequest()
+        
+        sentMessages[fileName] = false
         
         if isImage {
             
             request = uploadRequest(image)
             
         } else {
-            
-            let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".mov")
             
             request.body = videoURL
             request.key = fileName
@@ -481,55 +757,35 @@ class CommentController: JSQMessagesViewController, FusumaDelegate {
                 let ref = FIRDatabase.database().reference()
                 let scopePassedRef = self.passedRef
                 
-                ref.child("users").child(self.senderId).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                if let key = request.key {
                     
-                    if let value = snapshot.value as? [NSObject:AnyObject] {
+                    let timeStamp = NSDate().timeIntervalSince1970
+                    
+                    let messageItem = [
+                        "key" : fileName,
+                        "text" : "none",
+                        "senderId": self.senderId,
+                        "profilePicture" : self.profileUrl,
+                        "timeStamp" : timeStamp,
+                        "firstName" : self.firstName,
+                        "lastName" : self.lastName,
+                        "senderDisplayName" : self.firstName + " " + self.lastName,
+                        "isMedia" : true,
+                        "isImage" : isImage,
+                        "media" : "https://s3.amazonaws.com/cityscapebucket/" + key
                         
-                        let timeStamp = NSDate().timeIntervalSince1970
-                        
-                        if let profile = value["profilePicture"] as? String, first = value["firstName"] as? String, last = value["lastName"] as? String {
-                            
-                            if let key = request.key {
-                                
-                                let messageItem = [
-                                    "text" : "none",
-                                    "senderId": self.senderId,
-                                    "profilePicture" : profile,
-                                    "timeStamp" : timeStamp,
-                                    "firstName" : first,
-                                    "lastName" : last,
-                                    "senderDisplayName" : first + " " + last,
-                                    "isMedia" : true,
-                                    "isImage" : isImage,
-                                    
-                                    "media" : "https://s3.amazonaws.com/cityscapebucket/" + key
-                                    
-                                ]
-                                
-                                ref.child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
-                                ref.child("users").child(self.senderId).child("posts").child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
-                                
-                            }
-                            
-                        }
-                    }
-                })
+                    ]
+                    
+                    ref.child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
+                    ref.child("users").child(self.senderId).child("posts").child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
+                    
+                }
                 
                 
                 
             } else {
                 
-                print("error uploading: \(task.error)")
-                
-                let alertController = UIAlertController(title: "Whoops", message: "Error Uploading", preferredStyle: UIAlertControllerStyle.Alert)
-                
-                alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Cancel, handler: { (action) in
-                    
-                    
-                }))
-                
-                self.presentViewController(alertController, animated: true, completion: nil)
-                
+                self.uploadPost(image, videoURL: videoURL, isImage: isImage, fileName: fileName)
             }
             
             
@@ -541,8 +797,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate {
         finishSendingMessage()
     }
     
-    
-    
+    //Upload Request
     func uploadRequest(image: UIImage) -> AWSS3TransferManagerUploadRequest {
         
         let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".jpeg")
@@ -561,7 +816,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate {
         
     }
     
-    
+    //Convert Video
     func convertVideoToLowQualityWithInputURL(inputURL: NSURL, handler: (AVAssetExportSession, NSURL) -> Void) {
         
         let tempURL = inputURL
@@ -586,7 +841,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate {
         }
     }
     
-    
+    //Add Upload Stuff
     func addUploadStuff(){
         
         let error = NSErrorPointer()
@@ -600,7 +855,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate {
     }
     
     
-    
+    //View did appear
     override func viewDidAppear(animated: Bool) {
         
         super.viewDidAppear(animated)
@@ -611,6 +866,8 @@ class CommentController: JSQMessagesViewController, FusumaDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        
         
         addUploadStuff()
         setUpBubbles()

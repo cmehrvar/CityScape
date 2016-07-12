@@ -49,6 +49,7 @@
 		A3E138961D25C937002A5031 /* InitialController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E138951D25C937002A5031 /* InitialController.swift */; };
 		A3FC188E1D303C4E0031D165 /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3FC188D1D303C4E0031D165 /* CommentCell.swift */; };
 		A3FC18901D3077250031D165 /* CommentProfilePic.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3FC188F1D3077250031D165 /* CommentProfilePic.swift */; };
+		A3FC18951D3412F30031D165 /* DateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3FC18941D3412F30031D165 /* DateExtension.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -116,6 +117,7 @@
 		A3E138951D25C937002A5031 /* InitialController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InitialController.swift; sourceTree = "<group>"; };
 		A3FC188D1D303C4E0031D165 /* CommentCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
 		A3FC188F1D3077250031D165 /* CommentProfilePic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentProfilePic.swift; sourceTree = "<group>"; };
+		A3FC18941D3412F30031D165 /* DateExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DateExtension.swift; sourceTree = "<group>"; };
 		AC87D44436C8E19921A25DF1 /* Pods-CityScape.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CityScape.debug.xcconfig"; path = "Pods/Target Support Files/Pods-CityScape/Pods-CityScape.debug.xcconfig"; sourceTree = "<group>"; };
 		EC6DFADC844B37564605F841 /* Pods-CityScape.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CityScape.release.xcconfig"; path = "Pods/Target Support Files/Pods-CityScape/Pods-CityScape.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -176,7 +178,7 @@
 		A353F0BF1D1224BC009A2182 = {
 			isa = PBXGroup;
 			children = (
-				A37B507F1D2AFEF400A38FAE /* TimeAgo.swift */,
+				A3FC18931D3412AB0031D165 /* Extensions */,
 				A3CA89581D283B4A00590516 /* Table View Cells */,
 				A3D1198A1D271472009D7EAB /* Adobe Frameworks */,
 				A3BB98171D12E66E00BD384F /* Views */,
@@ -320,6 +322,15 @@
 			name = MainApp;
 			sourceTree = "<group>";
 		};
+		A3FC18931D3412AB0031D165 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				A37B507F1D2AFEF400A38FAE /* TimeAgo.swift */,
+				A3FC18941D3412F30031D165 /* DateExtension.swift */,
+			);
+			name = Extensions;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -391,6 +402,7 @@
 				TargetAttributes = {
 					A353F0C71D1224BC009A2182 = {
 						CreatedOnToolsVersion = 7.2;
+						DevelopmentTeam = 8YKL2VACPX;
 					};
 					A353F0DB1D1224BC009A2182 = {
 						CreatedOnToolsVersion = 7.2;
@@ -508,6 +520,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A3FC18951D3412F30031D165 /* DateExtension.swift in Sources */,
 				A3E1388E1D25B57E002A5031 /* MainRootController.swift in Sources */,
 				A38289CB1D2B433B00C17F48 /* CommentController.swift in Sources */,
 				A3D119731D262290009D7EAB /* HandlePostController.swift in Sources */,
@@ -677,6 +690,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_ROOT}/FirebaseAnalytics/Frameworks/frameworks\"",
@@ -701,6 +716,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = DormRoom.CityScape;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "CityScape-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -712,6 +728,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"${PODS_ROOT}/FirebaseAnalytics/Frameworks/frameworks\"",
@@ -736,6 +754,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = DormRoom.CityScape;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "CityScape-Bridging-Header.h";
 			};
 			name = Release;

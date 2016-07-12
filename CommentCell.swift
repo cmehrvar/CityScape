@@ -16,7 +16,8 @@ class CommentCell: UITableViewCell {
     
     
     //Properties
-    var homeController: HomeController!
+    weak var rootController: MainRootController?
+    weak var chatRootController: ChatRootController?
     var globPostUIDs = [String]()
     var globPostData = [[NSObject : AnyObject]?]()
     var postUID: String!
@@ -42,51 +43,67 @@ class CommentCell: UITableViewCell {
     
     
     @IBAction func viewCommentsAction(sender: AnyObject) {
-        
-        let vc = homeController.storyboard?.instantiateViewControllerWithIdentifier("rootChatController") as! ChatRootController
-        
+
+        let mainRootController = rootController
+
         let ref = FIRDatabase.database().reference()
         let id = self.globPostUIDs
         let post = self.globPostData
         guard let selfUID = FIRAuth.auth()?.currentUser?.uid else {return}
         
         let refToPass = "posts/\(self.postUID)"
-        
-        let contentOffset = self.homeController.tableView.contentOffset
-        
-        self.homeController.presentViewController(vc, animated: true) {
+
+        let contentOffset = self.rootController?.homeController?.tableView.contentOffset
+       
+        let vc = rootController?.storyboard?.instantiateViewControllerWithIdentifier("rootChatController") as! ChatRootController
             
-            ref.child("users").child(selfUID).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+            self.rootController?.presentViewController(vc, animated: true) {
                 
-                if let userData = snapshot.value as? [NSObject : AnyObject] {
+                ref.child("users").child(selfUID).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
                     
-                    var name = ""
-                    
-                    if let firstName = userData["firstName"] as? String {
+                    if let userData = snapshot.value as? [NSObject : AnyObject] {
                         
-                        name = firstName + " "
+                        var name = ""
                         
+                        if let firstName = userData["firstName"] as? String {
+                            
+                            name = firstName + " "
+                            vc.chatController?.firstName = firstName
+                            
+                        }
+                        
+                        if let lastName = userData["lastName"] as? String {
+                            
+                            name += lastName
+                            vc.chatController?.lastName = lastName
+                            
+                        }
+                        
+                        if let profile = userData["profilePicture"] as? String {
+                            vc.chatController?.profileUrl = profile
+                        }
+                        
+                        vc.chatController?.senderDisplayName = name
+                        vc.chatController?.senderId = selfUID
+                        vc.chatController?.passedRef = refToPass
+                        vc.chatController?.observeMessages()
+                        
+                        vc.topChatController?.globPostUIDs = id
+                        vc.topChatController?.postData = post
+                        vc.topChatController?.mainRootController = mainRootController
+                        
+                        
+                        if let offset = contentOffset {
+                            vc.topChatController?.tableViewOffset = offset
+                        }                    
                     }
                     
-                    if let lastName = userData["lastName"] as? String {
-                        
-                        name += lastName
-                        
-                    }
-                    
-                    vc.chatController?.senderDisplayName = name
-                    vc.chatController?.senderId = selfUID
-                    vc.chatController?.passedRef = refToPass
-                    vc.chatController?.observeMessages()
-                    
-                    vc.topChatController?.globPostUIDs = id
-                    vc.topChatController?.postData = post
-                    vc.topChatController?.tableViewOffset = contentOffset
-                    
+                })
+
+            
+        
+        
                 }
-                
-            })
-        }
         
                 print("view comments tapped")
         

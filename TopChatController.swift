@@ -16,25 +16,34 @@ class TopChatController: UIViewController {
     var postData = [[NSObject:AnyObject]?]()
     var tableViewOffset = CGPoint()
     
+    weak var mainRootController: MainRootController?
+
+    
     @IBAction func back(sender: AnyObject) {
-        
-        let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
-        
+
         let post = postData
         let id = globPostUIDs
         
         let offset = tableViewOffset
+
+        let vc = mainRootController
         
-        rootController?.dismissViewControllerAnimated(true, completion: {
+        self.dismissViewControllerAnimated(true, completion: {
             
-            vc.homeController?.observeData(id, postData: post)
-            vc.homeController?.tableView.contentOffset = offset
-            
-        })
+                vc?.homeController?.observeData(id, postData: post)
+                vc?.homeController?.tableView.contentOffset = offset
+                vc?.homeController?.tableView.reloadData()
+                
+            })
+        
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        
+        
+        
 
         // Do any additional setup after loading the view.
     }

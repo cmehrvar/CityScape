@@ -16,6 +16,9 @@ import FirebaseDatabase
 class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewControllerDelegate, UITableViewDataSource, UITableViewDelegate {
     
     weak var rootController: MainRootController?
+    weak var chatRootController: ChatRootController?
+    
+    
     
     //Variables
     var globPostUIDs = [String]()
@@ -25,6 +28,8 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
     var refreshControl = UIRefreshControl()
     var dateFormatter = NSDateFormatter()
     var cellHeightsDictionary = [Int: CGFloat]()
+    
+    
     
     
     @IBAction func chatAction(sender: AnyObject) {
@@ -386,24 +391,19 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
                     }
                 }
             }
-            print("post")
+
         } else if indexPath.row % 2 == 1 {
-            print("comment")
 
             let realIndex = (indexPath.row / 2)
             
-            print(realIndex)
-            
             let cell = tableView.dequeueReusableCellWithIdentifier("commentCell") as! CommentCell
-            cell.homeController = self
+            cell.rootController = rootController
             cell.globPostUIDs = globPostUIDs
             cell.postUID = globPostUIDs[realIndex]
             cell.globPostData = postData
+            cell.chatRootController = chatRootController
             
-            print("message data count")
-            print(messageData.count)
             cell.messageData = messageData[realIndex]
-            print(messageData[realIndex])
             cell.loadData()
             
             return cell
