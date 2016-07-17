@@ -22,10 +22,16 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
     var globPostUIDs = [String]()
     var postData = [[NSObject:AnyObject]?]()
     var messageData = [[NSObject : AnyObject]?]()
+    
+    var firstMessageData = [[String : String?]]()
+    var secondMessageData = [[String : String?]]()
+    var thirdMessageData = [[String : String?]]()
+    
     var globHasLiked = [Bool?]()
     var refreshControl = UIRefreshControl()
     var dateFormatter = NSDateFormatter()
     var cellHeightsDictionary = [Int: CGFloat]()
+    var prototypeToDraw = [Int]()
     
     
 
@@ -70,28 +76,107 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         
     }
     
+    
+    func setTableViewMessageData(value: [NSObject : AnyObject], index: Int){
+        
+        var i = 0
+        
+        for value in value {
+            
+            if i == 0 {
+                
+                if let senderId = value.1["senderId"] as? String, selfId = FIRAuth.auth()?.currentUser?.uid {
+                    
+                    if senderId == selfId {
+                        
+                        firstMessageData[index]["outName"] = value.1["senderDisplayName"] as? String
+                        firstMessageData[index]["outText"] = value.1["text"] as? String
+                        firstMessageData[index]["outProfilePic"] = value.1["profilePicture"] as? String
+                        
+                    } else {
+                        
+                        firstMessageData[index]["inName"] = value.1["senderDisplayName"] as? String
+                        firstMessageData[index]["inText"] = value.1["text"] as? String
+                        firstMessageData[index]["inProfilePic"] = value.1["profilePicture"] as? String
+
+                    }
+                }
+
+            } else if i == 1 {
+                
+                if let senderId = value.1["senderId"] as? String, selfId = FIRAuth.auth()?.currentUser?.uid {
+                    
+                    if senderId == selfId {
+                        
+                        secondMessageData[index]["outName"] = value.1["senderDisplayName"] as? String
+                        secondMessageData[index]["outText"] = value.1["text"] as? String
+                        secondMessageData[index]["outProfilePic"] = value.1["profilePicture"] as? String
+                        
+                    } else {
+                        
+                        secondMessageData[index]["inName"] = value.1["senderDisplayName"] as? String
+                        secondMessageData[index]["inText"] = value.1["text"] as? String
+                        secondMessageData[index]["inProfilePic"] = value.1["profilePicture"] as? String
+                        
+                    }
+                }
+                
+            } else if i == 2 {
+                
+                if let senderId = value.1["senderId"] as? String, selfId = FIRAuth.auth()?.currentUser?.uid {
+                    
+                    if senderId == selfId {
+                        
+                        thirdMessageData[index]["outName"] = value.1["senderDisplayName"] as? String
+                        thirdMessageData[index]["outText"] = value.1["text"] as? String
+                        thirdMessageData[index]["outProfilePic"] = value.1["profilePicture"] as? String
+                        
+                    } else {
+                        
+                        thirdMessageData[index]["inName"] = value.1["senderDisplayName"] as? String
+                        thirdMessageData[index]["inText"] = value.1["text"] as? String
+                        thirdMessageData[index]["inProfilePic"] = value.1["profilePicture"] as? String
+                        
+                    }
+                }
+            } else {
+                break
+            }
+            
+            i += 1
+
+        }
+    }
+    
+    
+    
     func observeMessageData(postUID: String, index: Int){
-        
-        
-        
+
         let ref = FIRDatabase.database().reference()
         
+        /*
         ref.child("posts").child(postUID).child("messages").queryLimitedToLast(5).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
             
             if let value = snapshot.value as? [NSObject:AnyObject] {
                 
+                
                 self.messageData[index] = value
+                self.setTableViewMessageData(value, index: index)
+
                 self.tableView.reloadData()
             }
             
             
         })
+        */
         
         ref.child("posts").child(postUID).child("messages").queryLimitedToLast(5).observeEventType(.Value, withBlock: { (snapshot) in
             
             if let value = snapshot.value as? [NSObject:AnyObject] {
                 
                 self.messageData[index] = value
+                self.setTableViewMessageData(value, index: index)
+                
                 self.tableView.reloadData()
             } 
         })
@@ -100,21 +185,18 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
     
     //Functions
     func observeData(postUIDs: [String], postData: [[NSObject : AnyObject]?]){
-        
-        //self.messageData.removeAll()
-        
+
         for post in postUIDs {
             self.messageData.append([NSObject:AnyObject]())
+            self.firstMessageData.append([String : String?]())
+            self.secondMessageData.append([String : String?]())
+            self.thirdMessageData.append([String : String?]())
+            
         }
-        
-        
-        //self.messageData.reserveCapacity(postUIDs.count)
-        
+
         self.globPostUIDs = postUIDs
         self.postData = postData
-        
-        //self.tableView.reloadData()
-        
+
         let ref = FIRDatabase.database().reference()
         
         for i in 0..<postUIDs.count {
@@ -160,6 +242,9 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         let ref = FIRDatabase.database().reference()
         
         self.messageData.removeAll()
+        self.firstMessageData.removeAll()
+        self.secondMessageData.removeAll()
+        self.thirdMessageData.removeAll()
         self.globPostUIDs.removeAll()
         
         ref.child("postUIDs").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
@@ -214,7 +299,7 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
                 
             }
             
-            self.tableView.reloadData()
+            //self.tableView.reloadData()
 
         })
     }
@@ -360,14 +445,14 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
         tableView.allowsSelection = false
-        //tableView.rowHeight = UITableViewAutomaticDimension
-        tableView.estimatedRowHeight = 44.0
+        tableView.separatorStyle = .None
+        tableView.decelerationRate = UIScrollViewDecelerationRateFast
         
+        let realIndex = (indexPath.row / 4)
+
         let defaultCell = UITableViewCell()
 
-        if indexPath.row % 2 == 0 || indexPath.row == 0 {
-            
-            let realIndex = indexPath.row / 2
+        if indexPath.row % 4 == 0 || indexPath.row == 0 {
             
             if let actualData = postData[realIndex] {
                 
@@ -389,21 +474,31 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
                 }
             }
 
-        } else if indexPath.row % 2 == 1 {
+        } else if indexPath.row % 4 == 1 {
 
-            let realIndex = (indexPath.row / 2)
+            let cell = tableView.dequeueReusableCellWithIdentifier("comment1Cell") as! Comment1Cell
             
-            let cell = tableView.dequeueReusableCellWithIdentifier("commentCell") as! CommentCell
-            cell.rootController = rootController
-            cell.globPostUIDs = globPostUIDs
-            cell.postUID = globPostUIDs[realIndex]
-            cell.globPostData = postData
+            cell.loadData(firstMessageData[realIndex])
             
-            cell.messageData = messageData[realIndex]
-            cell.loadData()
+            return cell
+            
+        } else if indexPath.row % 4 == 2 {
+
+            let cell = tableView.dequeueReusableCellWithIdentifier("comment2Cell") as! Comment2Cell
+            
+            cell.loadData(secondMessageData[realIndex])
             
             return cell
 
+            
+        } else if indexPath.row % 4 == 3 {
+
+            let cell = tableView.dequeueReusableCellWithIdentifier("comment3Cell") as! Comment3Cell
+            
+            cell.loadData(thirdMessageData[realIndex])
+            
+            return cell
+            
         }
         
         return defaultCell
@@ -411,9 +506,7 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        let numOfCells = postData.count * 2
-        
-        return numOfCells
+        return postData.count * 4
     
     }
     
@@ -436,20 +529,47 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
                 
                 return actualHeight
                 
+            } else if indexPath.row % 4 == 0 {
+                return 374.0
             } else {
-                return UITableViewAutomaticDimension
+                return 30.0
             }
             
+        } else if indexPath.row % 4 == 0 {
+            return 374.0
         } else {
-            return UITableViewAutomaticDimension
+            return 30.0
         }
         
     }
     
-    
     func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
         
         return UITableViewAutomaticDimension
+        
+    }
+    
+    //Snap to middle
+    func scrollViewDidEndDragging(scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        // if decelerating, let scrollViewDidEndDecelerating: handle it
+        if decelerate == false {
+            self.centerTable()
+        }
+    }
+    
+
+     
+    func scrollViewDidEndDecelerating(scrollView: UIScrollView) {
+        self.centerTable()
+    }
+    
+    
+    
+    func centerTable() {
+
+        if let pathForCenterCell = self.tableView.indexPathForRowAtPoint(CGPointMake(CGRectGetMidX(self.tableView.bounds), CGRectGetMidY(self.tableView.bounds))) {
+            self.tableView.scrollToRowAtIndexPath(pathForCenterCell, atScrollPosition: .Top, animated: true)
+        }
         
     }
 
