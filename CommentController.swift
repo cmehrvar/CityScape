@@ -77,6 +77,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
         
         let message = JSQPhotoMediaItem(image: image)
         let messageData = JSQMessage(senderId: senderId, senderDisplayName: senderDisplayName, date: date, media: message)
+        self.videoSet[fileName] = false
         self.messages.append(messageData)
         self.messageKeys.append(fileName)
         
@@ -315,7 +316,6 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
    
                         }
                     }
-
                 }
                 
             } else {

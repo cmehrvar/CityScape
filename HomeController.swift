@@ -12,20 +12,25 @@ import AVFoundation
 import Firebase
 import FirebaseAuth
 import FirebaseDatabase
+import Player
 
-class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewControllerDelegate, UITableViewDataSource, UITableViewDelegate {
+class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewControllerDelegate, UITableViewDataSource, UITableViewDelegate, PlayerDelegate {
     
     weak var rootController: MainRootController?
-
-
+    
+    
     //Variables
     var globPostUIDs = [String]()
     var postData = [[NSObject:AnyObject]?]()
     var messageData = [[NSObject : AnyObject]?]()
+    var mainCommentVideos = [String : Player]()
     
-    var firstMessageData = [[String : String?]]()
-    var secondMessageData = [[String : String?]]()
-    var thirdMessageData = [[String : String?]]()
+
+    var firstMessageData = [[String : AnyObject?]]()
+    var secondMessageData = [[String : AnyObject?]]()
+    var thirdMessageData = [[String : AnyObject?]]()
+    //var fourthMessageData = [[String : AnyObject?]]()
+    //var fifthMessageData = [[String : AnyObject?]]()
     
     var globHasLiked = [Bool?]()
     var refreshControl = UIRefreshControl()
@@ -34,7 +39,7 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
     var prototypeToDraw = [Int]()
     
     
-
+    
     @IBAction func chatAction(sender: AnyObject) {
         
         //getFirebaseData()
@@ -58,7 +63,6 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
             
         })
     }
-    
     @IBAction func toggleMenu(sender: AnyObject) {
         
         rootController?.toggleMenu({ (complete) in
@@ -67,8 +71,6 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
             
         })
     }
-    
-    
     @IBAction func gotToCamera(sender: AnyObject) {
         
         presentFusumaCamera()
@@ -76,127 +78,44 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         
     }
     
+    //Player Delegates
+    func playerReady(player: Player){
+        
+    }
+    func playerPlaybackStateDidChange(player: Player){
+        
+    }
+    func playerBufferingStateDidChange(player: Player){
+        
+    }
     
-    func setTableViewMessageData(value: [NSObject : AnyObject], index: Int){
+    func playerPlaybackWillStartFromBeginning(player: Player){
         
-        var i = 0
+    }
+    func playerPlaybackDidEnd(player: Player){
         
-        for value in value {
-            
-            if i == 0 {
-                
-                if let senderId = value.1["senderId"] as? String, selfId = FIRAuth.auth()?.currentUser?.uid {
-                    
-                    if senderId == selfId {
-                        
-                        firstMessageData[index]["outName"] = value.1["senderDisplayName"] as? String
-                        firstMessageData[index]["outText"] = value.1["text"] as? String
-                        firstMessageData[index]["outProfilePic"] = value.1["profilePicture"] as? String
-                        
-                    } else {
-                        
-                        firstMessageData[index]["inName"] = value.1["senderDisplayName"] as? String
-                        firstMessageData[index]["inText"] = value.1["text"] as? String
-                        firstMessageData[index]["inProfilePic"] = value.1["profilePicture"] as? String
-
-                    }
-                }
-
-            } else if i == 1 {
-                
-                if let senderId = value.1["senderId"] as? String, selfId = FIRAuth.auth()?.currentUser?.uid {
-                    
-                    if senderId == selfId {
-                        
-                        secondMessageData[index]["outName"] = value.1["senderDisplayName"] as? String
-                        secondMessageData[index]["outText"] = value.1["text"] as? String
-                        secondMessageData[index]["outProfilePic"] = value.1["profilePicture"] as? String
-                        
-                    } else {
-                        
-                        secondMessageData[index]["inName"] = value.1["senderDisplayName"] as? String
-                        secondMessageData[index]["inText"] = value.1["text"] as? String
-                        secondMessageData[index]["inProfilePic"] = value.1["profilePicture"] as? String
-                        
-                    }
-                }
-                
-            } else if i == 2 {
-                
-                if let senderId = value.1["senderId"] as? String, selfId = FIRAuth.auth()?.currentUser?.uid {
-                    
-                    if senderId == selfId {
-                        
-                        thirdMessageData[index]["outName"] = value.1["senderDisplayName"] as? String
-                        thirdMessageData[index]["outText"] = value.1["text"] as? String
-                        thirdMessageData[index]["outProfilePic"] = value.1["profilePicture"] as? String
-                        
-                    } else {
-                        
-                        thirdMessageData[index]["inName"] = value.1["senderDisplayName"] as? String
-                        thirdMessageData[index]["inText"] = value.1["text"] as? String
-                        thirdMessageData[index]["inProfilePic"] = value.1["profilePicture"] as? String
-                        
-                    }
-                }
-            } else {
-                break
-            }
-            
-            i += 1
-
-        }
     }
     
     
-    
-    func observeMessageData(postUID: String, index: Int){
-
-        let ref = FIRDatabase.database().reference()
-        
-        /*
-        ref.child("posts").child(postUID).child("messages").queryLimitedToLast(5).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
-            
-            if let value = snapshot.value as? [NSObject:AnyObject] {
-                
-                
-                self.messageData[index] = value
-                self.setTableViewMessageData(value, index: index)
-
-                self.tableView.reloadData()
-            }
-            
-            
-        })
-        */
-        
-        ref.child("posts").child(postUID).child("messages").queryLimitedToLast(5).observeEventType(.Value, withBlock: { (snapshot) in
-            
-            if let value = snapshot.value as? [NSObject:AnyObject] {
-                
-                self.messageData[index] = value
-                self.setTableViewMessageData(value, index: index)
-                
-                self.tableView.reloadData()
-            } 
-        })
-    }
     
     
     //Functions
-    func observeData(postUIDs: [String], postData: [[NSObject : AnyObject]?]){
-
+    func observeData(postUIDs: [String], postData: [[NSObject : AnyObject]?], hasLiked: [Bool?]){
+        
         for post in postUIDs {
             self.messageData.append([NSObject:AnyObject]())
-            self.firstMessageData.append([String : String?]())
-            self.secondMessageData.append([String : String?]())
-            self.thirdMessageData.append([String : String?]())
+            self.firstMessageData.append([String : AnyObject?]())
+            self.secondMessageData.append([String : AnyObject?]())
+            self.thirdMessageData.append([String : AnyObject?]())
+            //self.fourthMessageData.append([String : AnyObject?]())
+            //self.fifthMessageData.append([String : AnyObject?]())
             
         }
-
+        
         self.globPostUIDs = postUIDs
         self.postData = postData
-
+        self.globHasLiked = hasLiked
+        
         let ref = FIRDatabase.database().reference()
         
         for i in 0..<postUIDs.count {
@@ -220,11 +139,11 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
                             }
                         }
                         
-                        //globHasLiked = true
+                        self.globHasLiked[i] = liked
                         
                     } else {
                         
-                        //self.globHasLiked[i] = false
+                        self.globHasLiked[i] = false
                         
                     }
                     
@@ -235,8 +154,6 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
             })
         }
     }
-    
-    
     func getFirebaseData() {
         
         let ref = FIRDatabase.database().reference()
@@ -248,7 +165,7 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         self.globPostUIDs.removeAll()
         
         ref.child("postUIDs").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
-
+            
             var funcPostUIDs = [String : NSTimeInterval]()
             var stringArray = [String]()
             var funcPostData = [[NSObject : AnyObject]?]()
@@ -262,7 +179,6 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
                     funcPostData.append(nil)
                     funcHasLiked.append(nil)
                     
-                    
                 }
                 
                 let sortedSnap = funcPostUIDs.sort({ (a: (String, NSTimeInterval), b: (String, NSTimeInterval)) -> Bool in
@@ -274,8 +190,6 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
                     }
                     
                 })
-
-                
                 
                 for (key, _) in sortedSnap {
                     
@@ -283,13 +197,12 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
                     
                 }
                 
-                self.observeData(stringArray, postData: funcPostData)
-
+                self.observeData(stringArray, postData: funcPostData, hasLiked: funcHasLiked)
+                
             }
             
-            
             let now = NSDate()
-
+            
             let updateString = "Last updated: " + self.dateFormatter.stringFromDate(now)
             self.refreshControl.attributedTitle = NSAttributedString(string: updateString)
             
@@ -298,13 +211,300 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
                 self.refreshControl.endRefreshing()
                 
             }
-            
-            //self.tableView.reloadData()
-
         })
     }
-    
-    
+    func setTableViewMessageData(messages: [NSObject : AnyObject], index: Int){
+        
+        var i = 0
+        
+        let sortedValue = messages.sort { (a: (NSObject, AnyObject), b: (NSObject, AnyObject)) -> Bool in
+            
+            if a.1["timeStamp"] as? NSTimeInterval > b.1["timeStamp"] as? NSTimeInterval {
+                return false
+            } else {
+                return true
+            }
+        }
+        
+        
+        for value in sortedValue {
+            
+            if i == 0 {
+                
+                if let senderId = value.1["senderId"] as? String, isMedia = value.1["isMedia"] as? Bool,selfId = FIRAuth.auth()?.currentUser?.uid {
+                    
+                    if senderId == selfId {
+                        
+                        if isMedia {
+                            
+                            if let isImage = value.1["isImage"] as? Bool {
+                                
+                                if isImage {
+                                    
+                                    firstMessageData[index]["outName"] = value.1["senderDisplayName"] as? String
+                                    firstMessageData[index]["outText"] = value.1["text"] as? String
+                                    firstMessageData[index]["outProfilePic"] = value.1["profilePicture"] as? String
+                                    firstMessageData[index]["isMedia"] = isMedia
+                                    firstMessageData[index]["isImage"] = value.1["isImage"] as? Bool
+                                    firstMessageData[index]["media"] = value.1["media"] as? String
+                                    
+                                } else {
+                                    
+                                    //Do something with video//
+                                    
+                                    firstMessageData[index]["outName"] = value.1["senderDisplayName"] as? String
+                                    firstMessageData[index]["outText"] = value.1["text"] as? String
+                                    firstMessageData[index]["outProfilePic"] = value.1["profilePicture"] as? String
+                                    firstMessageData[index]["isMedia"] = isMedia
+                                    firstMessageData[index]["isImage"] = value.1["isImage"] as? Bool
+                                    firstMessageData[index]["media"] = value.1["media"] as? String
+                                    
+                                }
+                            }
+                            
+                        } else {
+                            
+                            firstMessageData[index]["outName"] = value.1["senderDisplayName"] as? String
+                            firstMessageData[index]["outText"] = value.1["text"] as? String
+                            firstMessageData[index]["outProfilePic"] = value.1["profilePicture"] as? String
+                            firstMessageData[index]["isMedia"] = isMedia
+                            firstMessageData[index]["isImage"] = value.1["isImage"] as? Bool
+                            
+                        }
+                        
+                    } else {
+                        
+                        if isMedia {
+                            
+                            if let isImage = value.1["isImage"] as? Bool {
+                                
+                                if isImage {
+                                    
+                                    firstMessageData[index]["inName"] = value.1["senderDisplayName"] as? String
+                                    firstMessageData[index]["inText"] = value.1["text"] as? String
+                                    firstMessageData[index]["inProfilePic"] = value.1["profilePicture"] as? String
+                                    firstMessageData[index]["isMedia"] = isMedia
+                                    firstMessageData[index]["isImage"] = value.1["isImage"] as? Bool
+                                    firstMessageData[index]["media"] = value.1["media"] as? String
+                                    
+                                } else {
+                                    
+                                    //Do something with video//
+                                    
+                                    
+                                    firstMessageData[index]["inName"] = value.1["senderDisplayName"] as? String
+                                    firstMessageData[index]["inText"] = value.1["text"] as? String
+                                    firstMessageData[index]["inProfilePic"] = value.1["profilePicture"] as? String
+                                    firstMessageData[index]["isMedia"] = isMedia
+                                    firstMessageData[index]["isImage"] = value.1["isImage"] as? Bool
+                                    firstMessageData[index]["media"] = value.1["media"] as? String
+                                    
+                                }
+                            }
+                            
+                        } else {
+                            
+                            firstMessageData[index]["inName"] = value.1["senderDisplayName"] as? String
+                            firstMessageData[index]["inText"] = value.1["text"] as? String
+                            firstMessageData[index]["inProfilePic"] = value.1["profilePicture"] as? String
+                            firstMessageData[index]["isMedia"] = isMedia
+                            firstMessageData[index]["isImage"] = value.1["isImage"] as? Bool
+                            
+                        }
+                    }
+                }
+                
+            } else if i == 1 {
+                
+                if let senderId = value.1["senderId"] as? String, isMedia = value.1["isMedia"] as? Bool,selfId = FIRAuth.auth()?.currentUser?.uid {
+                    
+                    if senderId == selfId {
+                        
+                        if isMedia {
+                            
+                            if let isImage = value.1["isImage"] as? Bool {
+                                
+                                if isImage {
+                                    
+                                    secondMessageData[index]["outName"] = value.1["senderDisplayName"] as? String
+                                    secondMessageData[index]["outText"] = value.1["text"] as? String
+                                    secondMessageData[index]["outProfilePic"] = value.1["profilePicture"] as? String
+                                    secondMessageData[index]["isMedia"] = isMedia
+                                    secondMessageData[index]["isImage"] = value.1["isImage"] as? Bool
+                                    secondMessageData[index]["media"] = value.1["media"] as? String
+                                    
+                                } else {
+                                    
+                                    //Do something with video//
+                                    
+                                    secondMessageData[index]["outName"] = value.1["senderDisplayName"] as? String
+                                    secondMessageData[index]["outText"] = value.1["text"] as? String
+                                    secondMessageData[index]["outProfilePic"] = value.1["profilePicture"] as? String
+                                    secondMessageData[index]["isMedia"] = isMedia
+                                    secondMessageData[index]["isImage"] = value.1["isImage"] as? Bool
+                                    secondMessageData[index]["media"] = value.1["media"] as? String
+                                    
+                                }
+                            }
+                            
+                        } else {
+                            
+                            secondMessageData[index]["outName"] = value.1["senderDisplayName"] as? String
+                            secondMessageData[index]["outText"] = value.1["text"] as? String
+                            secondMessageData[index]["outProfilePic"] = value.1["profilePicture"] as? String
+                            secondMessageData[index]["isMedia"] = isMedia
+                            secondMessageData[index]["isImage"] = value.1["isImage"] as? Bool
+                            
+                        }
+                        
+                    } else {
+                        
+                        if isMedia {
+                            
+                            if let isImage = value.1["isImage"] as? Bool {
+                                
+                                if isImage {
+                                    
+                                    secondMessageData[index]["inName"] = value.1["senderDisplayName"] as? String
+                                    secondMessageData[index]["inText"] = value.1["text"] as? String
+                                    secondMessageData[index]["inProfilePic"] = value.1["profilePicture"] as? String
+                                    secondMessageData[index]["isMedia"] = isMedia
+                                    secondMessageData[index]["isImage"] = value.1["isImage"] as? Bool
+                                    secondMessageData[index]["media"] = value.1["media"] as? String
+                                    
+                                } else {
+                                    
+                                    //Do something with video//
+                                    
+                                    secondMessageData[index]["inName"] = value.1["senderDisplayName"] as? String
+                                    secondMessageData[index]["inText"] = value.1["text"] as? String
+                                    secondMessageData[index]["inProfilePic"] = value.1["profilePicture"] as? String
+                                    secondMessageData[index]["isMedia"] = isMedia
+                                    secondMessageData[index]["isImage"] = value.1["isImage"] as? Bool
+                                    secondMessageData[index]["media"] = value.1["media"] as? String
+                                    
+                                }
+                            }
+                            
+                        } else {
+                            
+                            secondMessageData[index]["inName"] = value.1["senderDisplayName"] as? String
+                            secondMessageData[index]["inText"] = value.1["text"] as? String
+                            secondMessageData[index]["inProfilePic"] = value.1["profilePicture"] as? String
+                            secondMessageData[index]["isMedia"] = isMedia
+                            secondMessageData[index]["isImage"] = value.1["isImage"] as? Bool
+                            
+                        }
+                    }
+                }
+                
+            } else if i == 2 {
+                
+                if let senderId = value.1["senderId"] as? String, isMedia = value.1["isMedia"] as? Bool,selfId = FIRAuth.auth()?.currentUser?.uid {
+                    
+                    if senderId == selfId {
+                        
+                        if isMedia {
+                            
+                            if let isImage = value.1["isImage"] as? Bool {
+                                
+                                if isImage {
+                                    
+                                    thirdMessageData[index]["outName"] = value.1["senderDisplayName"] as? String
+                                    thirdMessageData[index]["outText"] = value.1["text"] as? String
+                                    thirdMessageData[index]["outProfilePic"] = value.1["profilePicture"] as? String
+                                    thirdMessageData[index]["isMedia"] = isMedia
+                                    thirdMessageData[index]["isImage"] = value.1["isImage"] as? Bool
+                                    thirdMessageData[index]["media"] = value.1["media"] as? String
+                                    
+                                } else {
+                                    
+                                    //Do something with video//
+                                    
+                                    thirdMessageData[index]["outName"] = value.1["senderDisplayName"] as? String
+                                    thirdMessageData[index]["outText"] = value.1["text"] as? String
+                                    thirdMessageData[index]["outProfilePic"] = value.1["profilePicture"] as? String
+                                    thirdMessageData[index]["isMedia"] = isMedia
+                                    thirdMessageData[index]["isImage"] = value.1["isImage"] as? Bool
+                                    thirdMessageData[index]["media"] = value.1["media"] as? String
+                                    
+                                }
+                            }
+                            
+                        } else {
+                            
+                            thirdMessageData[index]["outName"] = value.1["senderDisplayName"] as? String
+                            thirdMessageData[index]["outText"] = value.1["text"] as? String
+                            thirdMessageData[index]["outProfilePic"] = value.1["profilePicture"] as? String
+                            thirdMessageData[index]["isMedia"] = isMedia
+                            thirdMessageData[index]["isImage"] = value.1["isImage"] as? Bool
+                            
+                        }
+                        
+                    } else {
+                        
+                        if isMedia {
+                            
+                            if let isImage = value.1["isImage"] as? Bool {
+                                
+                                if isImage {
+                                    
+                                    thirdMessageData[index]["inName"] = value.1["senderDisplayName"] as? String
+                                    thirdMessageData[index]["inText"] = value.1["text"] as? String
+                                    thirdMessageData[index]["inProfilePic"] = value.1["profilePicture"] as? String
+                                    thirdMessageData[index]["isMedia"] = isMedia
+                                    thirdMessageData[index]["isImage"] = value.1["isImage"] as? Bool
+                                    thirdMessageData[index]["media"] = value.1["media"] as? String
+                                    
+                                } else {
+                                    
+                                    //Do something with video//
+                                    
+                                    thirdMessageData[index]["inName"] = value.1["senderDisplayName"] as? String
+                                    thirdMessageData[index]["inText"] = value.1["text"] as? String
+                                    thirdMessageData[index]["inProfilePic"] = value.1["profilePicture"] as? String
+                                    thirdMessageData[index]["isMedia"] = isMedia
+                                    thirdMessageData[index]["isImage"] = value.1["isImage"] as? Bool
+                                    thirdMessageData[index]["media"] = value.1["media"] as? String
+                                    
+                                }
+                            }
+                            
+                        } else {
+                            
+                            thirdMessageData[index]["inName"] = value.1["senderDisplayName"] as? String
+                            thirdMessageData[index]["inText"] = value.1["text"] as? String
+                            thirdMessageData[index]["inProfilePic"] = value.1["profilePicture"] as? String
+                            thirdMessageData[index]["isMedia"] = isMedia
+                            thirdMessageData[index]["isImage"] = value.1["isImage"] as? Bool
+                            
+                        }
+                    }
+                }
+                
+            } else {
+                break
+            }
+            
+            i += 1
+            
+        }
+    }
+    func observeMessageData(postUID: String, index: Int){
+        
+        let ref = FIRDatabase.database().reference()
+        
+        ref.child("posts").child(postUID).child("messages").queryLimitedToLast(3).observeEventType(.Value, withBlock: { (snapshot) in
+            
+            if let value = snapshot.value as? [NSObject:AnyObject] {
+                
+                self.messageData[index] = value
+                self.setTableViewMessageData(value, index: index)
+                
+                self.tableView.reloadData()
+            }
+        })
+    }
     func createRefresh(){
         
         self.refreshControl.attributedTitle = NSAttributedString(string: "Pull to refresh")
@@ -316,7 +516,6 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         self.refreshControl.addTarget(self, action: #selector(HomeController.refresh(_:)), forControlEvents: UIControlEvents.ValueChanged)
         
     }
-    
     func refresh(sender: AnyObject) {
         
         self.getFirebaseData()
@@ -345,7 +544,6 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         print("photo editor chosen")
         
     }
-    
     func photoEditorCanceled(editor: AdobeUXImageEditorViewController) {
         
         let transition: CATransition = CATransition()
@@ -369,8 +567,6 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         print("image selected")
         
     }
-    
-    
     func fusumaDismissedWithImage(image: UIImage) {
         
         print("fusuma dismissed with image")
@@ -389,7 +585,6 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         self.presentViewController(editorController, animated: false, completion: nil)
         
     }
-    
     func fusumaVideoCompleted(withFileURL fileURL: NSURL) {
         
         let transition: CATransition = CATransition()
@@ -410,7 +605,6 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         
         
     }
-    
     func fusumaCameraRollUnauthorized() {
         
         let alertController = UIAlertController(title: "Sorry", message: "Camera not authorized", preferredStyle:  UIAlertControllerStyle.Alert)
@@ -420,13 +614,11 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         print("camera unauthorized")
         
     }
-    
     func fusumaClosed() {
         
         transitionToFusumaOutlet.alpha = 0
         
     }
-    
     func presentFusumaCamera(){
         
         let fusuma = FusumaViewController()
@@ -449,9 +641,9 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         tableView.decelerationRate = UIScrollViewDecelerationRateFast
         
         let realIndex = (indexPath.row / 4)
-
+        
         let defaultCell = UITableViewCell()
-
+        
         if indexPath.row % 4 == 0 || indexPath.row == 0 {
             
             if let actualData = postData[realIndex] {
@@ -462,43 +654,155 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
                         
                         let cell = tableView.dequeueReusableCellWithIdentifier("imageCell") as! ImageContentCell
                         
-                        //cell.hasLiked = globHasLiked[realIndex]
+                        cell.hasLiked = globHasLiked[realIndex]
                         cell.postUID = globPostUIDs[realIndex]
                         cell.data = actualData
                         cell.loadData()
-
+                        
+                        cell.rootController = rootController
+                        cell.globPostUIDs = globPostUIDs
+                        cell.globPostData = postData
+                        cell.hasLikedArray = globHasLiked
+                        cell.messageData = messageData[realIndex]
+                        
                         cell.homeController = self
                         return cell
+                        
+                    } else {
+                        
+                        
+                        //Do something with video
+                        
+                        
+                        
+                        
                         
                     }
                 }
             }
-
+            
         } else if indexPath.row % 4 == 1 {
-
-            let cell = tableView.dequeueReusableCellWithIdentifier("comment1Cell") as! Comment1Cell
             
-            cell.loadData(firstMessageData[realIndex])
-            
-            return cell
+            if firstMessageData[realIndex]["isMedia"] as? Bool == true {
+                
+                if let isImage = firstMessageData[realIndex]["isImage"] as? Bool {
+                    
+                    if (firstMessageData[realIndex]["inName"] as? String) != nil {
+                        
+                        let cell = tableView.dequeueReusableCellWithIdentifier("inMediaCommentCell") as! InMediaCommentCell
+                        
+                        cell.homeController = self
+                        cell.postIndex = (indexPath.row % 4) - 1
+                        cell.messageIndex = 1
+                        cell.setMediaComment(isImage, data: firstMessageData[realIndex])
+                        
+                        return cell
+                        
+                    } else if (firstMessageData[realIndex]["outName"] as? String) != nil {
+                        
+                        let cell = tableView.dequeueReusableCellWithIdentifier("outMediaCommentCell") as! OutMediaCommentCell
+                        
+                        cell.homeController = self
+                        cell.postIndex = (indexPath.row % 4) - 1
+                        cell.messageIndex = 1
+                        cell.setMediaComment(isImage, data: firstMessageData[realIndex])
+                        
+                        return cell
+                        
+                    }
+                }
+                
+            } else {
+                
+                let cell = tableView.dequeueReusableCellWithIdentifier("textCommentCell") as! TextCommentCell
+                
+                cell.loadData(firstMessageData[realIndex])
+                
+                return cell
+                
+            }
             
         } else if indexPath.row % 4 == 2 {
-
-            let cell = tableView.dequeueReusableCellWithIdentifier("comment2Cell") as! Comment2Cell
             
-            cell.loadData(secondMessageData[realIndex])
-            
-            return cell
-
+            if secondMessageData[realIndex]["isMedia"] as? Bool == true {
+                
+                if let isImage = secondMessageData[realIndex]["isImage"] as? Bool {
+                    
+                    if (secondMessageData[realIndex]["inName"] as? String) != nil {
+                        
+                        let cell = tableView.dequeueReusableCellWithIdentifier("inMediaCommentCell") as! InMediaCommentCell
+                        
+                        cell.homeController = self
+                        cell.postIndex = (indexPath.row % 4) - 2
+                        cell.messageIndex = 2
+                        cell.setMediaComment(isImage, data: secondMessageData[realIndex])
+                        
+                        return cell
+                        
+                    } else if (secondMessageData[realIndex]["outName"] as? String) != nil {
+                        
+                        let cell = tableView.dequeueReusableCellWithIdentifier("outMediaCommentCell") as! OutMediaCommentCell
+                        
+                        cell.homeController = self
+                        cell.postIndex = (indexPath.row % 4) - 2
+                        cell.messageIndex = 2
+                        cell.setMediaComment(isImage, data: secondMessageData[realIndex])
+                        
+                        return cell
+                        
+                    }
+                }
+                
+            } else {
+                
+                let cell = tableView.dequeueReusableCellWithIdentifier("textCommentCell") as! TextCommentCell
+                
+                cell.loadData(secondMessageData[realIndex])
+                
+                return cell
+                
+            }
             
         } else if indexPath.row % 4 == 3 {
-
-            let cell = tableView.dequeueReusableCellWithIdentifier("comment3Cell") as! Comment3Cell
             
-            cell.loadData(thirdMessageData[realIndex])
-            
-            return cell
-            
+            if thirdMessageData[realIndex]["isMedia"] as? Bool == true {
+                
+                if let isImage = thirdMessageData[realIndex]["isImage"] as? Bool {
+                    
+                    if (thirdMessageData[realIndex]["inName"] as? String) != nil {
+                        
+                        let cell = tableView.dequeueReusableCellWithIdentifier("inMediaCommentCell") as! InMediaCommentCell
+                        
+                        cell.homeController = self
+                        cell.postIndex = (indexPath.row % 4) - 3
+                        cell.messageIndex = 3
+                        cell.setMediaComment(isImage, data: thirdMessageData[realIndex])
+                        
+                        return cell
+                        
+                    } else if (thirdMessageData[realIndex]["outName"] as? String) != nil {
+                        
+                        let cell = tableView.dequeueReusableCellWithIdentifier("outMediaCommentCell") as! OutMediaCommentCell
+                        
+                        cell.homeController = self
+                        cell.postIndex = (indexPath.row % 4) - 3
+                        cell.messageIndex = 3
+                        cell.setMediaComment(isImage, data: thirdMessageData[realIndex])
+                        
+                        return cell
+                        
+                    }
+                }
+                
+            } else {
+                
+                let cell = tableView.dequeueReusableCellWithIdentifier("textCommentCell") as! TextCommentCell
+                
+                cell.loadData(thirdMessageData[realIndex])
+                
+                return cell
+                
+            }
         }
         
         return defaultCell
@@ -507,7 +811,7 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         return postData.count * 4
-    
+        
     }
     
     
@@ -557,8 +861,8 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
         }
     }
     
-
-     
+    
+    
     func scrollViewDidEndDecelerating(scrollView: UIScrollView) {
         self.centerTable()
     }
@@ -566,13 +870,33 @@ class HomeController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewCo
     
     
     func centerTable() {
-
+        
         if let pathForCenterCell = self.tableView.indexPathForRowAtPoint(CGPointMake(CGRectGetMidX(self.tableView.bounds), CGRectGetMidY(self.tableView.bounds))) {
-            self.tableView.scrollToRowAtIndexPath(pathForCenterCell, atScrollPosition: .Top, animated: true)
+            
+            var customIndexPath = pathForCenterCell
+            
+            if pathForCenterCell.row % 4 == 1 {
+                
+                customIndexPath = NSIndexPath(forRow: pathForCenterCell.row - 1, inSection: pathForCenterCell.section)
+                
+            } else if pathForCenterCell.row % 4 == 2 {
+                
+                customIndexPath = NSIndexPath(forItem: pathForCenterCell.row + 2, inSection: pathForCenterCell.section)
+                
+            } else if pathForCenterCell.row % 4 == 3 {
+                
+                customIndexPath = NSIndexPath(forItem: pathForCenterCell.row + 1, inSection: pathForCenterCell.section)
+                
+            }
+            
+            print(customIndexPath.row)
+            
+            
+            self.tableView.scrollToRowAtIndexPath(customIndexPath, atScrollPosition: .Top, animated: true)
         }
         
     }
-
+    
     override func viewDidAppear(animated: Bool) {
         print("view appeared")
         

@@ -1,5 +1,5 @@
 //
-//  Comment3Cell.swift
+//  Comment1Cell.swift
 //  CityScape
 //
 //  Created by Cina Mehrvar on 2016-07-17.
@@ -8,28 +8,28 @@
 
 import UIKit
 
-class Comment3Cell: UITableViewCell {
+class TextCommentCell: UITableViewCell {
     
     
     @IBOutlet weak var inProfileOutlet: UIImageView!
     @IBOutlet weak var inTextOutlet: UILabel!
     @IBOutlet weak var inNameOutlet: UILabel!
-    @IBOutlet weak var inTextBubble: TextBubble!
-    @IBOutlet weak var outNameOutlet: UILabel!
+    @IBOutlet weak var inTextBubble: UIView!
     @IBOutlet weak var outTextOutlet: UILabel!
     @IBOutlet weak var outProfileOutlet: UIImageView!
+    @IBOutlet weak var outNameOutlet: UILabel!
     @IBOutlet weak var outTextBubble: TextBubble!
     
     
-    func loadData(data: [String:String?]){
+    func loadData(data: [String : AnyObject?]) {
         
-        if let inName = data["inName"] {
+        if let inName = data["inName"] as? String {
             self.inNameOutlet.text = inName
         } else {
             self.inNameOutlet.text = ""
         }
         
-        if let inText = data["inText"] {
+        if let inText = data["inText"] as? String {
             self.inTextOutlet.text = inText
             self.inTextBubble.backgroundColor = UIColor(red: 192, green: 192, blue: 192)
             
@@ -38,13 +38,12 @@ class Comment3Cell: UITableViewCell {
             self.inTextBubble.backgroundColor = .None
         }
         
-        if let profileString = data["inProfilePic"]{
+        if let profileString = data["inProfilePic"] as? String {
             
-            if let actualString = profileString, profileUrl = NSURL(string: actualString) {
+            if let profileUrl = NSURL(string: profileString) {
                 
                 self.inProfileOutlet.sd_setImageWithURL(profileUrl, placeholderImage: nil)
-                
-                
+ 
             } else {
                 
                 self.inProfileOutlet.image = nil
@@ -57,13 +56,13 @@ class Comment3Cell: UITableViewCell {
             
         }
         
-        if let outName = data["outName"] {
+        if let outName = data["outName"] as? String {
             self.outNameOutlet.text = outName
         } else {
             self.outNameOutlet.text = ""
         }
         
-        if let outText = data["outText"] {
+        if let outText = data["outText"] as? String {
             self.outTextOutlet.text = outText
             self.outTextBubble.backgroundColor = UIColor(red: 0, green: 122, blue: 255)
             
@@ -73,13 +72,12 @@ class Comment3Cell: UITableViewCell {
         }
         
         
-        if let profileString = data["outProfilePic"]{
+        if let profileString = data["outProfilePic"] as? String{
             
-            if let actualString = profileString, profileUrl = NSURL(string: actualString) {
+            if let profileUrl = NSURL(string: profileString) {
                 
                 self.outProfileOutlet.sd_setImageWithURL(profileUrl, placeholderImage: nil)
-                
-                
+
             } else {
                 
                 self.outProfileOutlet.image = nil
@@ -91,9 +89,8 @@ class Comment3Cell: UITableViewCell {
             self.outProfileOutlet.image = nil
             
         }
-        
+ 
     }
-    
     
 
     override func awakeFromNib() {

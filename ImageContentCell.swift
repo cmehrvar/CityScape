@@ -20,6 +20,12 @@ class ImageContentCell: UITableViewCell {
     var homeController: HomeController!
     var hasLiked: Bool?
     
+    weak var rootController: MainRootController?
+    var globPostUIDs = [String]()
+    var globPostData = [[NSObject : AnyObject]?]()
+    var messageData: [NSObject : AnyObject]?
+    var hasLikedArray = [Bool?]()
+    
     
     //Outlets
     @IBOutlet weak var cityRankOutlet: UILabel!
@@ -35,6 +41,7 @@ class ImageContentCell: UITableViewCell {
     @IBOutlet weak var thumbsDownImageOutlet: UIImageView!
     @IBOutlet weak var thumbsUpImageOutlet: UIImageView!
     @IBOutlet weak var timeAgoOutlet: UILabel!
+    @IBOutlet weak var startConvoOutlet: UIButton!
     
     //Actions
     @IBAction func dislike(sender: AnyObject) {
@@ -45,25 +52,92 @@ class ImageContentCell: UITableViewCell {
         
     }
     
-    
-    
-    
-    
+
     @IBAction func like(sender: AnyObject) {
         
         likeDislike("like")
         
     }
     
-    
+    @IBAction func viewCommentsAction(sender: AnyObject) {
         
+        let mainRootController = rootController
+        
+        let ref = FIRDatabase.database().reference()
+        let id = self.globPostUIDs
+        let post = self.globPostData
+        let liked = self.hasLikedArray
+        guard let selfUID = FIRAuth.auth()?.currentUser?.uid else {return}
+        
+        let refToPass = "posts/\(self.postUID)"
+        
+        let contentOffset = self.rootController?.homeController?.tableView.contentOffset
+        
+        let vc = rootController?.storyboard?.instantiateViewControllerWithIdentifier("rootChatController") as! ChatRootController
+        
+        self.rootController?.presentViewController(vc, animated: true) {
+            
+            ref.child("users").child(selfUID).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                
+                if let userData = snapshot.value as? [NSObject : AnyObject] {
+                    
+                    var name = ""
+                    
+                    if let firstName = userData["firstName"] as? String {
+                        
+                        name = firstName + " "
+                        vc.chatController?.firstName = firstName
+                        
+                    }
+                    
+                    if let lastName = userData["lastName"] as? String {
+                        
+                        name += lastName
+                        vc.chatController?.lastName = lastName
+                        
+                    }
+                    
+                    if let profile = userData["profilePicture"] as? String {
+                        vc.chatController?.profileUrl = profile
+                    }
+                    
+                    vc.chatController?.senderDisplayName = name
+                    vc.chatController?.senderId = selfUID
+                    vc.chatController?.passedRef = refToPass
+                    vc.chatController?.observeMessages()
+                    vc.chatController?.observeTyping()
+                    
+                    vc.topChatController?.globPostUIDs = id
+                    vc.topChatController?.postData = post
+                    vc.topChatController?.hasLiked = liked
+                    vc.topChatController?.mainRootController = mainRootController
+                    
+                    
+                    if let offset = contentOffset {
+                        vc.topChatController?.tableViewOffset = offset
+                    }
+                }
+                
+            })
+            
+            
+            
+            
+        }
+        
+        print("view comments tapped")
+        
+    }
     
-       
+    
+    
+    
+    
     func loadData() {
         
-        /*
+        
         if let actualLiked = hasLiked {
-            
+         
             if actualLiked {
                 
                 thumbsUpImageOutlet.image = nil
@@ -77,7 +151,7 @@ class ImageContentCell: UITableViewCell {
                 //viewHowManyCommentsOutlet.enabled = false
                 
             }
-            */
+            
             if let actualLike = data["like"] as? Int, actualDislike = data["dislike"] as? Int, actualFirstName = data["firstName"] as? String, actualLastName = data["lastName"] as? String, actualCaption = data["caption"] as? String ,actualContent = data["contentURL"] as? String, actualProfile = data["profilePicture"] as? String, actualCity = data["city"] as? String, actualTimeStamp = data["timeStamp"] as? NSTimeInterval, userUID = data["userUID"] as? String {
                 
                 let postData = NSDate(timeIntervalSince1970: actualTimeStamp)
@@ -113,7 +187,7 @@ class ImageContentCell: UITableViewCell {
                     }
                 })
             }
-       // }
+        }
     }
     
     func likeDislike(key: String) {

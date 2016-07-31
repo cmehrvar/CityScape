@@ -44,16 +44,16 @@
 		A3D119841D26F27E009D7EAB /* AdobeCreativeSDKImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A3D119831D26F27E009D7EAB /* AdobeCreativeSDKImage.framework */; };
 		A3D119871D26F5BA009D7EAB /* AdobeCreativeSDKImageResources.bundle in Resources */ = {isa = PBXBuildFile; fileRef = A3D119861D26F5BA009D7EAB /* AdobeCreativeSDKImageResources.bundle */; };
 		A3D119891D26F5E6009D7EAB /* AdobeCreativeSDKCoreResources.bundle in Resources */ = {isa = PBXBuildFile; fileRef = A3D119881D26F5E6009D7EAB /* AdobeCreativeSDKCoreResources.bundle */; };
-		A3D879471D3BD36100FB7358 /* Comment1Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3D879461D3BD36100FB7358 /* Comment1Cell.swift */; };
-		A3D879491D3BD36F00FB7358 /* Comment2Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3D879481D3BD36F00FB7358 /* Comment2Cell.swift */; };
-		A3D8794B1D3BD37F00FB7358 /* Comment3Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3D8794A1D3BD37F00FB7358 /* Comment3Cell.swift */; };
+		A3D879471D3BD36100FB7358 /* TextCommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3D879461D3BD36100FB7358 /* TextCommentCell.swift */; };
 		A3D8794D1D3BE63C00FB7358 /* TextBubble.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3D8794C1D3BE63C00FB7358 /* TextBubble.swift */; };
 		A3D8794F1D3BF7EF00FB7358 /* HexColorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3D8794E1D3BF7EF00FB7358 /* HexColorExtension.swift */; };
+		A3D879511D3CD44800FB7358 /* homeCommentProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3D879501D3CD44800FB7358 /* homeCommentProfile.swift */; };
+		A3D879531D3CDE8B00FB7358 /* InMediaCommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3D879521D3CDE8B00FB7358 /* InMediaCommentCell.swift */; };
 		A3E1388E1D25B57E002A5031 /* MainRootController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E1388D1D25B57E002A5031 /* MainRootController.swift */; };
 		A3E138901D25B592002A5031 /* HomeController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E1388F1D25B592002A5031 /* HomeController.swift */; };
 		A3E138921D25B5A0002A5031 /* MenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E138911D25B5A0002A5031 /* MenuController.swift */; };
 		A3E138961D25C937002A5031 /* InitialController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E138951D25C937002A5031 /* InitialController.swift */; };
-		A3FC188E1D303C4E0031D165 /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3FC188D1D303C4E0031D165 /* CommentCell.swift */; };
+		A3F293B41D4DF01600CD9D15 /* OutMediaCommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3F293B31D4DF01600CD9D15 /* OutMediaCommentCell.swift */; };
 		A3FC18901D3077250031D165 /* CommentProfilePic.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3FC188F1D3077250031D165 /* CommentProfilePic.swift */; };
 		A3FC18951D3412F30031D165 /* DateExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3FC18941D3412F30031D165 /* DateExtension.swift */; };
 /* End PBXBuildFile section */
@@ -118,16 +118,16 @@
 		A3D119831D26F27E009D7EAB /* AdobeCreativeSDKImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AdobeCreativeSDKImage.framework; sourceTree = "<group>"; };
 		A3D119861D26F5BA009D7EAB /* AdobeCreativeSDKImageResources.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = AdobeCreativeSDKImageResources.bundle; path = AdobeCreativeSDKImage.framework/Versions/A/Resources/AdobeCreativeSDKImageResources.bundle; sourceTree = "<group>"; };
 		A3D119881D26F5E6009D7EAB /* AdobeCreativeSDKCoreResources.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = AdobeCreativeSDKCoreResources.bundle; sourceTree = "<group>"; };
-		A3D879461D3BD36100FB7358 /* Comment1Cell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Comment1Cell.swift; sourceTree = "<group>"; };
-		A3D879481D3BD36F00FB7358 /* Comment2Cell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Comment2Cell.swift; sourceTree = "<group>"; };
-		A3D8794A1D3BD37F00FB7358 /* Comment3Cell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Comment3Cell.swift; sourceTree = "<group>"; };
+		A3D879461D3BD36100FB7358 /* TextCommentCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextCommentCell.swift; sourceTree = "<group>"; };
 		A3D8794C1D3BE63C00FB7358 /* TextBubble.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextBubble.swift; sourceTree = "<group>"; };
 		A3D8794E1D3BF7EF00FB7358 /* HexColorExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HexColorExtension.swift; sourceTree = "<group>"; };
+		A3D879501D3CD44800FB7358 /* homeCommentProfile.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = homeCommentProfile.swift; sourceTree = "<group>"; };
+		A3D879521D3CDE8B00FB7358 /* InMediaCommentCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InMediaCommentCell.swift; sourceTree = "<group>"; };
 		A3E1388D1D25B57E002A5031 /* MainRootController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainRootController.swift; sourceTree = "<group>"; };
 		A3E1388F1D25B592002A5031 /* HomeController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HomeController.swift; sourceTree = "<group>"; };
 		A3E138911D25B5A0002A5031 /* MenuController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MenuController.swift; sourceTree = "<group>"; };
 		A3E138951D25C937002A5031 /* InitialController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InitialController.swift; sourceTree = "<group>"; };
-		A3FC188D1D303C4E0031D165 /* CommentCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
+		A3F293B31D4DF01600CD9D15 /* OutMediaCommentCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutMediaCommentCell.swift; sourceTree = "<group>"; };
 		A3FC188F1D3077250031D165 /* CommentProfilePic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentProfilePic.swift; sourceTree = "<group>"; };
 		A3FC18941D3412F30031D165 /* DateExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DateExtension.swift; sourceTree = "<group>"; };
 		AC87D44436C8E19921A25DF1 /* Pods-CityScape.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CityScape.debug.xcconfig"; path = "Pods/Target Support Files/Pods-CityScape/Pods-CityScape.debug.xcconfig"; sourceTree = "<group>"; };
@@ -284,6 +284,7 @@
 				A37AC1C01D2A19FD00EBF813 /* LikeOrDislikeDisplay.swift */,
 				A3FC188F1D3077250031D165 /* CommentProfilePic.swift */,
 				A3D8794C1D3BE63C00FB7358 /* TextBubble.swift */,
+				A3D879501D3CD44800FB7358 /* homeCommentProfile.swift */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -293,10 +294,9 @@
 			children = (
 				A3CA895B1D283B9C00590516 /* ImageContentCell.swift */,
 				A3CA895D1D283BAD00590516 /* VideoContentCell.swift */,
-				A3FC188D1D303C4E0031D165 /* CommentCell.swift */,
-				A3D879461D3BD36100FB7358 /* Comment1Cell.swift */,
-				A3D879481D3BD36F00FB7358 /* Comment2Cell.swift */,
-				A3D8794A1D3BD37F00FB7358 /* Comment3Cell.swift */,
+				A3D879461D3BD36100FB7358 /* TextCommentCell.swift */,
+				A3D879521D3CDE8B00FB7358 /* InMediaCommentCell.swift */,
+				A3F293B31D4DF01600CD9D15 /* OutMediaCommentCell.swift */,
 			);
 			name = "Table View Cells";
 			sourceTree = "<group>";
@@ -538,7 +538,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A3D8794B1D3BD37F00FB7358 /* Comment3Cell.swift in Sources */,
+				A3D879511D3CD44800FB7358 /* homeCommentProfile.swift in Sources */,
 				A3FC18951D3412F30031D165 /* DateExtension.swift in Sources */,
 				A3E1388E1D25B57E002A5031 /* MainRootController.swift in Sources */,
 				A38289CB1D2B433B00C17F48 /* CommentController.swift in Sources */,
@@ -552,21 +552,21 @@
 				A38289CD1D2C4E0100C17F48 /* TopChatController.swift in Sources */,
 				A37AC1C11D2A19FD00EBF813 /* LikeOrDislikeDisplay.swift in Sources */,
 				A3BB982D1D1C5DC200BD384F /* ForgotPasswordController.swift in Sources */,
+				A3D879531D3CDE8B00FB7358 /* InMediaCommentCell.swift in Sources */,
 				A37B50801D2AFEF400A38FAE /* TimeAgo.swift in Sources */,
 				A3BB981B1D12E89E00BD384F /* ExploreButton.swift in Sources */,
-				A3FC188E1D303C4E0031D165 /* CommentCell.swift in Sources */,
 				A3BB981D1D136CB600BD384F /* LogInController.swift in Sources */,
 				A3E138961D25C937002A5031 /* InitialController.swift in Sources */,
 				A353F0CC1D1224BC009A2182 /* AppDelegate.swift in Sources */,
-				A3D879491D3BD36F00FB7358 /* Comment2Cell.swift in Sources */,
 				A3D8794D1D3BE63C00FB7358 /* TextBubble.swift in Sources */,
 				A3CA89601D28445500590516 /* SignUpProfilePic.swift in Sources */,
+				A3F293B41D4DF01600CD9D15 /* OutMediaCommentCell.swift in Sources */,
 				A3FC18901D3077250031D165 /* CommentProfilePic.swift in Sources */,
 				A3CA895C1D283B9C00590516 /* ImageContentCell.swift in Sources */,
 				A3CA89621D284AB200590516 /* TableViewProfilePic.swift in Sources */,
 				A3BB982B1D1C5ACD00BD384F /* SignInController.swift in Sources */,
 				A3BB98291D1B63D800BD384F /* ProfileSignUpController.swift in Sources */,
-				A3D879471D3BD36100FB7358 /* Comment1Cell.swift in Sources */,
+				A3D879471D3BD36100FB7358 /* TextCommentCell.swift in Sources */,
 				A3BB98191D12E67E00BD384F /* TextFields.swift in Sources */,
 				A312C26B1D347AE600F272F0 /* MemoryLeak.swift in Sources */,
 			);

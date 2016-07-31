@@ -26,7 +26,6 @@ class InitialController: UIViewController {
                 
                 self.presentViewController(vc, animated: true, completion: {
                     
-                    //vc.homeController?.getFirebaseData()
                     vc.homeController?.getFirebaseData()
                     
                 })
