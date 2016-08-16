@@ -17,7 +17,7 @@ class InitialController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         FIRAuth.auth()?.addAuthStateDidChangeListener({ (auth, user) in
             
             if user != nil {
@@ -26,7 +26,14 @@ class InitialController: UIViewController {
                 
                 self.presentViewController(vc, animated: true, completion: {
                     
-                    vc.homeController?.getFirebaseData()
+                    vc.loadSelfData({ (bool) in
+                        print("self data loaded")
+                    })
+                    
+                    
+                    vc.toggleNearby({ (bool) in
+                        print("nearby toggled")
+                    })
                     
                 })
                 
@@ -36,10 +43,11 @@ class InitialController: UIViewController {
                 FBSDKLoginManager().logOut()
                 let vc = self.storyboard?.instantiateViewControllerWithIdentifier("initial") as! LogInController
                 self.presentViewController(vc, animated: true, completion: nil)
-
+                
             }
         })
 
+        
         // Do any additional setup after loading the view.
     }
 

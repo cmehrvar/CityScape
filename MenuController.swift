@@ -9,6 +9,7 @@
 import UIKit
 import FBSDKLoginKit
 import Firebase
+import FirebaseDatabase
 import FirebaseAuth
 
 class MenuController: UIViewController {
@@ -17,6 +18,13 @@ class MenuController: UIViewController {
     
     @IBAction func logOut(sender: AnyObject) {
         
+        if let uid = FIRAuth.auth()?.currentUser?.uid {
+            
+            let ref = FIRDatabase.database().reference().child("users").child(uid)
+            ref.updateChildValues(["online" : false])
+
+        }
+
         FBSDKLoginManager().logOut()
         
         do {

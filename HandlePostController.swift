@@ -76,9 +76,9 @@ class HandlePostController: UIViewController, AdobeUXImageEditorViewControllerDe
         
         let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
         editor.presentViewController(vc, animated: false) {
-            vc.homeController?.getFirebaseData()
-            vc.homeController?.transitionToFusumaOutlet.alpha = 1
-            vc.homeController?.presentFusumaCamera()
+            //vc.vibesFeedController?.getFirebaseData()
+            //vc.vibesFeedController?.transitionToFusumaOutlet.alpha = 1
+            //vc.vibesFeedController?.presentFusumaCamera()
         }
         
         
@@ -123,9 +123,9 @@ class HandlePostController: UIViewController, AdobeUXImageEditorViewControllerDe
             
             let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
             self.presentViewController(vc, animated: false) {
-                vc.homeController?.getFirebaseData()
-                vc.homeController?.transitionToFusumaOutlet.alpha = 1
-                vc.homeController?.presentFusumaCamera()
+                //vc.vibesController?.getFirebaseData()
+                //vc.vibesController?.transitionToFusumaOutlet.alpha = 1
+                //vc.vibesController?.presentFusumaCamera()
             }
         }
     }
@@ -299,7 +299,7 @@ class HandlePostController: UIViewController, AdobeUXImageEditorViewControllerDe
                         
                         self.presentViewController(vc, animated: true, completion: {
                             
-                            vc.homeController?.getFirebaseData()
+                            //vc.vibesController?.getFirebaseData()
                             
                         })
                     })

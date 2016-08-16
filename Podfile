@@ -20,6 +20,7 @@ pod ‘Firebase/Auth’
 pod ‘Fusuma’
 pod ‘Player’
 pod 'JSQMessagesViewController'
+pod ‘THLabel’
 
 end
 

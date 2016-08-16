@@ -17,30 +17,32 @@ import AWSS3
 
 class ProfileSignUpController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate {
     
+    /*
     //Global Variables
     var nextButton: UIBarButtonItem!
+    
     let cities = ["Vancouver", "Edmonton", "Toronto", "Montreal", "Halifax", "St. Johns"]
+    let genderData = ["I'm a Male", "I'm a Female"]
+    let interestedData = ["Interested in Men", "Interested in Women"]
     var result: [String:String]!
     
     var email: String!
     var mobileNumberVar: String!
     var password: String!
+
+    var cityDownPicker: DownPicker = DownPicker()
+    var genderDownPicker: DownPicker = DownPicker()
+    var interestedInDownPicker: DownPicker = DownPicker()
     
-    var imageUrl: String!
-    var uid: String!
-    
-    var textFieldAlpha: CGFloat!
-    var realDownPicker: DownPicker = DownPicker()
-    
-    var dontFillFormFromFacebook = false
+    var dontFillFormFromFacebook = true
     var didFillFormFromFacebook = false
     
     var firstNameValid = false
     var lastNameValid = false
     var cityValid = false
     var mobileValid = false
-    
-    
+    var genderValid = false
+    var interestedInValid = false
     
     //Outlets
     @IBOutlet weak var gif: FLAnimatedImageView!
@@ -51,6 +53,10 @@ class ProfileSignUpController: UIViewController, UIImagePickerControllerDelegate
     @IBOutlet weak var mobileNumber: UITextField!
     @IBOutlet weak var mobileField: TextFields!
     @IBOutlet weak var mobileCheckerImage: UIImageView!
+    @IBOutlet weak var genderOutlet: UITextField!
+    @IBOutlet weak var interestedInOutlet: UITextField!
+    @IBOutlet weak var occupationOutlet: UITextField!
+    @IBOutlet weak var loadingView: UIView!
     
     
     //Actions
@@ -87,7 +93,43 @@ class ProfileSignUpController: UIViewController, UIImagePickerControllerDelegate
     }
     
     //ACTION - done
+    func uploadUser(user: FIRUser, completion: Bool -> ()){
+        
+        if let actualFirstName = self.firstName.text, actualLastName = self.lastName.text, actualCity = self.downPicker.text, gender = self.genderOutlet.text, interestedIn = self.interestedInOutlet.text {
+            
+            let ref = FIRDatabase.database().reference()
+            
+            ref.child("lastCityRank").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                
+                if let lastRank = snapshot.value as? Int {
+                    
+                    var userUploadData: [String:AnyObject] = ["mobile" : self.mobileNumberVar, "email" : self.email, "firstName" : actualFirstName, "lastName" : actualLastName, "city" : actualCity, "score" : 0, "cityRank" : lastRank + 1, "gender" : gender, "interestedIn" : interestedIn]
+                    
+                    if let actualOccupation = self.occupationOutlet.text {
+                        userUploadData["occupation"] = actualOccupation
+                    }
+                    
+                    ref.child("users").child(user.uid).setValue(userUploadData)
+                    
+                    ref.child("lastCityRank").setValue(lastRank + 1)
+                    ref.child("takenEmails").childByAutoId().setValue(self.email)
+                    ref.child("takenNumbers").childByAutoId().setValue(self.mobileNumberVar)
+                    ref.child("userScores").child(user.uid).setValue(0)
+                    
+                    completion(true)
+
+                }
+            })
+        }
+    }
+
     func done(sender: UIBarButtonItem) {
+        
+        UIView.animateWithDuration(0.3) { 
+            self.loadingView.alpha = 1
+        }
+        
+        
         
         if dontFillFormFromFacebook {
             
@@ -97,33 +139,23 @@ class ProfileSignUpController: UIViewController, UIImagePickerControllerDelegate
                 if error == nil {
                     
                     if let actualUser = user {
-                        
-                        if let actualFirstName = self.firstName.text, actualLastName = self.lastName.text, actualCity = self.downPicker.text {
-                            
-                            let ref = FIRDatabase.database().reference()
-                            
-                            ref.child("users").child(actualUser.uid).setValue(["mobile":self.mobileNumberVar, "email" : self.email, "firstName":actualFirstName, "lastName":actualLastName, "city":actualCity, "actualScore":0])
-                            
-                            ref.child("takenEmails").childByAutoId().setValue(self.email)
-                            ref.child("takenNumbers").childByAutoId().setValue(self.mobileNumberVar)
-                            
+
+                        self.uploadUser(actualUser, completion: { (bool) in
                             
                             //AWS PROFILE
                             if let actualProfile = self.profilePicture.image {
-                                self.uid = actualUser.uid
-                                self.uploadToAWS(actualProfile)
+                                self.uploadToAWS(actualProfile, uid: actualUser.uid)
                             }
-                        }
+                            
+                            let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
+                            vc.modalTransitionStyle = UIModalTransitionStyle.FlipHorizontal
+                            
+                            self.presentViewController(vc, animated: true, completion: {
+                                vc.toggleTabs(1)
+                                vc.vibesFeedController?.getFirebaseData()
+                            })
+                        })
                     }
-                    
-                    let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
-                    vc.modalTransitionStyle = UIModalTransitionStyle.FlipHorizontal
-                    
-                    self.presentViewController(vc, animated: true, completion: {
-                        vc.homeController?.getFirebaseData()
-                    })
-                    
-                    
                 } else {
                     
                     print(error)
@@ -167,16 +199,13 @@ class ProfileSignUpController: UIViewController, UIImagePickerControllerDelegate
                                             print(error)
                                             
                                         }
-                                        
                                     })
-                                    
                                 }
                             }
                             
                             //AWS PROFILE
                             if let actualProfile = self.profilePicture.image {
-                                self.uid = actualUser.uid
-                                self.uploadToAWS(actualProfile)
+                                self.uploadToAWS(actualProfile, uid: actualUser.uid)
                             }
                         }
                     }
@@ -185,7 +214,7 @@ class ProfileSignUpController: UIViewController, UIImagePickerControllerDelegate
                     vc.modalTransitionStyle = UIModalTransitionStyle.FlipHorizontal
                     
                     self.presentViewController(vc, animated: true, completion: {
-                        vc.homeController?.getFirebaseData()
+                        //vc.vibesController?.getFirebaseData()
                     })
                     
                     
@@ -226,60 +255,64 @@ class ProfileSignUpController: UIViewController, UIImagePickerControllerDelegate
         })
     }
     
-    func uploadToAWS(image: UIImage) {
-        
-        let uploadRequest = imageUploadRequest(image)
-        
-        let transferManager = AWSS3TransferManager.defaultS3TransferManager()
-        
-        transferManager.upload(uploadRequest).continueWithBlock { (task) -> AnyObject? in
+    func uploadToAWS(image: UIImage, uid: String) {
+
+        imageUploadRequest(image) { (url, uploadRequest) in
             
-            if task.error == nil {
+            let transferManager = AWSS3TransferManager.defaultS3TransferManager()
+            
+            transferManager.upload(uploadRequest).continueWithBlock { (task) -> AnyObject? in
                 
-                print("successful image upload")
-                let ref = FIRDatabase.database().reference()
-                ref.child("users").child(self.uid).updateChildValues(["profilePicture":self.imageUrl])
-                
-                
-            } else {
-                print("error uploading: \(task.error)")
-                
-                let alertController = UIAlertController(title: "Sorry", message: "Error uploading profile picture, please try again later", preferredStyle:  UIAlertControllerStyle.Alert)
-                alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Cancel, handler: nil))
-                self.presentViewController(alertController, animated: true, completion: nil)
-                
+                if task.error == nil {
+                    
+                    print("successful image upload")
+                    let ref = FIRDatabase.database().reference()
+                    ref.child("users").child(uid).updateChildValues(["profilePicture": url])
+                    
+                } else {
+                    print("error uploading: \(task.error)")
+                    
+                    let alertController = UIAlertController(title: "Sorry", message: "Error uploading profile picture, please try again later", preferredStyle:  UIAlertControllerStyle.Alert)
+                    alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Cancel, handler: nil))
+                    self.presentViewController(alertController, animated: true, completion: nil)
+                    
+                }
+                return nil
             }
-            return nil
         }
     }
     
-    func imageUploadRequest(image: UIImage) -> AWSS3TransferManagerUploadRequest {
-        
+    func imageUploadRequest(image: UIImage, completion: (url: String, uploadRequest: AWSS3TransferManagerUploadRequest) -> ()) {
+   
         let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".jpeg")
         let fileURL = NSURL(fileURLWithPath: NSTemporaryDirectory()).URLByAppendingPathComponent("upload").URLByAppendingPathComponent(fileName)
         let filePath = fileURL.path!
         
         let imageData = UIImageJPEGRepresentation(image, 0.5)
         
-        imageData?.writeToFile(filePath, atomically: true)
-        
-        let uploadRequest = AWSS3TransferManagerUploadRequest()
-        uploadRequest.body = fileURL
-        uploadRequest.key = fileName
-        uploadRequest.bucket = "cityscapebucket"
-        
-        if let key = uploadRequest.key {
-            imageUrl = "https://s3.amazonaws.com/cityscapebucket/" + key
+        //SEGMENTATION BUG, IF FAULT 11 - COMMENT OUT AND REWRITE
+        dispatch_async(dispatch_get_main_queue()) {
+            imageData?.writeToFile(filePath, atomically: true)
+            
+            let uploadRequest = AWSS3TransferManagerUploadRequest()
+            uploadRequest.body = fileURL
+            uploadRequest.key = fileName
+            uploadRequest.bucket = "cityscapebucket"
+            
+            var imageUrl = ""
+            
+            if let key = uploadRequest.key {
+                imageUrl = "https://s3.amazonaws.com/cityscapebucket/" + key
+                
+            }
+            
+            completion(url: imageUrl, uploadRequest: uploadRequest)
         }
-        
-        return uploadRequest
-        
     }
     
     func addUploadStuff(){
         
-        let error = NSErrorPointer()
-        
+        let error = NSErrorPointer.init(nilLiteral: ())
         
         do{
             try NSFileManager.defaultManager().createDirectoryAtURL(NSURL(fileURLWithPath: NSTemporaryDirectory()).URLByAppendingPathComponent("upload"), withIntermediateDirectories: true, attributes: nil)
@@ -287,7 +320,6 @@ class ProfileSignUpController: UIViewController, UIImagePickerControllerDelegate
             error.memory = error1
             print("Creating upload directory failed. Error: \(error)")
         }
-        
     }
     
     
@@ -376,7 +408,7 @@ class ProfileSignUpController: UIViewController, UIImagePickerControllerDelegate
         }
         
         
-        if firstNameValid && lastNameValid && cityValid && mobileValid {
+        if cityValid && firstNameValid && lastNameValid && mobileValid && genderValid && interestedInValid {
             
             nextButton.enabled = true
             
@@ -404,23 +436,34 @@ class ProfileSignUpController: UIViewController, UIImagePickerControllerDelegate
     
     func loadGif() {
         
-        guard let filePath: String = NSBundle.mainBundle().pathForResource("background", ofType: "gif") else {return}
-        let gifData: NSData = NSData.dataWithContentsOfMappedFile(filePath) as! NSData
-        let image: FLAnimatedImage = FLAnimatedImage.init(GIFData: gifData)
-        gif.animatedImage = image
-        
+        if let filePath = NSBundle.mainBundle().pathForResource("background", ofType: "gif"), gifData = NSData(contentsOfFile: filePath) {
+            
+            let image: FLAnimatedImage = FLAnimatedImage.init(GIFData: gifData)
+            gif.animatedImage = image
+
+        }
     }
     
     func handleDownPicker() {
         
-        realDownPicker = DownPicker(textField: downPicker, withData: cities)
-        realDownPicker.setPlaceholder("Tap to choose your city")
-        realDownPicker.shouldDisplayCancelButton = false
-        realDownPicker.addTarget(self, action: "downPickerSelected:", forControlEvents: .ValueChanged)
+        cityDownPicker = DownPicker(textField: downPicker, withData: cities)
+        cityDownPicker.setPlaceholder("Tap to choose your city")
+        cityDownPicker.shouldDisplayCancelButton = false
+        cityDownPicker.addTarget(self, action: #selector(cityPickerSelected), forControlEvents: .ValueChanged)
+        
+        genderDownPicker = DownPicker(textField: genderOutlet, withData: genderData)
+        genderDownPicker.setPlaceholder("Gender")
+        genderDownPicker.shouldDisplayCancelButton = false
+        genderDownPicker.addTarget(self, action: #selector(genderPickerSelected), forControlEvents: .ValueChanged)
+        
+        interestedInDownPicker = DownPicker(textField: interestedInOutlet, withData: interestedData)
+        interestedInDownPicker.setPlaceholder("Interested in...")
+        interestedInDownPicker.shouldDisplayCancelButton = false
+        interestedInDownPicker.addTarget(self, action: #selector(interestedPickerSelected), forControlEvents: .ValueChanged)
         
     }
     
-    func downPickerSelected(sender: DownPicker){
+    func cityPickerSelected(sender: AnyObject?){
         
         cityValid = true
         
@@ -430,6 +473,31 @@ class ProfileSignUpController: UIViewController, UIImagePickerControllerDelegate
             
         }
     }
+    
+    func genderPickerSelected(sender: AnyObject?){
+        
+        genderValid = true
+        
+        if cityValid && firstNameValid && lastNameValid && mobileValid && genderValid && interestedInValid {
+            
+            nextButton.enabled = true
+            
+        }
+    }
+    
+    func interestedPickerSelected(sender: AnyObject?){
+        
+        interestedInValid = true
+        
+        if cityValid && firstNameValid && lastNameValid && mobileValid && genderValid && interestedInValid {
+            
+            nextButton.enabled = true
+            
+        }
+    }
+    
+    
+    
     
     func fillFormFromFacebook() {
         
@@ -517,8 +585,8 @@ class ProfileSignUpController: UIViewController, UIImagePickerControllerDelegate
     
     func addDismissKeyboard() {
         
-        let dismissKeyboard: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "dismissKeyboard")
-        view.addGestureRecognizer(dismissKeyboard)
+        let dismissKeyboardVar: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        view.addGestureRecognizer(dismissKeyboardVar)
         
     }
     
@@ -530,7 +598,7 @@ class ProfileSignUpController: UIViewController, UIImagePickerControllerDelegate
     
     func addNextButton(){
         
-        nextButton = UIBarButtonItem(title: "Next", style: .Plain, target: self, action: "done:")
+        nextButton = UIBarButtonItem(title: "Next", style: .Plain, target: self, action: #selector(done))
         self.navigationItem.rightBarButtonItem = nextButton
         nextButton.enabled = false
         
@@ -543,14 +611,14 @@ class ProfileSignUpController: UIViewController, UIImagePickerControllerDelegate
         lastName.delegate = self
         downPicker.delegate = self
         mobileNumber.delegate = self
-        
+        genderOutlet.delegate = self
+        interestedInOutlet.delegate = self
     }
     
     
     //Launch Calls
     override func viewDidLoad() {
         super.viewDidLoad()
-        mobileField.alpha = textFieldAlpha
         addNextButton()
         textFieldDelegates()
         addDismissKeyboard()
@@ -604,5 +672,5 @@ class ProfileSignUpController: UIViewController, UIImagePickerControllerDelegate
      // Pass the selected object to the new view controller.
      }
      */
-    
+    */
 }

@@ -15,9 +15,9 @@ import FirebaseAuth
 import FirebaseDatabase
 
 
-class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonDelegate {
+class SignUpController: UIViewController, UITextFieldDelegate /*, FBSDKLoginButtonDelegate */{
     
-    
+    /*
     //Outlets
     @IBOutlet weak var gifImage: FLAnimatedImageView!
     @IBOutlet weak var nextButtonOutlet: UIBarButtonItem!
@@ -58,7 +58,6 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
             vc.email = self.emailOutlet.text
             vc.mobileNumberVar = self.mobileOutlet.text
             vc.password = self.passwordOutlet.text
-            vc.textFieldAlpha = 0
             
             vc.mobileValid = true
             
@@ -196,6 +195,7 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
             }
         }
     }
+     
     func checkIfTaken(key: String, credential: String, completion: (taken: Bool) -> ()) {
         
         var taken = false
@@ -325,7 +325,6 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
                                     
                                     let vc = self.storyboard?.instantiateViewControllerWithIdentifier("createProfile") as! ProfileSignUpController
                                     vc.result = result as! [String:String]
-                                    vc.textFieldAlpha = 1
                                     self.navigationController?.showViewController(vc, sender: self)
                                     
                                 }
@@ -364,13 +363,13 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
     
     func loadGif() {
         
-        guard let filePath: String = NSBundle.mainBundle().pathForResource("background", ofType: "gif") else {return}
-        let gifData: NSData = NSData.dataWithContentsOfMappedFile(filePath) as! NSData
-        let image: FLAnimatedImage = FLAnimatedImage.init(GIFData: gifData)
-        gifImage.animatedImage = image
-        
+        if let filePath = NSBundle.mainBundle().pathForResource("background", ofType: "gif"), gifData = NSData(contentsOfFile: filePath) {
+            
+            let image: FLAnimatedImage = FLAnimatedImage.init(GIFData: gifData)
+            gifImage.animatedImage = image
+            
+        }
     }
-    
     
     //Text Field Calls
     func textFieldDidEndEditing(textField: UITextField) {
@@ -545,10 +544,11 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
     //Keyboard Calls
     func addDismissKeyboard() {
         
-        let dismissKeyboard: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "dismissKeyboard")
-        view.addGestureRecognizer(dismissKeyboard)
+        let dismissKeyboardVar: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        view.addGestureRecognizer(dismissKeyboardVar)
         
     }
+    
     func dismissKeyboard() {
         
         view.endEditing(true)
@@ -579,6 +579,6 @@ class SignUpController: UIViewController, UITextFieldDelegate, FBSDKLoginButtonD
         // Dispose of any resources that can be recreated.
     }
     
-    
+   */
 }
 

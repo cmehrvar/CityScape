@@ -11,120 +11,177 @@ import Player
 import SDWebImage
 import AVFoundation
 
-class InMediaCommentCell: UITableViewCell {
+class InMediaCommentCell: UITableViewCell, PlayerDelegate {
     
-    weak var homeController: HomeController?
+    weak var vibesController: VibesFeedController?
     
     var postIndex = Int()
     var messageIndex = Int()
-    
     
     @IBOutlet weak var imageComment: UIImageView!
     @IBOutlet weak var commentProfile: homeCommentProfile!
     @IBOutlet weak var commentName: UILabel!
     @IBOutlet weak var bubbleView: TextBubble!
     
-
-    func setMediaComment(isImage: Bool, data: [String : AnyObject?]){
+    //Player Delegates
+    func playerReady(player: Player){
         
-        if isImage {
-            
-            if let imageURLString = data["media"] as? String, imageURL = NSURL(string: imageURLString) {
-                
-                imageComment.sd_setImageWithURL(imageURL, placeholderImage: nil)
+    }
+    func playerPlaybackStateDidChange(player: Player){
+        
+    }
+    func playerBufferingStateDidChange(player: Player){
+        
+    }
+    
+    func playerPlaybackWillStartFromBeginning(player: Player){
+        
+    }
+    func playerPlaybackDidEnd(player: Player){
+        
+    }
 
-            }
-            
-            if let name = data["inName"] as? String {
-                
-                commentName.text = name
-                
-            }
-            
-            if let profileURLString = data["inProfilePic"] as? String, profileURL = NSURL(string: profileURLString) {
-                
-                commentProfile.sd_setImageWithURL(profileURL, placeholderImage: nil)
-                
-            }
-        }  else {
-            
-            if homeController?.mainCommentVideos["post:\(postIndex)_message:\(messageIndex)"] == nil {
+    
 
-                if let mediaURLString = data["media"] as? String, mediaURL = NSURL(string: mediaURLString) {
+    //Functions
+    func setMediaComment(data: [String : AnyObject?]){
+        
+        if let isImage = data["isImage"] as? Bool {
+            
+            if isImage {
+                
+                if let offlineImage = data["offlineImage"] as? UIImage {
                     
-                    dispatch_async(dispatch_get_main_queue()) {
+                    setPostedImage(offlineImage)
+                    
+                } else if let imageURLString = data["media"] as? String, imageURL = NSURL(string: imageURLString) {
+                    
+                    SDWebImageManager.sharedManager().downloadImageWithURL(imageURL, options: .ContinueInBackground, progress: nil, completed: { (image, error, cache, bool, url) in
                         
-                        self.homeController?.mainCommentVideos["post:\(self.postIndex)_message:\(self.messageIndex)"] = Player()
-                        self.homeController?.mainCommentVideos["post:\(self.postIndex)_message:\(self.messageIndex)"]?.delegate = self.homeController
-                        
-                        if let player = self.homeController?.mainCommentVideos["post:\(self.postIndex)_message:\(self.messageIndex)"] {
+                        if error == nil {
                             
-                            if let videoPlayerView = player.view {
-                                
-                                self.homeController?.addChildViewController(player)
-                                player.view.frame = self.bubbleView.bounds
-                                player.didMoveToParentViewController(self.homeController)
-                                
-                                player.setUrl(mediaURL)
-                                
-                                player.fillMode = AVLayerVideoGravityResizeAspectFill
-                                player.playbackLoops = true
-                                player.playFromBeginning()
-                                self.bubbleView.addSubview(videoPlayerView)
+                            self.setPostedImage(image)
 
+                        }
+                    })
+                }
+
+            }  else {
+                
+                if let offlineVideo = data["offlinePlayer"] as? Player {
+                    
+                    print("offlineData")
+                    
+                } else if vibesController?.mainCommentVideos["post:\(postIndex)_message:\(messageIndex)"] == nil {
+                    
+                    if let mediaURLString = data["media"] as? String, mediaURL = NSURL(string: mediaURLString) {
+                        
+                        dispatch_async(dispatch_get_main_queue()) {
+                            
+                            self.vibesController?.mainCommentVideos["post:\(self.postIndex)_message:\(self.messageIndex)"] = Player()
+                            self.vibesController?.mainCommentVideos["post:\(self.postIndex)_message:\(self.messageIndex)"]?.delegate = self.vibesController
+                            self.vibesController?.mainCommentVideos["post:\(self.postIndex)_message:\(self.messageIndex)"]?.muted = true
+                            
+                            if let player = self.vibesController?.mainCommentVideos["post:\(self.postIndex)_message:\(self.messageIndex)"] {
+                                
+                                if let videoPlayerView = player.view {
+                                    
+                                    print(player)
+                                    self.vibesController?.addChildViewController(player)
+                                    player.view.frame = self.bubbleView.bounds
+
+                                    player.view.frame = self.bubbleView.bounds
+                                    
+                                    
+                                    player.didMoveToParentViewController(self.vibesController)
+                                    
+                                    player.setUrl(mediaURL)
+                                    
+                                    player.fillMode = AVLayerVideoGravityResizeAspectFill
+                                    player.playbackLoops = true
+                                    player.playFromBeginning()
+                                    self.bubbleView.addSubview(videoPlayerView)
+                                    
+                                }
                             }
                         }
                     }
-                }
-
-                print("postIndex: \(postIndex)")
-                print("messageIndex: \(messageIndex)")
-                
-            } else {
-                
-                print("player already set")
-                
-                if let player = homeController?.mainCommentVideos["post:\(postIndex)_message:\(messageIndex)"] {
                     
-                    if let videoPlayerView = player.view {
+                    print("postIndex: \(postIndex)")
+                    print("messageIndex: \(messageIndex)")
+                    
+                } else {
+                    
+                    print("player already set")
+                    
+                    if let player = vibesController?.mainCommentVideos["post:\(postIndex)_message:\(messageIndex)"] {
                         
-                        self.homeController?.addChildViewController(player)
-                        self.bubbleView.addSubview(videoPlayerView)
-                        player.playFromBeginning()
-                        
+                        if let videoPlayerView = player.view {
+                            
+                            self.vibesController?.addChildViewController(player)
+                            self.bubbleView.addSubview(videoPlayerView)
+                            player.playFromCurrentTime()
+                            
+                        }
                     }
                 }
-                
             }
-            
-            
 
-            if let name = data["inName"] as? String {
-                
-                commentName.text = name
-                
-            }
-            
-            if let profileURLString = data["inProfilePic"] as? String, profileURL = NSURL(string: profileURLString) {
-                
-                commentProfile.sd_setImageWithURL(profileURL, placeholderImage: nil)
-                
-            }
- 
         }
+        
+        if let name = data["name"] as? String {
+            
+            commentName.text = name
+            
+        }
+        
+        if let profileURLString = data["profilePic"] as? String, profileURL = NSURL(string: profileURLString) {
+            
+            commentProfile.sd_setImageWithURL(profileURL, placeholderImage: nil)
+            
+        }
+
     }
     
     
+    //UIImageView Resize
+    internal var aspectConstraint: NSLayoutConstraint? {
+        
+        didSet {
+            
+            if let actualValue = oldValue {
+                imageComment.removeConstraint(actualValue)
+            }
+            
+            if let actualValue = aspectConstraint {
+                imageComment.addConstraint(actualValue)
+            }
+        }
+    }
+    
+    override func prepareForReuse() {
+        
+        super.prepareForReuse()
+        aspectConstraint = nil
+        
+    }
+    
+    func setPostedImage(image: UIImage){
+        
+        let aspect = image.size.width / image.size.height
+        aspectConstraint = NSLayoutConstraint(item: imageComment, attribute: NSLayoutAttribute.Width, relatedBy: NSLayoutRelation.Equal, toItem: imageComment, attribute: NSLayoutAttribute.Height, multiplier: aspect, constant: 0.0)
+        imageComment.image = image
+    }
 
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
     }
-
+    
     override func setSelected(selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-
+        
         // Configure the view for the selected state
     }
-
+    
 }

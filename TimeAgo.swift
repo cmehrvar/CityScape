@@ -1,9 +1,7 @@
 
 import Foundation
 
-
-
-public func timeAgoSince(date: NSDate) -> String {
+public func timeAgoSince(date: NSDate, showAccronym: Bool) -> String {
     
     let calendar = NSCalendar.currentCalendar()
     let now = NSDate()
@@ -11,11 +9,21 @@ public func timeAgoSince(date: NSDate) -> String {
     let components = calendar.components(unitFlags, fromDate: date, toDate: now, options: [])
     
     if components.year >= 2 {
-        return "\(components.year)y"
+        
+        if showAccronym {
+            return "\(components.year)y"
+        } else {
+            return "\(components.year)"
+        }
     }
     
     if components.year >= 1 {
-        return "1y"
+        
+        if showAccronym {
+            return "1y"
+        } else {
+            return "1"
+        }
     }
     
     if components.month >= 2 {

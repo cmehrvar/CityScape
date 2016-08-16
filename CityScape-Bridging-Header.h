@@ -4,3 +4,7 @@
 
 #import <AdobeCreativeSDKCore/AdobeCreativeSDKCore.h>
 #import <AdobeCreativeSDKImage/AdobeCreativeSDKImage.h>
+#import "GeoFire.h"
+#import "GFQuery.h"
+#import "GFCircleQuery.h"
+#import "GFRegionQuery.h"

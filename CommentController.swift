@@ -22,11 +22,13 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
     
     weak var rootController: ChatRootController?
     
-
     //JSQData
-    var videoSet = [String : Bool]()
-    var videoPlayers = [String : Player]()
     var messageIndex = 0
+
+    var messageData = [[String : AnyObject]]()
+    
+    var videoPlayers = [String : Player]()
+    
     var passedRef = ""
     var messages = [JSQMessageData]()
     var messageKeys = [String]()
@@ -35,12 +37,11 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
     var incomingBubbleImageView: JSQMessagesBubbleImage!
     var outgoingBubbleImageView: JSQMessagesBubbleImage!
     var exportedVideoURL = NSURL()
-    var sentMessages = [String : Bool]()
+    var addedMessages = [String : Bool]()
     var profileUrl = ""
     var firstName = ""
     var lastName = ""
-    
-    
+    var postUID = ""
     
     //Player Delegates
     func playerReady(player: Player){
@@ -58,9 +59,84 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
     }
     func playerPlaybackDidEnd(player: Player){
         
+        player.playFromBeginning()
+        
     }
     
     
+    
+    //Did press send button
+    override func didPressSendButton(button: UIButton!, withMessageText text: String!, senderId: String!, senderDisplayName: String!, date: NSDate!) {
+        
+        let ref = FIRDatabase.database().reference()
+        let scopePassedRef = passedRef
+        
+        let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".txt")
+        
+        let timeStamp = NSDate().timeIntervalSince1970
+        let dateFromTimeStamp = NSDate(timeIntervalSince1970: timeStamp)
+        
+        let offlineItem: [String : AnyObject] = [
+        
+            "key" : fileName,
+            "text" : text,
+            "senderId":senderId,
+            "profilePicture" : profileUrl,
+            "date" : date,
+            "senderDisplayName" : firstName + " " + lastName,
+            "isMedia" : false,
+            "isImage" : false,
+            "media" : "none"
+
+        ]
+        
+        
+        let messageItem: [String : AnyObject] = [
+            "key" : fileName,
+            "text" : text,
+            "senderId":senderId,
+            "profilePicture" : profileUrl,
+            "timeStamp" : timeStamp,
+            "firstName" : firstName,
+            "lastName" : lastName,
+            "senderDisplayName" : firstName + " " + lastName,
+            "isMedia" : false,
+            "isImage" : false,
+            "media" : "none"
+            
+        ]
+        
+        let message = JSQMessage(senderId: senderId, senderDisplayName: senderDisplayName, date: date, text: text)
+        messages.append(message)
+        messageKeys.append(fileName)
+        
+        messageData.append(offlineItem)
+
+        addedMessages[fileName] = true
+        
+        addMessage(senderId, text: text, name: senderDisplayName, profileURL: profileUrl, isMedia: false, media: "none", isImage: false, date: dateFromTimeStamp, key: fileName, i: nil, offlineImage: nil)
+        
+        ref.child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
+        ref.child("users").child(postUID).child("posts").child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
+        
+        JSQSystemSoundPlayer.jsq_playMessageSentSound()
+        
+        endedTyping()
+        
+        finishSendingMessage()
+        
+        
+    }
+    
+    
+    //Did press accessory button
+    override func didPressAccessoryButton(sender: UIButton!) {
+        
+        presentFusumaCamera()
+        
+        
+    }
+
 
     //Fusuma Delegates
     func fusumaImageSelected(image: UIImage) {
@@ -68,56 +144,122 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
         print("image selected")
         
     }
-    
-    
+ 
     func fusumaDismissedWithImage(image: UIImage) {
         
-        let date = NSDate()
-        let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".jpeg")
+        //Call Upload Function
         
-        let message = JSQPhotoMediaItem(image: image)
-        let messageData = JSQMessage(senderId: senderId, senderDisplayName: senderDisplayName, date: date, media: message)
-        self.videoSet[fileName] = false
-        self.messages.append(messageData)
-        self.messageKeys.append(fileName)
-        
-        uploadPost(image, videoURL: nil, isImage: true, fileName: fileName)
-        
+        uploadMedia(true, image: image, videoURL: nil) { (date, fileName, messageData) in
+            
+            let request = self.uploadRequest(image)
+            
+            let transferManager = AWSS3TransferManager.defaultS3TransferManager()
+            
+            transferManager.upload(request).continueWithBlock({ (task) -> AnyObject? in
+                
+                if task.error == nil {
+                    
+                    print("succesful upload!")
+                    
+                    let ref = FIRDatabase.database().reference()
+                    let scopePassedRef = self.passedRef
+                    
+                    if let key = request.key {
+                        
+                        let timeStamp = NSDate().timeIntervalSince1970
+
+                        let messageItem = [
+                            "key" : fileName,
+                            "text" : "sent a photo!",
+                            "senderId": self.senderId,
+                            "profilePicture" : self.profileUrl,
+                            "timeStamp" : timeStamp,
+                            "firstName" : self.firstName,
+                            "lastName" : self.lastName,
+                            "senderDisplayName" : self.firstName + " " + self.lastName,
+                            "isMedia" : true,
+                            "isImage" : true,
+                            "media" : "https://s3.amazonaws.com/cityscapebucket/" + key
+                            
+                        ]
+                        
+                        ref.child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
+                        ref.child("users").child(self.senderId).child("posts").child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
+                        
+                    }
+
+                } else {
+                    
+                    print("failed upload")
+                    //Upload Failed
+                }
+
+                return nil
+            })
+        }
+
         print("fusuma dismissed with image")
-        
-        
     }
-    
+
     func fusumaVideoCompleted(withFileURL fileURL: NSURL) {
         
-        let date = NSDate()
-        
-        let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".mov")
-        print("fusuma video completed")
-        
-        let message = JSQVideoMediaItem(fileURL: fileURL, isReadyToPlay: true)
-        let messageData = JSQMessage(senderId: self.senderId, senderDisplayName: self.senderDisplayName, date: date, media: message)
-        self.messages.append(messageData)
-        self.messageKeys.append(fileName)
-        
-        self.sentMessages[fileName] = false
-        
-        convertVideoToLowQualityWithInputURL(fileURL, handler: { (exportSession, outputURL) in
+        uploadMedia(false, image: nil, videoURL: fileURL) { (date, fileName, messageData) in
             
-            if exportSession.status == .Completed {
+            self.convertVideoToLowQualityWithInputURL(fileURL, handler: { (exportSession, outputURL) in
                 
-                self.uploadPost(nil, videoURL: outputURL, isImage: false, fileName: fileName)
-                
-                print("good convert")
-                
-            } else {
-                
-                print("bad convert")
-                
-            }
-        })
+                if exportSession.status == .Completed {
+                    
+                    //Call Upload Function
+                    let request = AWSS3TransferManagerUploadRequest()
+                    request.body = outputURL
+                    request.key = fileName
+                    request.bucket = "cityscapebucket"
+                    
+                    let transferManager = AWSS3TransferManager.defaultS3TransferManager()
+                    
+                    transferManager.upload(request).continueWithBlock({ (task) -> AnyObject? in
+                        
+                        let ref = FIRDatabase.database().reference()
+                        let scopePassedRef = self.passedRef
+                        
+                        if let key = request.key {
+                            
+                            let timeStamp = NSDate().timeIntervalSince1970
+                            
+                            let messageItem = [
+                                "key" : fileName,
+                                "text" : "sent a video!",
+                                "senderId": self.senderId,
+                                "profilePicture" : self.profileUrl,
+                                "timeStamp" : timeStamp,
+                                "firstName" : self.firstName,
+                                "lastName" : self.lastName,
+                                "senderDisplayName" : self.firstName + " " + self.lastName,
+                                "isMedia" : true,
+                                "isImage" : false,
+                                "media" : "https://s3.amazonaws.com/cityscapebucket/" + key
+                                
+                            ]
+                            
+                            ref.child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
+                            ref.child("users").child(self.senderId).child("posts").child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
+                            
+                        }
+
+                        return nil
+                    })
+
+                    print("good convert")
+                    
+                } else {
+                    
+                    print("bad convert")
+                    
+                }
+            })
+        }
     }
-    
+ 
     func presentFusumaCamera(){
         
         let fusuma = FusumaViewController()
@@ -163,9 +305,6 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
     
     //**************           Override Functions             **************//
     
-    
-    
-    
     //Text Did Change
     override func textViewDidChange(textView: UITextView) {
         
@@ -182,16 +321,11 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
         }
     }
     
-    
-    
-    
     //Message Data
     override func collectionView(collectionView: JSQMessagesCollectionView!, messageDataForItemAtIndexPath indexPath: NSIndexPath!) -> JSQMessageData! {
         
         return messages[indexPath.row]
     }
-    
-    
     
     //Items in section
     override func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -199,9 +333,6 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
         return messages.count
         
     }
-    
-    
-    
     
     //Message bubble Image
     override func collectionView(collectionView: JSQMessagesCollectionView!, messageBubbleImageDataForItemAtIndexPath indexPath: NSIndexPath!) -> JSQMessageBubbleImageDataSource! {
@@ -223,10 +354,6 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
     }
     
     
-    
-    
-    
-    
     //Avatar
     override func collectionView(collectionView: JSQMessagesCollectionView!, avatarImageDataForItemAtIndexPath indexPath: NSIndexPath!) -> JSQMessageAvatarImageDataSource! {
         
@@ -241,9 +368,6 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
         return nil
     }
     
-    
-    
-    
     //Cell for item at index path
     override func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         
@@ -254,7 +378,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
         cell.cellBottomLabel.textColor = UIColor.blackColor()
         
         let isMedia = message.isMediaMessage()
-
+        
         if !isMedia {
             
             if let id = message.senderId() {
@@ -271,16 +395,14 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
         } else {
             
             if let media = message.media!() as? JSQVideoMediaItem {
-
-                print("video")
-
+                
                 let key = messageKeys[indexPath.item]
-
-                if videoSet[key] == false {
+                
+                if videoPlayers[key] == nil {
                     
                     if let url = media.fileURL {
-
-                        dispatch_async(dispatch_get_main_queue()) {
+                        
+                        dispatch_async(dispatch_get_main_queue(), {
                             
                             self.videoPlayers[key] = Player()
                             self.videoPlayers[key]?.delegate = self
@@ -292,17 +414,17 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                                     self.addChildViewController(player)
                                     player.view.frame = cell.mediaView.bounds
                                     player.didMoveToParentViewController(self)
-
                                     player.setUrl(url)
-         
                                     player.fillMode = AVLayerVideoGravityResizeAspectFill
                                     player.playbackLoops = true
                                     player.playFromBeginning()
                                     cell.mediaView.addSubview(videoPlayerView)
-                                    self.videoSet[key] = true
+                                    
+                                    self.messageData[indexPath.item]["player"] = player
+                                    
                                 }
                             }
-                        }
+                        })
                     }
                 } else {
                     
@@ -313,73 +435,14 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                             self.addChildViewController(player)
                             cell.mediaView.addSubview(videoPlayerView)
                             player.playFromBeginning()
-   
+                            
                         }
                     }
                 }
-                
-            } else {
-                print("image")
-            }
-        }
+            }             
+         }
         
         return cell
-        
-    }
-
-    
-    //Did press send button
-    override func didPressSendButton(button: UIButton!, withMessageText text: String!, senderId: String!, senderDisplayName: String!, date: NSDate!) {
-        
-        let ref = FIRDatabase.database().reference()
-        let scopePassedRef = passedRef
-        
-        let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".txt")
-        self.sentMessages[fileName] = false
-        
-        let timeStamp = NSDate().timeIntervalSince1970
-        let dateFromTimeStamp = NSDate(timeIntervalSince1970: timeStamp)
-        
-        let message = JSQMessage(senderId: senderId, senderDisplayName: senderDisplayName, date: date, text: text)
-        messages.append(message)
-        messageKeys.append(fileName)
-        
-        addMessage(senderId, text: text, name: senderDisplayName, profileURL: profileUrl, isMedia: false, media: "none", isImage: false, date: dateFromTimeStamp, key: fileName)
-
-        let messageItem = [
-            "key" : fileName,
-            "text" : text,
-            "senderId":senderId,
-            "profilePicture" : profileUrl,
-            "timeStamp" : timeStamp,
-            "firstName" : firstName,
-            "lastName" : lastName,
-            "senderDisplayName" : firstName + " " + lastName,
-            "isMedia" : false,
-            "isImage" : false,
-            "media" : "none"
-            
-        ]
-        
-        ref.child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
-        ref.child("users").child(senderId).child("posts").child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
-        
-        
-        JSQSystemSoundPlayer.jsq_playMessageSentSound()
-        
-        endedTyping()
-        
-        finishSendingMessage()
-        
-        
-    }
-    
-    
-    //Did press accessory button
-    override func didPressAccessoryButton(sender: UIButton!) {
-        
-        presentFusumaCamera()
-        
         
     }
     
@@ -405,7 +468,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                 let previousMessage = messages[previousIndex]
                 
                 if let previousDate = previousMessage.date() {
-
+                    
                     let minutesAgo = date.minutesFrom(previousDate)
                     
                     let text = message.text!()
@@ -470,8 +533,6 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
         
         return 0
     }
-    
-    
     
     override func collectionView(collectionView: JSQMessagesCollectionView!, layout collectionViewLayout: JSQMessagesCollectionViewFlowLayout!, heightForCellBottomLabelAtIndexPath indexPath: NSIndexPath!) -> CGFloat {
         
@@ -569,34 +630,29 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
         
     }
     
-    
-    
     //Observe Messages
+    
     func observeMessages() {
         
         let refString = "/" + passedRef
         
         let ref = FIRDatabase.database().reference().child(refString).child("messages")
-        
+
         ref.observeEventType(.ChildAdded, withBlock:  { (snapshot) in
             
             if let actualValue = snapshot.value as? [NSObject : AnyObject] {
                 
                 if let id = actualValue["senderId"] as? String, text = actualValue["text"] as? String, name = actualValue["senderDisplayName"] as? String, profile = actualValue["profilePicture"] as? String, media = actualValue["media"] as? String, isImage = actualValue["isImage"] as? Bool, isMedia = actualValue["isMedia"] as? Bool, key = actualValue["key"] as? String, timeStamp = actualValue["timeStamp"] as? NSTimeInterval {
                     
-                    let sentMessage = self.sentMessages[key]
                     let date = NSDate(timeIntervalSince1970: timeStamp)
+                    
+                    let sentMessage = self.addedMessages[key]
                     
                     if sentMessage == nil {
                         
                         // PUT PLACEHOLDERS AND SUCH HERE!!!!
                         
-
-                        let message = JSQMessage(senderId: id, senderDisplayName: name, date: date, text: "")
-                        
-                        self.messages.append(message)
-                        self.messageKeys.append(key)
-                        self.addMessage(id, text: text, name: name, profileURL: profile, isMedia: isMedia, media: media, isImage: isImage, date: date, key: key)
+                        self.addMessage(id, text: text, name: name, profileURL: profile, isMedia: isMedia, media: media, isImage: isImage, date: date, key: key, i: nil, offlineImage: nil)
                     }
                 }
             }
@@ -607,21 +663,108 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
     
     
     //Add Message
-    func addMessage(id: String, text: String, name: String, profileURL: String, isMedia: Bool, media: String, isImage: Bool, date: NSDate, key: String) {
+    func addMessage(id: String, text: String, name: String, profileURL: String, isMedia: Bool, media: String, isImage: Bool, date: NSDate, key: String, i: Int?, offlineImage: UIImage?) {
         
-        let scopeIndex = self.messageIndex
-        
-        if isMedia {
+        if addedMessages[key] == false || addedMessages[key] == nil {
             
-            if isImage {
+            let scopeIndex = self.messageIndex
+
+            let message = JSQMessage(senderId: id, senderDisplayName: name, date: date, text: text)
+            self.messageKeys.append(key)
+            self.messages.append(message)
+            
+            self.finishReceivingMessage()
+
+            messageData.append(["senderId" : id, "text" : text, "senderDisplayName" : name, "profilePicture" : profileURL, "isMedia" : isMedia, "media" : media, "isImage" : isImage, "date" : date, "key" : key])
+            
+            
+            if let index = i {
                 
-                if let url = NSURL(string: media){
+                if offlineImage != nil {
+                    messageData[index]["offlineImage"] = offlineImage
+                }
+
+            }
+            
+            if let player = videoPlayers[key], index = i {
+
+                messageData[index]["player"] = player
+                
+            }
+            
+            addedMessages[key] = true
+            
+            if isMedia {
+                
+                if isImage {
                     
-                    SDWebImageManager.sharedManager().downloadImageWithURL(url, options: .ContinueInBackground, progress: nil, completed: { (image, error, cache, bool, url) in
+                    if offlineImage != nil {
                         
-                        if error == nil {
+                        let message = JSQPhotoMediaItem(image: offlineImage)
+                        
+                        if let selfUID = FIRAuth.auth()?.currentUser?.uid {
                             
-                            let message = JSQPhotoMediaItem(image: image)
+                            if selfUID == id {
+                                
+                                message.appliesMediaViewMaskAsOutgoing = true
+                                
+                            } else {
+                                
+                                message.appliesMediaViewMaskAsOutgoing = false
+                                
+                            }
+                        }
+                        
+                        let messageData = JSQMessage(senderId: id, senderDisplayName: name, date: date, media: message)
+                        
+                        self.messages[scopeIndex] = messageData
+
+                    } else {
+                        
+                        if let url = NSURL(string: media){
+                            
+                            SDWebImageManager.sharedManager().downloadImageWithURL(url, options: .ContinueInBackground, progress: nil, completed: { (image, error, cache, bool, url) in
+                                
+                                if error == nil {
+                                    
+                                    let message = JSQPhotoMediaItem(image: image)
+                                    
+                                    
+                                    if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                                        
+                                        if selfUID == id {
+                                            
+                                            message.appliesMediaViewMaskAsOutgoing = true
+                                            
+                                        } else {
+                                            
+                                            message.appliesMediaViewMaskAsOutgoing = false
+                                            
+                                        }
+                                    }
+                                    
+                                    let messageData = JSQMessage(senderId: id, senderDisplayName: name, date: date, media: message)
+                                    
+                                    self.messages[scopeIndex] = messageData
+                                    
+                                }
+                                
+                                
+                                
+                            })
+                        }
+
+                        
+                    }
+                    
+                    
+                } else {
+                    
+                    
+                        //Download Video, then we need to figure out how to play???
+                        if let url = NSURL(string: media) {
+                            
+                            let message = JSQVideoMediaItem(fileURL: url, isReadyToPlay: false)
                             
                             if let selfUID = FIRAuth.auth()?.currentUser?.uid {
                                 
@@ -635,175 +778,109 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                                     
                                 }
                             }
-                            
+
                             let messageData = JSQMessage(senderId: id, senderDisplayName: name, date: date, media: message)
                             
-                            
                             self.messages[scopeIndex] = messageData
-                            
-                            
-                        } else {
-                            print(error)
-                            
-                            self.addMessage(id, text: text, name: name, profileURL: profileURL, isMedia: isMedia, media: media, isImage: isImage, date: date, key: key)
-                            
                         }
+                    
+                    
+                    
+                    
+                    
+                    
+
+                }
+                
+                self.finishReceivingMessage()
+                
+            }
+            
+            
+            if avatars[id] == nil {
+                
+                if let url = NSURL(string: profileURL) {
+                    
+                    SDWebImageManager.sharedManager().downloadImageWithURL(url, options: SDWebImageOptions.ContinueInBackground, progress: nil, completed: { (image, error, cache, bool, url) in
                         
-                        self.finishReceivingMessage()
-                        
+                        if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                            
+                            if id == selfUID {
+                                
+                                let userImage = JSQMessagesAvatarImageFactory.avatarImageWithImage(image, diameter: 36)
+                                self.avatars[id] = userImage
+                                
+                                
+                            } else {
+                                
+                                let userImage = JSQMessagesAvatarImageFactory.avatarImageWithImage(image, diameter: 48)
+                                self.avatars[id] = userImage
+                            }
+                            
+                            self.finishReceivingMessage()
+                        }
                     })
                 }
-            } else {
-                
-                
-                //Download Video, then we need to figure out how to play???
-                if let url = NSURL(string: media) {
-                    
-                    let message = JSQVideoMediaItem(fileURL: url, isReadyToPlay: false)
-                    
-                    if let selfUID = FIRAuth.auth()?.currentUser?.uid {
-                        
-                        if selfUID == id {
-                            
-                            message.appliesMediaViewMaskAsOutgoing = true
-                            
-                        } else {
-                            
-                            message.appliesMediaViewMaskAsOutgoing = false
-                            
-                        }
-                    }
-                    
-                    let messageData = JSQMessage(senderId: id, senderDisplayName: name, date: date, media: message)
-                    
-                    self.videoSet[key] = false
-                    
-                    self.messages[scopeIndex] = messageData
-                    
-                }
- 
             }
- 
-        } else {
             
-            let message = JSQMessage(senderId: id, senderDisplayName: name, date: date, text: text)
-            self.messages[scopeIndex] = message
+            messageIndex += 1
             
         }
-        
-        
-        if avatars[id] == nil {
-            
-            if let url = NSURL(string: profileURL) {
-                
-                SDWebImageManager.sharedManager().downloadImageWithURL(url, options: SDWebImageOptions.ContinueInBackground, progress: nil, completed: { (image, error, cache, bool, url) in
-                    
-                    if let selfUID = FIRAuth.auth()?.currentUser?.uid {
-                        
-                        if id == selfUID {
-                            
-                            let userImage = JSQMessagesAvatarImageFactory.avatarImageWithImage(image, diameter: 36)
-                            self.avatars[id] = userImage
-                            
-                            
-                        } else {
-                            
-                            let userImage = JSQMessagesAvatarImageFactory.avatarImageWithImage(image, diameter: 48)
-                            self.avatars[id] = userImage
-                        }
-                        
-                        self.finishReceivingMessage()
-                    }
-                })
-            }
-        }
-        
-        
-        messageIndex += 1
+
     }
     
-    
-    
-    
-    //Upload Post
-    func uploadPost(image: UIImage!, videoURL: NSURL!, isImage: Bool, fileName: String) {
+    //Upload Media
+    func uploadMedia(isImage: Bool, image: UIImage?, videoURL: NSURL?, handler: (date: NSDate, fileName: String, messageData: JSQMessageData) -> Void){
         
-        var request = AWSS3TransferManagerUploadRequest()
+        let date = NSDate()
+        var fileName = ""
+        var messageData: JSQMessage!
         
-        sentMessages[fileName] = false
+        var offlineMessage = [String : AnyObject]()
         
         if isImage {
             
-            request = uploadRequest(image)
+            fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".jpeg")
+            let message = JSQPhotoMediaItem(image: image)
+            message.mediaView().contentMode = UIViewContentMode.ScaleAspectFill
+            messageData = JSQMessage(senderId: senderId, senderDisplayName: senderDisplayName, date: date, media: message)
+            
+            offlineMessage["offlineImage"] = image
+            offlineMessage["text"] = "sent a photo!"
+            offlineMessage["isImage"] = true
             
         } else {
             
-            request.body = videoURL
-            request.key = fileName
-            request.bucket = "cityscapebucket"
-            
+            fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".mov")
+            let message = JSQVideoMediaItem(fileURL: videoURL, isReadyToPlay: true)
+            messageData = JSQMessage(senderId: senderId, senderDisplayName: senderDisplayName, date: date, media: message)
+
+            offlineMessage["text"] = "sent a video!"
+            offlineMessage["isImage"] = false
         }
         
-        let transferManager = AWSS3TransferManager.defaultS3TransferManager()
+        offlineMessage["date"] = date
+        offlineMessage["senderId"] = senderId
+        offlineMessage["isMedia"] = true
+        offlineMessage["key"] = fileName
+        offlineMessage["senderDisplayName"] = senderDisplayName
+        offlineMessage["profilePicture"] = profileUrl
+        offlineMessage["media"] = "none"
         
-        transferManager.upload(request).continueWithBlock({ (task) -> AnyObject? in
-            
-            if task.error == nil {
-                
-                print("successful upload!")
-                
-                //DO SOMETHING WITH FIREBASE
-                
-                let ref = FIRDatabase.database().reference()
-                let scopePassedRef = self.passedRef
-                
-                if let key = request.key {
-                    
-                    let timeStamp = NSDate().timeIntervalSince1970
-
-                    var isImageText = ""
-                    
-                    if isImage {
-                        isImageText = "sent a photo!"
-                    } else {
-                        isImageText = "sent a video!"
-                    }
-
-                    let messageItem = [
-                        "key" : fileName,
-                        "text" : isImageText,
-                        "senderId": self.senderId,
-                        "profilePicture" : self.profileUrl,
-                        "timeStamp" : timeStamp,
-                        "firstName" : self.firstName,
-                        "lastName" : self.lastName,
-                        "senderDisplayName" : self.firstName + " " + self.lastName,
-                        "isMedia" : true,
-                        "isImage" : isImage,
-                        "media" : "https://s3.amazonaws.com/cityscapebucket/" + key
-                        
-                    ]
-                    
-                    ref.child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
-                    ref.child("users").child(self.senderId).child("posts").child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
-                    
-                }
-                
-                
-                
-            } else {
-                
-                self.uploadPost(image, videoURL: videoURL, isImage: isImage, fileName: fileName)
-            }
-            
-            
-            return nil
-        })
+        self.messageData.append(offlineMessage)
+        self.messageKeys.append(fileName)
+        self.messages.append(messageData)
         
-        JSQSystemSoundPlayer.jsq_playMessageSentSound()
-        endedTyping()
-        finishSendingMessage()
+        
+
+        self.addedMessages[fileName] = true
+        
+        finishReceivingMessage()
+        
+        handler(date: date, fileName: fileName, messageData: messageData)
+        
     }
+
     
     //Upload Request
     func uploadRequest(image: UIImage) -> AWSS3TransferManagerUploadRequest {
@@ -812,7 +889,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
         let fileURL = NSURL(fileURLWithPath: NSTemporaryDirectory()).URLByAppendingPathComponent("upload").URLByAppendingPathComponent(fileName)
         let filePath = fileURL.path!
         
-        let imageData = UIImageJPEGRepresentation(image, 0.5)
+        let imageData = UIImageJPEGRepresentation(image, 0.25)
         imageData?.writeToFile(filePath, atomically: true)
         
         let uploadRequest = AWSS3TransferManagerUploadRequest()
@@ -849,9 +926,6 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
         }
     }
     
-    
-    
-    
     func observeTyping(){
         
         let refString = "/" + passedRef
@@ -861,7 +935,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
             ref.observeEventType(.Value, withBlock:  { (snapshot) in
-
+                
                 var showType = false
                 
                 if let data = snapshot.value as? [String : Bool] {
@@ -878,21 +952,21 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                     
                     self.showTypingIndicator = showType
                     
-
+                    
                 }
             })
         }
     }
     
-    
-
     //Add Upload Stuff
     func addUploadStuff(){
         
         let error = NSErrorPointer()
         
         do{
+
             try NSFileManager.defaultManager().createDirectoryAtURL(NSURL(fileURLWithPath: NSTemporaryDirectory()).URLByAppendingPathComponent("upload"), withIntermediateDirectories: true, attributes: nil)
+            
         } catch let error1 as NSError {
             error.memory = error1
             print("Creating upload directory failed. Error: \(error)")
@@ -910,14 +984,10 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
         
     }
     
-   
-    
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         self.collectionView.collectionViewLayout.springinessEnabled = false
-        //self.collectionView.collectionViewLayout.spring
         
         addUploadStuff()
         setUpBubbles()

@@ -41,7 +41,6 @@ class SignInController: UIViewController, FBSDKLoginButtonDelegate, UITextFieldD
     
     @IBAction func doneAction(sender: AnyObject) {
         
-        
         if checkPasswordValid(passwordOutlet) {
             
             guard let email = emailOutlet.text, password = passwordOutlet.text else {return}
@@ -55,7 +54,15 @@ class SignInController: UIViewController, FBSDKLoginButtonDelegate, UITextFieldD
                     
                     self.presentViewController(vc, animated: true, completion: {
                         
-                        vc.homeController?.getFirebaseData()
+                        print("main presented")
+                        
+                        vc.toggleNearby({ (bool) in
+                            print("nearby toggled")
+                        })
+                        
+                        vc.loadSelfData({ (bool) in
+                            print("self data loaded")
+                        })
                         
                     })
                     
@@ -165,7 +172,8 @@ class SignInController: UIViewController, FBSDKLoginButtonDelegate, UITextFieldD
                         
                         self.presentViewController(vc, animated: true, completion: {
                             
-                            vc.homeController?.getFirebaseData()
+                            vc.toggleTabs(1)
+                            //vc.vibesController?.getFirebaseData()
                             
                         })
                         

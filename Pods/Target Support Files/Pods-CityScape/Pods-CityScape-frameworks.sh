@@ -98,6 +98,7 @@ if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_framework "Pods-CityScape/JSQSystemSoundPlayer.framework"
   install_framework "Pods-CityScape/Player.framework"
   install_framework "Pods-CityScape/SDWebImage.framework"
+  install_framework "Pods-CityScape/THLabel.framework"
 fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
   install_framework "Pods-CityScape/AWSCognito.framework"
@@ -114,4 +115,5 @@ if [[ "$CONFIGURATION" == "Release" ]]; then
   install_framework "Pods-CityScape/JSQSystemSoundPlayer.framework"
   install_framework "Pods-CityScape/Player.framework"
   install_framework "Pods-CityScape/SDWebImage.framework"
+  install_framework "Pods-CityScape/THLabel.framework"
 fi

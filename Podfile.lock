@@ -61,6 +61,7 @@ PODS:
   - SDWebImage (3.8.1):
     - SDWebImage/Core (= 3.8.1)
   - SDWebImage/Core (3.8.1)
+  - THLabel (1.4.7)
 
 DEPENDENCIES:
   - AWSCognito
@@ -78,6 +79,7 @@ DEPENDENCIES:
   - JSQMessagesViewController
   - Player
   - SDWebImage
+  - THLabel
 
 SPEC CHECKSUMS:
   AWSCognito: 49a62a8f56d605a0454c900a37be207539bcb6e1
@@ -104,5 +106,6 @@ SPEC CHECKSUMS:
   JSQSystemSoundPlayer: c5850e77a4363ffd374cd851154b9af93264ed8d
   Player: 575e1e8cde1e6b7cd62d6d6bc06e492d02e62b9e
   SDWebImage: 35f9627a3e44b4f292a8a8ce6a531fa488239b91
+  THLabel: 1a23e71d7738abfeacaf22ab409b981209b105ae
 
 COCOAPODS: 0.39.0

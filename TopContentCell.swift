@@ -11,39 +11,42 @@ import SDWebImage
 import Firebase
 import FirebaseDatabase
 import FirebaseAuth
+import Player
 
-class ImageContentCell: UITableViewCell {
+class TopContentCell: UITableViewCell {
     
     //Variables
-    var postUID = ""
-    var data = [NSObject : AnyObject]()
-    var homeController: HomeController!
-    var hasLiked: Bool?
+    //var postUID = ""
+    //var postIndex = 0
+    //var homeController: HomeController!
+    //var hasLiked: Bool?
     
     weak var rootController: MainRootController?
-    var globPostUIDs = [String]()
-    var globPostData = [[NSObject : AnyObject]?]()
-    var messageData: [NSObject : AnyObject]?
-    var hasLikedArray = [Bool?]()
+    //var globPostUIDs = [String]()
+    //var globPostData = [[NSObject : AnyObject]?]()
+    //var messageData: [NSObject : AnyObject]?
+    //var loadedMessages = [[String : AnyObject]]()
+    //var hasLikedArray = [Bool?]()
     
     
     //Outlets
     @IBOutlet weak var cityRankOutlet: UILabel!
-    @IBOutlet weak var imageOutlet: UIImageView!
-    @IBOutlet weak var likeDisplayOutlet: UILabel!
-    @IBOutlet weak var dislikeDisplayOutlet: UILabel!
+    //@IBOutlet weak var imageOutlet: UIImageView!
+    //@IBOutlet weak var likeDisplayOutlet: UILabel!
+    //@IBOutlet weak var dislikeDisplayOutlet: UILabel!
     @IBOutlet weak var profilePictureOutlet: UIImageView!
     @IBOutlet weak var nameOutlet: UILabel!
     @IBOutlet weak var cityOutlet: UILabel!
-    @IBOutlet weak var captionOutlet: UILabel!
-    @IBOutlet weak var likeButtonOutlet: UIButton!
-    @IBOutlet weak var dislikeButtonOutlet: UIButton!
-    @IBOutlet weak var thumbsDownImageOutlet: UIImageView!
-    @IBOutlet weak var thumbsUpImageOutlet: UIImageView!
-    @IBOutlet weak var timeAgoOutlet: UILabel!
-    @IBOutlet weak var startConvoOutlet: UIButton!
+    //@IBOutlet weak var captionOutlet: UILabel!
+    //@IBOutlet weak var likeButtonOutlet: UIButton!
+    //@IBOutlet weak var dislikeButtonOutlet: UIButton!
+    //@IBOutlet weak var thumbsDownImageOutlet: UIImageView!
+    //@IBOutlet weak var thumbsUpImageOutlet: UIImageView!
+    //@IBOutlet weak var timeAgoOutlet: UILabel!
+    //@IBOutlet weak var startConvoOutlet: UIButton!
     
     //Actions
+    /*
     @IBAction func dislike(sender: AnyObject) {
         
         likeDislike("dislike")
@@ -51,22 +54,32 @@ class ImageContentCell: UITableViewCell {
         
         
     }
+    */
     
+    /*
 
     @IBAction func like(sender: AnyObject) {
         
         likeDislike("like")
         
-    }
+    }*/
+    
+    /*
     
     @IBAction func viewCommentsAction(sender: AnyObject) {
         
         let mainRootController = rootController
         
         let ref = FIRDatabase.database().reference()
+        
+        let scopeLoadedMessage = loadedMessages
+        
         let id = self.globPostUIDs
         let post = self.globPostData
         let liked = self.hasLikedArray
+        let postUID = self.postUID
+        let scopePostIndex = self.postIndex
+        
         guard let selfUID = FIRAuth.auth()?.currentUser?.uid else {return}
         
         let refToPass = "posts/\(self.postUID)"
@@ -76,6 +89,38 @@ class ImageContentCell: UITableViewCell {
         let vc = rootController?.storyboard?.instantiateViewControllerWithIdentifier("rootChatController") as! ChatRootController
         
         self.rootController?.presentViewController(vc, animated: true) {
+
+            for i in 0..<scopeLoadedMessage.count {
+                
+                var offlineImage: UIImage?
+                
+                if let actualImage = scopeLoadedMessage[i]["offlineImage"] as? UIImage {
+                    offlineImage = actualImage
+                }
+                
+                if let player = scopeLoadedMessage[i]["player"] as? Player, key = scopeLoadedMessage[i]["key"] as? String {
+                    vc.chatController?.videoPlayers[key] = player
+                }
+
+                vc.chatController?.addMessage(scopeLoadedMessage[i]["senderId"] as! String, text: scopeLoadedMessage[i]["text"] as! String, name: scopeLoadedMessage[i]["senderDisplayName"] as! String, profileURL: scopeLoadedMessage[i]["profilePicture"] as! String, isMedia: scopeLoadedMessage[i]["isMedia"] as! Bool, media: scopeLoadedMessage[i]["media"] as! String, isImage: scopeLoadedMessage[i]["isImage"] as! Bool, date: scopeLoadedMessage[i]["date"] as! NSDate, key: scopeLoadedMessage[i]["key"] as! String, i: i, offlineImage: offlineImage)
+                
+            }
+
+            vc.topChatController?.globPostUIDs = id
+            vc.topChatController?.postData = post
+            vc.topChatController?.hasLiked = liked
+            vc.topChatController?.mainRootController = mainRootController
+            vc.topChatController?.postIndex = scopePostIndex
+            
+            
+            if let offset = contentOffset {
+                vc.topChatController?.tableViewOffset = offset
+            }
+            
+            
+            vc.chatController?.senderId = selfUID
+            vc.chatController?.postUID = postUID
+            vc.chatController?.passedRef = refToPass
             
             ref.child("users").child(selfUID).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
                 
@@ -102,80 +147,27 @@ class ImageContentCell: UITableViewCell {
                     }
                     
                     vc.chatController?.senderDisplayName = name
-                    vc.chatController?.senderId = selfUID
-                    vc.chatController?.passedRef = refToPass
                     vc.chatController?.observeMessages()
                     vc.chatController?.observeTyping()
                     
-                    vc.topChatController?.globPostUIDs = id
-                    vc.topChatController?.postData = post
-                    vc.topChatController?.hasLiked = liked
-                    vc.topChatController?.mainRootController = mainRootController
-                    
-                    
-                    if let offset = contentOffset {
-                        vc.topChatController?.tableViewOffset = offset
-                    }
                 }
                 
             })
-            
-            
-            
-            
+    
         }
         
         print("view comments tapped")
-        
+ 
     }
-    
-    
-    
-    
-    
-    func loadData() {
-        
-        
-        if let actualLiked = hasLiked {
-         
-            if actualLiked {
+*/
+    func loadData(data: [NSObject : AnyObject]) {
+
+        if let actualFirstName = data["firstName"] as? String, actualLastName = data["lastName"] as? String, actualProfile = data["profilePicture"] as? String, actualCity = data["city"] as? String, userUID = data["userUID"] as? String {
                 
-                thumbsUpImageOutlet.image = nil
-                thumbsDownImageOutlet.image = nil
-                //viewHowManyCommentsOutlet.enabled = false
-                
-            } else {
-                
-                thumbsUpImageOutlet.image = UIImage(named: "thumbsUp")
-                thumbsDownImageOutlet.image = UIImage(named: "thumbsDown")
-                //viewHowManyCommentsOutlet.enabled = false
-                
-            }
-            
-            if let actualLike = data["like"] as? Int, actualDislike = data["dislike"] as? Int, actualFirstName = data["firstName"] as? String, actualLastName = data["lastName"] as? String, actualCaption = data["caption"] as? String ,actualContent = data["contentURL"] as? String, actualProfile = data["profilePicture"] as? String, actualCity = data["city"] as? String, actualTimeStamp = data["timeStamp"] as? NSTimeInterval, userUID = data["userUID"] as? String {
-                
-                let postData = NSDate(timeIntervalSince1970: actualTimeStamp)
-                
-                timeAgoOutlet.text = timeAgoSince(postData)
-                
-                if actualCaption == "\"\"" {
-                    captionOutlet.text = nil
-                } else {
-                    captionOutlet.text = actualCaption
-                }
-                
-                nameOutlet.text = actualFirstName + " " + actualLastName
-                dislikeDisplayOutlet.text = "Dislikes: " + String(actualDislike)
-                likeDisplayOutlet.text = "Likes: " + String(actualLike)
-                cityOutlet.text = actualCity
-                
-                if let actualURL = NSURL(string: actualContent), actualProfileURL = NSURL(string: actualProfile) {
-                    
-                    imageOutlet.sd_setImageWithURL(actualURL, placeholderImage: nil)
+                if let actualProfileURL = NSURL(string: actualProfile) {
                     profilePictureOutlet.sd_setImageWithURL(actualProfileURL, placeholderImage: nil)
-                    
                 }
-                
+
                 let ref = FIRDatabase.database().reference()
                 
                 ref.child("users").child(userUID).child("cityRank").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
@@ -186,10 +178,73 @@ class ImageContentCell: UITableViewCell {
                         
                     }
                 })
+
+            /*
+             if let actualLiked = hasLiked {
+             
+             if actualLiked {
+             
+             thumbsUpImageOutlet.image = nil
+             thumbsDownImageOutlet.image = nil
+             
+             } else {
+             
+             thumbsUpImageOutlet.image = UIImage(named: "thumbsUp")
+             thumbsDownImageOutlet.image = UIImage(named: "thumbsDown")
+             
+             }
+             */
+
+                
+                //let postDate = NSDate(timeIntervalSince1970: actualTimeStamp)
+                
+                //timeAgoOutlet.text = timeAgoSince(postData)
+                
+                /*
+                if actualCaption == "\"\"" {
+                    captionOutlet.text = nil
+                } else {
+                    captionOutlet.text = actualCaption
+                }
+                */
+                
+                
+                nameOutlet.text = actualFirstName + " " + actualLastName
+                //dislikeDisplayOutlet.text = "Dislikes: " + String(actualDislike)
+                //likeDisplayOutlet.text = "Likes: " + String(actualLike)
+                cityOutlet.text = actualCity
+                
+                /*
+                if let actualURL = NSURL(string: actualContent), actualProfileURL = NSURL(string: actualProfile) {
+
+                    SDWebImageManager.sharedManager().downloadImageWithURL(actualURL, options: .ContinueInBackground, progress: nil, completed: { (image, error, cache, bool, url) in
+                        
+                        if error == nil {
+                            
+                            let size = image.size
+                            let scale = self.bounds.size.width / size.width
+                            let scaledHeight = size.height * scale
+                            let newSize = CGSize(width: self.bounds.size.width, height: scaledHeight)
+                            
+                            self.imageOutlet.image = image
+                            self.imageOutlet.sizeThatFits(newSize)
+                            
+                            //self.setPostedImage(image)
+                            
+                        }
+                    })
+                    
+                 
+                    
+                }
+ 
             }
+ 
+ */
         }
     }
-    
+
+/*
     func likeDislike(key: String) {
         
         print("liked")
@@ -272,9 +327,45 @@ class ImageContentCell: UITableViewCell {
         })
         
     }
+    */
+
+    //UIImageViewResize
+/*
+    internal var aspectConstraint: NSLayoutConstraint? {
+        
+        didSet {
+            
+            if let actualValue = oldValue {
+                imageOutlet.removeConstraint(actualValue)
+            }
+            
+            if let actualValue = aspectConstraint {
+                imageOutlet.addConstraint(actualValue)
+            }
+        }
+    }
     
+    override func prepareForReuse() {
+        
+        super.prepareForReuse()
+        aspectConstraint = nil
+        
+    }
+    
+    func setPostedImage(image: UIImage){
+        
+            let aspect = image.size.width / image.size.height
+            self.aspectConstraint = NSLayoutConstraint(item: self.imageOutlet, attribute: NSLayoutAttribute.Width, relatedBy: NSLayoutRelation.Equal, toItem: self.imageOutlet, attribute: NSLayoutAttribute.Height, multiplier: aspect, constant: 0.0)
+            self.imageOutlet.image = image
+        
+    }
+    */
+    
+
     override func awakeFromNib() {
         super.awakeFromNib()
+        
+        
         
         // Initialization code
     }
