@@ -97,6 +97,9 @@ class VibesController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewC
         
     }
     
+    func playerCurrentTimeDidChange(player: Player) {
+        print("current time did change")
+    }
     
     
     

@@ -26,11 +26,7 @@ class LogInController: UIViewController {
     
     //Actions
     @IBAction func facebookSignIn(sender: AnyObject) {
-        
-        UIView.animateWithDuration(0.3) {
-            self.loadingView.alpha = 1
-        }
-        
+
         let login: FBSDKLoginManager = FBSDKLoginManager()
         login.logInWithReadPermissions(["email", "user_birthday", "user_relationship_details", "user_work_history", "user_location"], fromViewController: self) { (result, error) in
             
@@ -38,6 +34,10 @@ class LogInController: UIViewController {
                 
                 print("logged in")
                 if FBSDKAccessToken.currentAccessToken() != nil {
+                    
+                    UIView.animateWithDuration(0.3) {
+                        self.loadingView.alpha = 1
+                    }
                     
                     let credential = FIRFacebookAuthProvider.credentialWithAccessToken(FBSDKAccessToken.currentAccessToken().tokenString)
                     
@@ -132,6 +132,7 @@ class LogInController: UIViewController {
                                                     }
                                                 }
                                                 
+                                                userData["nearbyRadius"] = 10
                                                 userData["uid"] = uid
                                                 userData["online"] = true
                                                 userData["lastActive"] = NSDate().timeIntervalSince1970
@@ -151,6 +152,8 @@ class LogInController: UIViewController {
                                                     let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
                                                     
                                                     self.presentViewController(vc, animated: true, completion: {
+                                                        
+                                                        self.loadingView.alpha = 0
                                                         
                                                         vc.loadSelfData({ (bool) in
                                                             print("self data loaded")

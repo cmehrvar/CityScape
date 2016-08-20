@@ -71,6 +71,7 @@
 		A3D8794F1D3BF7EF00FB7358 /* HexColorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3D8794E1D3BF7EF00FB7358 /* HexColorExtension.swift */; };
 		A3D879511D3CD44800FB7358 /* homeCommentProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3D879501D3CD44800FB7358 /* homeCommentProfile.swift */; };
 		A3D879531D3CDE8B00FB7358 /* InMediaCommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3D879521D3CDE8B00FB7358 /* InMediaCommentCell.swift */; };
+		A3DAAB601D68652600F0A64E /* MenuProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3DAAB5F1D68652600F0A64E /* MenuProfileView.swift */; };
 		A3E1388E1D25B57E002A5031 /* MainRootController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E1388D1D25B57E002A5031 /* MainRootController.swift */; };
 		A3E138921D25B5A0002A5031 /* MenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E138911D25B5A0002A5031 /* MenuController.swift */; };
 		A3E138961D25C937002A5031 /* InitialController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E138951D25C937002A5031 /* InitialController.swift */; };
@@ -177,6 +178,7 @@
 		A3D8794E1D3BF7EF00FB7358 /* HexColorExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HexColorExtension.swift; sourceTree = "<group>"; };
 		A3D879501D3CD44800FB7358 /* homeCommentProfile.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = homeCommentProfile.swift; sourceTree = "<group>"; };
 		A3D879521D3CDE8B00FB7358 /* InMediaCommentCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InMediaCommentCell.swift; sourceTree = "<group>"; };
+		A3DAAB5F1D68652600F0A64E /* MenuProfileView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MenuProfileView.swift; sourceTree = "<group>"; };
 		A3E1388D1D25B57E002A5031 /* MainRootController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainRootController.swift; sourceTree = "<group>"; };
 		A3E138911D25B5A0002A5031 /* MenuController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MenuController.swift; sourceTree = "<group>"; };
 		A3E138951D25C937002A5031 /* InitialController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InitialController.swift; sourceTree = "<group>"; };
@@ -524,6 +526,7 @@
 				A32C2C5C1D58E43C0064D707 /* AlertControllerView.swift */,
 				A366B8121D5A23BD0079F686 /* FacebookButtonHolder.swift */,
 				A36A427D1D62046C0062E9AD /* ProfilePictureView.swift */,
+				A3DAAB5F1D68652600F0A64E /* MenuProfileView.swift */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -842,6 +845,7 @@
 				A353F0CC1D1224BC009A2182 /* AppDelegate.swift in Sources */,
 				A3D11B411D5763A8006884BF /* GFBase32Utils.m in Sources */,
 				A366B8111D59F3190079F686 /* CloseMenuController.swift in Sources */,
+				A3DAAB601D68652600F0A64E /* MenuProfileView.swift in Sources */,
 				A36A42721D61D0F60062E9AD /* ProfileController.swift in Sources */,
 				A3D8794D1D3BE63C00FB7358 /* TextBubble.swift in Sources */,
 				A3CA89601D28445500590516 /* SignUpProfilePic.swift in Sources */,

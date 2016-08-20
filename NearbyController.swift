@@ -142,7 +142,9 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
         
         if let lastLocation = locations.last, uid = FIRAuth.auth()?.currentUser?.uid {
             
+            /*
             queryNearby(lastLocation)
+            
             
             let userRef = FIRDatabase.database().reference().child("users").child(uid)
             
@@ -186,6 +188,7 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
                     print(error)
                 }
             })
+ */
         }
     }
     
@@ -196,57 +199,60 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
         let ref = FIRDatabase.database().reference().child("userLocations")
         let geoFire = GeoFire(firebaseRef: ref)
         
-        let circleQuery = geoFire.queryAtLocation(center, withRadius: 10)
-        
-        circleQuery.observeEventType(.KeyEntered) { (key, location) in
+        if let radius = rootController?.selfData["nearbyRadius"] as? Double {
             
-            let userRef = FIRDatabase.database().reference().child("users").child(key)
+            let circleQuery = geoFire.queryAtLocation(center, withRadius: radius)
             
-            userRef.observeEventType(.Value, withBlock: { (snapshot) in
+            circleQuery.observeEventType(.KeyEntered) { (key, location) in
                 
-                if let value = snapshot.value as? [NSObject : AnyObject], selfUID = FIRAuth.auth()?.currentUser?.uid {
+                let userRef = FIRDatabase.database().reference().child("users").child(key)
+                
+                userRef.observeEventType(.Value, withBlock: { (snapshot) in
                     
-                    if value["uid"] as? String != selfUID {
+                    if let value = snapshot.value as? [NSObject : AnyObject], selfUID = FIRAuth.auth()?.currentUser?.uid {
                         
-                        var add = true
-                        
-                        if let uid = value["uid"] as? String {
-
-                            if self.dismissedCells[uid] != nil {
-                                
-                                add = false
-                                
-                            } else if let index = self.addedCells[uid] {
-                                
-                                add = false
-                                self.nearbyUsers[index] = value
-                                self.globCollectionView.reloadData()
-                                
-                            }
+                        if value["uid"] as? String != selfUID {
                             
-                            if add {
+                            var add = true
+                            
+                            if let uid = value["uid"] as? String {
                                 
-                                self.addedCells[uid] = self.addedIndex
-                                self.nearbyUsers.append(value)
-                                self.addedIndex += 1
-                                self.globCollectionView.reloadData()
+                                if self.dismissedCells[uid] != nil {
+                                    
+                                    add = false
+                                    
+                                } else if let index = self.addedCells[uid] {
+                                    
+                                    add = false
+                                    self.nearbyUsers[index] = value
+                                    self.globCollectionView.reloadData()
+                                    
+                                }
+                                
+                                if add {
+                                    
+                                    self.addedCells[uid] = self.addedIndex
+                                    self.nearbyUsers.append(value)
+                                    self.addedIndex += 1
+                                    self.globCollectionView.reloadData()
+                                }
                             }
                         }
                     }
-                }
-            })
-        }
-        
-        circleQuery.observeEventType(.KeyExited) { (key, location) in
+                })
+            }
             
-            for i in 0..<self.nearbyUsers.count {
+            circleQuery.observeEventType(.KeyExited) { (key, location) in
                 
-                if key == self.nearbyUsers[i]["uid"] as? String {
+                for i in 0..<self.nearbyUsers.count {
                     
-                    if let last = self.nearbyUsers.last {
-                        self.nearbyUsers[i] = last
-                        self.nearbyUsers.removeLast()
-                        self.globCollectionView.reloadData()
+                    if key == self.nearbyUsers[i]["uid"] as? String {
+                        
+                        if let last = self.nearbyUsers.last {
+                            self.nearbyUsers[i] = last
+                            self.nearbyUsers.removeLast()
+                            self.globCollectionView.reloadData()
+                        }
                     }
                 }
             }

@@ -9,7 +9,6 @@
 import UIKit
 import Photos
 
-
 @objc public protocol FusumaDelegate: class {
     
     func fusumaImageSelected(image: UIImage)
@@ -19,10 +18,6 @@ import Photos
     
     optional func fusumaClosed()
 }
-
-
-
-
 
 public var fusumaBaseTintColor   = UIColor.hex("#FFFFFF", alpha: 1.0)
 public var fusumaTintColor       = UIColor.hex("#009688", alpha: 1.0)
@@ -80,8 +75,6 @@ public final class FusumaViewController: UIViewController {
     @IBOutlet weak var cameraButton: UIButton!
     @IBOutlet weak var videoButton: UIButton!
     @IBOutlet weak var doneButton: UIButton!
-    @IBOutlet weak var timer: UILabel!
-    
 
     @IBOutlet var libraryFirstConstraints: [NSLayoutConstraint]!
     @IBOutlet var cameraFirstConstraints: [NSLayoutConstraint]!
@@ -245,7 +238,6 @@ public final class FusumaViewController: UIViewController {
     }
     
     @IBAction func closeButtonPressed(sender: UIButton) {
-  
         self.dismissViewControllerAnimated(true, completion: {
             
             self.delegate?.fusumaClosed?()
@@ -300,7 +292,7 @@ public final class FusumaViewController: UIViewController {
                     
                     dispatch_async(dispatch_get_main_queue(), {
                         self.delegate?.fusumaImageSelected(result!)
-
+                        
                         self.dismissViewControllerAnimated(true, completion: {
                             self.delegate?.fusumaDismissedWithImage?(result!)
                         })
@@ -310,7 +302,7 @@ public final class FusumaViewController: UIViewController {
         } else {
             print("no image crop ")
             delegate?.fusumaImageSelected(view.image)
-
+            
             self.dismissViewControllerAnimated(true, completion: {
                 self.delegate?.fusumaDismissedWithImage?(view.image)
             })
@@ -325,7 +317,6 @@ extension FusumaViewController: FSAlbumViewDelegate, FSCameraViewDelegate, FSVid
     func cameraShotFinished(image: UIImage) {
         
         delegate?.fusumaImageSelected(image)
-
         self.dismissViewControllerAnimated(true, completion: {
             
             self.delegate?.fusumaDismissedWithImage?(image)
@@ -338,12 +329,8 @@ extension FusumaViewController: FSAlbumViewDelegate, FSCameraViewDelegate, FSVid
     }
     
     func videoFinished(withFileURL fileURL: NSURL) {
-
-        self.dismissViewControllerAnimated(true) { 
-            self.delegate?.fusumaVideoCompleted(withFileURL: fileURL)
-        }
-        
-       
+        delegate?.fusumaVideoCompleted(withFileURL: fileURL)
+        self.dismissViewControllerAnimated(true, completion: nil)
     }
     
 }

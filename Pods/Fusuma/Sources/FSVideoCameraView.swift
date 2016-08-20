@@ -19,13 +19,6 @@ final class FSVideoCameraView: UIView {
     @IBOutlet weak var shotButton: UIButton!
     @IBOutlet weak var flashButton: UIButton!
     @IBOutlet weak var flipButton: UIButton!
-    @IBOutlet weak var timeOutlet: UILabel!
-    
-    var ms = 0
-    var s = 15
-    
-    var startTime = NSTimeInterval()
-    var timer: NSTimer = NSTimer()
     
     weak var delegate: FSVideoCameraViewDelegate? = nil
     
@@ -39,6 +32,7 @@ final class FSVideoCameraView: UIView {
     var flashOnImage: UIImage?
     var videoStartImage: UIImage?
     var videoStopImage: UIImage?
+
     
     private var isRecording = false
     
@@ -78,7 +72,7 @@ final class FSVideoCameraView: UIView {
                 session.addInput(videoInput)
                 
                 videoOutput = AVCaptureMovieFileOutput()
-                let totalSeconds = 15.0 //Total Seconds of capture time
+                let totalSeconds = 60.0 //Total Seconds of capture time
                 let timeScale: Int32 = 30 //FPS
                 
                 let maxDuration = CMTimeMakeWithSeconds(totalSeconds, timeScale)
@@ -200,7 +194,6 @@ final class FSVideoCameraView: UIView {
             }
             self.flipButton.enabled = false
             self.flashButton.enabled = false
-            
             videoOutput.startRecordingToOutputFileURL(outputURL, recordingDelegate: self)
         } else {
             videoOutput.stopRecording()
@@ -209,79 +202,6 @@ final class FSVideoCameraView: UIView {
         }
         return
     }
-    
-    
-    func update() {
-        
-        ms++
-        
-        print("ms: " + String(ms))
-        
-        switch ms {
-
-        case 0:
-            s = 15
-            
-        case 100:
-            s = 14
-            
-        case 200:
-            s = 13
-            
-        case 300:
-            s = 12
-            
-        case 400:
-            s = 11
-            
-        case 500:
-            s = 10
-            
-        case 600:
-            s = 9
-            
-        case 700:
-            s = 8
-            
-        case 800:
-            s = 7
-            
-        case 900:
-            s = 6
-            
-        case 1000:
-            s = 5
-            
-        case 1100:
-            s = 4
-            
-        case 1200:
-            s = 3
-            
-        case 1300:
-            s = 2
-            
-        case 1400:
-            s = 1
-            
-        case 1500:
-            s = 0
-            
-        default:
-            break
-            
-            
-        }
-        
-        
-        
-        self.timeOutlet.text = "\(s)s"
-        
-    }
-
-    
-    
-    
     
     @IBAction func flipButtonPressed(sender: UIButton) {
         
@@ -360,23 +280,12 @@ final class FSVideoCameraView: UIView {
 extension FSVideoCameraView: AVCaptureFileOutputRecordingDelegate {
     
     func captureOutput(captureOutput: AVCaptureFileOutput!, didStartRecordingToOutputFileAtURL fileURL: NSURL!, fromConnections connections: [AnyObject]!) {
-        
-        self.timeOutlet.text = "15s"
-        self.timer = NSTimer.scheduledTimerWithTimeInterval(0.01, target: self, selector: Selector("update"), userInfo: nil, repeats: true)
-        
         print("started recording to: \(fileURL)")
     }
     
     func captureOutput(captureOutput: AVCaptureFileOutput!, didFinishRecordingToOutputFileAtURL outputFileURL: NSURL!, fromConnections connections: [AnyObject]!, error: NSError!) {
         print("finished recording to: \(outputFileURL)")
-        
-        timer.invalidate()
-        ms = 0
-        s = 0
-        self.timeOutlet.text = ""
-
         self.delegate?.videoFinished(withFileURL: outputFileURL)
-        
     }
     
 }

@@ -74,6 +74,7 @@ public protocol PlayerDelegate: class {
     func playerReady(player: Player)
     func playerPlaybackStateDidChange(player: Player)
     func playerBufferingStateDidChange(player: Player)
+    func playerCurrentTimeDidChange(player: Player)
 
     func playerPlaybackWillStartFromBeginning(player: Player)
     func playerPlaybackDidEnd(player: Player)
@@ -190,7 +191,8 @@ public class Player: UIViewController {
 
     private var player: AVPlayer!
     private var playerView: PlayerView!
-
+    private var timeObserver: AnyObject!
+    
     // MARK: object lifecycle
 
     public convenience init() {
@@ -211,6 +213,10 @@ public class Player: UIViewController {
         self.player = AVPlayer()
         self.player.actionAtItemEnd = .Pause
         self.player.addObserver(self, forKeyPath: PlayerRateKey, options: ([NSKeyValueObservingOptions.New, NSKeyValueObservingOptions.Old]) , context: &PlayerObserverContext)
+        
+        self.timeObserver = self.player.addPeriodicTimeObserverForInterval(CMTimeMake(1, 100), queue: dispatch_get_main_queue()) { [unowned self] time in
+            self.delegate?.playerCurrentTimeDidChange(self)
+        }
 
         self.playbackLoops = false
         self.playbackFreezesAtEnd = false
@@ -219,6 +225,7 @@ public class Player: UIViewController {
     }
 
     deinit {
+        self.player.removeTimeObserver(timeObserver)
         self.playerView?.player = nil
         self.delegate = nil
 
@@ -399,8 +406,8 @@ public class Player: UIViewController {
     }
   
     public func applicationWillEnterForeground(aNoticiation: NSNotification) {
-        if self.playbackState == .Stopped || self.playbackState == .Paused {
-            self.player.play()
+        if self.playbackState == .Paused {
+            self.playFromCurrentTime()
         }
     }
 

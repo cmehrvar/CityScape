@@ -38,6 +38,7 @@ class MainRootController: UIViewController {
     @IBOutlet weak var profileTop: NSLayoutConstraint!
     @IBOutlet weak var closeMenuTop: NSLayoutConstraint!
     @IBOutlet weak var profileContainer: UIView!
+    @IBOutlet weak var leadingMenu: NSLayoutConstraint!
 
     weak var topNavController: TopNavBarController?
     weak var bottomNavController: BottomNavController?
@@ -106,11 +107,15 @@ class MainRootController: UIViewController {
         
         let mainDrawerWidthConstant: CGFloat = 280
         
+        var menuOffset: CGFloat = 0
+        
+        /*
         var topNavOffset: CGFloat = 0
         var bottomNavOffset: CGFloat = self.bottomNavCenter.constant
         var mainOffsetLeading: CGFloat = self.vibesLeading.constant
         var mainOffsetTrailing: CGFloat = self.vibesTrailing.constant
-        
+        */
+ 
         var closeMenuAlpha: CGFloat = 0
         var buttonsEnabled = true
         
@@ -119,19 +124,21 @@ class MainRootController: UIViewController {
             
             buttonsEnabled = false
             
-            mainOffsetLeading += mainDrawerWidthConstant
-            mainOffsetTrailing += mainDrawerWidthConstant
+            //mainOffsetLeading += mainDrawerWidthConstant
+            //mainOffsetTrailing += mainDrawerWidthConstant
             
-            topNavOffset = mainDrawerWidthConstant
+            //topNavOffset = mainDrawerWidthConstant
             
-            bottomNavOffset += mainDrawerWidthConstant
+            //bottomNavOffset += mainDrawerWidthConstant
             
         } else {
             
-            mainOffsetLeading -= mainDrawerWidthConstant
-            mainOffsetTrailing -= mainDrawerWidthConstant
+            menuOffset = -mainDrawerWidthConstant
             
-            bottomNavOffset -= mainDrawerWidthConstant
+            //mainOffsetLeading -= mainDrawerWidthConstant
+            //mainOffsetTrailing -= mainDrawerWidthConstant
+            
+            //bottomNavOffset -= mainDrawerWidthConstant
 
         }
         
@@ -140,15 +147,16 @@ class MainRootController: UIViewController {
         UIView.animateWithDuration(0.3, animations: { () -> Void in
             
             self.closeMenuContainer.alpha = closeMenuAlpha
+            self.leadingMenu.constant = menuOffset
             
             self.bottomNavController?.nearbyButtonOutlet.enabled = buttonsEnabled
             self.bottomNavController?.vibesButtonOutlet.enabled = buttonsEnabled
             self.bottomNavController?.messagesButtonOutlet.enabled = buttonsEnabled
 
-            self.topNavCenter.constant = topNavOffset
-            self.bottomNavCenter.constant = bottomNavOffset
-            self.vibesLeading.constant = mainOffsetLeading
-            self.vibesTrailing.constant = mainOffsetTrailing
+            //self.topNavCenter.constant = topNavOffset
+            //self.bottomNavCenter.constant = bottomNavOffset
+            //self.vibesLeading.constant = mainOffsetLeading
+            //self.vibesTrailing.constant = mainOffsetTrailing
             
             self.view.layoutIfNeeded()
             
@@ -160,10 +168,13 @@ class MainRootController: UIViewController {
     }
     
     
-    func toggleProfile(completion: Bool -> ()){
+    func toggleProfile(uid: String, selfProfile: Bool, completion: Bool -> ()){
         
         self.closeMenuTop.constant = -65
         
+        profileController?.currentUID = uid
+        profileController?.retrieveUserData(uid, selfProfile: selfProfile)
+
         UIView.animateWithDuration(0.3, animations: {
             
             self.profileTop.constant = 0
@@ -173,7 +184,6 @@ class MainRootController: UIViewController {
             
             }) { (complete) in
                 completion(complete)
-                
         }
     }
     
@@ -241,7 +251,9 @@ class MainRootController: UIViewController {
                 if let value = snapshot.value as? [NSObject:AnyObject]{
                     
                     self.selfData = value
-                    
+
+                    self.menuController?.setMenu()
+
                     if !self.locationFromFirebase {
                         
                         self.locationFromFirebase = true
@@ -260,10 +272,10 @@ class MainRootController: UIViewController {
     }
     
     
-    func setProfileStage(){
+    func setStage(){
         
         let screenHeight = self.view.bounds.height - 65
-        
+
         profileTop.constant = -screenHeight
         profileBottom.constant = screenHeight
         
@@ -317,8 +329,9 @@ class MainRootController: UIViewController {
     
     
     override func viewDidAppear(animated: Bool) {
-        setProfileStage()
         
+        
+        setStage()
         updateOnline()
         
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(updateOnline), name: UIApplicationDidBecomeActiveNotification, object: UIApplication.sharedApplication())
@@ -329,7 +342,7 @@ class MainRootController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        self.leadingMenu.constant = -280
         // Do any additional setup after loading the view.
     }
     

@@ -61,6 +61,12 @@ class HandlePostController: UIViewController, AdobeUXImageEditorViewControllerDe
         
     }
     
+    func playerCurrentTimeDidChange(player: Player) {
+        
+        print("current time did change")
+        
+    }
+    
     
     //Adobe Delegates
     func photoEditorCanceled(editor: AdobeUXImageEditorViewController) {

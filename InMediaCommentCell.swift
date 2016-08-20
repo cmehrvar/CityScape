@@ -40,6 +40,10 @@ class InMediaCommentCell: UITableViewCell, PlayerDelegate {
     func playerPlaybackDidEnd(player: Player){
         
     }
+    
+    func playerCurrentTimeDidChange(player: Player) {
+        print("current time did change")
+    }
 
     
 

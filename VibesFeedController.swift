@@ -565,6 +565,10 @@ class VibesFeedController: UIViewController, PlayerDelegate, UITableViewDataSour
   
     }
     
+    func playerCurrentTimeDidChange(player: Player) {
+        print("current time did change")
+    }
+    
     
     
     override func viewDidLoad() {

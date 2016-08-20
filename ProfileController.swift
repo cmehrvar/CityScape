@@ -15,24 +15,42 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
     //Variables
     weak var rootController: MainRootController?
     var userData = [NSObject:AnyObject]()
+    var currentUID = ""
     
     //Outlets
     @IBOutlet weak var globCollectionCell: UICollectionView!
-
+    
     //Functions
-    func retrieveUserData(uid: String){
-        
-        let ref = FIRDatabase.database().reference().child("users").child(uid)
-        
-        ref.observeEventType(.Value, withBlock:  { (snapshot) in
+    func retrieveUserData(uid: String, selfProfile: Bool){
+
+        if selfProfile {
             
-            if let value = snapshot.value as? [NSObject:AnyObject]{
-                
-                self.userData = value
-                self.globCollectionCell.reloadData()
-                
+            if let data = rootController?.selfData {
+                userData = data
+                globCollectionCell.reloadData()
             }
-        })
+            
+        } else {
+            
+            let ref = FIRDatabase.database().reference().child("users").child(uid)
+            
+            ref.observeEventType(.Value, withBlock:  { (snapshot) in
+                
+                if let value = snapshot.value as? [NSObject:AnyObject]{
+                    
+                    if self.currentUID == value["uid"] as? String {
+                        
+                        self.userData = value
+                        self.globCollectionCell.reloadData()
+                        
+                    } else {
+                        
+                        ref.removeAllObservers()
+                        
+                    }
+                }
+            })
+        }
     }
     
     
@@ -54,7 +72,7 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
             cell.profileController = self
             
             cell.loadData(userData)
-
+            
             return cell
         } else {
             return UICollectionViewCell()
@@ -72,30 +90,30 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
             return CGSize(width: 0, height: 0)
         }
     }
-
     
     
-
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         // Do any additional setup after loading the view.
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     
-
+    
     /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
+     // MARK: - Navigation
+     
+     // In a storyboard-based application, you will often want to do a little preparation before navigation
+     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+     // Get the new view controller using segue.destinationViewController.
+     // Pass the selected object to the new view controller.
+     }
+     */
+    
 }

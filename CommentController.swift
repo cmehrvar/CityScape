@@ -63,6 +63,10 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
         
     }
     
+    func playerCurrentTimeDidChange(player: Player) {
+        print("current time did change")
+    }
+    
     
     
     //Did press send button

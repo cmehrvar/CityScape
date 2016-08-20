@@ -42,7 +42,9 @@ class OutMediaCommentCell: UITableViewCell, PlayerDelegate {
         
     }
 
-    
+    func playerCurrentTimeDidChange(player: Player) {
+        print("current time did change")
+    }
     
     
     

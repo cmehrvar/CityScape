@@ -33,6 +33,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let configuration = AWSServiceConfiguration(region:.USEast1, credentialsProvider:credentialsProvider)
         AWSServiceManager.defaultServiceManager().defaultServiceConfiguration = configuration
         
+        AWSNetworkingConfiguration().timeoutIntervalForRequest = 0
+        
+        AWSNetworkingConfiguration().timeoutIntervalForResource = 15
+        
         AdobeUXAuthManager.sharedManager().setAuthenticationParametersWithClientID(CLIENT_ID, withClientSecret: CLIENT_SECRET)
         
         do {

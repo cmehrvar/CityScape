@@ -112,9 +112,14 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
             if distance > 9999 {
                 
                 let kilometers: Int = Int(distance) / 1000
-                
                 distanceOutlet.text = "Now about " + String(kilometers) + "km away"
                 
+            } else if distance > 99 {
+                
+                let kilometers: Double = Double(distance) / 1000
+                let rounded = round(kilometers*10) / 10
+                distanceOutlet.text = "Now about " + String(rounded) + "km away"
+  
             } else {
                 
                 distanceOutlet.text = "Now about " + String(Int(round(distance))) + "m away"
