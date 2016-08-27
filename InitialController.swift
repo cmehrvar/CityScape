@@ -23,14 +23,30 @@ class InitialController: UIViewController {
             if user != nil {
                 
                 let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
-                
+
                 self.presentViewController(vc, animated: true, completion: {
                     
-                    vc.loadSelfData({ (bool) in
+                    vc.loadSelfData({ (value) in
+                        
                         print("self data loaded")
+
+                        if value["interestedIn"] != nil {
+                            
+                            if let latitude = value["latitude"] as? CLLocationDegrees, longitude = value["longitude"] as? CLLocationDegrees {
+                                
+                                let location = CLLocation(latitude: latitude, longitude: longitude)
+                                vc.nearbyController?.queryNearby(location)
+                                
+                                vc.nearbyController?.requestWhenInUseAuthorization()
+                                vc.nearbyController?.updateLocation()
+                            }
+                        } else {
+                            
+                            vc.askInterestedIn()
+
+                        }
                     })
-                    
-                    
+
                     vc.toggleNearby({ (bool) in
                         print("nearby toggled")
                     })

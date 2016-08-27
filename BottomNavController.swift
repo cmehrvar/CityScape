@@ -33,9 +33,12 @@ class BottomNavController: UIViewController {
 
     @IBAction func toggleVibes(sender: AnyObject) {
         
-        rootController?.toggleVibes({ (Bool) in
+        rootController?.toggleVibes({ (bool) in
+            
             print("vibes toggled")
+            
         })
+        
     }
 
     @IBAction func toggleMessages(sender: AnyObject) {
@@ -123,6 +126,12 @@ class BottomNavController: UIViewController {
     
     
     
+    override func viewDidAppear(animated: Bool) {
+        
+        torontoOutlet.adjustsFontSizeToFitWidth = true
+        torontoOutlet.baselineAdjustment = .None
+        
+    }
     
     
     override func viewDidLoad() {
@@ -131,6 +140,8 @@ class BottomNavController: UIViewController {
         nearbyButtonOutlet.adjustsImageWhenHighlighted = false
         messagesButtonOutlet.adjustsImageWhenHighlighted = false
 
+       
+        
         // Do any additional setup after loading the view.
     }
     

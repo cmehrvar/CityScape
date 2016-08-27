@@ -27,6 +27,9 @@
 		A36A42721D61D0F60062E9AD /* ProfileController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A36A42711D61D0F60062E9AD /* ProfileController.swift */; };
 		A36A427C1D61F8970062E9AD /* ProfileCoverCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A36A427B1D61F8970062E9AD /* ProfileCoverCollectionCell.swift */; };
 		A36A427E1D62046C0062E9AD /* ProfilePictureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A36A427D1D62046C0062E9AD /* ProfilePictureView.swift */; };
+		A36BDF711D71DED2005E0806 /* ItsAMatchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A36BDF701D71DED2005E0806 /* ItsAMatchController.swift */; };
+		A36BDF731D71F573005E0806 /* MatchProfileViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = A36BDF721D71F573005E0806 /* MatchProfileViews.swift */; };
+		A36BDF751D720404005E0806 /* MatchButtons.swift in Sources */ = {isa = PBXBuildFile; fileRef = A36BDF741D720404005E0806 /* MatchButtons.swift */; };
 		A37AC1C11D2A19FD00EBF813 /* LikeOrDislikeDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = A37AC1C01D2A19FD00EBF813 /* LikeOrDislikeDisplay.swift */; };
 		A37B50801D2AFEF400A38FAE /* TimeAgo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A37B507F1D2AFEF400A38FAE /* TimeAgo.swift */; };
 		A38289CB1D2B433B00C17F48 /* CommentController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A38289CA1D2B433B00C17F48 /* CommentController.swift */; };
@@ -124,6 +127,9 @@
 		A36A42711D61D0F60062E9AD /* ProfileController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileController.swift; sourceTree = "<group>"; };
 		A36A427B1D61F8970062E9AD /* ProfileCoverCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileCoverCollectionCell.swift; sourceTree = "<group>"; };
 		A36A427D1D62046C0062E9AD /* ProfilePictureView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfilePictureView.swift; sourceTree = "<group>"; };
+		A36BDF701D71DED2005E0806 /* ItsAMatchController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ItsAMatchController.swift; sourceTree = "<group>"; };
+		A36BDF721D71F573005E0806 /* MatchProfileViews.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MatchProfileViews.swift; sourceTree = "<group>"; };
+		A36BDF741D720404005E0806 /* MatchButtons.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MatchButtons.swift; sourceTree = "<group>"; };
 		A37AC1C01D2A19FD00EBF813 /* LikeOrDislikeDisplay.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LikeOrDislikeDisplay.swift; sourceTree = "<group>"; };
 		A37B507F1D2AFEF400A38FAE /* TimeAgo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeAgo.swift; sourceTree = "<group>"; };
 		A38289CA1D2B433B00C17F48 /* CommentController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentController.swift; sourceTree = "<group>"; };
@@ -527,6 +533,8 @@
 				A366B8121D5A23BD0079F686 /* FacebookButtonHolder.swift */,
 				A36A427D1D62046C0062E9AD /* ProfilePictureView.swift */,
 				A3DAAB5F1D68652600F0A64E /* MenuProfileView.swift */,
+				A36BDF721D71F573005E0806 /* MatchProfileViews.swift */,
+				A36BDF741D720404005E0806 /* MatchButtons.swift */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -541,6 +549,7 @@
 				A371A6E41D632FEF00A85F21 /* Profile */,
 				A36A42701D61CEFA0062E9AD /* CameraStuff */,
 				A3C497761D560CCF00D293A4 /* OldHomeCode.swift */,
+				A36BDF701D71DED2005E0806 /* ItsAMatchController.swift */,
 			);
 			name = HomeRoot;
 			sourceTree = "<group>";
@@ -823,6 +832,7 @@
 				A3D119731D262290009D7EAB /* HandlePostController.swift in Sources */,
 				A38289CF1D2C4E3A00C17F48 /* ChatRootController.swift in Sources */,
 				A3D11B2E1D575499006884BF /* NearbyOnline.swift in Sources */,
+				A36BDF751D720404005E0806 /* MatchButtons.swift in Sources */,
 				A3C8C24C1D55F89100F703AA /* NavButtonsView.swift in Sources */,
 				A353F0CE1D1224BC009A2182 /* SignUpController.swift in Sources */,
 				A3F293B81D4F219D00CD9D15 /* OutTextCommentCell.swift in Sources */,
@@ -842,6 +852,7 @@
 				A36A427C1D61F8970062E9AD /* ProfileCoverCollectionCell.swift in Sources */,
 				A3BB981D1D136CB600BD384F /* LogInController.swift in Sources */,
 				A3E138961D25C937002A5031 /* InitialController.swift in Sources */,
+				A36BDF711D71DED2005E0806 /* ItsAMatchController.swift in Sources */,
 				A353F0CC1D1224BC009A2182 /* AppDelegate.swift in Sources */,
 				A3D11B411D5763A8006884BF /* GFBase32Utils.m in Sources */,
 				A366B8111D59F3190079F686 /* CloseMenuController.swift in Sources */,
@@ -862,6 +873,7 @@
 				A3D879471D3BD36100FB7358 /* InTextCommentCell.swift in Sources */,
 				A3BB98191D12E67E00BD384F /* TextFields.swift in Sources */,
 				A32C2C5D1D58E43C0064D707 /* AlertControllerView.swift in Sources */,
+				A36BDF731D71F573005E0806 /* MatchProfileViews.swift in Sources */,
 				A366B8131D5A23BD0079F686 /* FacebookButtonHolder.swift in Sources */,
 				A3F293B61D4F1CBD00CD9D15 /* NoCommentCell.swift in Sources */,
 				A312C26B1D347AE600F272F0 /* MemoryLeak.swift in Sources */,

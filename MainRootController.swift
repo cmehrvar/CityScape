@@ -22,11 +22,11 @@ class MainRootController: UIViewController {
     var nearbyIsRevealed = false
     var vibesIsRevealed = false
     var messagesIsRevealed = false
-
+    var matchIsRevealed = false
+    
     var currentTab = 0
     
     var timer = NSTimer()
-    var s = 0
     
     //Outlets
     @IBOutlet weak var topNavCenter: NSLayoutConstraint!
@@ -39,7 +39,15 @@ class MainRootController: UIViewController {
     @IBOutlet weak var closeMenuTop: NSLayoutConstraint!
     @IBOutlet weak var profileContainer: UIView!
     @IBOutlet weak var leadingMenu: NSLayoutConstraint!
-
+    @IBOutlet weak var menuContainerOutlet: UIView!
+    @IBOutlet weak var itsAMatchContainerOutlet: UIView!
+    
+    @IBOutlet weak var topNavHeightConstOutlet: NSLayoutConstraint!
+    @IBOutlet weak var bottomNavHeightConstOutlet: NSLayoutConstraint!
+    @IBOutlet weak var menuWidthConstOutlet: NSLayoutConstraint!
+    
+    
+    
     weak var topNavController: TopNavBarController?
     weak var bottomNavController: BottomNavController?
     weak var vibesFeedController: VibesFeedController?
@@ -48,31 +56,34 @@ class MainRootController: UIViewController {
     weak var menuController: MenuController?
     weak var closeController: CloseMenuController?
     weak var profileController: ProfileController?
+    weak var matchController: ItsAMatchController?
     
     //Toggle Functions
     func toggleHome(completion: Bool -> ()) {
         
-        let screenHeight = self.view.bounds.height - 65
+        let screenHeight = self.view.bounds.height
+        let offset = (screenHeight - (screenHeight / 10))
+        
         closeMenuTop.constant = 0
-
+        
         UIView.animateWithDuration(0.3, animations: {
             
-            self.profileTop.constant = -screenHeight
-            self.profileBottom.constant = screenHeight
-
+            self.profileTop.constant = -offset
+            self.profileBottom.constant = offset
+            
             self.view.layoutIfNeeded()
             
-            }) { (complete) in
-
-                self.profileController?.userData = ["profilePicture" : "", "firstName" : "", "lastName" : "", "city" : "", "state" : "", "country" : "", "cityRank" : 0, "squad" : [""], "occupation" : "", "lastActive" : NSDate().timeIntervalSince1970]
-                self.profileController?.globCollectionCell.reloadData()
-                
-                completion(complete)
-                
+        }) { (complete) in
+            
+            self.profileController?.userData = ["profilePicture" : "", "firstName" : "", "lastName" : "", "city" : "", "state" : "", "country" : "", "cityRank" : 0, "squad" : [""], "occupation" : "", "lastActive" : NSDate().timeIntervalSince1970]
+            self.profileController?.globCollectionCell.reloadData()
+            
+            completion(complete)
+            
         }
     }
     
-
+    
     func toggleNearby(completion: (Bool) -> ()) {
         
         dispatch_async(dispatch_get_main_queue()) {
@@ -102,20 +113,20 @@ class MainRootController: UIViewController {
             
         }
     }
-
+    
     func toggleMenu(completion: (Bool) -> ()) {
         
-        let mainDrawerWidthConstant: CGFloat = 280
+        let mainDrawerWidthConstant: CGFloat = (self.view.bounds.width) * 0.8
         
         var menuOffset: CGFloat = 0
         
         /*
-        var topNavOffset: CGFloat = 0
-        var bottomNavOffset: CGFloat = self.bottomNavCenter.constant
-        var mainOffsetLeading: CGFloat = self.vibesLeading.constant
-        var mainOffsetTrailing: CGFloat = self.vibesTrailing.constant
-        */
- 
+         var topNavOffset: CGFloat = 0
+         var bottomNavOffset: CGFloat = self.bottomNavCenter.constant
+         var mainOffsetLeading: CGFloat = self.vibesLeading.constant
+         var mainOffsetTrailing: CGFloat = self.vibesTrailing.constant
+         */
+        
         var closeMenuAlpha: CGFloat = 0
         var buttonsEnabled = true
         
@@ -139,7 +150,7 @@ class MainRootController: UIViewController {
             //mainOffsetTrailing -= mainDrawerWidthConstant
             
             //bottomNavOffset -= mainDrawerWidthConstant
-
+            
         }
         
         menuIsRevealed = !menuIsRevealed
@@ -152,7 +163,7 @@ class MainRootController: UIViewController {
             self.bottomNavController?.nearbyButtonOutlet.enabled = buttonsEnabled
             self.bottomNavController?.vibesButtonOutlet.enabled = buttonsEnabled
             self.bottomNavController?.messagesButtonOutlet.enabled = buttonsEnabled
-
+            
             //self.topNavCenter.constant = topNavOffset
             //self.bottomNavCenter.constant = bottomNavOffset
             //self.vibesLeading.constant = mainOffsetLeading
@@ -170,11 +181,11 @@ class MainRootController: UIViewController {
     
     func toggleProfile(uid: String, selfProfile: Bool, completion: Bool -> ()){
         
-        self.closeMenuTop.constant = -65
+        self.closeMenuTop.constant = -(self.view.bounds.height / 10)
         
         profileController?.currentUID = uid
         profileController?.retrieveUserData(uid, selfProfile: selfProfile)
-
+        
         UIView.animateWithDuration(0.3, animations: {
             
             self.profileTop.constant = 0
@@ -182,12 +193,104 @@ class MainRootController: UIViewController {
             
             self.view.layoutIfNeeded()
             
-            }) { (complete) in
-                completion(complete)
+        }) { (complete) in
+            completion(complete)
         }
     }
     
+    func toggleMatch(uid: String!, completion: Bool -> ()) {
+        
+        var matchAlpha: CGFloat = 1
 
+        if uid != nil {
+            
+            let ref = FIRDatabase.database().reference()
+            
+            ref.child("users").child(uid).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                
+                if let value = snapshot.value as? [NSObject : AnyObject] {
+                    
+                    
+                    if let firstName = value["firstName"] as? String, lastName = value["lastName"] as? String {
+
+                        self.matchController?.likesYouOutlet.text = "\(firstName) \(lastName) Likes You"
+                        
+                    }
+
+                    if let myProfile = self.selfData["profilePicture"] as? String, url = NSURL(string: myProfile) {
+                        
+                        self.matchController?.myProfileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                        
+                    }
+                    
+                    
+                    if let yourProfile = value["profilePicture"] as? String, url = NSURL(string: yourProfile) {
+                        
+                        self.matchController?.yourProfileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                        
+                    }
+
+                    if let myRank = self.selfData["cityRank"] as? Int {
+                        
+                        self.matchController?.myRankOutlet.text = String(myRank)
+                        
+                    }
+                    
+                    if let yourRank = value["cityRank"] as? Int {
+                        
+                        self.matchController?.yourRankOutlet.text = String(yourRank)
+                        
+                    }
+                    
+                    
+                    if let myLatitude = self.selfData["latitude"] as? CLLocationDegrees, myLongitude = self.selfData["longitude"] as? CLLocationDegrees, yourLatitude = value["latitude"] as? CLLocationDegrees, yourLongitude = value["longitude"] as? CLLocationDegrees {
+                        
+                        let myLocation = CLLocation(latitude: myLatitude, longitude: myLongitude)
+                        let yourLocation = CLLocation(latitude: yourLatitude, longitude: yourLongitude)
+                        
+                        let distance = myLocation.distanceFromLocation(yourLocation)
+
+                        if distance > 9999 {
+                            
+                            let kilometers: Int = Int(distance) / 1000
+                            self.matchController?.distanceOutlet.text = String(kilometers) + " kilometers away"
+                            
+                        } else if distance > 99 {
+                            
+                            let kilometers: Double = Double(distance) / 1000
+                            let rounded = round(kilometers*10) / 10
+                            self.matchController?.distanceOutlet.text = String(rounded) + " kilometers away"
+                            
+                        } else {
+                            
+                            self.matchController?.distanceOutlet.text = String(Int(round(distance))) + " meters away"
+                            
+                        }
+                    }
+                }
+            })
+        }
+
+        if matchIsRevealed {
+            matchAlpha = 0
+            
+        }
+        
+        matchIsRevealed = !matchIsRevealed
+        
+        UIView.animateWithDuration(0.3, animations: {
+            
+            self.itsAMatchContainerOutlet.alpha = matchAlpha
+            
+            
+        }) { (complete) in
+            
+            completion(complete)
+            
+        }
+    }
+    
+    
     //Other Functions
     func toggleTabs(tab: Int) -> Bool {
         
@@ -239,8 +342,8 @@ class MainRootController: UIViewController {
         return true
         
     }
-
-    func loadSelfData(completion: Bool -> ()){
+    
+    func loadSelfData(completion: [NSObject : AnyObject] -> ()){
         
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
@@ -251,37 +354,113 @@ class MainRootController: UIViewController {
                 if let value = snapshot.value as? [NSObject:AnyObject]{
                     
                     self.selfData = value
-
+                    
+                    self.checkForMatches()
+                    
+                    self.nearbyController?.globCollectionView.reloadData()
                     self.menuController?.setMenu()
-
-                    if !self.locationFromFirebase {
-                        
-                        self.locationFromFirebase = true
-                        
-                        if let latitude = value["latitude"] as? CLLocationDegrees, longitude = value["longitude"] as? CLLocationDegrees {
-                            
-                            let location = CLLocation(latitude: latitude, longitude: longitude)
-                            self.nearbyController?.queryNearby(location)
-                        }                        
-                    }
-
-                    completion(true)
+                    
+                    completion(value)
                 }
             })
         }
     }
     
     
-    func setStage(){
+    
+    func checkForMatches(){
         
-        let screenHeight = self.view.bounds.height - 65
-
-        profileTop.constant = -screenHeight
-        profileBottom.constant = screenHeight
+        if let sentMatches = selfData["sentMatches"] as? [String : Bool] {
+            
+            for (key, value) in sentMatches {
+                
+                if value == true {
+                    
+                    if let matchDisplayed = selfData["matchDisplayed"] as? [String : Bool] {
+                        
+                        if matchDisplayed[key] != true {
+                            
+                            let ref = FIRDatabase.database().reference()
+                            
+                            if let uid = FIRAuth.auth()?.currentUser?.uid {
+                                
+                                ref.child("users").child(uid).child("matchDisplayed").updateChildValues([key : true])
+                                
+                                self.toggleMatch(key, completion: { (bool) in
+                                    
+                                    print("match toggled")
+                                    
+                                })
+                                
+                            }
+                        }
+                        
+                    } else {
+                        
+                        let ref = FIRDatabase.database().reference()
+                        
+                        if let uid = FIRAuth.auth()?.currentUser?.uid {
+                            
+                            ref.child("users").child(uid).child("matchDisplayed").updateChildValues([key : true])
+                            
+                            self.toggleMatch(key, completion: { (bool) in
+                                
+                                print("match toggled")
+                                
+                            })
+                        }
+                    }
+                }
+            }
+        }
         
-        profileContainer.alpha = 1
         
+        if let receivedMatches = selfData["receivedMatches"] as? [String : Bool] {
+            
+            for (key, value) in receivedMatches {
+                
+                if value == true {
+                    
+                    if let matchDisplayed = selfData["matchDisplayed"] as? [String : Bool] {
+                        
+                        if matchDisplayed[key] != true {
+                            
+                            let ref = FIRDatabase.database().reference()
+                            
+                            if let uid = FIRAuth.auth()?.currentUser?.uid {
+                                
+                                ref.child("users").child(uid).child("matchDisplayed").updateChildValues([key : true])
+                                
+                                self.toggleMatch(key, completion: { (bool) in
+                                    
+                                    print("match toggled")
+                                    
+                                })
+                                
+                            }
+                        }
+                        
+                    } else {
+                        
+                        let ref = FIRDatabase.database().reference()
+                        
+                        if let uid = FIRAuth.auth()?.currentUser?.uid {
+                            
+                            ref.child("users").child(uid).child("matchDisplayed").updateChildValues([key : true])
+                            
+                            self.toggleMatch(key, completion: { (bool) in
+                                
+                                print("match toggled")
+                                
+                            })
+                        }
+                    }
+                }
+            }
+        }
     }
+    
+    
     
     
     func updateOnline(){
@@ -289,6 +468,7 @@ class MainRootController: UIViewController {
         print("online")
         
         updateActive()
+        
         self.timer = NSTimer.scheduledTimerWithTimeInterval(60, target: self, selector: #selector(updateActive), userInfo: nil, repeats: true)
         
         if let uid = FIRAuth.auth()?.currentUser?.uid {
@@ -325,24 +505,102 @@ class MainRootController: UIViewController {
             
         }
     }
-
     
+    
+    func askInterestedIn(){
+        
+        let alertController = UIAlertController(title: "Gender Preference", message: "This information is needed to match with good looking people around you!", preferredStyle: .Alert)
+        
+        alertController.addAction(UIAlertAction(title: "Men", style: .Default, handler: { (alert) in
+            
+            print("men selected")
+            
+            let ref = FIRDatabase.database().reference()
+            
+            if let uid = FIRAuth.auth()?.currentUser?.uid {
+                
+                ref.child("users").child(uid).updateChildValues(["interestedIn" : ["male"]])
+                self.selfData["interestedIn"] = ["male"]
+                
+                self.nearbyController?.requestWhenInUseAuthorization()
+                self.nearbyController?.updateLocation()
+                
+            }
+        }))
+        
+        alertController.addAction(UIAlertAction(title: "Women", style: .Default, handler: { (alert) in
+            
+            print("women selected")
+            
+            let ref = FIRDatabase.database().reference()
+            
+            if let uid = FIRAuth.auth()?.currentUser?.uid {
+                
+                ref.child("users").child(uid).updateChildValues(["interestedIn" : ["female"]])
+                self.selfData["interestedIn"] = ["female"]
+                
+                self.nearbyController?.requestWhenInUseAuthorization()
+                self.nearbyController?.updateLocation()
+                
+            }
+        }))
+        
+        
+        alertController.addAction(UIAlertAction(title: "Men & Women", style: .Default, handler: { (alert) in
+            
+            print("men and women selected")
+            
+            let ref = FIRDatabase.database().reference()
+            
+            if let uid = FIRAuth.auth()?.currentUser?.uid {
+                
+                ref.child("users").child(uid).updateChildValues(["interestedIn" : ["male", "female"]])
+                self.selfData["interestedIn"] = ["male", "female"]
+                
+                self.nearbyController?.requestWhenInUseAuthorization()
+                self.nearbyController?.updateLocation()
+                
+            }
+        }))
+        
+        self.presentViewController(alertController, animated: true, completion: nil)
+        
+    }
+    
+    func setStage() {
+        
+        let screenHeight = self.view.bounds.height
+        let screenWidth = self.view.bounds.width
+        
+        profileTop.constant = -(screenHeight - (screenHeight / 10))
+        profileBottom.constant = (screenHeight - (screenHeight / 10))
+        
+        topNavHeightConstOutlet.constant = (screenHeight / 10)
+        bottomNavHeightConstOutlet.constant = (screenHeight / 10)
+        
+        self.menuWidthConstOutlet.constant = screenWidth * 0.8
+        self.leadingMenu.constant = -(screenWidth * 0.8)
+        
+        profileContainer.alpha = 1
+        menuContainerOutlet.alpha = 1
+        
+    }
     
     override func viewDidAppear(animated: Bool) {
         
+        updateOnline()
         
         setStage()
-        updateOnline()
         
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(updateOnline), name: UIApplicationDidBecomeActiveNotification, object: UIApplication.sharedApplication())
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(updateOffline), name: UIApplicationWillResignActiveNotification, object: UIApplication.sharedApplication())
-
+        
     }
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.leadingMenu.constant = -280
+        
         // Do any additional setup after loading the view.
     }
     
@@ -405,6 +663,12 @@ class MainRootController: UIViewController {
             let profile = segue.destinationViewController as? ProfileController
             profileController = profile
             profileController?.rootController = self
+            
+        } else if segue.identifier == "matchSegue" {
+            
+            let match = segue.destinationViewController as? ItsAMatchController
+            matchController = match
+            matchController?.rootController = self
             
         }
         

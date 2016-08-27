@@ -133,37 +133,54 @@ class LogInController: UIViewController {
                                                 }
                                                 
                                                 userData["nearbyRadius"] = 10
+                                                userData["userScore"] = 0
                                                 userData["uid"] = uid
                                                 userData["online"] = true
                                                 userData["lastActive"] = NSDate().timeIntervalSince1970
-                                                
+
                                                 let ref = FIRDatabase.database().reference()
+                                                
                                                 
                                                 ref.child("lastCityRank").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
                                                     
-                                                    if let lastRank = snapshot.value as? Int {
-                                                        userData["cityRank"] = lastRank + 1
-                                                        ref.child("lastCityRank").setValue(lastRank + 1)
+                                                    if let rank = snapshot.value as? Int {
+                                                        
+                                                        userData["cityRank"] = rank + 1
+                                                        
+                                                        ref.child("lastCityRank").setValue(rank + 1)
+                                                        ref.child("users").child(uid).setValue(userData)
+                                                        ref.child("userScores").child(uid).setValue(0)
+                                                        
+                                                        let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
+
+                                                        self.presentViewController(vc, animated: true, completion: {
+
+                                                            vc.loadSelfData({ (userData) in
+                                                                
+                                                                print("first time self data loaded")
+                                                                
+                                                                if userData["interestedIn"] == nil {
+                                                                    
+                                                                    vc.askInterestedIn()
+                                                                    
+                                                                } else {
+                                                                    
+                                                                    vc.nearbyController?.requestWhenInUseAuthorization()
+                                                                    vc.nearbyController?.updateLocation()
+                                                                    
+                                                                }
+                                                                
+                                                            })
+                                                            
+                                                            vc.toggleNearby({ (bool) in
+                                                                
+                                                                print("nearby toggled")
+                                                                
+                                                            })
+                                                            
+                                                        })
+
                                                     }
-                                                    
-                                                    ref.child("users").child(uid).setValue(userData)
-                                                    ref.child("userScores").child(uid).setValue(0)
-                                                    
-                                                    let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
-                                                    
-                                                    self.presentViewController(vc, animated: true, completion: {
-                                                        
-                                                        self.loadingView.alpha = 0
-                                                        
-                                                        vc.loadSelfData({ (bool) in
-                                                            print("self data loaded")
-                                                        })
-                                                        
-                                                        vc.toggleNearby({ (bool) in
-                                                            print("nearby toggled")
-                                                        })
-                                                        
-                                                    })
                                                 })
 
                                             } else {
@@ -174,11 +191,26 @@ class LogInController: UIViewController {
                                     } else {
                                         
                                         let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
-                                        
+
                                         self.presentViewController(vc, animated: true, completion: {
-                                            
-                                            vc.loadSelfData({ (bool) in
+
+                                            vc.loadSelfData({ (value) in
                                                 print("self data loaded")
+
+                                                if value ["interestedIn"] != nil {
+                                                    
+                                                    if let latitude = value["latitude"] as? CLLocationDegrees, longitude = value["longitude"] as? CLLocationDegrees {
+                                                        
+                                                        let location = CLLocation(latitude: latitude, longitude: longitude)
+                                                        vc.nearbyController?.queryNearby(location)
+                                                    }
+                                                    
+                                                } else {
+                                                    
+                                                    vc.askInterestedIn()
+                                                    
+                                                }
+                                                
                                             })
                                             
                                             vc.toggleNearby({ (bool) in

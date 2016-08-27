@@ -17,8 +17,10 @@ class TopNavBarController: UIViewController {
     //Actions
     @IBAction func toggleMenu(sender: AnyObject) {
         
-        rootController?.toggleMenu({ (Bool) in
+        rootController?.toggleMenu({ (bool) in
+            
             print("menu toggled")
+            
         })
     }
     

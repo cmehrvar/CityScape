@@ -15,7 +15,9 @@ class CloseMenuController: UIViewController {
     @IBAction func closeMenu(sender: AnyObject) {
         
         rootController?.toggleMenu({ (bool) in
+            
             print("menu closed")
+            
         })
         
     }
