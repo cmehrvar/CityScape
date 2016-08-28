@@ -18,7 +18,7 @@ class NearbySquadCollectionCell: UICollectionViewCell {
     
     //Outlets
     @IBOutlet weak var nameOutlet: THLabel!
-    @IBOutlet weak var occupationOutlet: THLabel!
+    @IBOutlet weak var occupationOutlet: UILabel!
     @IBOutlet weak var profileOutlet: UIImageView!
     @IBOutlet weak var onlineOutlet: NearbyOnline!
 
@@ -71,9 +71,10 @@ class NearbySquadCollectionCell: UICollectionViewCell {
             var name = firstName
             var occupation = ""
             
-            if let age = data["age"] as? String {
+            if let age = data["age"] as? NSTimeInterval {
                 
-                name += ", " + age
+                let date = NSDate(timeIntervalSince1970: age)
+                name += ", " + timeAgoSince(date, showAccronym: false)
                 
             }
             
@@ -105,10 +106,7 @@ class NearbySquadCollectionCell: UICollectionViewCell {
             nameOutlet.lineBreakMode = .ByWordWrapping
 
             occupationOutlet.text = occupation
-            occupationOutlet.strokeSize = 0.25
-            occupationOutlet.strokeColor = UIColor.whiteColor()
-            occupationOutlet.lineBreakMode = .ByWordWrapping
-
+            occupationOutlet.adjustsFontSizeToFitWidth = true
         }
     }
     

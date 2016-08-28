@@ -356,7 +356,8 @@ class MainRootController: UIViewController {
                     self.selfData = value
                     
                     self.checkForMatches()
-                    
+                    self.messagesController?.loadMatches()
+
                     self.nearbyController?.globCollectionView.reloadData()
                     self.menuController?.setMenu()
                     

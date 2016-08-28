@@ -40,22 +40,7 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
         
         print("match request sent")
 
-        indicatorOutlet.image = UIImage(named: "RedX")
         
-        UIView.animateWithDuration(0.3, animations: {
-            
-            self.indicatorOutlet.alpha = 1
-            
-            }) { (bool) in
-                
-                UIView.animateWithDuration(0.3, animations: {
-                    
-                    self.indicatorOutlet.alpha = 0
-                    
-                })
-   
-        }
-
         let ref = FIRDatabase.database().reference()
 
         if let myUid = FIRAuth.auth()?.currentUser?.uid {
@@ -66,8 +51,36 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                     
                     print("you matched with me")
                     
-                    ref.child("users").child(uid).child("matches").updateChildValues([myUid : " "])
-                    ref.child("users").child(myUid).child("matches").updateChildValues([uid : " "])
+                    let timeInterval = NSDate().timeIntervalSince1970
+                    
+                    ref.child("users").child(uid).child("matches").updateChildValues([myUid : ["lastActivity" : timeInterval, "uid" : myUid]])
+                    
+                    if let myFirstName = self.nearbyController?.rootController?.selfData["firstName"] as? String, myLastName = self.nearbyController?.rootController?.selfData["lastName"] as? String {
+                        
+                        ref.child("users").child(uid).child("matches").child(myUid).updateChildValues(["firstName" : myFirstName, "lastName" : myLastName])
+                        
+                    }
+
+                    
+                    ref.child("users").child(myUid).child("matches").updateChildValues([uid :["lastActivity" : timeInterval, "uid" : uid]])
+                    
+                    ref.child("users").child(uid).child("firstName").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                        
+                        if let firstName = snapshot.value as? String {
+                            
+                            ref.child("users").child(myUid).child("matches").child(self.uid).updateChildValues(["firstName" : firstName])
+
+                        }
+                    })
+                    
+                    ref.child("users").child(uid).child("lastName").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                        
+                        if let lastName = snapshot.value as? String {
+                            
+                            ref.child("users").child(myUid).child("matches").child(self.uid).updateChildValues(["lastName" : lastName])
+                            
+                        }
+                    })
 
                     ref.child("users").child(uid).child("sentMatches").child(myUid).setValue(true)
                     ref.child("users").child(myUid).child("receivedMatches").child(uid).setValue(true)
@@ -75,6 +88,23 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                 } else {
                     
                     print("you didn't match with me")
+                    
+                    indicatorOutlet.image = UIImage(named: "RedX")
+                    
+                    UIView.animateWithDuration(0.3, animations: {
+                        
+                        self.indicatorOutlet.alpha = 1
+                        
+                    }) { (bool) in
+                        
+                        UIView.animateWithDuration(0.3, animations: {
+                            
+                            self.indicatorOutlet.alpha = 0
+                            
+                        })
+                        
+                    }
+
                     
                     ref.child("users").child(myUid).child("sentMatches").child(uid).setValue(false)
                     ref.child("users").child(uid).child("receivedMatches").child(myUid).setValue(false)
@@ -84,6 +114,23 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
             } else {
                 
                 print("no match data")
+                
+                indicatorOutlet.image = UIImage(named: "RedX")
+                
+                UIView.animateWithDuration(0.3, animations: {
+                    
+                    self.indicatorOutlet.alpha = 1
+                    
+                }) { (bool) in
+                    
+                    UIView.animateWithDuration(0.3, animations: {
+                        
+                        self.indicatorOutlet.alpha = 0
+                        
+                    })
+                    
+                }
+
 
                 ref.child("users").child(myUid).child("sentMatches").child(uid).setValue(false)
                 ref.child("users").child(uid).child("receivedMatches").child(myUid).setValue(false)

@@ -172,8 +172,6 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
             let cell = collectionView.dequeueReusableCellWithReuseIdentifier("nearbyMatchCollectionCell", forIndexPath: indexPath) as! NearbyMatchCollectionCell
             
             cell.loadUser(nearbyUsers[indexPath.row])
-            
-            //cell.loadUser(nearbyUsers[indexPath.row])
             cell.nearbyController = self
             cell.index = indexPath.row
             
