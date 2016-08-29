@@ -14,7 +14,7 @@ import FirebaseAuth
 import THLabel
 import Contacts
 
-class NearbyController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UIAlertViewDelegate, CLLocationManagerDelegate {
+class NearbyController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UIAlertViewDelegate, CLLocationManagerDelegate, UIGestureRecognizerDelegate {
     
     //Variables
     weak var rootController: MainRootController?
@@ -158,6 +158,10 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
             
             let cell = collectionView.dequeueReusableCellWithReuseIdentifier("nearbySquadCollectionCell", forIndexPath: indexPath) as! NearbySquadCollectionCell
             cell.loadUser(nearbyUsers[indexPath.row])
+            
+        
+            
+            
             cell.nearbyController = self
             cell.index = indexPath.row
             
@@ -171,6 +175,13 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
             
             let cell = collectionView.dequeueReusableCellWithReuseIdentifier("nearbyMatchCollectionCell", forIndexPath: indexPath) as! NearbyMatchCollectionCell
             
+            if let firstName = nearbyUsers[indexPath.row]["firstName"] as? String, lastName = nearbyUsers[indexPath.row]["lastName"] as? String {
+                
+                cell.firstName = firstName
+                cell.lastName = lastName
+                
+            }
+
             cell.loadUser(nearbyUsers[indexPath.row])
             cell.nearbyController = self
             cell.index = indexPath.row
@@ -417,6 +428,25 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
     }
     
     
+    //ScrollViewDelegates
+    func scrollViewWillEndDragging(scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+        
+        if velocity.y > 0 {
+            rootController?.hideAllNav({ (bool) in
+                print("nav hid")
+            })
+        } else {
+            print("velocity negative")
+        }
+
+        
+        print("did end dragging")
+        print(velocity)
+        
+        
+    }
+    
+    
     override func viewDidAppear(animated: Bool) {
         
         settingsConstraint()
@@ -431,9 +461,32 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
         }
     }
     
+    func showNav(){
+        
+        
+        rootController?.showNav({ (bool) in
+            
+            print("nav showed")
+            
+        })
+        
+
+    }
+    
+    func gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWithGestureRecognizer otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        
+        return true
+        
+    }
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        let swipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(showNav))
+        swipeGestureRecognizer.direction = UISwipeGestureRecognizerDirection.Down
+        swipeGestureRecognizer.delegate = self
+        self.globCollectionView.addGestureRecognizer(swipeGestureRecognizer)
         
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(checkStatus), name: UIApplicationDidBecomeActiveNotification, object: UIApplication.sharedApplication())
         

@@ -34,8 +34,6 @@
 		A37AC1C11D2A19FD00EBF813 /* LikeOrDislikeDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = A37AC1C01D2A19FD00EBF813 /* LikeOrDislikeDisplay.swift */; };
 		A37B50801D2AFEF400A38FAE /* TimeAgo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A37B507F1D2AFEF400A38FAE /* TimeAgo.swift */; };
 		A38289CB1D2B433B00C17F48 /* CommentController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A38289CA1D2B433B00C17F48 /* CommentController.swift */; };
-		A38289CD1D2C4E0100C17F48 /* TopChatController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A38289CC1D2C4E0100C17F48 /* TopChatController.swift */; };
-		A38289CF1D2C4E3A00C17F48 /* ChatRootController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A38289CE1D2C4E3A00C17F48 /* ChatRootController.swift */; };
 		A397371E1D57024300E406D7 /* NearbyMatchCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A397371D1D57024300E406D7 /* NearbyMatchCollectionCell.swift */; };
 		A3BB98191D12E67E00BD384F /* TextFields.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BB98181D12E67E00BD384F /* TextFields.swift */; };
 		A3BB981B1D12E89E00BD384F /* ExploreButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BB981A1D12E89E00BD384F /* ExploreButton.swift */; };
@@ -135,8 +133,6 @@
 		A37AC1C01D2A19FD00EBF813 /* LikeOrDislikeDisplay.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LikeOrDislikeDisplay.swift; sourceTree = "<group>"; };
 		A37B507F1D2AFEF400A38FAE /* TimeAgo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeAgo.swift; sourceTree = "<group>"; };
 		A38289CA1D2B433B00C17F48 /* CommentController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentController.swift; sourceTree = "<group>"; };
-		A38289CC1D2C4E0100C17F48 /* TopChatController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TopChatController.swift; sourceTree = "<group>"; };
-		A38289CE1D2C4E3A00C17F48 /* ChatRootController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChatRootController.swift; sourceTree = "<group>"; };
 		A397371D1D57024300E406D7 /* NearbyMatchCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NearbyMatchCollectionCell.swift; sourceTree = "<group>"; };
 		A3BB98181D12E67E00BD384F /* TextFields.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextFields.swift; sourceTree = "<group>"; };
 		A3BB981A1D12E89E00BD384F /* ExploreButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExploreButton.swift; sourceTree = "<group>"; };
@@ -549,6 +545,7 @@
 				A36A426B1D61C55E0062E9AD /* Nav */,
 				A36A426C1D61C5670062E9AD /* Tabs */,
 				A36A426F1D61CEE50062E9AD /* Menu */,
+				A3C8C2481D55E5FC00F703AA /* Chat */,
 				A371A6E41D632FEF00A85F21 /* Profile */,
 				A36A42701D61CEFA0062E9AD /* CameraStuff */,
 				A3C497761D560CCF00D293A4 /* OldHomeCode.swift */,
@@ -557,14 +554,12 @@
 			name = HomeRoot;
 			sourceTree = "<group>";
 		};
-		A3C8C2481D55E5FC00F703AA /* ChatRoot */ = {
+		A3C8C2481D55E5FC00F703AA /* Chat */ = {
 			isa = PBXGroup;
 			children = (
-				A38289CE1D2C4E3A00C17F48 /* ChatRootController.swift */,
-				A38289CC1D2C4E0100C17F48 /* TopChatController.swift */,
 				A38289CA1D2B433B00C17F48 /* CommentController.swift */,
 			);
-			name = ChatRoot;
+			name = Chat;
 			sourceTree = "<group>";
 		};
 		A3D1198A1D271472009D7EAB /* Adobe Frameworks */ = {
@@ -618,7 +613,6 @@
 		A3E1388C1D25B560002A5031 /* MainApp */ = {
 			isa = PBXGroup;
 			children = (
-				A3C8C2481D55E5FC00F703AA /* ChatRoot */,
 				A3C8C2471D55E5D000F703AA /* HomeRoot */,
 			);
 			name = MainApp;
@@ -833,7 +827,6 @@
 				A38289CB1D2B433B00C17F48 /* CommentController.swift in Sources */,
 				A3D11B431D5763A8006884BF /* GFGeoHashQuery.m in Sources */,
 				A3D119731D262290009D7EAB /* HandlePostController.swift in Sources */,
-				A38289CF1D2C4E3A00C17F48 /* ChatRootController.swift in Sources */,
 				A3D11B2E1D575499006884BF /* NearbyOnline.swift in Sources */,
 				A36BDF751D720404005E0806 /* MatchButtons.swift in Sources */,
 				A3C8C24C1D55F89100F703AA /* NavButtonsView.swift in Sources */,
@@ -841,7 +834,6 @@
 				A3F293B81D4F219D00CD9D15 /* OutTextCommentCell.swift in Sources */,
 				A3D8794F1D3BF7EF00FB7358 /* HexColorExtension.swift in Sources */,
 				A3E138921D25B5A0002A5031 /* MenuController.swift in Sources */,
-				A38289CD1D2C4E0100C17F48 /* TopChatController.swift in Sources */,
 				A3C4977B1D561F0800D293A4 /* NearbyController.swift in Sources */,
 				A37AC1C11D2A19FD00EBF813 /* LikeOrDislikeDisplay.swift in Sources */,
 				A3C4977F1D56F45D00D293A4 /* NearbySquadCollectionCell.swift in Sources */,

@@ -16,10 +16,9 @@ class CloseMenuController: UIViewController {
         
         rootController?.toggleMenu({ (bool) in
             
-            print("menu closed")
+            print("menu toggled")
             
         })
-        
     }
     
 

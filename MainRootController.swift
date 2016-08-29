@@ -24,6 +24,8 @@ class MainRootController: UIViewController {
     var messagesIsRevealed = false
     var matchIsRevealed = false
     
+    var navHidden = false
+    
     var currentTab = 0
     
     var timer = NSTimer()
@@ -34,17 +36,24 @@ class MainRootController: UIViewController {
     @IBOutlet weak var vibesTrailing: NSLayoutConstraint!
     @IBOutlet weak var vibesLeading: NSLayoutConstraint!
     @IBOutlet weak var closeMenuContainer: UIView!
-    @IBOutlet weak var profileBottom: NSLayoutConstraint!
-    @IBOutlet weak var profileTop: NSLayoutConstraint!
+
+    
     @IBOutlet weak var closeMenuTop: NSLayoutConstraint!
     @IBOutlet weak var profileContainer: UIView!
     @IBOutlet weak var leadingMenu: NSLayoutConstraint!
     @IBOutlet weak var menuContainerOutlet: UIView!
     @IBOutlet weak var itsAMatchContainerOutlet: UIView!
+
+    @IBOutlet weak var chatContainerOutlet: UIView!
+    @IBOutlet weak var topNavConstOutlet: NSLayoutConstraint!
     
-    @IBOutlet weak var topNavHeightConstOutlet: NSLayoutConstraint!
-    @IBOutlet weak var bottomNavHeightConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var menuWidthConstOutlet: NSLayoutConstraint!
+
+    @IBOutlet weak var topProfileConstOutlet: NSLayoutConstraint!
+    @IBOutlet weak var bottomProfileConstOutlet: NSLayoutConstraint!
+    
+    @IBOutlet weak var topChatConstOutlet: NSLayoutConstraint!
+    @IBOutlet weak var bottonChatConstOutlet: NSLayoutConstraint!
     
     
     
@@ -57,6 +66,7 @@ class MainRootController: UIViewController {
     weak var closeController: CloseMenuController?
     weak var profileController: ProfileController?
     weak var matchController: ItsAMatchController?
+    weak var chatController: CommentController?
     
     //Toggle Functions
     func toggleHome(completion: Bool -> ()) {
@@ -66,18 +76,32 @@ class MainRootController: UIViewController {
         
         closeMenuTop.constant = 0
         
+        self.chatController?.view.endEditing(true)
+
         UIView.animateWithDuration(0.3, animations: {
-            
-            self.profileTop.constant = -offset
-            self.profileBottom.constant = offset
+
+            self.topChatConstOutlet.constant = -(screenHeight * 0.7)
+            self.bottonChatConstOutlet.constant = screenHeight
+
+            self.topProfileConstOutlet.constant = -offset
+            self.bottomProfileConstOutlet.constant = screenHeight
+
+            self.bottomNavController?.topChatBoxView.alpha = 0
             
             self.view.layoutIfNeeded()
             
         }) { (complete) in
             
-            self.profileController?.userData = ["profilePicture" : "", "firstName" : "", "lastName" : "", "city" : "", "state" : "", "country" : "", "cityRank" : 0, "squad" : [""], "occupation" : "", "lastActive" : NSDate().timeIntervalSince1970]
-            self.profileController?.globCollectionCell.reloadData()
+            self.chatController?.messages.removeAll()
+            self.chatController?.messageKeys.removeAll()
+            self.chatController?.messageData.removeAll()
+            self.chatController?.addedMessages.removeAll()
+            self.chatController?.messageIndex = 0
             
+            self.chatController?.finishReceivingMessage()
+            
+            self.profileController?.currentUID = ""
+
             completion(complete)
             
         }
@@ -187,13 +211,18 @@ class MainRootController: UIViewController {
         profileController?.retrieveUserData(uid, selfProfile: selfProfile)
         
         UIView.animateWithDuration(0.3, animations: {
+
+            self.topNavConstOutlet.constant = 0
             
-            self.profileTop.constant = 0
-            self.profileBottom.constant = 0
+            self.bottomProfileConstOutlet.constant = 0
+            self.topProfileConstOutlet.constant = 0
             
             self.view.layoutIfNeeded()
             
         }) { (complete) in
+            
+            self.messagesController?.globCollectionViewOutlet.reloadData()
+            
             completion(complete)
         }
     }
@@ -291,6 +320,103 @@ class MainRootController: UIViewController {
     }
     
     
+    
+    
+    func toggleChat(completion: (Bool) -> ()) {
+ 
+        self.closeMenuTop.constant = -(self.view.bounds.height / 10)
+        self.chatController?.senderId = selfData["uid"] as? String
+        
+        if let uid = FIRAuth.auth()?.currentUser?.uid {
+            self.chatController?.senderId = uid
+        }
+        
+        if let firstName = selfData["firstName"] as? String, lastName = selfData["lastName"] as? String {
+            
+            self.chatController?.senderDisplayName = "\(firstName) \(lastName)"
+            
+        }
+        
+        let screenHeight = self.view.bounds.height
+        
+        
+        
+        UIView.animateWithDuration(0.3, animations: {
+            
+            self.bottomNavController?.topChatBoxView.alpha = 1
+
+            self.topNavConstOutlet.constant = 0
+            self.topChatConstOutlet.constant = (screenHeight * 0.1)
+            self.bottonChatConstOutlet.constant = 0
+
+            self.view.layoutIfNeeded()
+            
+            }) { (complete) in
+                
+                completion(complete)
+                
+        }
+    }
+    
+    func hideAllNav(completion: (Bool) -> ()) {
+        
+        let screenHeight = self.view.bounds.height
+        
+        self.profileContainer.alpha = 0
+        
+        if !navHidden {
+            
+            if self.bottomProfileConstOutlet.constant != 0 {
+                self.bottomProfileConstOutlet.constant += (screenHeight / 10)
+            }
+
+            if self.bottonChatConstOutlet.constant != 0 {
+                self.bottonChatConstOutlet.constant += (screenHeight/5)
+            }
+
+            self.navHidden = true
+        }
+        
+        UIView.animateWithDuration(0.3, animations: {
+
+            self.topNavConstOutlet.constant = -(screenHeight / 5)
+
+            self.view.layoutIfNeeded()
+            
+            }) { (complete) in
+
+                self.messagesController?.globCollectionViewOutlet.reloadData()
+                self.profileContainer.alpha = 1
+                completion(complete)
+                
+        }
+    }
+    
+    
+    
+    func showNav(completion: (Bool) -> ()){
+        
+        if navHidden {
+            
+            navHidden = false
+            
+            UIView.animateWithDuration(0.3, animations: {
+                
+                self.topNavConstOutlet.constant = 0
+                
+                self.view.layoutIfNeeded()
+                
+            }) { (complete) in
+                
+                self.messagesController?.loadMatches()
+                
+                completion(complete)
+                
+            }
+        }
+    }
+    
+
     //Other Functions
     func toggleTabs(tab: Int) -> Bool {
         
@@ -573,15 +699,16 @@ class MainRootController: UIViewController {
         let screenHeight = self.view.bounds.height
         let screenWidth = self.view.bounds.width
         
-        profileTop.constant = -(screenHeight - (screenHeight / 10))
-        profileBottom.constant = (screenHeight - (screenHeight / 10))
-        
-        topNavHeightConstOutlet.constant = (screenHeight / 10)
-        bottomNavHeightConstOutlet.constant = (screenHeight / 10)
-        
+        self.topChatConstOutlet.constant = -(screenHeight * 0.7)
+        self.bottonChatConstOutlet.constant = (screenHeight * 0.8)
+
+        self.topProfileConstOutlet.constant = -(screenHeight * 0.9)
+        self.bottomProfileConstOutlet.constant = (screenHeight * 0.9)
+
         self.menuWidthConstOutlet.constant = screenWidth * 0.8
         self.leadingMenu.constant = -(screenWidth * 0.8)
         
+        chatContainerOutlet.alpha = 1
         profileContainer.alpha = 1
         menuContainerOutlet.alpha = 1
         
@@ -592,6 +719,7 @@ class MainRootController: UIViewController {
         updateOnline()
         
         setStage()
+
         
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(updateOnline), name: UIApplicationDidBecomeActiveNotification, object: UIApplication.sharedApplication())
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(updateOffline), name: UIApplicationWillResignActiveNotification, object: UIApplication.sharedApplication())
@@ -671,6 +799,12 @@ class MainRootController: UIViewController {
             matchController = match
             matchController?.rootController = self
             
+        } else if segue.identifier == "chatSegue" {
+            
+            let chat = segue.destinationViewController as? CommentController
+            chatController = chat
+            chatController?.rootController = self
+ 
         }
         
         // Get the new view controller using segue.destinationViewController.

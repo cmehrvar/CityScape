@@ -14,46 +14,46 @@ import FirebaseAuth
 import FirebaseDatabase
 
 class InitialController: UIViewController {
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         FIRAuth.auth()?.addAuthStateDidChangeListener({ (auth, user) in
             
             if user != nil {
                 
                 let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
-
+                
                 self.presentViewController(vc, animated: true, completion: {
                     
                     vc.loadSelfData({ (value) in
                         
                         print("self data loaded")
-
+                        
                         if value["interestedIn"] != nil {
                             
                             if let latitude = value["latitude"] as? CLLocationDegrees, longitude = value["longitude"] as? CLLocationDegrees {
                                 
-                                let location = CLLocation(latitude: latitude, longitude: longitude)
+                                let location = CLLocation(latitude:  latitude, longitude: longitude)
                                 vc.nearbyController?.queryNearby(location)
                                 
                                 vc.nearbyController?.requestWhenInUseAuthorization()
                                 vc.nearbyController?.updateLocation()
+                                
                             }
-                        } else {
-                            
-                            vc.askInterestedIn()
 
+                        } else {
+                            vc.askInterestedIn()
                         }
                     })
-
+    
                     vc.toggleNearby({ (bool) in
+                        
                         print("nearby toggled")
+                        
                     })
-                    
                 })
-                
-                
+
             } else {
                 
                 FBSDKLoginManager().logOut()
@@ -62,25 +62,25 @@ class InitialController: UIViewController {
                 
             }
         })
-
+        
         
         // Do any additional setup after loading the view.
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     
-
+    
     /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
+     // MARK: - Navigation
+     
+     // In a storyboard-based application, you will often want to do a little preparation before navigation
+     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+     // Get the new view controller using segue.destinationViewController.
+     // Pass the selected object to the new view controller.
+     }
+     */
+    
 }

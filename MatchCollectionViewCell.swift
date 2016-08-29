@@ -13,13 +13,42 @@ import FirebaseDatabase
 
 class MatchCollectionViewCell: UICollectionViewCell {
     
+    weak var messagesController: MessagesController?
     
+    var uid = ""
+    
+    //Outlets
     @IBOutlet weak var profileOutlet: UIImageView!
     @IBOutlet weak var nameOutlet: UILabel!
     @IBOutlet weak var indicatorOutlet: UIView!
     
     
-    func loadData(uid: String) {
+    //Actions
+    @IBAction func openChat(sender: AnyObject) {
+        
+        let mainRootController = messagesController?.rootController
+
+        guard let selfUID = FIRAuth.auth()?.currentUser?.uid else {return}
+
+        let refToPass = "/users/\(selfUID)/matches/\(uid)"
+        
+        messagesController?.rootController?.chatController?.passedRef = refToPass
+        messagesController?.rootController?.chatController?.typeOfChat = "match"
+        messagesController?.rootController?.chatController?.matchUID = uid
+        
+        messagesController?.rootController?.toggleChat({ (bool) in
+            
+            print("chat toggled")
+            
+            mainRootController?.chatController?.newObserveMessages()
+            
+        })
+    }
+    
+    
+    
+    //Functions
+    func loadData() {
         
         let ref = FIRDatabase.database().reference().child("users").child(uid)
         

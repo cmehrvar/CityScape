@@ -32,7 +32,7 @@ class ItsAMatchController: UIViewController {
         rootController?.toggleMatch(nil, completion: { (bool) in
             
             print("send message")
-
+            
         })
     }
     
@@ -42,7 +42,7 @@ class ItsAMatchController: UIViewController {
         rootController?.toggleMatch(nil, completion: { (bool) in
             
             print("keep playing")
-
+            
         })
     }
     

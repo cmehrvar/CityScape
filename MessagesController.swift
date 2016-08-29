@@ -8,7 +8,7 @@
 
 import UIKit
 
-class MessagesController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+class MessagesController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UIGestureRecognizerDelegate {
     
     weak var rootController: MainRootController?
     
@@ -76,16 +76,15 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
         cell.indicatorOutlet.layer.borderColor = UIColor.whiteColor().CGColor
 
         if let uid = globMatches[indexPath.row]["uid"] as? String {
-            
-            cell.loadData(uid)
-            
+            cell.uid = uid
         }
         
         if let firstName = globMatches[indexPath.row]["firstName"] as? String {
-            
             cell.nameOutlet.text = firstName
-            
         }
+        
+        cell.loadData()
+        cell.messagesController = self
         
         return cell
         
@@ -108,9 +107,31 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
         
     }
     
+    func showNav(){
+        
+        rootController?.showNav({ (bool) in
+            
+            print("nav showed")
+            
+        })
+        
+    }
+    
+    func gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWithGestureRecognizer otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        
+        return true
+        
+    }
+
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        let swipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(showNav))
+        swipeGestureRecognizer.direction = UISwipeGestureRecognizerDirection.Down
+        swipeGestureRecognizer.delegate = self
+        self.view.addGestureRecognizer(swipeGestureRecognizer)
         
         // Do any additional setup after loading the view.
     }

@@ -9,6 +9,7 @@
 import UIKit
 import Firebase
 import FirebaseDatabase
+import FirebaseAuth
 
 class ProfileController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     
@@ -23,20 +24,11 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
     //Functions
     func retrieveUserData(uid: String, selfProfile: Bool){
 
-        if selfProfile {
-            
-            if let data = rootController?.selfData {
-                userData = data
-                globCollectionCell.reloadData()
-            }
-            
-        } else {
-            
             let ref = FIRDatabase.database().reference().child("users").child(uid)
             
-            ref.observeEventType(.Value, withBlock:  { (snapshot) in
+            ref.observeEventType(.Value, withBlock: { (snapshot) in
                 
-                if let value = snapshot.value as? [NSObject:AnyObject]{
+                if let value = snapshot.value as? [NSObject : AnyObject] {
                     
                     if self.currentUID == value["uid"] as? String {
                         
@@ -44,13 +36,11 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                         self.globCollectionCell.reloadData()
                         
                     } else {
-                        
                         ref.removeAllObservers()
-                        
-                    }
+                    } 
                 }
             })
-        }
+        
     }
     
     

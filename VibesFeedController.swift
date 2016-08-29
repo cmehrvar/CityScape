@@ -12,7 +12,7 @@ import Firebase
 import FirebaseDatabase
 import FirebaseAuth
 
-class VibesFeedController: UIViewController, PlayerDelegate, UITableViewDataSource, UITableViewDelegate {
+class VibesFeedController: UIViewController, PlayerDelegate, UITableViewDataSource, UITableViewDelegate, UIGestureRecognizerDelegate {
     
     weak var rootController: MainRootController?
     
@@ -570,9 +570,31 @@ class VibesFeedController: UIViewController, PlayerDelegate, UITableViewDataSour
     }
     
     
+    func showNav(){
+        
+        rootController?.showNav({ (bool) in
+            
+            print("nav showed")
+            
+        })
+        
+    }
+    
+    func gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWithGestureRecognizer otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        
+        return true
+        
+    }
+
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        let swipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(showNav))
+        swipeGestureRecognizer.direction = UISwipeGestureRecognizerDirection.Down
+        swipeGestureRecognizer.delegate = self
+        self.tableView.addGestureRecognizer(swipeGestureRecognizer)
         
         createRefresh()
         

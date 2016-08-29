@@ -22,14 +22,17 @@ class TopNavBarController: UIViewController {
             print("menu toggled")
             
         })
+        
     }
     
     
     @IBAction func logoToHome(sender: AnyObject) {
         
         rootController?.toggleHome({ (bool) in
+            
             print("home toggled")
-        }) 
+            
+        })
     }
     
     override func viewDidLoad() {

@@ -18,6 +18,8 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
     weak var nearbyController: NearbyController?
     var index = 0
     var uid = ""
+    var firstName = ""
+    var lastName = ""
     
     //Outlets
     @IBOutlet weak var nameOutlet: THLabel!
@@ -40,8 +42,9 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
         
         print("match request sent")
 
-        
         let ref = FIRDatabase.database().reference()
+        
+        print(uid)
 
         if let myUid = FIRAuth.auth()?.currentUser?.uid {
 
@@ -53,7 +56,7 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                     
                     let timeInterval = NSDate().timeIntervalSince1970
                     
-                    ref.child("users").child(uid).child("matches").updateChildValues([myUid : ["lastActivity" : timeInterval, "uid" : myUid]])
+                    ref.child("users").child(uid).child("matches").child(myUid).updateChildValues(["lastActivity" : timeInterval, "uid" : myUid])
                     
                     if let myFirstName = self.nearbyController?.rootController?.selfData["firstName"] as? String, myLastName = self.nearbyController?.rootController?.selfData["lastName"] as? String {
                         
@@ -62,25 +65,8 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                     }
 
                     
-                    ref.child("users").child(myUid).child("matches").updateChildValues([uid :["lastActivity" : timeInterval, "uid" : uid]])
-                    
-                    ref.child("users").child(uid).child("firstName").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
-                        
-                        if let firstName = snapshot.value as? String {
-                            
-                            ref.child("users").child(myUid).child("matches").child(self.uid).updateChildValues(["firstName" : firstName])
+                    ref.child("users").child(myUid).child("matches").child(uid).updateChildValues(["lastActivity" : timeInterval, "uid" : uid, "firstName" : firstName, "lastName" : lastName])
 
-                        }
-                    })
-                    
-                    ref.child("users").child(uid).child("lastName").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
-                        
-                        if let lastName = snapshot.value as? String {
-                            
-                            ref.child("users").child(myUid).child("matches").child(self.uid).updateChildValues(["lastName" : lastName])
-                            
-                        }
-                    })
 
                     ref.child("users").child(uid).child("sentMatches").child(myUid).setValue(true)
                     ref.child("users").child(myUid).child("receivedMatches").child(uid).setValue(true)
@@ -89,23 +75,7 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                     
                     print("you didn't match with me")
                     
-                    indicatorOutlet.image = UIImage(named: "RedX")
-                    
-                    UIView.animateWithDuration(0.3, animations: {
-                        
-                        self.indicatorOutlet.alpha = 1
-                        
-                    }) { (bool) in
-                        
-                        UIView.animateWithDuration(0.3, animations: {
-                            
-                            self.indicatorOutlet.alpha = 0
-                            
-                        })
-                        
-                    }
 
-                    
                     ref.child("users").child(myUid).child("sentMatches").child(uid).setValue(false)
                     ref.child("users").child(uid).child("receivedMatches").child(myUid).setValue(false)
                 }
@@ -115,26 +85,11 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                 
                 print("no match data")
                 
-                indicatorOutlet.image = UIImage(named: "RedX")
-                
-                UIView.animateWithDuration(0.3, animations: {
-                    
-                    self.indicatorOutlet.alpha = 1
-                    
-                }) { (bool) in
-                    
-                    UIView.animateWithDuration(0.3, animations: {
-                        
-                        self.indicatorOutlet.alpha = 0
-                        
-                    })
-                    
-                }
-
-
                 ref.child("users").child(myUid).child("sentMatches").child(uid).setValue(false)
                 ref.child("users").child(uid).child("receivedMatches").child(myUid).setValue(false)
-  
+
+                
+                
             }
         }
     }
@@ -147,6 +102,7 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
             print("profile toggled")
             
         })
+        
     }
 
     @IBAction func dismiss(sender: AnyObject) {
@@ -201,10 +157,29 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                 } else {
                     onlineOutlet.backgroundColor = UIColor.redColor()
                 }
-                
             }
-            
-            
+
+            if let sentData = nearbyController?.rootController?.selfData["sentMatches"] as? [String : Bool] {
+                
+                if sentData[uid] == nil {
+                    
+                    matchButtonOutlet.enabled = true
+                   
+                    
+                } else {
+                    
+                    matchButtonOutlet.setTitleColor(UIColor.grayColor(), forState: .Disabled)
+                    matchButtonOutlet.enabled = false
+
+                }
+                
+            } else {
+                
+                matchButtonOutlet.enabled = true
+
+            }
+
+
             nameOutlet.text = name
             nameOutlet.strokeSize = 0.25
             nameOutlet.strokeColor = UIColor.blackColor()
@@ -212,17 +187,7 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
             
             occupationOutlet.adjustsFontSizeToFitWidth = true
             occupationOutlet.text = occupation
-            
-            
-            if let sentMatch = nearbyController?.rootController?.selfData["sentMatches"] as? [String : Bool] {
-                
-                if sentMatch[uid] != nil {
-                    
-                    matchButtonOutlet.setTitleColor(UIColor.grayColor(), forState: .Disabled)
-                    matchButtonOutlet.enabled = false
-                    
-                }
-            }
+
         }  
     }
     
