@@ -14,7 +14,7 @@ import FirebaseAuth
 import SDWebImage
 import AWSS3
 
-class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate {
 
     //Variables
     weak var rootController: MainRootController?
@@ -147,6 +147,27 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
             print("Creating upload directory failed. Error: \(error)")
         }
     }
+    
+    
+    func addGestureRecognizers(){
+        
+        let leftSwipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(closeMenu))
+        leftSwipeGestureRecognizer.direction = .Left
+        leftSwipeGestureRecognizer.delegate = self
+        
+        self.view.addGestureRecognizer(leftSwipeGestureRecognizer)
+        
+        
+    }
+    
+    func closeMenu(){
+        
+        rootController?.toggleMenu({ (bool) in
+            
+            print("menu toggled")
+            
+        })
+    }
 
     
    
@@ -188,19 +209,22 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
         
         print("go to profile")
         
+        rootController?.profileRevealed = true
+        
         rootController?.toggleMenu({ (bool) in
             
             print("menu toggled")
             
             self.rootController?.toggleHome({ (bool) in
                 
-                if let uid = FIRAuth.auth()?.currentUser?.uid {
-                    self.rootController?.toggleProfile(uid, selfProfile: true, completion: { (bool) in
+                if let uid = FIRAuth.auth()?.currentUser?.uid, profile = self.rootController?.selfData["profilePicture"] as? String {
+                    
+                    self.rootController?.toggleProfile(uid, selfProfile: true, profilePic: profile, completion: { (bool) in
                         
                         print("self profile toggled")
                         
                     })
-                } 
+                }
             })
         })
     }
@@ -230,6 +254,8 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        addGestureRecognizers()
+        
         addUploadStuff()
         // Do any additional setup after loading the view.
     }

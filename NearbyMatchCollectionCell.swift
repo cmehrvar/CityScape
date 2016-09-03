@@ -20,6 +20,7 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
     var uid = ""
     var firstName = ""
     var lastName = ""
+    var profilePic = ""
     
     //Outlets
     @IBOutlet weak var nameOutlet: THLabel!
@@ -96,8 +97,8 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
     
     
     @IBAction func goToProfile(sender: AnyObject) {
-
-        nearbyController?.rootController?.toggleProfile(uid, selfProfile: false, completion: { (bool) in
+        
+        nearbyController?.rootController?.toggleProfile(uid, selfProfile: false, profilePic: profilePic, completion: { (bool) in
             
             print("profile toggled")
             
@@ -147,6 +148,7 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
             }
             
             if let profile = data["profilePicture"] as? String, profileURL = NSURL(string: profile) {
+                self.profilePic = profile
                 profileImage.sd_setImageWithURL(profileURL, placeholderImage: nil)
             }
             

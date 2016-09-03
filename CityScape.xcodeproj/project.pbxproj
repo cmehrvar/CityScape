@@ -21,6 +21,9 @@
 		A353F0FB1D1226D3009A2182 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A353F0F91D1226D3009A2182 /* GoogleService-Info.plist */; };
 		A353F0FC1D1226D3009A2182 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A353F0F91D1226D3009A2182 /* GoogleService-Info.plist */; };
 		A353F0FF1D122B63009A2182 /* background.gif in Resources */ = {isa = PBXBuildFile; fileRef = A353F0FE1D122B63009A2182 /* background.gif */; };
+		A35DB7341D79CAEE00409D16 /* NewVibesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35DB7331D79CAEE00409D16 /* NewVibesController.swift */; };
+		A35DB7361D79EE8E00409D16 /* ActionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35DB7351D79EE8E00409D16 /* ActionsViewController.swift */; };
+		A35DB7381D7A0BCC00409D16 /* ProfilePicCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35DB7371D7A0BCC00409D16 /* ProfilePicCollectionCell.swift */; };
 		A366B8111D59F3190079F686 /* CloseMenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A366B8101D59F3190079F686 /* CloseMenuController.swift */; };
 		A366B8131D5A23BD0079F686 /* FacebookButtonHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A366B8121D5A23BD0079F686 /* FacebookButtonHolder.swift */; };
 		A36A426E1D61C5A60062E9AD /* BottomNavController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A36A426D1D61C5A60062E9AD /* BottomNavController.swift */; };
@@ -120,6 +123,9 @@
 		A353F0ED1D1224BC009A2182 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A353F0F91D1226D3009A2182 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "CityScape/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		A353F0FE1D122B63009A2182 /* background.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = background.gif; sourceTree = "<group>"; };
+		A35DB7331D79CAEE00409D16 /* NewVibesController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewVibesController.swift; sourceTree = "<group>"; };
+		A35DB7351D79EE8E00409D16 /* ActionsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActionsViewController.swift; sourceTree = "<group>"; };
+		A35DB7371D7A0BCC00409D16 /* ProfilePicCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfilePicCollectionCell.swift; sourceTree = "<group>"; };
 		A366B8101D59F3190079F686 /* CloseMenuController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloseMenuController.swift; sourceTree = "<group>"; };
 		A366B8121D5A23BD0079F686 /* FacebookButtonHolder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FacebookButtonHolder.swift; sourceTree = "<group>"; };
 		A36A426D1D61C5A60062E9AD /* BottomNavController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BottomNavController.swift; sourceTree = "<group>"; };
@@ -329,9 +335,9 @@
 		A36A426C1D61C5670062E9AD /* Tabs */ = {
 			isa = PBXGroup;
 			children = (
-				A371A6E71D63349F00A85F21 /* Messages */,
 				A371A6E11D632FC000A85F21 /* Nearby */,
 				A371A6DE1D632F9200A85F21 /* Vibes */,
+				A371A6E71D63349F00A85F21 /* Messages */,
 			);
 			name = Tabs;
 			sourceTree = "<group>";
@@ -376,6 +382,8 @@
 		A371A6DE1D632F9200A85F21 /* Vibes */ = {
 			isa = PBXGroup;
 			children = (
+				A3C497781D56152F00D293A4 /* VibesFeedController.swift */,
+				A3C497761D560CCF00D293A4 /* OldHomeCode.swift */,
 				A371A6E01D632FA400A85F21 /* Cells */,
 				A371A6DF1D632F9B00A85F21 /* Controller */,
 			);
@@ -385,7 +393,7 @@
 		A371A6DF1D632F9B00A85F21 /* Controller */ = {
 			isa = PBXGroup;
 			children = (
-				A3C497781D56152F00D293A4 /* VibesFeedController.swift */,
+				A35DB7331D79CAEE00409D16 /* NewVibesController.swift */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -438,6 +446,7 @@
 			isa = PBXGroup;
 			children = (
 				A36A427B1D61F8970062E9AD /* ProfileCoverCollectionCell.swift */,
+				A35DB7371D7A0BCC00409D16 /* ProfilePicCollectionCell.swift */,
 			);
 			name = Cells;
 			sourceTree = "<group>";
@@ -548,8 +557,8 @@
 				A3C8C2481D55E5FC00F703AA /* Chat */,
 				A371A6E41D632FEF00A85F21 /* Profile */,
 				A36A42701D61CEFA0062E9AD /* CameraStuff */,
-				A3C497761D560CCF00D293A4 /* OldHomeCode.swift */,
 				A36BDF701D71DED2005E0806 /* ItsAMatchController.swift */,
+				A35DB7351D79EE8E00409D16 /* ActionsViewController.swift */,
 			);
 			name = HomeRoot;
 			sourceTree = "<group>";
@@ -824,12 +833,14 @@
 				A3D11B421D5763A8006884BF /* GFGeoHash.m in Sources */,
 				A3FC18951D3412F30031D165 /* DateExtension.swift in Sources */,
 				A3E1388E1D25B57E002A5031 /* MainRootController.swift in Sources */,
+				A35DB7381D7A0BCC00409D16 /* ProfilePicCollectionCell.swift in Sources */,
 				A38289CB1D2B433B00C17F48 /* CommentController.swift in Sources */,
 				A3D11B431D5763A8006884BF /* GFGeoHashQuery.m in Sources */,
 				A3D119731D262290009D7EAB /* HandlePostController.swift in Sources */,
 				A3D11B2E1D575499006884BF /* NearbyOnline.swift in Sources */,
 				A36BDF751D720404005E0806 /* MatchButtons.swift in Sources */,
 				A3C8C24C1D55F89100F703AA /* NavButtonsView.swift in Sources */,
+				A35DB7341D79CAEE00409D16 /* NewVibesController.swift in Sources */,
 				A353F0CE1D1224BC009A2182 /* SignUpController.swift in Sources */,
 				A3F293B81D4F219D00CD9D15 /* OutTextCommentCell.swift in Sources */,
 				A3D8794F1D3BF7EF00FB7358 /* HexColorExtension.swift in Sources */,
@@ -845,6 +856,7 @@
 				A3BB981B1D12E89E00BD384F /* ExploreButton.swift in Sources */,
 				A36A426E1D61C5A60062E9AD /* BottomNavController.swift in Sources */,
 				A36A427C1D61F8970062E9AD /* ProfileCoverCollectionCell.swift in Sources */,
+				A35DB7361D79EE8E00409D16 /* ActionsViewController.swift in Sources */,
 				A3BB981D1D136CB600BD384F /* LogInController.swift in Sources */,
 				A3E138961D25C937002A5031 /* InitialController.swift in Sources */,
 				A36BDF711D71DED2005E0806 /* ItsAMatchController.swift in Sources */,

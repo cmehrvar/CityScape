@@ -20,15 +20,6 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
     
     
     //Actions
-    @IBAction func swipeToVibes(sender: AnyObject) {
-        
-        rootController?.toggleVibes({ (bool) in
-            print("swipe to vibes")
-        })
-    }
-    
-    
-    
     func loadMatches(){
         
         globMatches.removeAll()
@@ -56,6 +47,40 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
             
         }
     }
+    
+    func addGestureRecognizers(){
+        
+        let downSwipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(showNav))
+        downSwipeGestureRecognizer.direction = UISwipeGestureRecognizerDirection.Down
+        downSwipeGestureRecognizer.delegate = self
+        
+        let rightSwipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(showVibes))
+        rightSwipeGestureRecognizer.direction = UISwipeGestureRecognizerDirection.Right
+        rightSwipeGestureRecognizer.delegate = self
+        
+        self.view.addGestureRecognizer(rightSwipeGestureRecognizer)
+        self.view.addGestureRecognizer(downSwipeGestureRecognizer)
+        
+    }
+    
+    func showNav(){
+        
+        rootController?.showNav({ (bool) in
+            
+            print("nav showed")
+            
+        })
+    }
+    
+    func showVibes(){
+        
+        rootController?.toggleVibes({ (bool) in
+            
+            print("vibes toggled")
+            
+        })
+    }
+
 
     //Collection View Delegates
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -67,8 +92,17 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("matchCell", forIndexPath: indexPath) as! MatchCollectionViewCell
-        let diameter = (self.view.bounds.height * 0.33) - ((self.view.bounds.height * 0.33) * 0.28)
         
+        var diameter: CGFloat!
+        
+        if let rootHeight = rootController?.view.bounds.height {
+            
+            let screenSize = (rootHeight * 0.8)
+
+             diameter = (screenSize * 0.33) - ((screenSize * 0.33) * 0.28)
+            
+        }
+
         cell.profileOutlet.layer.cornerRadius = ((((diameter) * 116) / 136) / 2) - 1
         
         cell.indicatorOutlet.layer.cornerRadius = 8
@@ -92,8 +126,16 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
     
     func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
         
-        let diameter = (self.view.bounds.height * 0.33) - ((self.view.bounds.height * 0.33) * 0.28)
+        var diameter: CGFloat!
         
+        if let rootHeight = rootController?.view.bounds.height {
+            
+            let screenSize = (rootHeight * 0.8)
+            
+            diameter = (screenSize * 0.33) - ((screenSize * 0.33) * 0.28)
+            
+        }
+
         let size = CGSize(width: (diameter * 0.934), height: diameter)
         
         return size
@@ -106,16 +148,7 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
         print("view did appear")
         
     }
-    
-    func showNav(){
-        
-        rootController?.showNav({ (bool) in
-            
-            print("nav showed")
-            
-        })
-        
-    }
+
     
     func gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWithGestureRecognizer otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         
@@ -128,10 +161,7 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let swipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(showNav))
-        swipeGestureRecognizer.direction = UISwipeGestureRecognizerDirection.Down
-        swipeGestureRecognizer.delegate = self
-        self.view.addGestureRecognizer(swipeGestureRecognizer)
+        addGestureRecognizers()
         
         // Do any additional setup after loading the view.
     }

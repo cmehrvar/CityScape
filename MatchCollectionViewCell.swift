@@ -34,7 +34,7 @@ class MatchCollectionViewCell: UICollectionViewCell {
         
         messagesController?.rootController?.chatController?.passedRef = refToPass
         messagesController?.rootController?.chatController?.typeOfChat = "match"
-        messagesController?.rootController?.chatController?.matchUID = uid
+        messagesController?.rootController?.chatController?.ownerUID = uid
         
         messagesController?.rootController?.toggleChat({ (bool) in
             

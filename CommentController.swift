@@ -30,6 +30,9 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
     var videoPlayers = [String : Player]()
     
     var passedRef = ""
+    var ownerUID = ""
+    
+    
     var messages = [JSQMessageData]()
     var messageKeys = [String]()
     var avatars = [String : JSQMessagesAvatarImage]()
@@ -42,14 +45,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
     var typeOfChat = "unknown"
     
     var keyboardShown = false
-    
-    
-    //Match Variables
-    var matchUID = ""
-    
-    
-    
-    
+
     //Player Delegates
     func playerReady(player: Player){
         
@@ -99,7 +95,8 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
             "senderDisplayName" : senderDisplayName,
             "isMedia" : false,
             "isImage" : false,
-            "media" : "none"
+            "media" : "none",
+            "owner" : ownerUID
             
             
             ]
@@ -119,10 +116,10 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
             
             if let myUID = FIRAuth.auth()?.currentUser?.uid {
                 
-                ref.child("users").child(matchUID).child("matches").child(myUID).updateChildValues(["lastActivity" : lastActivity])
-                ref.child("users").child(myUID).child("matches").child(matchUID).updateChildValues(["lastActivity" : lastActivity])
+                ref.child("users").child(ownerUID).child("matches").child(myUID).updateChildValues(["lastActivity" : lastActivity])
+                ref.child("users").child(myUID).child("matches").child(ownerUID).updateChildValues(["lastActivity" : lastActivity])
 
-                ref.child("users").child(matchUID).child("matches").child(myUID).child("messages").childByAutoId().setValue(messageItem)
+                ref.child("users").child(ownerUID).child("matches").child(myUID).child("messages").childByAutoId().setValue(messageItem)
             }
         }
 
@@ -154,8 +151,10 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
     
     func fusumaDismissedWithImage(image: UIImage) {
         
-        //Call Upload Function
+        let scopePassedRef = self.passedRef
+        let scopeOwner = self.ownerUID
         
+        //Call Upload Function
         uploadMedia(true, image: image, videoURL: nil) { (date, fileName, messageData) in
             
             let request = self.uploadRequest(image)
@@ -169,7 +168,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                     print("succesful upload!")
                     
                     let ref = FIRDatabase.database().reference()
-                    let scopePassedRef = self.passedRef
+
                     
                     if let key = request.key {
                         
@@ -183,7 +182,8 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                             "senderDisplayName" : self.senderDisplayName,
                             "isMedia" : true,
                             "isImage" : true,
-                            "media" : "https://s3.amazonaws.com/cityscapebucket/" + key
+                            "media" : "https://s3.amazonaws.com/cityscapebucket/" + key,
+                            "owner" : scopeOwner
                             
                         ]
                         
@@ -207,6 +207,9 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
     
     func fusumaVideoCompleted(withFileURL fileURL: NSURL) {
         
+        let scopePassedRef = self.passedRef
+        let scopeOwner = self.ownerUID
+        
         uploadMedia(false, image: nil, videoURL: fileURL) { (date, fileName, messageData) in
             
             self.convertVideoToLowQualityWithInputURL(fileURL, handler: { (exportSession, outputURL) in
@@ -224,7 +227,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                     transferManager.upload(request).continueWithBlock({ (task) -> AnyObject? in
                         
                         let ref = FIRDatabase.database().reference()
-                        let scopePassedRef = self.passedRef
+                        
                         
                         if let key = request.key {
                             
@@ -238,7 +241,8 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                                 "senderDisplayName" : self.senderDisplayName,
                                 "isMedia" : true,
                                 "isImage" : false,
-                                "media" : "https://s3.amazonaws.com/cityscapebucket/" + key
+                                "media" : "https://s3.amazonaws.com/cityscapebucket/" + key,
+                                "owner" : scopeOwner
                                 
                             ]
                             
@@ -640,13 +644,22 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
             
             if let value = snapshot.value as? [NSObject : AnyObject] {
                 
-                if let id = value["senderId"] as? String, text = value["text"] as? String, name = value["senderDisplayName"] as? String, media = value["media"] as? String, isImage = value["isImage"] as? Bool, isMedia = value["isMedia"] as? Bool, key = value["key"] as? String, timeStamp = value["timeStamp"] as? NSTimeInterval{
+                if let id = value["senderId"] as? String, text = value["text"] as? String, name = value["senderDisplayName"] as? String, media = value["media"] as? String, isImage = value["isImage"] as? Bool, isMedia = value["isMedia"] as? Bool, key = value["key"] as? String, timeStamp = value["timeStamp"] as? NSTimeInterval, owner = value["owner"] as? String, selfUID = FIRAuth.auth()?.currentUser?.uid {
 
-                    let date = NSDate(timeIntervalSince1970: timeStamp)
-                    let sentMessage = self.addedMessages[key]
+                    print(self.ownerUID)
                     
-                    if sentMessage == nil {
-                        self.addMessage(id, text: text, name: name, isMedia: isMedia, media: media, isImage: isImage, date: date, key: key, i: nil, offlineImage: nil)
+                    if owner == self.ownerUID || owner == selfUID {
+                        
+                        let date = NSDate(timeIntervalSince1970: timeStamp)
+                        let sentMessage = self.addedMessages[key]
+                        
+                        if sentMessage == nil {
+                            self.addMessage(id, text: text, name: name, isMedia: isMedia, media: media, isImage: isImage, date: date, key: key, i: nil, offlineImage: nil)
+                        }
+
+                        
+                    } else {
+                        ref.removeAllObservers()
                     }
                 }
                 
@@ -1000,6 +1013,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
     }
     
     override func viewDidLoad() {
+
         super.viewDidLoad()
         
         self.collectionView.collectionViewLayout.springinessEnabled = false
@@ -1007,6 +1021,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tapGestureRecognizer.delegate = self
         self.collectionView.addGestureRecognizer(tapGestureRecognizer)
+        
         
         
         addUploadStuff()

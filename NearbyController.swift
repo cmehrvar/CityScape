@@ -31,6 +31,8 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
     var timer = NSTimer()
     var s = 0
     
+    var transitioning = false
+    
     
     //Outlets
     @IBOutlet weak var settingsView: UIView!
@@ -46,13 +48,7 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
             
         }
     }
-    
-    @IBAction func slideToggle(sender: AnyObject) {
-        
-        rootController?.toggleVibes({ (bool) in
-            print("slide to vibes")
-        })
-    }
+
     
     //Collection View Delegates
     func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
@@ -158,9 +154,6 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
             
             let cell = collectionView.dequeueReusableCellWithReuseIdentifier("nearbySquadCollectionCell", forIndexPath: indexPath) as! NearbySquadCollectionCell
             cell.loadUser(nearbyUsers[indexPath.row])
-            
-        
-            
             
             cell.nearbyController = self
             cell.index = indexPath.row
@@ -427,14 +420,62 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
         
     }
     
+    func showNav(){
+
+        rootController?.showNav({ (bool) in
+            
+            print("nav showed")
+            
+        })
+    }
+    
+    func showVibes(){
+        
+        self.globCollectionView.scrollEnabled = false
+        
+        rootController?.toggleVibes({ (bool) in
+            
+            self.globCollectionView.scrollEnabled = true
+            print("vibes toggled")
+            
+        })
+    }
+    
+    
+    
+    func addGestureRecognizers(){
+        
+        let downSwipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(showNav))
+        downSwipeGestureRecognizer.direction = UISwipeGestureRecognizerDirection.Down
+        downSwipeGestureRecognizer.delegate = self
+        
+        let leftSwipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(showVibes))
+        leftSwipeGestureRecognizer.direction = UISwipeGestureRecognizerDirection.Left
+        leftSwipeGestureRecognizer.delegate = self
+
+        self.view.addGestureRecognizer(leftSwipeGestureRecognizer)
+        self.view.addGestureRecognizer(downSwipeGestureRecognizer)
+        
+    }
+    
+    
+    
+    
     
     //ScrollViewDelegates
     func scrollViewWillEndDragging(scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
         
         if velocity.y > 0 {
-            rootController?.hideAllNav({ (bool) in
-                print("nav hid")
-            })
+            
+            if !transitioning {
+                
+                rootController?.hideTopNav({ (bool) in
+                    
+                    print("top nav hidded")
+                    
+                })
+            }
+
         } else {
             print("velocity negative")
         }
@@ -460,38 +501,25 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
             
         }
     }
-    
-    func showNav(){
-        
-        
-        rootController?.showNav({ (bool) in
-            
-            print("nav showed")
-            
-        })
-        
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        addGestureRecognizers()
+
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(checkStatus), name: UIApplicationDidBecomeActiveNotification, object: UIApplication.sharedApplication())
+        
+        // Do any additional setup after loading the view.
     }
+    
+    
     
     func gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWithGestureRecognizer otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         
         return true
         
     }
-    
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        let swipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(showNav))
-        swipeGestureRecognizer.direction = UISwipeGestureRecognizerDirection.Down
-        swipeGestureRecognizer.delegate = self
-        self.globCollectionView.addGestureRecognizer(swipeGestureRecognizer)
-        
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(checkStatus), name: UIApplicationDidBecomeActiveNotification, object: UIApplication.sharedApplication())
-        
-        // Do any additional setup after loading the view.
-    }
+
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()

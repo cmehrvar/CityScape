@@ -22,7 +22,6 @@ class TopNavBarController: UIViewController {
             print("menu toggled")
             
         })
-        
     }
     
     

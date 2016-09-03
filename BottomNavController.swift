@@ -30,7 +30,7 @@ class BottomNavController: UIViewController {
         
        rootController?.toggleNearby({ (bool) in
         
-        print("nearby toggled")
+            print("nearby toggled")
         
        })
     }
@@ -51,7 +51,6 @@ class BottomNavController: UIViewController {
             print("messages toggled")
             
         })
-        
     }
 
     

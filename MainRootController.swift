@@ -11,6 +11,7 @@ import Firebase
 import FirebaseDatabase
 import FirebaseAuth
 import CoreLocation
+import SDWebImage
 
 class MainRootController: UIViewController {
     
@@ -24,42 +25,43 @@ class MainRootController: UIViewController {
     var messagesIsRevealed = false
     var matchIsRevealed = false
     
-    var navHidden = false
-    
+    var profileRevealed = false
+
     var currentTab = 0
     
     var timer = NSTimer()
     
     //Outlets
     @IBOutlet weak var topNavCenter: NSLayoutConstraint!
-    @IBOutlet weak var bottomNavCenter: NSLayoutConstraint!
     @IBOutlet weak var vibesTrailing: NSLayoutConstraint!
     @IBOutlet weak var vibesLeading: NSLayoutConstraint!
     @IBOutlet weak var closeMenuContainer: UIView!
-
     
-    @IBOutlet weak var closeMenuTop: NSLayoutConstraint!
+    
+    @IBOutlet weak var closeMenuTopConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var profileContainer: UIView!
     @IBOutlet weak var leadingMenu: NSLayoutConstraint!
     @IBOutlet weak var menuContainerOutlet: UIView!
     @IBOutlet weak var itsAMatchContainerOutlet: UIView!
-
+    
     @IBOutlet weak var chatContainerOutlet: UIView!
     @IBOutlet weak var topNavConstOutlet: NSLayoutConstraint!
+    @IBOutlet weak var bottomNavConstOutlet: NSLayoutConstraint!
     
     @IBOutlet weak var menuWidthConstOutlet: NSLayoutConstraint!
-
+    
     @IBOutlet weak var topProfileConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var bottomProfileConstOutlet: NSLayoutConstraint!
     
     @IBOutlet weak var topChatConstOutlet: NSLayoutConstraint!
-    @IBOutlet weak var bottonChatConstOutlet: NSLayoutConstraint!
+    @IBOutlet weak var bottomChatConstOutlet: NSLayoutConstraint!
     
     
     
+    weak var actionsController: ActionsViewController?
     weak var topNavController: TopNavBarController?
     weak var bottomNavController: BottomNavController?
-    weak var vibesFeedController: VibesFeedController?
+    weak var vibesFeedController: NewVibesController?
     weak var nearbyController: NearbyController?
     weak var messagesController: MessagesController?
     weak var menuController: MenuController?
@@ -72,20 +74,26 @@ class MainRootController: UIViewController {
     func toggleHome(completion: Bool -> ()) {
         
         let screenHeight = self.view.bounds.height
-        let offset = (screenHeight - (screenHeight / 10))
         
-        closeMenuTop.constant = 0
+        self.closeMenuTopConstOutlet.constant = 0
         
         self.chatController?.view.endEditing(true)
 
         UIView.animateWithDuration(0.3, animations: {
-
-            self.topChatConstOutlet.constant = -(screenHeight * 0.7)
-            self.bottonChatConstOutlet.constant = screenHeight
-
-            self.topProfileConstOutlet.constant = -offset
+            
+            if self.currentTab == 1 && !self.profileRevealed {
+                self.nearbyController?.globCollectionView.contentOffset = CGPointZero
+            }
+            
+            self.topNavConstOutlet.constant = 0
+            self.bottomNavConstOutlet.constant = 0
+            
+            self.topChatConstOutlet.constant = -(screenHeight * 0.8)
+            self.bottomChatConstOutlet.constant = screenHeight
+            
+            self.topProfileConstOutlet.constant = -(screenHeight * 0.9)
             self.bottomProfileConstOutlet.constant = screenHeight
-
+            
             self.bottomNavController?.topChatBoxView.alpha = 0
             
             self.view.layoutIfNeeded()
@@ -101,7 +109,11 @@ class MainRootController: UIViewController {
             self.chatController?.finishReceivingMessage()
             
             self.profileController?.currentUID = ""
-
+            self.profileController?.currentPicture = 1
+            self.profileController?.pictures = 1
+            
+            self.profileRevealed = false
+            
             completion(complete)
             
         }
@@ -144,13 +156,6 @@ class MainRootController: UIViewController {
         
         var menuOffset: CGFloat = 0
         
-        /*
-         var topNavOffset: CGFloat = 0
-         var bottomNavOffset: CGFloat = self.bottomNavCenter.constant
-         var mainOffsetLeading: CGFloat = self.vibesLeading.constant
-         var mainOffsetTrailing: CGFloat = self.vibesTrailing.constant
-         */
-        
         var closeMenuAlpha: CGFloat = 0
         var buttonsEnabled = true
         
@@ -159,21 +164,9 @@ class MainRootController: UIViewController {
             
             buttonsEnabled = false
             
-            //mainOffsetLeading += mainDrawerWidthConstant
-            //mainOffsetTrailing += mainDrawerWidthConstant
-            
-            //topNavOffset = mainDrawerWidthConstant
-            
-            //bottomNavOffset += mainDrawerWidthConstant
-            
         } else {
             
             menuOffset = -mainDrawerWidthConstant
-            
-            //mainOffsetLeading -= mainDrawerWidthConstant
-            //mainOffsetTrailing -= mainDrawerWidthConstant
-            
-            //bottomNavOffset -= mainDrawerWidthConstant
             
         }
         
@@ -188,11 +181,6 @@ class MainRootController: UIViewController {
             self.bottomNavController?.vibesButtonOutlet.enabled = buttonsEnabled
             self.bottomNavController?.messagesButtonOutlet.enabled = buttonsEnabled
             
-            //self.topNavCenter.constant = topNavOffset
-            //self.bottomNavCenter.constant = bottomNavOffset
-            //self.vibesLeading.constant = mainOffsetLeading
-            //self.vibesTrailing.constant = mainOffsetTrailing
-            
             self.view.layoutIfNeeded()
             
         }) { (complete) in
@@ -203,15 +191,43 @@ class MainRootController: UIViewController {
     }
     
     
-    func toggleProfile(uid: String, selfProfile: Bool, completion: Bool -> ()){
+    func toggleProfile(uid: String, selfProfile: Bool, profilePic: String, completion: Bool -> ()){
         
-        self.closeMenuTop.constant = -(self.view.bounds.height / 10)
+        print(profilePic)
+        
+        profileRevealed = true
+        
+        if let url = NSURL(string: profilePic) {
+            
+            SDWebImageManager.sharedManager().downloadImageWithURL(url, options: .ContinueInBackground, progress: { (receivedSize, expectedSize) in
+                
+                print("received size: \(receivedSize)")
+                print("expected size: \(expectedSize)")
+                
+                }, completed: { (image, error, cache, bool, url) in
+                    
+                    if error == nil {
+
+                        let calculatedScale = image.size.height / image.size.width
+                        print("calculated scale: \(calculatedScale)")
+                        
+                        self.profileController?.image1Scale = calculatedScale
+                        self.profileController?.globCollectionCell.reloadData()
+                        
+                        
+                    }
+                    
+            })
+        }
+
+        self.closeMenuTopConstOutlet.constant = -(self.view.bounds.height * 0.1)
         
         profileController?.currentUID = uid
-        profileController?.retrieveUserData(uid, selfProfile: selfProfile)
+        profileController?.retrieveUserData(uid)
+        profileController?.selfProfile = selfProfile
         
         UIView.animateWithDuration(0.3, animations: {
-
+            
             self.topNavConstOutlet.constant = 0
             
             self.bottomProfileConstOutlet.constant = 0
@@ -230,7 +246,7 @@ class MainRootController: UIViewController {
     func toggleMatch(uid: String!, completion: Bool -> ()) {
         
         var matchAlpha: CGFloat = 1
-
+        
         if uid != nil {
             
             let ref = FIRDatabase.database().reference()
@@ -241,11 +257,11 @@ class MainRootController: UIViewController {
                     
                     
                     if let firstName = value["firstName"] as? String, lastName = value["lastName"] as? String {
-
+                        
                         self.matchController?.likesYouOutlet.text = "\(firstName) \(lastName) Likes You"
                         
                     }
-
+                    
                     if let myProfile = self.selfData["profilePicture"] as? String, url = NSURL(string: myProfile) {
                         
                         self.matchController?.myProfileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
@@ -258,7 +274,7 @@ class MainRootController: UIViewController {
                         self.matchController?.yourProfileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
                         
                     }
-
+                    
                     if let myRank = self.selfData["cityRank"] as? Int {
                         
                         self.matchController?.myRankOutlet.text = String(myRank)
@@ -278,7 +294,7 @@ class MainRootController: UIViewController {
                         let yourLocation = CLLocation(latitude: yourLatitude, longitude: yourLongitude)
                         
                         let distance = myLocation.distanceFromLocation(yourLocation)
-
+                        
                         if distance > 9999 {
                             
                             let kilometers: Int = Int(distance) / 1000
@@ -299,7 +315,7 @@ class MainRootController: UIViewController {
                 }
             })
         }
-
+        
         if matchIsRevealed {
             matchAlpha = 0
             
@@ -319,12 +335,8 @@ class MainRootController: UIViewController {
         }
     }
     
-    
-    
-    
     func toggleChat(completion: (Bool) -> ()) {
- 
-        self.closeMenuTop.constant = -(self.view.bounds.height / 10)
+        
         self.chatController?.senderId = selfData["uid"] as? String
         
         if let uid = FIRAuth.auth()?.currentUser?.uid {
@@ -337,24 +349,20 @@ class MainRootController: UIViewController {
             
         }
         
-        let screenHeight = self.view.bounds.height
-        
-        
-        
         UIView.animateWithDuration(0.3, animations: {
             
             self.bottomNavController?.topChatBoxView.alpha = 1
-
+            
             self.topNavConstOutlet.constant = 0
-            self.topChatConstOutlet.constant = (screenHeight * 0.1)
-            self.bottonChatConstOutlet.constant = 0
-
+            self.topChatConstOutlet.constant = 0
+            self.bottomChatConstOutlet.constant = 0
+            
             self.view.layoutIfNeeded()
             
-            }) { (complete) in
-                
-                completion(complete)
-                
+        }) { (complete) in
+            
+            completion(complete)
+            
         }
     }
     
@@ -362,61 +370,56 @@ class MainRootController: UIViewController {
         
         let screenHeight = self.view.bounds.height
         
-        self.profileContainer.alpha = 0
-        
-        if !navHidden {
-            
-            if self.bottomProfileConstOutlet.constant != 0 {
-                self.bottomProfileConstOutlet.constant += (screenHeight / 10)
-            }
-
-            if self.bottonChatConstOutlet.constant != 0 {
-                self.bottonChatConstOutlet.constant += (screenHeight/5)
-            }
-
-            self.navHidden = true
-        }
+        UIApplication.sharedApplication().statusBarHidden = true
         
         UIView.animateWithDuration(0.3, animations: {
+            
+            self.topNavConstOutlet.constant = -(screenHeight * 0.2)
+            self.view.layoutIfNeeded()
+            
+        }) { (complete) in
 
-            self.topNavConstOutlet.constant = -(screenHeight / 5)
-
+            completion(complete)
+            
+        }
+    }
+    
+    func hideTopNav(completion: (Bool) -> ()){
+        
+        let screenHeight = self.view.bounds.height
+        
+        UIView.animateWithDuration(0.3, animations: {
+            
+            self.bottomNavConstOutlet.constant = -(screenHeight * 0.1)
             self.view.layoutIfNeeded()
             
             }) { (complete) in
-
-                self.messagesController?.globCollectionViewOutlet.reloadData()
-                self.profileContainer.alpha = 1
+                
                 completion(complete)
                 
         }
     }
     
-    
-    
+
     func showNav(completion: (Bool) -> ()){
         
-        if navHidden {
+        UIApplication.sharedApplication().statusBarHidden = false
+        
+        UIView.animateWithDuration(0.3, animations: {
             
-            navHidden = false
+            self.topNavConstOutlet.constant = 0
+            self.bottomNavConstOutlet.constant = 0
             
-            UIView.animateWithDuration(0.3, animations: {
-                
-                self.topNavConstOutlet.constant = 0
-                
-                self.view.layoutIfNeeded()
-                
-            }) { (complete) in
-                
-                self.messagesController?.loadMatches()
-                
-                completion(complete)
-                
-            }
+            self.view.layoutIfNeeded()
+            
+        }) { (complete) in
+            
+            completion(complete)
+            
         }
     }
     
-
+    
     //Other Functions
     func toggleTabs(tab: Int) -> Bool {
         
@@ -425,6 +428,9 @@ class MainRootController: UIViewController {
         if tab == 1 {
             
             UIView.animateWithDuration(0.6, animations: {
+                
+                self.topNavConstOutlet.constant = 0
+                self.bottomNavConstOutlet.constant = 0
                 
                 self.vibesLeading.constant = vibesConst
                 self.vibesTrailing.constant = vibesConst
@@ -439,6 +445,10 @@ class MainRootController: UIViewController {
         } else if tab == 2 {
             
             UIView.animateWithDuration(0.6, animations: {
+                
+                self.topNavConstOutlet.constant = 0
+                self.bottomNavConstOutlet.constant = 0
+                
                 self.vibesLeading.constant = 0
                 self.vibesTrailing.constant = 0
                 
@@ -453,6 +463,10 @@ class MainRootController: UIViewController {
         } else if tab == 3 {
             
             UIView.animateWithDuration(0.6, animations: {
+                
+                self.topNavConstOutlet.constant = 0
+                self.bottomNavConstOutlet.constant = 0
+                
                 self.vibesLeading.constant = -vibesConst
                 self.vibesTrailing.constant = -vibesConst
                 
@@ -483,7 +497,7 @@ class MainRootController: UIViewController {
                     
                     self.checkForMatches()
                     self.messagesController?.loadMatches()
-
+                    
                     self.nearbyController?.globCollectionView.reloadData()
                     self.menuController?.setMenu()
                     
@@ -699,14 +713,15 @@ class MainRootController: UIViewController {
         let screenHeight = self.view.bounds.height
         let screenWidth = self.view.bounds.width
         
-        self.topChatConstOutlet.constant = -(screenHeight * 0.7)
-        self.bottonChatConstOutlet.constant = (screenHeight * 0.8)
-
         self.topProfileConstOutlet.constant = -(screenHeight * 0.9)
-        self.bottomProfileConstOutlet.constant = (screenHeight * 0.9)
-
+        self.bottomProfileConstOutlet.constant = screenHeight
+        
+        self.topChatConstOutlet.constant = -(screenHeight * 0.8)
+        self.bottomChatConstOutlet.constant = screenHeight
+        
         self.menuWidthConstOutlet.constant = screenWidth * 0.8
         self.leadingMenu.constant = -(screenWidth * 0.8)
+        
         
         chatContainerOutlet.alpha = 1
         profileContainer.alpha = 1
@@ -718,8 +733,7 @@ class MainRootController: UIViewController {
         
         updateOnline()
         
-        setStage()
-
+        //setStage()
         
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(updateOnline), name: UIApplicationDidBecomeActiveNotification, object: UIApplication.sharedApplication())
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(updateOffline), name: UIApplicationWillResignActiveNotification, object: UIApplication.sharedApplication())
@@ -747,7 +761,7 @@ class MainRootController: UIViewController {
         
         if segue.identifier == "vibesFeedSegue" {
             
-            let vibes = segue.destinationViewController as? VibesFeedController
+            let vibes = segue.destinationViewController as? NewVibesController
             vibesFeedController = vibes
             vibesFeedController?.rootController = self
             
@@ -804,7 +818,13 @@ class MainRootController: UIViewController {
             let chat = segue.destinationViewController as? CommentController
             chatController = chat
             chatController?.rootController = self
- 
+            
+        } else if segue.identifier == "actionsSegue" {
+            
+            let actions = segue.destinationViewController as? ActionsViewController
+            actionsController = actions
+            actionsController?.rootController = self
+            
         }
         
         // Get the new view controller using segue.destinationViewController.
