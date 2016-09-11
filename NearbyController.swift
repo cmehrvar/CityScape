@@ -274,7 +274,7 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
         
         let ref = FIRDatabase.database().reference().child("userLocations")
         let geoFire = GeoFire(firebaseRef: ref)
-        
+
         if let radius = rootController?.selfData["nearbyRadius"] as? Double {
             
             let circleQuery = geoFire.queryAtLocation(center, withRadius: radius)
@@ -343,7 +343,7 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
         
     }
     
-    func checkStatus(sender: AnyObject?){
+    func checkStatus(){
         
         let status = CLLocationManager.authorizationStatus()
         
@@ -422,7 +422,7 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
     
     func showNav(){
 
-        rootController?.showNav({ (bool) in
+        rootController?.showNav(0.3, completion: { (bool) in
             
             print("nav showed")
             
@@ -440,8 +440,7 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
             
         })
     }
-    
-    
+
     
     func addGestureRecognizers(){
         
@@ -457,10 +456,7 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
         self.view.addGestureRecognizer(downSwipeGestureRecognizer)
         
     }
-    
-    
-    
-    
+
     
     //ScrollViewDelegates
     func scrollViewWillEndDragging(scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
@@ -491,9 +487,8 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
     override func viewDidAppear(animated: Bool) {
         
         settingsConstraint()
-        
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(invalidateTimer), name: UIApplicationWillResignActiveNotification, object: UIApplication.sharedApplication())
-        
+
+
         if rootController?.selfData["interestedIn"] != nil {
             
             requestWhenInUseAuthorization()
@@ -506,9 +501,10 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
         super.viewDidLoad()
         
         addGestureRecognizers()
-
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(checkStatus), name: UIApplicationDidBecomeActiveNotification, object: UIApplication.sharedApplication())
         
+        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+        appDelegate.nearbyController = self
+
         // Do any additional setup after loading the view.
     }
     

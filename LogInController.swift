@@ -51,13 +51,15 @@ class LogInController: UIViewController {
                                     
                                     if !taken {
                                         
-                                        let req = FBSDKGraphRequest(graphPath: "me", parameters: ["fields":"email, first_name, last_name, gender, birthday, age_range, interested_in, work, location"], tokenString: result.token.tokenString, version: nil, HTTPMethod: "GET")
+                                        let req = FBSDKGraphRequest(graphPath: "me", parameters: ["fields":"email, first_name, last_name, gender, birthday, age_range, interested_in, work, location, picture"], tokenString: result.token.tokenString, version: nil, HTTPMethod: "GET")
                                         
                                         req.startWithCompletionHandler({ (connection, graphResult, error) -> Void in
                                             
                                             if error == nil {
                                                 
                                                 var userData = [NSObject : AnyObject]()
+                                                
+                                                print(graphResult["picture"])
                                                 
                                                 if let birthday = graphResult["birthday"] as? String {
                                                     

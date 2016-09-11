@@ -13,6 +13,7 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
     weak var rootController: MainRootController?
     
     var globMatches = [[NSObject : AnyObject]]()
+    var oldMatches = [[NSObject : AnyObject]]()
     
     
     //Outlets
@@ -20,13 +21,11 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
     
     
     //Actions
-    func loadMatches(){
+    func loadMatches(data: [NSObject : AnyObject]){
         
         globMatches.removeAll()
-        
-        if let matches = rootController?.selfData["matches"] as? [NSObject : AnyObject] {
-            
-            let sortedMatches = matches.sort({ (a: (NSObject, AnyObject), b: (NSObject, AnyObject)) -> Bool in
+
+            let sortedMatches = data.sort({ (a: (NSObject, AnyObject), b: (NSObject, AnyObject)) -> Bool in
                 
                 if a.1["lastActivity"] as? NSTimeInterval > b.1["lastActivity"] as? NSTimeInterval {
                     return true
@@ -42,10 +41,15 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
                         globMatches.append(dictValue)
                 }
             }
+        
+        if oldMatches != globMatches {
             
+            oldMatches = globMatches
             globCollectionViewOutlet.reloadData()
             
         }
+        
+        
     }
     
     func addGestureRecognizers(){
@@ -65,7 +69,7 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
     
     func showNav(){
         
-        rootController?.showNav({ (bool) in
+        rootController?.showNav(0.3, completion: { (bool) in
             
             print("nav showed")
             

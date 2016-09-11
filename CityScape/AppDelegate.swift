@@ -17,6 +17,14 @@ import AVFoundation
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    var selfData = [NSObject : AnyObject]()
+    
+    //ViewControllers
+    weak var mainRootController: MainRootController?
+    
+    weak var vibeController: NewVibesController?
+    weak var nearbyController: NearbyController?
+    
     
     //Constants
     let CLIENT_ID = "a7708df10b6543febd5b42bb9bd18189"
@@ -47,6 +55,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         FIRDatabase.database().persistenceEnabled = true
         
+  
         //application.statusBarHidden = true
         
         // Override point for customization after application launch.
@@ -54,6 +63,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationWillResignActive(application: UIApplication) {
+        
+        nearbyController?.invalidateTimer()
+        mainRootController?.updateOffline()
+        
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
     }
@@ -66,11 +79,29 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillEnterForeground(application: UIApplication) {
         // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
         print("foreground")
-        
+                
     }
 
     func applicationDidBecomeActive(application: UIApplication) {
         FBSDKAppEvents.activateApp()
+        
+        nearbyController?.viewDidLoad()
+        mainRootController?.viewDidLoad()
+        vibeController?.viewDidLoad()
+
+        nearbyController?.checkStatus()
+
+        mainRootController?.updateOnline()
+
+
+        if selfData["interestedIn"] != nil {
+            
+            nearbyController?.requestWhenInUseAuthorization()
+            nearbyController?.updateLocation()
+            
+        } else {
+            mainRootController?.askInterestedIn()
+        }
         
         print("active")
         

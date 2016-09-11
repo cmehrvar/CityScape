@@ -572,7 +572,7 @@ class VibesFeedController: UIViewController, PlayerDelegate, UITableViewDataSour
     
     func showNav(){
         
-        rootController?.showNav({ (bool) in
+        rootController?.showNav(0.3, completion: { (bool) in
             
             print("nav showed")
             

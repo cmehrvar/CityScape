@@ -75,6 +75,7 @@ public final class FusumaViewController: UIViewController {
     @IBOutlet weak var cameraButton: UIButton!
     @IBOutlet weak var videoButton: UIButton!
     @IBOutlet weak var doneButton: UIButton!
+    @IBOutlet weak var checkImageOutlet: UIImageView!
 
     @IBOutlet var libraryFirstConstraints: [NSLayoutConstraint]!
     @IBOutlet var cameraFirstConstraints: [NSLayoutConstraint]!
@@ -131,10 +132,10 @@ public final class FusumaViewController: UIViewController {
             cameraButton.tintColor  = fusumaTintColor
             cameraButton.adjustsImageWhenHighlighted  = false
             
-            closeButton.setImage(closeImage?.imageWithRenderingMode(.AlwaysTemplate), forState: .Normal)
-            closeButton.setImage(closeImage?.imageWithRenderingMode(.AlwaysTemplate), forState: .Highlighted)
-            closeButton.setImage(closeImage?.imageWithRenderingMode(.AlwaysTemplate), forState: .Selected)
-            closeButton.tintColor = fusumaBaseTintColor
+            //closeButton.setImage(closeImage?.imageWithRenderingMode(.AlwaysTemplate), forState: .Normal)
+            //closeButton.setImage(closeImage?.imageWithRenderingMode(.AlwaysTemplate), forState: .Highlighted)
+            //closeButton.setImage(closeImage?.imageWithRenderingMode(.AlwaysTemplate), forState: .Selected)
+            //closeButton.tintColor = fusumaBaseTintColor
             
             videoButton.setImage(videoImage, forState: .Normal)
             videoButton.setImage(videoImage, forState: .Highlighted)
@@ -142,8 +143,8 @@ public final class FusumaViewController: UIViewController {
             videoButton.tintColor  = fusumaTintColor
             videoButton.adjustsImageWhenHighlighted = false
             
-            doneButton.setImage(checkImage?.imageWithRenderingMode(.AlwaysTemplate), forState: .Normal)
-            doneButton.tintColor = fusumaBaseTintColor
+            //doneButton.setImage(checkImage?.imageWithRenderingMode(.AlwaysTemplate), forState: .Normal)
+            //doneButton.tintColor = fusumaBaseTintColor
             
         } else {
             
@@ -162,8 +163,8 @@ public final class FusumaViewController: UIViewController {
             videoButton.setImage(videoImage, forState: .Selected)
             videoButton.tintColor = nil
             
-            closeButton.setImage(closeImage, forState: .Normal)
-            doneButton.setImage(checkImage, forState: .Normal)
+            //closeButton.setImage(closeImage, forState: .Normal)
+            //doneButton.setImage(checkImage, forState: .Normal)
         }
         
         cameraButton.clipsToBounds  = true
@@ -238,6 +239,9 @@ public final class FusumaViewController: UIViewController {
     }
     
     @IBAction func closeButtonPressed(sender: UIButton) {
+
+        print("fusuma close")
+        
         self.dismissViewControllerAnimated(true, completion: {
             
             self.delegate?.fusumaClosed?()
@@ -260,6 +264,8 @@ public final class FusumaViewController: UIViewController {
     }
     
     @IBAction func doneButtonPressed(sender: UIButton) {
+        
+        print("fusuma done")
         
         let view = albumView.imageCropView
 
@@ -371,12 +377,14 @@ private extension FusumaViewController {
         case .Library:
             titleLabel.text = NSLocalizedString(fusumaCameraRollTitle, comment: fusumaCameraRollTitle)
             doneButton.hidden = false
+            checkImageOutlet.alpha = 1
             
             highlightButton(libraryButton)
             self.view.bringSubviewToFront(photoLibraryViewerContainer)
         case .Camera:
             titleLabel.text = NSLocalizedString(fusumaCameraTitle, comment: fusumaCameraTitle)
             doneButton.hidden = true
+            checkImageOutlet.alpha = 0
             
             highlightButton(cameraButton)
             self.view.bringSubviewToFront(cameraShotContainer)
@@ -384,6 +392,7 @@ private extension FusumaViewController {
         case .Video:
             titleLabel.text = fusumaVideoTitle
             doneButton.hidden = true
+            checkImageOutlet.alpha = 0
             
             highlightButton(videoButton)
             self.view.bringSubviewToFront(videoShotContainer)

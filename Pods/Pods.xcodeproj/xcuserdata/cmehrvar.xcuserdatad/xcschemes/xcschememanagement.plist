@@ -69,6 +69,11 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>NVActivityIndicatorView.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>Player.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -102,17 +107,12 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>2D6B7AC900CC50BF4B3957AC8DF42BB0</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
 		<key>3B41A9B1D49827D58E203AF61D34F608</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>4FA67618645B9327A1CFC5A1EF627CCB</key>
+		<key>512AA562398D278D2463291428BAED34</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -142,7 +142,7 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>7BA61C427A9B3FA4AF99C735705891EF</key>
+		<key>8698C4558AE758AD92477EC134E714F7</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -157,12 +157,22 @@
 			<key>primary</key>
 			<true/>
 		</dict>
+		<key>B3DFEA70DDE2B98EBC5251186825AB95</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>BAA396C4D689A02A15029B49E076FAF0</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
 		<key>C1E63A1BF93FD336FEC6B7950AA018F2</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>C9C26EA9A0CACE69E67B76CEE5D9212E</key>
 		<dict>
 			<key>primary</key>
 			<true/>

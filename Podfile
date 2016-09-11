@@ -21,6 +21,7 @@ pod ‘Fusuma’
 pod ‘Player’
 pod 'JSQMessagesViewController'
 pod ‘THLabel’
+pod ‘NVActivityIndicatorView’
 
 end
 

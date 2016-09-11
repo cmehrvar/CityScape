@@ -39,7 +39,6 @@ class NearbySquadCollectionCell: UICollectionViewCell {
             print("profile toggled")
             
         })
-
     }
 
     

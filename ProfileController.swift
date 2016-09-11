@@ -87,19 +87,41 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                 
                 print("self profile")
                 
+                
+                cell.editButton1.alpha = 1
+                cell.editButton2.alpha = 2
+                
+                
+                
                 pictures = 2
                 
                 if tempImage1 != nil {
                     
+                    cell.profilePicOutlet.alpha = 1
+                    cell.profilePicOutlet.image = tempImage1
+                    
+                } else {
+                    
+                    print("no temp image 1")
                 }
                 
                 if tempImage2 != nil {
                     
                     cell.profilePic2Outlet.alpha = 1
                     cell.profilePic2Outlet.image = tempImage2
+                    //pictures = 3
                     
                 } else {
-                    cell.profilePic2Outlet.alpha = 0
+                    print("no temp image 2")
+                    
+                    if let profilePicture2 = userData["profilePicture2"] as? String, url = NSURL(string: profilePicture2) {
+                        
+                        cell.profilePic2Outlet.alpha = 2
+                        cell.profilePic2Outlet.sd_setImageWithURL(url, placeholderImage: nil)
+                        
+                        //pictures = 3
+      
+                    }
                 }
                 
                 if tempImage3 != nil {
@@ -108,6 +130,9 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                 
                 
             } else {
+                
+                cell.editButton1.alpha = 0
+                cell.editButton2.alpha = 0
                 
                 
                 if let profilePicture2 = userData["profilePicture2"] as? String, url = NSURL(string: profilePicture2) {
@@ -157,9 +182,10 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                 
             }
             
-            
-            cell.loadData(userData)
+            cell.profileController = self
             cell.selfProfile = selfProfile
+            cell.loadData(userData)
+            
             cell.nameOutlet.adjustsFontSizeToFitWidth = true
             cell.cityOutlet.adjustsFontSizeToFitWidth = true
             cell.occupationOutlet.adjustsFontSizeToFitWidth = true

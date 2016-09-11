@@ -16,20 +16,25 @@ import Firebase
 import FirebaseDatabase
 import FirebaseAuth
 
-class HandlePostController: UIViewController, AdobeUXImageEditorViewControllerDelegate, PlayerDelegate, UITextFieldDelegate {
+class HandlePostController: UIViewController, PlayerDelegate, UITextFieldDelegate {
+    
+    weak var rootController: MainRootController?
+    
     
     //Global Variables
     var isImage = true
     var image: UIImage!
     var videoURL: NSURL!
     var exportedVideoURL: NSURL!
+    var scale: CGFloat?
+    let player = Player()
     
     
     //Outlets
     @IBOutlet weak var imageOutlet: UIImageView!
     @IBOutlet weak var videoOutlet: UIView!
     @IBOutlet weak var caption: UITextField!
-    @IBOutlet weak var shareOutlet: UIBarButtonItem!
+    @IBOutlet weak var shareOutlet: UIButton!
     @IBOutlet weak var uploadingViewOutlet: UIView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
@@ -63,78 +68,40 @@ class HandlePostController: UIViewController, AdobeUXImageEditorViewControllerDe
     
     func playerCurrentTimeDidChange(player: Player) {
         
-        print("current time did change")
+        //print("current time did change")
         
     }
-    
-    
-    //Adobe Delegates
-    func photoEditorCanceled(editor: AdobeUXImageEditorViewController) {
-        
-        let transition: CATransition = CATransition()
-        transition.duration = 0.3
-        transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
-        transition.type = kCATransitionPush
-        transition.subtype = kCATransitionFromLeft
-        editor.view.window?.layer.addAnimation((transition), forKey: nil)
-        
-        
-        
-        let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
-        editor.presentViewController(vc, animated: false) {
-            //vc.vibesFeedController?.getFirebaseData()
-            //vc.vibesFeedController?.transitionToFusumaOutlet.alpha = 1
-            //vc.vibesFeedController?.presentFusumaCamera()
-        }
-        
-        
-    }
-    func photoEditor(editor: AdobeUXImageEditorViewController, finishedWithImage image: UIImage?) {
-        
-        let transition: CATransition = CATransition()
-        transition.duration = 0.3
-        transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
-        transition.type = kCATransitionPush
-        transition.subtype = kCATransitionFromRight
-        editor.view.window?.layer.addAnimation((transition), forKey: nil)
-        
-        isImage = true
-        
-        editor.dismissViewControllerAnimated(false, completion: nil)
-        
-        
-        
-        print("handle post editor clicked done")
-        
-    }
-    
-    
+
     //Actions
     @IBAction func backButton(sender: AnyObject) {
-        
-        let transition: CATransition = CATransition()
-        transition.duration = 0.3
-        transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
-        transition.type = kCATransitionPush
-        transition.subtype = kCATransitionFromLeft
-        self.view.window?.layer.addAnimation((transition), forKey: nil)
-        
+
         if isImage {
             
             let editor = AdobeUXImageEditorViewController(image: image)
-            editor.delegate = self
-            self.presentViewController(editor, animated: false, completion: nil)
+            editor.delegate = rootController?.actionsController
+            
+            rootController?.actionsController?.presentViewController(editor, animated: false, completion: {
+                
+                self.rootController?.toggleHandlePost(nil, videoURL: nil, isImage: true, completion: { (bool) in
+                    
+                    print("handle post toggled")
+                    
+                })
+            })
             
         } else {
             
-            let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
-            self.presentViewController(vc, animated: false) {
-                //vc.vibesController?.getFirebaseData()
-                //vc.vibesController?.transitionToFusumaOutlet.alpha = 1
-                //vc.vibesController?.presentFusumaCamera()
-            }
+            self.rootController?.cameraTransitionOutlet.alpha = 1
+            self.rootController?.actionsController?.presentFusumaCamera()
+            
+            self.rootController?.toggleHandlePost(nil, videoURL: nil, isImage: true, completion: { (bool) in
+                
+                print("handle post toggled")
+                
+            })
         }
     }
+    
     @IBAction func shareAction(sender: AnyObject) {
         
         shareOutlet.enabled = false
@@ -145,19 +112,15 @@ class HandlePostController: UIViewController, AdobeUXImageEditorViewControllerDe
             
         } else {
             
-            uploadPost(nil, videoURL: exportedVideoURL, isImage: isImage)
+            uploadPost(image, videoURL: exportedVideoURL, isImage: isImage)
             
         }
-        
     }
     
     
-    override func viewWillAppear(animated: Bool) {
-        
-        super.viewDidAppear(true)
+    func handleCall(){
         
         handleContent()
-        
         
         if !isImage {
             
@@ -184,31 +147,40 @@ class HandlePostController: UIViewController, AdobeUXImageEditorViewControllerDe
                 
             })
         }
+    }
+    
+    
+    override func viewWillAppear(animated: Bool) {
         
+        super.viewDidAppear(true)
+
     }
     
     //Functions
     func handleContent() {
-        
+
         if isImage {
             
-            imageOutlet.image = image
-            
+            if let actualImage = image {
+                imageOutlet.image = actualImage
+            } else {
+                imageOutlet.image = nil
+            }
+
         } else {
-            
-            let player = Player()
+
             player.delegate = self
             
             dispatch_async(dispatch_get_main_queue(), {
                 
-                self.addChildViewController(player)
-                self.videoOutlet.addSubview(player.view)
-                player.view.frame = self.videoOutlet.bounds
-                player.didMoveToParentViewController(self)
-                player.setUrl(self.videoURL)
-                player.fillMode = AVLayerVideoGravityResizeAspectFill
-                player.playbackLoops = true
-                player.playFromBeginning()
+                self.addChildViewController(self.player)
+                self.videoOutlet.addSubview(self.player.view)
+                self.player.view.frame = self.videoOutlet.bounds
+                self.player.didMoveToParentViewController(self)
+                self.player.setUrl(self.videoURL)
+                self.player.fillMode = AVLayerVideoGravityResizeAspectFill
+                self.player.playbackLoops = true
+                self.player.playFromBeginning()
                 
                 
             })
@@ -219,145 +191,198 @@ class HandlePostController: UIViewController, AdobeUXImageEditorViewControllerDe
     
     func uploadPost(image: UIImage!, videoURL: NSURL!, isImage: Bool) {
         
+        var captionString = ""
         
-        
+        if let text = caption.text {
+            captionString = text
+        }
+
+        let scopeRoot = rootController
+
         UIView.animateWithDuration(0.3) {
             self.uploadingViewOutlet.alpha = 1
         }
         
-        
-        var request = AWSS3TransferManagerUploadRequest()
-        
-        if isImage {
+        self.imageUploadRequest(image) { (imageUrl, imageUploadRequest) in
             
-            request = uploadRequest(image)
-            
-        } else {
-            
-            let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".mov")
-            
-            request.body = videoURL
-            request.key = fileName
-            request.bucket = "cityscapebucket"
-            
+            let imageTransferManager = AWSS3TransferManager.defaultS3TransferManager()
+
+            imageTransferManager.upload(imageUploadRequest).continueWithBlock { (task) -> AnyObject? in
+                
+                if task.error == nil {
+                    
+                    print("successful image upload")
+                    
+                    if !isImage {
+                        
+                        self.videoUploadRequest(videoURL, completion: { (FIRVideoURL, videoUploadRequest) in
+                            
+                            let videoTransferManager = AWSS3TransferManager.defaultS3TransferManager()
+                            
+                            videoTransferManager.upload(videoUploadRequest).continueWithBlock({ (task) -> AnyObject? in
+                                
+                                print("save thumbnail & video to firebase")
+   
+                                if let userData = scopeRoot?.selfData, selfUID = FIRAuth.auth()?.currentUser?.uid {
+                                    
+                                    let currentDate = NSDate().timeIntervalSince1970
+                                    
+                                    if let firstName = userData["firstName"] as? String, lastName = userData["lastName"] as? String, city = userData["city"] as? String, profile = userData["profilePicture"] as? String, rank = userData["cityRank"] as? Int {
+                                        
+                                        let ref = FIRDatabase.database().reference()
+                                        
+                                        let postChildKey = ref.child("posts").child(city).childByAutoId().key
+                                        
+                                        let postData: [NSObject:AnyObject] = ["views":0, "userUID":selfUID, "firstName":firstName, "lastName":lastName, "city":city, "timeStamp":currentDate, "profilePicture":profile, "imageURL":imageUrl, "caption":captionString, "isImage":isImage, "like" : 0, "dislike" : 0, "postChildKey":postChildKey, "videoURL" : FIRVideoURL, "cityRank" : rank]
+                                        
+                                        
+                                        if let score = userData["userScore"] as? Int {
+                                            
+                                            ref.child("users").child(selfUID).child("userScore").setValue(score+5)
+                                            ref.child("userScores").child(selfUID).setValue(score+5)
+                                            
+                                        }
+                                        
+                                        ref.child("posts").child(city).child(postChildKey).updateChildValues(postData)
+                                        ref.child("users").child(selfUID).child("posts").child(city).child(postChildKey).updateChildValues(postData)
+                                        ref.child("allPosts").child(postChildKey).updateChildValues(postData)
+                                        //ref.child("postUIDs").child(postChildKey).setValue(currentDate)
+
+                                        dispatch_async(dispatch_get_main_queue(), {
+                                            
+                                            self.rootController?.toggleHandlePost(nil, videoURL: nil, isImage: false, completion: { (bool) in
+                                                
+                                                self.uploadingViewOutlet.alpha = 0
+                                                self.shareOutlet.enabled = true
+                                                print("handle closed")
+                                                
+                                            })
+
+                                            self.rootController?.toggleVibes({ (bool) in
+                                                
+                                                print("vibes toggled")
+                                                
+                                            })
+                                        })
+                                    }
+                                }
+
+                                return nil
+                            })
+                        })
+
+                    } else {
+                        
+                        print("save image only to firebase")
+                        
+                        if let userData = scopeRoot?.selfData, selfUID = FIRAuth.auth()?.currentUser?.uid {
+                            
+                            let currentDate = NSDate().timeIntervalSince1970
+                            
+                            if let firstName = userData["firstName"] as? String, lastName = userData["lastName"] as? String, city = userData["city"] as? String, profile = userData["profilePicture"] as? String, rank = userData["cityRank"] as? Int {
+                                
+                                let ref = FIRDatabase.database().reference()
+                                
+                                let postChildKey = ref.child("posts").child(city).childByAutoId().key
+                                
+                                let postData: [NSObject:AnyObject] = ["views":0, "userUID":selfUID, "firstName":firstName, "lastName":lastName, "city":city, "timeStamp":currentDate, "profilePicture":profile, "imageURL":imageUrl, "caption":captionString, "isImage":isImage, "like" : 0, "dislike" : 0, "postChildKey":postChildKey, "videoURL" : "none", "cityRank" : rank]
+                                
+                                
+                                if let score = userData["userScore"] as? Int {
+                                    
+                                    ref.child("users").child(selfUID).child("userScore").setValue(score+5)
+                                    ref.child("userScores").child(selfUID).setValue(score+5)
+                                    
+                                }
+                                
+                                ref.child("posts").child(city).child(postChildKey).updateChildValues(postData)
+                                ref.child("users").child(selfUID).child("posts").child(city).child(postChildKey).updateChildValues(postData)
+                                ref.child("allPosts").child(postChildKey).updateChildValues(postData)
+                                //ref.child("postUIDs").child(postChildKey).setValue(currentDate)
+                                
+                                dispatch_async(dispatch_get_main_queue(), {
+                                    
+                                    self.rootController?.toggleHandlePost(nil, videoURL: nil, isImage: false, completion: { (bool) in
+                                        
+                                        self.uploadingViewOutlet.alpha = 0
+                                        self.shareOutlet.enabled = true
+                                        print("handle closed")
+                                        
+                                    })
+                                    
+                                    self.rootController?.toggleVibes({ (bool) in
+                                        
+                                        print("vibes toggled")
+                                        
+                                    })
+                                })
+                            }
+                        }
+                    }
+ 
+                } else {
+                    print("error uploading: \(task.error)")
+                    
+                    let alertController = UIAlertController(title: "Sorry", message: "Error uploading profile picture, please try again later", preferredStyle:  UIAlertControllerStyle.Alert)
+                    alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Cancel, handler: nil))
+                    self.presentViewController(alertController, animated: true, completion: nil)
+                    
+                }
+                return nil
+            }
         }
         
-        let transferManager = AWSS3TransferManager.defaultS3TransferManager()
-        
-        transferManager.upload(request).continueWithBlock({ (task) -> AnyObject? in
-            
-            if task.error == nil {
-                
-                print("successful upload!")
-                
-                //DO SOMETHING WITH FIREBASE
-                
-                let currentUser = FIRAuth.auth()?.currentUser
-                let ref = FIRDatabase.database().reference()
-                
-                if let userUID = currentUser?.uid {
-                    
-                    ref.child("users").child(userUID).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
-                        
-                        var contentURL = String()
-                        var captionVar = String()
-                        
-                        if let key = request.key, actualCaption = self.caption.text {
-                            
-                            captionVar = "\"" + actualCaption + "\""
-                            contentURL = "https://s3.amazonaws.com/cityscapebucket/" + key
-                            
-                        }
-
-                        let userData = snapshot.value as! [NSObject:AnyObject]
-                        let currentDate = NSDate().timeIntervalSince1970
-                        
-                        let firstName: AnyObject! = userData["firstName"]
-                        let lastName: AnyObject! = userData["lastName"]
-                        let city: AnyObject! = userData["city"]
-                        let profile: AnyObject! = userData["profilePicture"]
-                        
-                        
-                        let postChildKey = ref.child("posts").childByAutoId().key
-                        
-                        let postData: [NSObject:AnyObject] = ["views":0, "userUID":userUID, "firstName":firstName, "lastName":lastName, "city":city, "timeStamp":currentDate, "profilePicture":profile, "contentURL":contentURL, "caption":captionVar, "isImage":isImage, "like" : 0, "dislike" : 0, "postChildKey":postChildKey]
-                        
-                        
-                        
-                        ref.child("userScores").child(userUID).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
-                            
-                            if let score = snapshot.value as? Int {
-                                
-                                ref.child("users").child(userUID).child("totalScore").setValue(score+5)
-                                ref.child("userScores").child(userUID).setValue(score+5)
-                                
-                            }
-                        })
-                        
-                        
-                        ref.child("posts").child(postChildKey).updateChildValues(postData)
-                        ref.child("users").child(userUID).child("posts").child(postChildKey).updateChildValues(postData)
-                        ref.child("postUIDs").child(postChildKey).setValue(currentDate)
-                                                
-                        
-                        
-                        let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
-                        
-                        self.presentViewController(vc, animated: true, completion: {
-                            
-                            //vc.vibesController?.getFirebaseData()
-                            
-                        })
-                    })
-                }
-
-            } else {
-                
-                print("error uploading: \(task.error)")
-                
-                let alertController = UIAlertController(title: "Whoops", message: "Error Uploading", preferredStyle: UIAlertControllerStyle.Alert)
-
-                alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Cancel, handler: { (action) in
-                    
-                    UIView.animateWithDuration(0.3, animations: {
-                        self.uploadingViewOutlet.alpha = 0
-                    })
-                    
-                }))
-
-                self.presentViewController(alertController, animated: true, completion: nil)
-                
-            }
-            
-            dispatch_async(dispatch_get_main_queue(), {
-                self.shareOutlet.enabled = true
-            })
-            
-            return nil
-        })
+ 
     }
     
     
-    func uploadRequest(image: UIImage) -> AWSS3TransferManagerUploadRequest {
+    
+    
+    func videoUploadRequest(videoURL: NSURL?, completion: (url: String, uploadRequest: AWSS3TransferManagerUploadRequest) -> ()) {
+        
+        let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".mov")
+        
+        dispatch_async(dispatch_get_main_queue()) {
+            
+            let uploadRequest = AWSS3TransferManagerUploadRequest()
+            uploadRequest.body = videoURL
+            uploadRequest.key = fileName
+            uploadRequest.bucket = "cityscapebucket"
+            
+            let amazonVideoURL = "https://s3.amazonaws.com/cityscapebucket/" + fileName
+            
+            completion(url: amazonVideoURL, uploadRequest: uploadRequest)
+            
+        }
+    }
+    
+    func imageUploadRequest(image: UIImage, completion: (url: String, uploadRequest: AWSS3TransferManagerUploadRequest) -> ()) {
         
         let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".jpeg")
         let fileURL = NSURL(fileURLWithPath: NSTemporaryDirectory()).URLByAppendingPathComponent("upload").URLByAppendingPathComponent(fileName)
         let filePath = fileURL.path!
         
         let imageData = UIImageJPEGRepresentation(image, 0.5)
-        imageData?.writeToFile(filePath, atomically: true)
         
-        
-        let uploadRequest = AWSS3TransferManagerUploadRequest()
-        uploadRequest.body = fileURL
-        uploadRequest.key = fileName
-        uploadRequest.bucket = "cityscapebucket"
-        
-        return uploadRequest
-        
+        //SEGMENTATION BUG, IF FAULT 11 - COMMENT OUT AND REWRITE
+        dispatch_async(dispatch_get_main_queue()) {
+            imageData?.writeToFile(filePath, atomically: true)
+            
+            let uploadRequest = AWSS3TransferManagerUploadRequest()
+            uploadRequest.body = fileURL
+            uploadRequest.key = fileName
+            uploadRequest.bucket = "cityscapebucket"
+            
+            var imageUrl = ""
+            
+            if let key = uploadRequest.key {
+                imageUrl = "https://s3.amazonaws.com/cityscapebucket/" + key
+                
+            }
+            
+            completion(url: imageUrl, uploadRequest: uploadRequest)
+        }
     }
-    
-    
     
     
     //Functions
@@ -368,8 +393,7 @@ class HandlePostController: UIViewController, AdobeUXImageEditorViewControllerDe
         let newAsset: AVURLAsset = AVURLAsset(URL: tempURL)
         
         if let exportSession: AVAssetExportSession = AVAssetExportSession(asset: newAsset, presetName: AVAssetExportPresetMediumQuality) {
-            
-            
+ 
             let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".mov")
             let fileURL = NSURL(fileURLWithPath: NSTemporaryDirectory()).URLByAppendingPathComponent("upload").URLByAppendingPathComponent(fileName)
             

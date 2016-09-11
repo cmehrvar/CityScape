@@ -21,9 +21,15 @@
 		A353F0FB1D1226D3009A2182 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A353F0F91D1226D3009A2182 /* GoogleService-Info.plist */; };
 		A353F0FC1D1226D3009A2182 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A353F0F91D1226D3009A2182 /* GoogleService-Info.plist */; };
 		A353F0FF1D122B63009A2182 /* background.gif in Resources */ = {isa = PBXBuildFile; fileRef = A353F0FE1D122B63009A2182 /* background.gif */; };
+		A35644F21D7F9F1F00D005A9 /* SnapchatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35644F11D7F9F1F00D005A9 /* SnapchatViewController.swift */; };
 		A35DB7341D79CAEE00409D16 /* NewVibesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35DB7331D79CAEE00409D16 /* NewVibesController.swift */; };
 		A35DB7361D79EE8E00409D16 /* ActionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35DB7351D79EE8E00409D16 /* ActionsViewController.swift */; };
 		A35DB7381D7A0BCC00409D16 /* ProfilePicCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35DB7371D7A0BCC00409D16 /* ProfilePicCollectionCell.swift */; };
+		A35DB73B1D7BB3FA00409D16 /* ImageVibeCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35DB73A1D7BB3F900409D16 /* ImageVibeCollectionCell.swift */; };
+		A35DB73D1D7BB41100409D16 /* VideoVibeCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35DB73C1D7BB41100409D16 /* VideoVibeCollectionCell.swift */; };
+		A35DB7431D7BBD8E00409D16 /* VibeHeaderCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35DB7421D7BBD8E00409D16 /* VibeHeaderCollectionCell.swift */; };
+		A35DB7451D7C8B0D00409D16 /* SnapchatChatController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35DB7441D7C8B0C00409D16 /* SnapchatChatController.swift */; };
+		A35DB7471D7C970B00409D16 /* VibeHeaderProfilePic.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35DB7461D7C970B00409D16 /* VibeHeaderProfilePic.swift */; };
 		A366B8111D59F3190079F686 /* CloseMenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A366B8101D59F3190079F686 /* CloseMenuController.swift */; };
 		A366B8131D5A23BD0079F686 /* FacebookButtonHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A366B8121D5A23BD0079F686 /* FacebookButtonHolder.swift */; };
 		A36A426E1D61C5A60062E9AD /* BottomNavController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A36A426D1D61C5A60062E9AD /* BottomNavController.swift */; };
@@ -123,9 +129,15 @@
 		A353F0ED1D1224BC009A2182 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A353F0F91D1226D3009A2182 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "CityScape/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		A353F0FE1D122B63009A2182 /* background.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = background.gif; sourceTree = "<group>"; };
+		A35644F11D7F9F1F00D005A9 /* SnapchatViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SnapchatViewController.swift; sourceTree = "<group>"; };
 		A35DB7331D79CAEE00409D16 /* NewVibesController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewVibesController.swift; sourceTree = "<group>"; };
 		A35DB7351D79EE8E00409D16 /* ActionsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActionsViewController.swift; sourceTree = "<group>"; };
 		A35DB7371D7A0BCC00409D16 /* ProfilePicCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfilePicCollectionCell.swift; sourceTree = "<group>"; };
+		A35DB73A1D7BB3F900409D16 /* ImageVibeCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageVibeCollectionCell.swift; sourceTree = "<group>"; };
+		A35DB73C1D7BB41100409D16 /* VideoVibeCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoVibeCollectionCell.swift; sourceTree = "<group>"; };
+		A35DB7421D7BBD8E00409D16 /* VibeHeaderCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VibeHeaderCollectionCell.swift; sourceTree = "<group>"; };
+		A35DB7441D7C8B0C00409D16 /* SnapchatChatController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SnapchatChatController.swift; sourceTree = "<group>"; };
+		A35DB7461D7C970B00409D16 /* VibeHeaderProfilePic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VibeHeaderProfilePic.swift; sourceTree = "<group>"; };
 		A366B8101D59F3190079F686 /* CloseMenuController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CloseMenuController.swift; sourceTree = "<group>"; };
 		A366B8121D5A23BD0079F686 /* FacebookButtonHolder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FacebookButtonHolder.swift; sourceTree = "<group>"; };
 		A36A426D1D61C5A60062E9AD /* BottomNavController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BottomNavController.swift; sourceTree = "<group>"; };
@@ -323,6 +335,16 @@
 			name = gifs;
 			sourceTree = "<group>";
 		};
+		A35DB7391D7B954000409D16 /* Other */ = {
+			isa = PBXGroup;
+			children = (
+				A36BDF701D71DED2005E0806 /* ItsAMatchController.swift */,
+				A35DB7351D79EE8E00409D16 /* ActionsViewController.swift */,
+				A35644F11D7F9F1F00D005A9 /* SnapchatViewController.swift */,
+			);
+			name = Other;
+			sourceTree = "<group>";
+		};
 		A36A426B1D61C55E0062E9AD /* Nav */ = {
 			isa = PBXGroup;
 			children = (
@@ -403,6 +425,9 @@
 			children = (
 				A36A42741D61F6D40062E9AD /* CommentCells */,
 				A36A42761D61F6F40062E9AD /* ContentCells */,
+				A35DB73A1D7BB3F900409D16 /* ImageVibeCollectionCell.swift */,
+				A35DB73C1D7BB41100409D16 /* VideoVibeCollectionCell.swift */,
+				A35DB7421D7BBD8E00409D16 /* VibeHeaderCollectionCell.swift */,
 			);
 			name = Cells;
 			sourceTree = "<group>";
@@ -543,6 +568,7 @@
 				A3DAAB5F1D68652600F0A64E /* MenuProfileView.swift */,
 				A36BDF721D71F573005E0806 /* MatchProfileViews.swift */,
 				A36BDF741D720404005E0806 /* MatchButtons.swift */,
+				A35DB7461D7C970B00409D16 /* VibeHeaderProfilePic.swift */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -553,12 +579,11 @@
 				A3E1388D1D25B57E002A5031 /* MainRootController.swift */,
 				A36A426B1D61C55E0062E9AD /* Nav */,
 				A36A426C1D61C5670062E9AD /* Tabs */,
+				A35DB7391D7B954000409D16 /* Other */,
 				A36A426F1D61CEE50062E9AD /* Menu */,
 				A3C8C2481D55E5FC00F703AA /* Chat */,
 				A371A6E41D632FEF00A85F21 /* Profile */,
 				A36A42701D61CEFA0062E9AD /* CameraStuff */,
-				A36BDF701D71DED2005E0806 /* ItsAMatchController.swift */,
-				A35DB7351D79EE8E00409D16 /* ActionsViewController.swift */,
 			);
 			name = HomeRoot;
 			sourceTree = "<group>";
@@ -567,6 +592,7 @@
 			isa = PBXGroup;
 			children = (
 				A38289CA1D2B433B00C17F48 /* CommentController.swift */,
+				A35DB7441D7C8B0C00409D16 /* SnapchatChatController.swift */,
 			);
 			name = Chat;
 			sourceTree = "<group>";
@@ -844,11 +870,14 @@
 				A353F0CE1D1224BC009A2182 /* SignUpController.swift in Sources */,
 				A3F293B81D4F219D00CD9D15 /* OutTextCommentCell.swift in Sources */,
 				A3D8794F1D3BF7EF00FB7358 /* HexColorExtension.swift in Sources */,
+				A35DB7451D7C8B0D00409D16 /* SnapchatChatController.swift in Sources */,
 				A3E138921D25B5A0002A5031 /* MenuController.swift in Sources */,
 				A3C4977B1D561F0800D293A4 /* NearbyController.swift in Sources */,
+				A35DB73D1D7BB41100409D16 /* VideoVibeCollectionCell.swift in Sources */,
 				A37AC1C11D2A19FD00EBF813 /* LikeOrDislikeDisplay.swift in Sources */,
 				A3C4977F1D56F45D00D293A4 /* NearbySquadCollectionCell.swift in Sources */,
 				A397371E1D57024300E406D7 /* NearbyMatchCollectionCell.swift in Sources */,
+				A35644F21D7F9F1F00D005A9 /* SnapchatViewController.swift in Sources */,
 				A3BB982D1D1C5DC200BD384F /* ForgotPasswordController.swift in Sources */,
 				A3D879531D3CDE8B00FB7358 /* InMediaCommentCell.swift in Sources */,
 				A3C8C24E1D56021E00F703AA /* NavButtonView.swift in Sources */,
@@ -877,14 +906,17 @@
 				A3CA89621D284AB200590516 /* TableViewProfilePic.swift in Sources */,
 				A3C497791D56152F00D293A4 /* VibesFeedController.swift in Sources */,
 				A3BB982B1D1C5ACD00BD384F /* SignInController.swift in Sources */,
+				A35DB73B1D7BB3FA00409D16 /* ImageVibeCollectionCell.swift in Sources */,
 				A3BB98291D1B63D800BD384F /* ProfileSignUpController.swift in Sources */,
 				A3D879471D3BD36100FB7358 /* InTextCommentCell.swift in Sources */,
 				A3BB98191D12E67E00BD384F /* TextFields.swift in Sources */,
 				A32C2C5D1D58E43C0064D707 /* AlertControllerView.swift in Sources */,
 				A36BDF731D71F573005E0806 /* MatchProfileViews.swift in Sources */,
+				A35DB7471D7C970B00409D16 /* VibeHeaderProfilePic.swift in Sources */,
 				A366B8131D5A23BD0079F686 /* FacebookButtonHolder.swift in Sources */,
 				A3F293B61D4F1CBD00CD9D15 /* NoCommentCell.swift in Sources */,
 				A312C26B1D347AE600F272F0 /* MemoryLeak.swift in Sources */,
+				A35DB7431D7BBD8E00409D16 /* VibeHeaderCollectionCell.swift in Sources */,
 				A3C4977D1D561F2200D293A4 /* MessagesController.swift in Sources */,
 				A3D11B401D5763A8006884BF /* GFQuery.m in Sources */,
 			);

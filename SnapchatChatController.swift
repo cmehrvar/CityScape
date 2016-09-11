@@ -1,8 +1,8 @@
 //
-//  CommentController.swift
+//  VibesChatController.swift
 //  CityScape
 //
-//  Created by Cina Mehrvar on 2016-07-04.
+//  Created by Cina Mehrvar on 2016-09-04.
 //  Copyright © 2016 Cina Mehrvar. All rights reserved.
 //
 
@@ -18,21 +18,14 @@ import AWSCore
 import AWSCognito
 import Player
 
-class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelegate, UIGestureRecognizerDelegate {
+class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerDelegate, UIGestureRecognizerDelegate {
     
-    weak var rootController: MainRootController?
+    weak var snapchatController: SnapchatViewController?
     
     //JSQData
-    var messageIndex = 0
-    
-    var messageData = [[String : AnyObject]]()
-    
     var videoPlayers = [String : Player]()
-    
     var passedRef = ""
-    var ownerUID = ""
-    
-    
+
     var messages = [JSQMessageData]()
     var messageKeys = [String]()
     var avatars = [String : JSQMessagesAvatarImage]()
@@ -42,10 +35,11 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
     var exportedVideoURL = NSURL()
     var addedMessages = [String : Bool]()
     
-    var typeOfChat = "unknown"
+    var typeOfChat = "snapchat"
     
     var keyboardShown = false
-
+    var chatEnlarged = false
+    
     //Player Delegates
     func playerReady(player: Player){
         
@@ -67,7 +61,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
     }
     
     func playerCurrentTimeDidChange(player: Player) {
-        
+        print("current time did change")
     }
     
     
@@ -96,12 +90,10 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
             "isMedia" : false,
             "isImage" : false,
             "media" : "none",
-            "owner" : ownerUID
-            
             
             ]
         
-        if let firstName = self.rootController?.selfData["firstName"] as? String, lastName = self.rootController?.selfData["lastName"] as? String {
+        if let firstName = self.snapchatController?.rootController?.selfData["firstName"] as? String, lastName = self.snapchatController?.rootController?.selfData["lastName"] as? String {
             
             messageItem["firstName"] = firstName
             messageItem["lastName"] = lastName
@@ -110,28 +102,12 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
         
         ref.child(passedRef).child("messages").childByAutoId().setValue(messageItem)
         
-        if typeOfChat == "match" {
-            
-            let lastActivity = NSDate().timeIntervalSince1970
-            
-            if let myUID = FIRAuth.auth()?.currentUser?.uid {
-                
-                ref.child("users").child(ownerUID).child("matches").child(myUID).updateChildValues(["lastActivity" : lastActivity])
-                ref.child("users").child(myUID).child("matches").child(ownerUID).updateChildValues(["lastActivity" : lastActivity])
-
-                ref.child("users").child(ownerUID).child("matches").child(myUID).child("messages").childByAutoId().setValue(messageItem)
-            }
-        }
-
         JSQSystemSoundPlayer.jsq_playMessageSentSound()
         endedTyping()
         finishSendingMessage()
         
+        
     }
-    
-    
-    
-    
     
     //Did press accessory button
     override func didPressAccessoryButton(sender: UIButton!) {
@@ -152,7 +128,6 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
     func fusumaDismissedWithImage(image: UIImage) {
         
         let scopePassedRef = self.passedRef
-        let scopeOwner = self.ownerUID
         
         //Call Upload Function
         uploadMedia(true, image: image, videoURL: nil) { (date, fileName, messageData) in
@@ -169,7 +144,6 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                     
                     let ref = FIRDatabase.database().reference()
 
-                    
                     if let key = request.key {
                         
                         let timeStamp = NSDate().timeIntervalSince1970
@@ -183,7 +157,6 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                             "isMedia" : true,
                             "isImage" : true,
                             "media" : "https://s3.amazonaws.com/cityscapebucket/" + key,
-                            "owner" : scopeOwner
                             
                         ]
                         
@@ -208,7 +181,6 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
     func fusumaVideoCompleted(withFileURL fileURL: NSURL) {
         
         let scopePassedRef = self.passedRef
-        let scopeOwner = self.ownerUID
         
         uploadMedia(false, image: nil, videoURL: fileURL) { (date, fileName, messageData) in
             
@@ -242,7 +214,6 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                                 "isMedia" : true,
                                 "isImage" : false,
                                 "media" : "https://s3.amazonaws.com/cityscapebucket/" + key,
-                                "owner" : scopeOwner
                                 
                             ]
                             
@@ -288,6 +259,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
     }
     func beganTyping(){
         
+        
         let ref = FIRDatabase.database().reference()
         
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
@@ -295,8 +267,10 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
             ref.child(passedRef).child("isTyping").child(selfUID).setValue(true)
             
         }
+        
     }
     func endedTyping(){
+        
         
         let ref = FIRDatabase.database().reference()
         
@@ -424,8 +398,6 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                                     player.playbackLoops = true
                                     player.playFromBeginning()
                                     cell.mediaView.addSubview(videoPlayerView)
-                                    
-                                    self.messageData[indexPath.item]["player"] = player
                                     
                                 }
                             }
@@ -640,64 +612,35 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
         
         let ref = FIRDatabase.database().reference().child(passedRef)
         
+        var index = 0
+        
         ref.child("messages").observeEventType(.ChildAdded, withBlock: { (snapshot) in
             
             if let value = snapshot.value as? [NSObject : AnyObject] {
                 
-                if let id = value["senderId"] as? String, text = value["text"] as? String, name = value["senderDisplayName"] as? String, media = value["media"] as? String, isImage = value["isImage"] as? Bool, isMedia = value["isMedia"] as? Bool, key = value["key"] as? String, timeStamp = value["timeStamp"] as? NSTimeInterval, owner = value["owner"] as? String, selfUID = FIRAuth.auth()?.currentUser?.uid {
-
-                    print(self.ownerUID)
+                if let id = value["senderId"] as? String, text = value["text"] as? String, name = value["senderDisplayName"] as? String, media = value["media"] as? String, isImage = value["isImage"] as? Bool, isMedia = value["isMedia"] as? Bool, key = value["key"] as? String, timeStamp = value["timeStamp"] as? NSTimeInterval {
                     
-                    if owner == self.ownerUID || owner == selfUID {
-                        
-                        let date = NSDate(timeIntervalSince1970: timeStamp)
-                        let sentMessage = self.addedMessages[key]
-                        
-                        if sentMessage == nil {
-                            self.addMessage(id, text: text, name: name, isMedia: isMedia, media: media, isImage: isImage, date: date, key: key, i: nil, offlineImage: nil)
-                        }
-
-                        
-                    } else {
-                        ref.removeAllObservers()
+                    let date = NSDate(timeIntervalSince1970: timeStamp)
+                    let sentMessage = self.addedMessages[key]
+                    
+                    if sentMessage == nil {
+                        self.addMessage(id, text: text, name: name, isMedia: isMedia, media: media, isImage: isImage, date: date, key: key, i: index)
                     }
                 }
                 
-                print(value)
+                index += 1
                 
             }
         })
     }
-
+    
     
     //Add Message
-    func addMessage(id: String, text: String, name: String, isMedia: Bool, media: String, isImage: Bool, date: NSDate, key: String, i: Int?, offlineImage: UIImage?) {
+    func addMessage(id: String, text: String, name: String, isMedia: Bool, media: String, isImage: Bool, date: NSDate, key: String, i: Int) {
         
-        if addedMessages[key] == false || addedMessages[key] == nil {
-            
-            let scopeIndex = self.messageIndex
-            
-            let message = JSQMessage(senderId: id, senderDisplayName: name, date: date, text: text)
-            self.messageKeys.append(key)
-            self.messages.append(message)
-            
-            self.finishReceivingMessage()
-            
-            messageData.append(["senderId" : id, "text" : text, "senderDisplayName" : name, "isMedia" : isMedia, "media" : media, "isImage" : isImage, "date" : date, "key" : key])
+        print(text)
 
-            if let index = i {
-                
-                if offlineImage != nil {
-                    messageData[index]["offlineImage"] = offlineImage
-                }
-                
-            }
-            
-            if let player = videoPlayers[key], index = i {
-                
-                messageData[index]["player"] = player
-                
-            }
+        if addedMessages[key] == false || addedMessages[key] == nil {
             
             addedMessages[key] = true
             
@@ -705,62 +648,39 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                 
                 if isImage {
                     
-                    if offlineImage != nil {
+                    if let url = NSURL(string: media){
                         
-                        let message = JSQPhotoMediaItem(image: offlineImage)
-                        
-                        if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                        SDWebImageManager.sharedManager().downloadImageWithURL(url, options: .ContinueInBackground, progress: nil, completed: { (image, error, cache, bool, url) in
                             
-                            if selfUID == id {
+                            if error == nil {
                                 
-                                message.appliesMediaViewMaskAsOutgoing = true
+                                let message = JSQPhotoMediaItem(image: image)
                                 
-                            } else {
+                                if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                                    
+                                    if selfUID == id {
+                                        
+                                        message.appliesMediaViewMaskAsOutgoing = true
+                                        
+                                    } else {
+                                        
+                                        message.appliesMediaViewMaskAsOutgoing = false
+                                        
+                                    }
+                                }
                                 
-                                message.appliesMediaViewMaskAsOutgoing = false
+                                let messageData = JSQMessage(senderId: id, senderDisplayName: name, date: date, media: message)
+                                
+                                self.messages.insert(messageData, atIndex: i)
+                                
+                                self.finishReceivingMessage()
                                 
                             }
-                        }
-                        
-                        let messageData = JSQMessage(senderId: id, senderDisplayName: name, date: date, media: message)
-                        
-                        self.messages[scopeIndex] = messageData
-                        
-                    } else {
-                        
-                        if let url = NSURL(string: media){
-                            
-                            SDWebImageManager.sharedManager().downloadImageWithURL(url, options: .ContinueInBackground, progress: nil, completed: { (image, error, cache, bool, url) in
-                                
-                                if error == nil {
-                                    
-                                    let message = JSQPhotoMediaItem(image: image)
-                                    
-                                    
-                                    if let selfUID = FIRAuth.auth()?.currentUser?.uid {
-                                        
-                                        if selfUID == id {
-                                            
-                                            message.appliesMediaViewMaskAsOutgoing = true
-                                            
-                                        } else {
-                                            
-                                            message.appliesMediaViewMaskAsOutgoing = false
-                                            
-                                        }
-                                    }
-                                    
-                                    let messageData = JSQMessage(senderId: id, senderDisplayName: name, date: date, media: message)
-                                    
-                                    self.messages[scopeIndex] = messageData
-                                    
-                                }
-                            })
-                        }
+                        })
                     }
                     
-                } else {
                     
+                } else {
                     
                     //Download Video, then we need to figure out how to play???
                     if let url = NSURL(string: media) {
@@ -782,25 +702,32 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                         
                         let messageData = JSQMessage(senderId: id, senderDisplayName: name, date: date, media: message)
                         
-                        self.messages[scopeIndex] = messageData
+                        self.messages.insert(messageData, atIndex: i)
+                        
+                        self.finishReceivingMessage()
                     }
                     
                 }
                 
+            } else {
+                
+                let message = JSQMessage(senderId: id, senderDisplayName: name, date: date, text: text)
+                
+                self.messageKeys.append(key)
+                self.messages.append(message)
+                
                 self.finishReceivingMessage()
                 
             }
-            
-            
+
             if avatars[id] == nil {
-                
                 
                 let ref = FIRDatabase.database().reference().child("users").child(id).child("profilePicture")
                 
                 ref.observeSingleEventOfType(.Value, withBlock: { (snapshot) in
                     
                     if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
-
+                        
                         SDWebImageManager.sharedManager().downloadImageWithURL(url, options: SDWebImageOptions.ContinueInBackground, progress: nil, completed: { (image, error, cache, bool, url) in
                             
                             if let selfUID = FIRAuth.auth()?.currentUser?.uid {
@@ -808,7 +735,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                                 if id == selfUID {
                                     
                                     let userImage = JSQMessagesAvatarImageFactory.avatarImageWithImage(image, diameter: 36)
-
+                                    
                                     self.avatars[id] = userImage
                                     
                                     
@@ -819,14 +746,12 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                                 }
                                 
                                 self.finishReceivingMessage()
+                                
                             }
                         })
                     }
                 })
             }
-            
-            messageIndex += 1
-            
         }
     }
     
@@ -837,8 +762,6 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
         var fileName = ""
         var messageData: JSQMessage!
         
-        var offlineMessage = [String : AnyObject]()
-        
         if isImage {
             
             fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".jpeg")
@@ -846,32 +769,16 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
             message.mediaView().contentMode = UIViewContentMode.ScaleAspectFill
             messageData = JSQMessage(senderId: senderId, senderDisplayName: senderDisplayName, date: date, media: message)
             
-            offlineMessage["offlineImage"] = image
-            offlineMessage["text"] = "sent a photo!"
-            offlineMessage["isImage"] = true
-            
         } else {
             
             fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".mov")
             let message = JSQVideoMediaItem(fileURL: videoURL, isReadyToPlay: true)
             messageData = JSQMessage(senderId: senderId, senderDisplayName: senderDisplayName, date: date, media: message)
             
-            offlineMessage["text"] = "sent a video!"
-            offlineMessage["isImage"] = false
         }
         
-        offlineMessage["date"] = date
-        offlineMessage["senderId"] = senderId
-        offlineMessage["isMedia"] = true
-        offlineMessage["key"] = fileName
-        offlineMessage["senderDisplayName"] = senderDisplayName
-        offlineMessage["media"] = "none"
-        
-        self.messageData.append(offlineMessage)
         self.messageKeys.append(fileName)
         self.messages.append(messageData)
-        
-        
         
         self.addedMessages[fileName] = true
         
@@ -974,57 +881,163 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
     
     func dismissKeyboard(){
         
-        self.view.endEditing(true)
+        if keyboardShown {
+            self.view.endEditing(true)
+        }
+    }
+    
+    
+    func hideKeyboard(notification: NSNotification){
+        
+        print("hide keyboard")
+        
+        if let rootWidth = self.snapchatController?.rootController?.view.bounds.width {
+            
+            UIView.animateWithDuration(0.3, animations: {
+                
+                self.snapchatController?.contentHeightConstOutlet.constant = rootWidth
+                
+                self.snapchatController?.view.layoutIfNeeded()
+                
+                }, completion: { (bool) in
+                    
+                    self.keyboardShown = false
+            })
+            
+        }
         
     }
     
-    func keyboardDidShow(){
+    
+    
+    func showKeyboard(notification: NSNotification){
         
-        keyboardShown = true
+        print("show keyboard")
         
-        rootController?.hideAllNav({ (bool) in
+        if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.CGRectValue(), rootWidth = self.snapchatController?.rootController?.view.bounds.width {
             
-            print("keyboard show, nav hidded")
+            UIView.animateWithDuration(0.3, animations: {
+                
+                self.snapchatController?.contentHeightConstOutlet.constant = rootWidth - keyboardSize.height
+                
+                self.snapchatController?.view.layoutIfNeeded()
+                
+                }, completion: { (bool) in
+                    
+                    self.keyboardShown = true
+            })
             
-        })
+        }
         
     }
     
-    func keyboardHid(){
-        
-        keyboardShown = false
-        
-        rootController?.showNav(0.3, completion: { (bool) in
-            
-            print("keyboard hid, nav shown")
-            
-        })
-        
-    }
     
-    //View did appear
-    override func viewDidAppear(animated: Bool) {
+    
+    //PAN HANDLER
+    func panHandler(sender: UIPanGestureRecognizer){
         
-        super.viewDidAppear(animated)
+        let translation = sender.translationInView(self.view)
+        
+        switch sender.state {
+            
+        case .Ended:
+            
+            print("end y: \(translation.y)")
+            
+            if translation.y < -125 {
 
+                enlargeChat()
+
+            } else if translation.y > 125 {
+                
+                shrinkChat()
+                
+            } else {
+                
+                print("not long enough gesture")
+                
+            }
+            
+        default:
+            break
+            
+        }
+    }
+    
+    
+    func shrinkChat(){
+        
+        if chatEnlarged {
+            
+            self.chatEnlarged = false
+            
+            print("shrink chat")
+            
+            guard let rootWidth = self.snapchatController?.rootController?.view.bounds.width else {return}
+            
+            UIView.animateWithDuration(0.3, animations: {
+                
+                self.snapchatController?.contentHeightConstOutlet.constant = rootWidth
+                self.snapchatController?.view.layoutIfNeeded()
+                
+                }, completion: { (bool) in
+
+                    
+            })
+        }
+    }
+    
+    
+    func enlargeChat(){
+        
+        if !chatEnlarged {
+            
+            self.chatEnlarged = true
+            
+            print("enlarge chat")
+            
+            UIView.animateWithDuration(0.3, animations: {
+
+                self.snapchatController?.contentHeightConstOutlet.constant = 150
+                self.snapchatController?.view.layoutIfNeeded()
+                
+                }, completion: { (bool) in
+                    
+                    
+                    
+            })
+        }
+    }
+    
+    
+    func addGestureRecognizers(){
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.delegate = self
+        self.collectionView.addGestureRecognizer(tapGesture)
+        
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(panHandler))
+        panGesture.delegate = self
+        self.collectionView.addGestureRecognizer(panGesture)
+        
         
     }
+    
+    
     
     override func viewDidLoad() {
         
         self.senderId = "none"
         self.senderDisplayName = "none"
-
+        
         super.viewDidLoad()
         
+        self.collectionView.collectionViewLayout.springinessEnabled = false
         self.keyboardController.textView.autocorrectionType = .No
         
-        self.collectionView.collectionViewLayout.springinessEnabled = false
-
-        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        tapGestureRecognizer.delegate = self
-        self.collectionView.addGestureRecognizer(tapGestureRecognizer)
-  
+        addGestureRecognizers()
+        
+        
         addUploadStuff()
         setUpBubbles()
         
@@ -1040,28 +1053,6 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
     }
     
     
-    override func scrollViewWillEndDragging(scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-        
-        if !keyboardShown {
-            
-            if velocity.y > 0 {
-                
-                rootController?.hideAllNav({ (bool) in
-                    
-                    print("nav hide")
-                    
-                })
-                
-            } else if velocity.y < 0 {
-                
-                rootController?.showNav(0.3, completion: { (bool) in
-                    
-                    print("show nav")
-                    
-                })
-            }
-        }
-    }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()

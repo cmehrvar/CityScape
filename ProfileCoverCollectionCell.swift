@@ -77,6 +77,7 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
             }
 
             occupationOutlet.text = fullOccupation
+            
         } else {
             
             if selfProfile {
@@ -84,8 +85,6 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
             } else {
                 occupationOutlet.text = ""
             }
-            
-            
         }
 
         
@@ -142,8 +141,6 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
             distanceOutlet.text = ""
             
         }
-        
-        
     }
     
     //Actions

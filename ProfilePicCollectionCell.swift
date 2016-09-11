@@ -20,9 +20,53 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
     
     @IBOutlet weak var profilePicOutlet: UIImageView!
     @IBOutlet weak var profilePic2Outlet: UIImageView!
-    
-
     @IBOutlet weak var profilePicCenterConstOutlet: NSLayoutConstraint!
+    @IBOutlet weak var editButton1: UIView!
+    @IBOutlet weak var editButton2: UIView!
+    
+    //Actions
+    @IBAction func firstPic(sender: AnyObject) {
+        
+        print("first pic")
+        editedPhoto = "profilePicture"
+        
+        let cameraProfile = UIImagePickerController()
+        
+        cameraProfile.delegate = self
+        cameraProfile.allowsEditing = false
+        
+        let alertController = UIAlertController(title: "Smile!", message: "Take a pic or choose from gallery?", preferredStyle:  UIAlertControllerStyle.Alert)
+        
+        alertController.addAction(UIAlertAction(title: "Camera", style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+            
+            if UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.Camera) {
+                cameraProfile.sourceType = UIImagePickerControllerSourceType.Camera
+            }
+            
+            self.profileController?.presentViewController(cameraProfile, animated: true, completion: nil)
+            
+        }))
+        
+        alertController.addAction(UIAlertAction(title: "Gallery", style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+            
+            cameraProfile.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
+            
+            self.profileController?.presentViewController(cameraProfile, animated: true, completion: nil)
+            
+        }))
+        
+        self.profileController?.presentViewController(alertController, animated: true, completion: nil)
+
+        
+        
+        
+        
+        
+    }
+    
+    
+    
+    
     
     
     @IBAction func secondPic(sender: AnyObject) {
@@ -61,7 +105,7 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
     
     
     
-    
+    //Image Picker Delegates
     func imagePickerController(picker: UIImagePickerController, didFinishPickingImage image: UIImage, editingInfo: [String : AnyObject]?) {
 
         let scopeEditedPhoto = editedPhoto
@@ -73,6 +117,19 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
 
         scopeProfileController?.dismissViewControllerAnimated(true, completion: {
             
+            
+            if scopeEditedPhoto == "profilePicture" {
+                
+                let scale = image.size.height / image.size.width
+                
+                scopeProfileController?.tempImage1Scale = scale
+                scopeProfileController?.tempImage1 = image
+                
+                
+            }
+            
+            
+            
             if scopeEditedPhoto == "profilePicture2" {
 
                 let scale = image.size.height / image.size.width
@@ -83,13 +140,6 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
             }
 
             print("dismissed")
-
-            
-        })
-
-        /*
-
-        profileController?.dismissViewControllerAnimated(true) {
             
             self.imageUploadRequest(image) { (url, uploadRequest) in
                 
@@ -104,7 +154,21 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                         let ref = FIRDatabase.database().reference()
                         
                         if let uid = FIRAuth.auth()?.currentUser?.uid {
-                            ref.child("users").child(uid).updateChildValues(["profilePicture2": url])
+                            
+                            if scopeEditedPhoto == "profilePicture" {
+                                
+                                self.profileController?.tempImage1 = nil
+                                
+                                
+                            } else if scopeEditedPhoto == "profilePicture2" {
+                                
+                                self.profileController?.tempImage2 = nil
+                                
+                                
+                            }
+                            
+
+                            ref.child("users").child(uid).updateChildValues([scopeEditedPhoto: url])
                         }
                         
                     } else {
@@ -118,10 +182,11 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                     return nil
                 }
             }
-        }
- */
+            
+        })
     }
     
+    //Image Uploads
     func imageUploadRequest(image: UIImage, completion: (url: String, uploadRequest: AWSS3TransferManagerUploadRequest) -> ()) {
         
         let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".jpeg")
@@ -164,6 +229,8 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
     }
 
 
+    
+    //Functions
     func addSwipeGesture(){
         
         let leftSwipe = UISwipeGestureRecognizer(target: self, action: #selector(swipeLeft))
