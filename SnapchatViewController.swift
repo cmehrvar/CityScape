@@ -771,6 +771,8 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
                 
                 self.primaryImageLeadingConstant.constant = -rootWidth
                 self.primaryImageTrailingOutlet.constant = rootWidth
+                
+                self.videoOutlet.layoutIfNeeded()
                 self.view.layoutIfNeeded()
                 
                 }, completion: { (bool) in
@@ -905,20 +907,16 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
                             self.videoOutlet.alpha = 1
                             self.videoOutlet.addSubview(player.view)
                             player.playFromBeginning()
-                            
-                            
+  
                             print("video downloaded!")
-                            
-                            
+ 
                         })
                     }
 
                 } else {
                     
                     print("is image!")
-                    
-                    
-                    
+ 
                 }
             }
         }
