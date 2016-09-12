@@ -55,26 +55,37 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
     
     var videoPlayers = [String : Player]()
     
+    var currentPostKey = ""
+    
     //Player Delegates
     func playerReady(player: Player){
         
-    }
-    func playerPlaybackStateDidChange(player: Player){
         
     }
+    
+    func playerPlaybackStateDidChange(player: Player){
+        
+        
+        
+    }
+    
     func playerBufferingStateDidChange(player: Player){
+        
+        
         
     }
     
     func playerPlaybackWillStartFromBeginning(player: Player){
         
-    }
-    func playerPlaybackDidEnd(player: Player){
         
+    }
+    
+    func playerPlaybackDidEnd(player: Player){
         
     }
     
     func playerCurrentTimeDidChange(player: Player) {
+        
         
     }
     
@@ -101,43 +112,43 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
                     
                     print("isImage")
                     
-                } else {
+                } else if let postKey = post["postChildKey"] as? String {
 
-                    if let videoString = post["videoURL"] as? String, videoURL = NSURL(string: videoString), key = post["postChildKey"] as? String {
+                    if self.videoPlayers[postKey] == nil {
                         
-                        dispatch_async(dispatch_get_main_queue(), {
+                        if let videoString = post["videoURL"] as? String, videoURL = NSURL(string: videoString), key = post["postChildKey"] as? String {
                             
-                            let player = Player()
-                            player.delegate = self
-                            self.addChildViewController(player)
-                            player.view.frame = self.videoOutlet.bounds
-                            player.didMoveToParentViewController(self)
-                            player.setUrl(videoURL)
-                            player.fillMode = AVLayerVideoGravityResizeAspectFill
-                            player.playbackLoops = true
-                            
-                            self.videoPlayers[key] = player
-                            
-                            print("video downloaded!")
-                            
-                            
-                        })
+                            dispatch_async(dispatch_get_main_queue(), {
+                                
+                                let player = Player()
+                                player.delegate = self
+                                self.addChildViewController(player)
+                                player.view.frame = self.videoOutlet.bounds
+                                player.didMoveToParentViewController(self)
+                                player.setUrl(videoURL)
+                                player.fillMode = AVLayerVideoGravityResizeAspectFill
+                                player.playbackLoops = true
+                                
+                                self.videoPlayers[key] = player
+                                
+                                print("video downloaded!")
+ 
+                            })
+                        }
                     }
                 }
-
+                
                 SDWebImageManager.sharedManager().downloadImageWithURL(imageURL, options: .ContinueInBackground, progress: { (currentSize, expectedSize) in
                     
                     }, completed: { (image, error, cache, bool, url) in
-      
+                        
                 })
             }
-            
         }
-
     }
     
     
-    func observePosts(lastNumber: UInt){
+    func observePosts(lastNumber: UInt, completion: Bool -> ()){
         
         let ref = FIRDatabase.database().reference()
         
@@ -199,11 +210,16 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
                     self.firstImageLoaded = true
                     
                     self.loadPrimary("left", i: -1, completion: { (bool) in
+ 
+                        completion(bool)
                         
                         print("primary loaded")
                         
                     })
+                    
                 }
+
+                
                 
                 for i in 0..<self.posts.count {
                     
@@ -233,8 +249,12 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
                 
                 }, completion: { (bool) in
                     
-                    self.chatIsRevealed = true
+                    self.isPanning = false
+                    self.longPressEnabled = false
                     
+                    self.chatIsRevealed = true
+                    self.snapchatChatController?.finishReceivingMessage()
+   
             })
         }
     }
@@ -258,6 +278,9 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
                     
                     self.chatIsRevealed = false
                     self.snapchatChatController?.chatEnlarged = false
+                    self.isPanning = false
+                    self.longPressEnabled = false
+
                     
             })
         }
@@ -294,7 +317,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
         
         if let rootHeight = self.rootController?.view.bounds.height, rootWidth = self.rootController?.view.bounds.width {
             
-            UIView.animateWithDuration(animatingTime, animations: {
+            UIView.animateWithDuration(0.3, animations: {
                 
                 self.rootController?.snapXOutlet.constant = 0
                 self.rootController?.snapYOutlet.constant = 0
@@ -307,8 +330,13 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
                 self.rootController?.view.layoutIfNeeded()
                 self.view.layoutIfNeeded()
                 
-                
+                }, completion: { (bool) in
+                    
+                    self.isPanning = false
+                    self.longPressEnabled = false
             })
+            
+
         }
     }
     
@@ -325,6 +353,8 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
                 
                 self.rootController?.toggleSnapchat({ (bool) in
                     
+                    self.isPanning = false
+                    self.longPressEnabled = false
                     print("snapchat toggled")
                     
                 })
@@ -371,9 +401,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
             
             print("end x: \(translation.x)")
             print("end y: \(translation.y)")
-            
-            isPanning = false
-            
+
             let endTranslationX = translation.x
             let endTranslationY = translation.y
             
@@ -554,9 +582,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
                             loadSecondaryContent("left", i: scopeIndex, completion: { (bool) in
                                 
                                 self.loadPrimary("left", i: scopeIndex, completion: { (Bool) in
-                                    
-                                    self.nextEnabled = true
-                                    
+
                                 })
                             })
                         }
@@ -584,8 +610,8 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
                                 
                                 self.loadPrimary("right", i: scopeIndex, completion: { (Bool) in
                                     
-                                    self.nextEnabled = true
                                     
+
                                 })
                             })
                         }
@@ -682,7 +708,11 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
         case .Ended:
             print("long press ended")
             
-            longPressEnabled = false
+            if !isPanning {
+                
+                screenToNormal(0.3)
+                
+            }
             
         default:
             break
@@ -710,6 +740,13 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
             
             var post = [NSObject : AnyObject]()
             
+            
+            if let key = post[i] as? String, player = videoPlayers[key] {
+                
+                player.view.removeFromSuperview()
+
+            }
+
             if direction == "left" {
                 
                 print("direction is left")
@@ -748,13 +785,13 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
                 })
             }
             
-
+            
             self.slideContent(direction, completion: { (bool) in
-
+                
                 completion(bool)
                 
             })
-
+            
             
             
         }
@@ -814,20 +851,25 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
     
     func tapHandler(){
         
-        if nextEnabled {
-            
-            let scopeIndex = currentIndex
-            
-            nextEnabled = false
-            
-            loadSecondaryContent("left", i: scopeIndex, completion: { (bool) in
+        if let chatEnlarged = snapchatChatController?.chatEnlarged {
+
+            if chatEnlarged {
                 
-                self.loadPrimary("left", i: scopeIndex, completion: { (Bool) in
+                snapchatChatController?.shrinkChat()
+   
+            } else if nextEnabled && !longPressEnabled {
+                
+                let scopeIndex = currentIndex
+                
+                nextEnabled = false
+                
+                loadSecondaryContent("left", i: scopeIndex, completion: { (bool) in
                     
-                    self.nextEnabled = true
-                    
+                    self.loadPrimary("left", i: scopeIndex, completion: { (Bool) in
+                        
+                    })
                 })
-            })
+            }
         }
     }
     
@@ -860,8 +902,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
             print("primary direction is right")
             
         }
-        
-        
+
         if let profileString = post["profilePicture"] as? String, profileURL = NSURL(string: profileString) {
             
             profilePicOutlet.sd_setImageWithURL(profileURL, placeholderImage: nil)
@@ -874,21 +915,24 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
             
         }
         
-        
         if let key = post["postChildKey"] as? String, player = videoPlayers[key] {
+            
+            dispatch_async(dispatch_get_main_queue(), {
+                
+                self.videoOutlet.alpha = 1
+                self.videoOutlet.addSubview(player.view)
+                player.playFromCurrentTime()
+                
+            })
 
-            videoOutlet.alpha = 1
-            self.videoOutlet.addSubview(player.view)
-            player.playFromBeginning()
-  
         } else {
             
             if let isImage = post["isImage"] as? Bool {
                 
                 if !isImage {
-
+                    
                     print("load video")
-  
+                    
                     if let videoString = post["videoURL"] as? String, videoURL = NSURL(string: videoString), key = post["postChildKey"] as? String {
                         
                         dispatch_async(dispatch_get_main_queue(), {
@@ -906,22 +950,22 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
                             
                             self.videoOutlet.alpha = 1
                             self.videoOutlet.addSubview(player.view)
-                            player.playFromBeginning()
-  
+                            player.playFromCurrentTime()
+                            
                             print("video downloaded!")
- 
+                            
                         })
                     }
-
+                    
                 } else {
                     
                     print("is image!")
- 
+    
                 }
             }
         }
         
-
+        
         if let caption = post["caption"] as? String {
             
             captionOutlet.text = caption
@@ -944,6 +988,8 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
         if let postKey = post["postChildKey"] as? String, city = post["city"] as? String {
             
             let ref = "posts/\(city)/\(postKey)"
+            currentPostKey = postKey
+            snapchatChatController?.currentPostKey = postKey
             snapchatChatController?.passedRef = ref
             
         }
@@ -959,15 +1005,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
             self.snapchatChatController?.senderDisplayName = "\(firstName) \(lastName)"
             
         }
-        
-        self.snapchatChatController?.messages.removeAll()
-        self.snapchatChatController?.messageKeys.removeAll()
-        self.snapchatChatController?.addedMessages.removeAll()
-        
-        self.snapchatChatController?.finishReceivingMessage()
-        
-        snapchatChatController?.newObserveMessages()
-        
+
         self.imageOutlet.alpha = 1
         self.secondaryImageOutlet.alpha = 0
         
@@ -984,6 +1022,12 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
             }
             
         }
+        
+        self.nextEnabled = true
+        self.snapchatChatController?.newObserveMessages()
+        
+        self.isPanning = false
+        self.longPressEnabled = false
         
         completion(true)
         
@@ -1005,9 +1049,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
         self.contentViewOutlet.addGestureRecognizer(tapGesture)
         
     }
-    
-    
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         

@@ -22,23 +22,30 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
     
     weak var snapchatController: SnapchatViewController?
     
+    var maxContentOffset = CGFloat()
+    
     //JSQData
     var videoPlayers = [String : Player]()
     var passedRef = ""
-
+    var typeOfChat = "snapchat"
+    var currentPostKey = ""
+    
     var messages = [JSQMessageData]()
     var messageKeys = [String]()
+    var addedMessages = [String : Bool]()
+    
     var avatars = [String : JSQMessagesAvatarImage]()
     var avatarDataSource = [JSQMessageAvatarImageDataSource]()
     var incomingBubbleImageView: JSQMessagesBubbleImage!
     var outgoingBubbleImageView: JSQMessagesBubbleImage!
+
     var exportedVideoURL = NSURL()
-    var addedMessages = [String : Bool]()
-    
-    var typeOfChat = "snapchat"
     
     var keyboardShown = false
     var chatEnlarged = false
+    
+    var contentOffset: CGFloat = 0
+    var scrollingUp = true
     
     //Player Delegates
     func playerReady(player: Player){
@@ -74,13 +81,12 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
         let ref = FIRDatabase.database().reference()
         
         let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".txt")
-        let date = NSDate()
         let timeStamp = date.timeIntervalSince1970
         
         print(senderId)
         print(senderDisplayName)
         
-        var messageItem: [String : AnyObject] = [
+        var messageItem: [NSObject : AnyObject] = [
             
             "key" : fileName,
             "text" : text,
@@ -90,6 +96,7 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
             "isMedia" : false,
             "isImage" : false,
             "media" : "none",
+            "postChildKey" : currentPostKey
             
             ]
         
@@ -99,12 +106,20 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
             messageItem["lastName"] = lastName
             
         }
+
+        let message = JSQMessage(senderId: senderId, senderDisplayName: senderDisplayName, date: date, text: text)
+        
+        self.messageKeys.append(fileName)
+        self.messages.append(message)
+        self.addedMessages[fileName] = true
         
         ref.child(passedRef).child("messages").childByAutoId().setValue(messageItem)
         
         JSQSystemSoundPlayer.jsq_playMessageSentSound()
         endedTyping()
         finishSendingMessage()
+
+        self.finishReceivingMessage()
         
         
     }
@@ -127,13 +142,14 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
     
     func fusumaDismissedWithImage(image: UIImage) {
         
+        let postKey = currentPostKey
         let scopePassedRef = self.passedRef
         
         //Call Upload Function
         uploadMedia(true, image: image, videoURL: nil) { (date, fileName, messageData) in
             
             let request = self.uploadRequest(image)
-            
+
             let transferManager = AWSS3TransferManager.defaultS3TransferManager()
             
             transferManager.upload(request).continueWithBlock({ (task) -> AnyObject? in
@@ -157,6 +173,7 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
                             "isMedia" : true,
                             "isImage" : true,
                             "media" : "https://s3.amazonaws.com/cityscapebucket/" + key,
+                            "postChildKey" : postKey
                             
                         ]
                         
@@ -181,6 +198,7 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
     func fusumaVideoCompleted(withFileURL fileURL: NSURL) {
         
         let scopePassedRef = self.passedRef
+        let postKey = currentPostKey
         
         uploadMedia(false, image: nil, videoURL: fileURL) { (date, fileName, messageData) in
             
@@ -199,8 +217,7 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
                     transferManager.upload(request).continueWithBlock({ (task) -> AnyObject? in
                         
                         let ref = FIRDatabase.database().reference()
-                        
-                        
+
                         if let key = request.key {
                             
                             let timeStamp = NSDate().timeIntervalSince1970
@@ -214,6 +231,7 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
                                 "isMedia" : true,
                                 "isImage" : false,
                                 "media" : "https://s3.amazonaws.com/cityscapebucket/" + key,
+                                "postChildKey" : postKey
                                 
                             ]
                             
@@ -612,24 +630,41 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
         
         let ref = FIRDatabase.database().reference().child(passedRef)
         
+        self.messages.removeAll()
+        self.messageKeys.removeAll()
+        self.addedMessages.removeAll()
+        
+        self.finishReceivingMessage()
+
         var index = 0
         
         ref.child("messages").observeEventType(.ChildAdded, withBlock: { (snapshot) in
             
             if let value = snapshot.value as? [NSObject : AnyObject] {
-                
-                if let id = value["senderId"] as? String, text = value["text"] as? String, name = value["senderDisplayName"] as? String, media = value["media"] as? String, isImage = value["isImage"] as? Bool, isMedia = value["isMedia"] as? Bool, key = value["key"] as? String, timeStamp = value["timeStamp"] as? NSTimeInterval {
+
+                if let postKey = value["postChildKey"] as? String {
                     
-                    let date = NSDate(timeIntervalSince1970: timeStamp)
-                    let sentMessage = self.addedMessages[key]
-                    
-                    if sentMessage == nil {
-                        self.addMessage(id, text: text, name: name, isMedia: isMedia, media: media, isImage: isImage, date: date, key: key, i: index)
+                    if self.currentPostKey == postKey {
+                        
+                        if let id = value["senderId"] as? String, text = value["text"] as? String, name = value["senderDisplayName"] as? String, media = value["media"] as? String, isImage = value["isImage"] as? Bool, isMedia = value["isMedia"] as? Bool, key = value["key"] as? String, timeStamp = value["timeStamp"] as? NSTimeInterval {
+                            
+                            let date = NSDate(timeIntervalSince1970: timeStamp)
+                            let sentMessage = self.addedMessages[key]
+                            
+                            if sentMessage == nil {
+                                
+                                self.addMessage(id, text: text, name: name, isMedia: isMedia, media: media, isImage: isImage, date: date, key: key, i: index)
+                                index += 1
+                                
+                            }
+                        }
+
+                    } else {
+                        
+                        ref.removeAllObservers()
+ 
                     }
                 }
-                
-                index += 1
-                
             }
         })
     }
@@ -673,13 +708,24 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
                                 
                                 self.messages.insert(messageData, atIndex: i)
                                 
-                                self.finishReceivingMessage()
+                                print("i: \(i)")
+                                print("content offset: \(self.collectionView.contentOffset.y)")
+                                print("max content offset: \(self.maxContentOffset)")
+                                print("scrolling up: \(self.scrollingUp)")
                                 
+                                if self.collectionView.contentOffset.y == 0 {
+                                    
+                                    self.finishReceivingMessage()
+                                    
+                                } else if ((self.maxContentOffset - self.collectionView.contentOffset.y) <= 300) {
+                                
+                                    self.finishReceivingMessage()
+                                
+                                }
                             }
                         })
                     }
-                    
-                    
+
                 } else {
                     
                     //Download Video, then we need to figure out how to play???
@@ -704,9 +750,21 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
                         
                         self.messages.insert(messageData, atIndex: i)
                         
-                        self.finishReceivingMessage()
+                        print("i: \(i)")
+                        print("content offset: \(self.collectionView.contentOffset.y)")
+                        print("max content offset: \(self.maxContentOffset)")
+                        print("scrolling up: \(self.scrollingUp)")
+                        
+                        if contentOffset == 0 {
+                            
+                            self.finishReceivingMessage()
+                            
+                        } else if ((self.maxContentOffset - self.collectionView.contentOffset.y) <= 300) {
+                            
+                            self.finishReceivingMessage()
+                            
+                        }
                     }
-                    
                 }
                 
             } else {
@@ -716,8 +774,21 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
                 self.messageKeys.append(key)
                 self.messages.append(message)
                 
-                self.finishReceivingMessage()
+                print("i: \(i)")
+                print("content offset: \(self.collectionView.contentOffset.y)")
+                print("max content offset: \(self.maxContentOffset)")
+                print("scrolling up: \(self.scrollingUp)")
                 
+                if self.collectionView.contentOffset.y == 0 {
+                    
+                    self.finishReceivingMessage()
+                    
+                    
+                } else if ((self.maxContentOffset - self.collectionView.contentOffset.y) <= 300) {
+                    
+                    self.finishReceivingMessage()
+                    
+                }
             }
 
             if avatars[id] == nil {
@@ -745,7 +816,15 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
                                     self.avatars[id] = userImage
                                 }
                                 
-                                self.finishReceivingMessage()
+                                if self.collectionView.contentOffset.y == 0 {
+                                    
+                                    self.finishReceivingMessage()
+                                    
+                                } else if ((self.maxContentOffset - self.collectionView.contentOffset.y) <= 300) {
+                                    
+                                    self.finishReceivingMessage()
+                                    
+                                }
                                 
                             }
                         })
@@ -931,40 +1010,7 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
         
     }
     
-    
-    
-    //PAN HANDLER
-    func panHandler(sender: UIPanGestureRecognizer){
-        
-        let translation = sender.translationInView(self.view)
-        
-        switch sender.state {
-            
-        case .Ended:
-            
-            print("end y: \(translation.y)")
-            
-            if translation.y < -125 {
 
-                enlargeChat()
-
-            } else if translation.y > 125 {
-                
-                shrinkChat()
-                
-            } else {
-                
-                print("not long enough gesture")
-                
-            }
-            
-        default:
-            break
-            
-        }
-    }
-    
-    
     func shrinkChat(){
         
         if chatEnlarged {
@@ -981,6 +1027,9 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
                 self.snapchatController?.view.layoutIfNeeded()
                 
                 }, completion: { (bool) in
+                    
+                    self.snapchatController?.isPanning = false
+                    self.snapchatController?.longPressEnabled = false
 
                     
             })
@@ -1010,16 +1059,70 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
     }
     
     
+    
+    
+    //ScrollView Stuff
+    override func scrollViewWillEndDragging(scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+        
+        print(velocity.y)
+        
+        
+        if velocity.y > 0 && (maxContentOffset - scrollView.contentOffset.y) <= 300 {
+            
+           self.finishReceivingMessage()
+            
+        }
+        
+        
+        
+        if velocity.y < -1.5 {
+            
+            shrinkChat()
+            
+        } else if velocity.y > 1 {
+            
+            enlargeChat()
+            
+        } else {
+            
+            print("not long enough gesture")
+            
+        }
+
+    }
+    
+    
+    override func scrollViewDidScroll(scrollView: UIScrollView) {
+
+        if scrollView.contentOffset.y > maxContentOffset {
+            
+            maxContentOffset = scrollView.contentOffset.y
+            
+        }
+        
+        
+        if scrollView.contentOffset.y > contentOffset {
+            
+            scrollingUp = true
+            
+        } else if scrollView.contentOffset.y < contentOffset {
+            
+            scrollingUp = false
+        
+        }
+        
+
+
+
+        print("scrolling up: \(scrollingUp)")
+        
+    }
+
     func addGestureRecognizers(){
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tapGesture.delegate = self
         self.collectionView.addGestureRecognizer(tapGesture)
-        
-        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(panHandler))
-        panGesture.delegate = self
-        self.collectionView.addGestureRecognizer(panGesture)
-        
         
     }
     

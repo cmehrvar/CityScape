@@ -112,7 +112,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                                         player.setUrl(url)
                                         player.fillMode = AVLayerVideoGravityResizeAspectFill
                                         player.playbackLoops = true
-                                        player.playFromBeginning()
+                                        player.playFromCurrentTime()
                                         
                                         
                                         cell.videoOutlet.addSubview(videoPlayerView)
@@ -129,7 +129,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                                 
                                 self.addChildViewController(player)
                                 cell.videoOutlet.addSubview(videoPlayerView)
-                                player.playFromBeginning()
+                                player.playFromCurrentTime()
                                 
                             }
                         }

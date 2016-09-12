@@ -27,7 +27,7 @@ class MainRootController: UIViewController {
     var handlePostIsRevealed = false
     var profileRevealed = false
     var snapchatRevealed = false
-
+    
     var vibesLoadedFromSelf = false
     
     var currentTab = 0
@@ -40,7 +40,7 @@ class MainRootController: UIViewController {
     @IBOutlet weak var vibesLeading: NSLayoutConstraint!
     @IBOutlet weak var closeMenuContainer: UIView!
     @IBOutlet weak var handlePostContainer: UIView!
-
+    
     @IBOutlet weak var closeMenuTopConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var profileContainer: UIView!
     @IBOutlet weak var leadingMenu: NSLayoutConstraint!
@@ -64,12 +64,12 @@ class MainRootController: UIViewController {
     
     @IBOutlet weak var handlePostX: NSLayoutConstraint!
     
-
+    
     @IBOutlet weak var snapWidthConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var snapHeightConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var snapYOutlet: NSLayoutConstraint!
     @IBOutlet weak var snapXOutlet: NSLayoutConstraint!
-  
+    
     
     
     
@@ -113,11 +113,11 @@ class MainRootController: UIViewController {
             NSNotificationCenter.defaultCenter().removeObserver(controller, name: UIKeyboardWillHideNotification, object: nil)
             
         }
-
+        
         UIView.animateWithDuration(0.3, animations: {
             
             self.topNavConstOutlet.constant = 0
-
+            
             self.bottomNavConstOutlet.constant = 0
             
             self.topChatConstOutlet.constant = -(screenHeight * 0.8)
@@ -386,7 +386,7 @@ class MainRootController: UIViewController {
             
             NSNotificationCenter.defaultCenter().addObserver(controller, selector: #selector(controller.keyboardDidShow), name: UIKeyboardWillShowNotification, object: nil)
             NSNotificationCenter.defaultCenter().addObserver(controller, selector: #selector(controller.keyboardHid), name: UIKeyboardWillHideNotification, object: nil)
-
+            
             
             
         }
@@ -415,13 +415,13 @@ class MainRootController: UIViewController {
     func toggleHandlePost(image: UIImage?, videoURL: NSURL?, isImage: Bool, completion: Bool -> ()) {
         
         let rootHeight = self.view.bounds.height
-
+        
         print("handlePostIsRevealed: \(handlePostIsRevealed)")
         
         if !handlePostIsRevealed {
             
             self.handlePostX.constant = 0
-            self.handlePostContainer.alpha = 1 
+            self.handlePostContainer.alpha = 1
             
             handlePostController?.isImage = isImage
             
@@ -448,19 +448,19 @@ class MainRootController: UIViewController {
                 completion(complete)
                 
             }
-
+            
         }
         
         handlePostIsRevealed = !handlePostIsRevealed
-
+        
     }
     
-
+    
     
     func toggleSnapchat(completion: Bool -> ()){
         
         var snapAlpha: CGFloat = 0
-
+        
         if !snapchatRevealed {
             
             snapAlpha = 1
@@ -468,7 +468,7 @@ class MainRootController: UIViewController {
             UIApplication.sharedApplication().statusBarHidden = true
             
             if let snapController = snapchatController, chatController = snapController.snapchatChatController {
-
+                
                 NSNotificationCenter.defaultCenter().addObserver(chatController, selector: #selector(chatController.hideKeyboard), name: UIKeyboardWillHideNotification, object: nil)
                 
                 NSNotificationCenter.defaultCenter().addObserver(chatController, selector: #selector(chatController.showKeyboard), name: UIKeyboardWillShowNotification, object: nil)
@@ -476,40 +476,31 @@ class MainRootController: UIViewController {
             }
             
             //GET RID OF SNAPS
-            self.snapchatController?.snapchatChatController?.messages.removeAll()
-            self.snapchatController?.snapchatChatController?.messageKeys.removeAll()
-            self.snapchatController?.snapchatChatController?.addedMessages.removeAll()
-            
-            self.snapchatController?.snapchatChatController?.finishReceivingMessage()
-            
             snapchatController?.posts.removeAll()
             
+            snapchatController?.videoOutlet.alpha = 0
             snapchatController?.imageOutlet.image = nil
             snapchatController?.profilePicOutlet.image = nil
             snapchatController?.nameOutlet.text = ""
             snapchatController?.cityRankOutlet.text = "#"
             
             snapchatController?.secondaryImageOutlet.image = nil
-
- 
             
             //HANDLE SNAPS
             snapchatController?.nextEnabled = true
             snapchatController?.mostRecentTimeInterval = nil
             snapchatController?.firstImageLoaded = false
             snapchatController?.currentIndex = 0
-            snapchatController?.observePosts(100)
-
-            print("handle snapsh")
-
-        } else {
-
-            //GET RID OF SNAPS
-            self.snapchatController?.snapchatChatController?.messages.removeAll()
-            self.snapchatController?.snapchatChatController?.messageKeys.removeAll()
-            self.snapchatController?.snapchatChatController?.addedMessages.removeAll()
+            snapchatController?.snapchatChatController?.currentPostKey = ""
             
-            self.snapchatController?.snapchatChatController?.finishReceivingMessage()
+            
+            print("handle snaps on reveal")
+            
+        } else {
+            
+            //GET RID OF SNAPS
+            
+            print("handle snaps on close")
             
             snapchatController?.posts.removeAll()
             
@@ -519,7 +510,6 @@ class MainRootController: UIViewController {
             snapchatController?.cityRankOutlet.text = "#"
             
             snapchatController?.secondaryImageOutlet.image = nil
-            
             
             if let snapController = snapchatController, chatController = snapController.snapchatChatController {
                 
@@ -527,7 +517,7 @@ class MainRootController: UIViewController {
                 NSNotificationCenter.defaultCenter().removeObserver(chatController, name: UIKeyboardWillHideNotification, object: nil)
                 
             }
-
+            
             self.showNav(0.3, completion: { (bool) in
                 
                 print("nav shown")
@@ -536,46 +526,60 @@ class MainRootController: UIViewController {
             
             
             print("handle closing snaps")
-
+            
         }
         
         snapchatRevealed = !snapchatRevealed
+        
+        let revealed = snapchatRevealed
         
         self.snapchatController?.screenIsCircle = false
         self.snapchatController?.isPanning = false
         self.snapchatController?.longPressEnabled = false
         
         self.snapchatController?.hideChat()
-
+        
         UIView.animateWithDuration(0.3, animations: {
             
             self.snapchatContainerOutlet.alpha = snapAlpha
             
-            }) { (complete) in
+        }) { (bool) in
+            
+            self.snapXOutlet.constant = 0
+            self.snapYOutlet.constant = 0
+            
+            self.snapchatController?.view.layer.cornerRadius = 0
+            
+            self.snapWidthConstOutlet.constant = self.view.bounds.width
+            self.snapHeightConstOutlet.constant = self.view.bounds.height
+            
+            
+            if revealed {
                 
-                self.snapXOutlet.constant = 0
-                self.snapYOutlet.constant = 0
-                
-                self.snapchatController?.view.layer.cornerRadius = 0
-                
-                self.snapWidthConstOutlet.constant = self.view.bounds.width
-                self.snapHeightConstOutlet.constant = self.view.bounds.height
-
-                completion(complete)
-                
+                self.snapchatController?.observePosts(100, completion: { (bool) in
+                    
+                    self.snapchatController?.loadPrimary("left", i: -1, completion: { (complete) in
+                        
+                        print("start content loaded")
+                        
+                        completion(complete)
+                    })
+                    
+                })
+            }
         }
     }
     
-
+    
     
     
     
     func hideAllNav(completion: (Bool) -> ()) {
-
+        
         UIApplication.sharedApplication().statusBarHidden = true
         
         UIView.animateWithDuration(0.3, animations: {
-
+            
             self.topNavConstOutlet.constant = -100
             self.view.layoutIfNeeded()
             
@@ -592,7 +596,7 @@ class MainRootController: UIViewController {
         UIView.animateWithDuration(0.3, animations: {
             
             self.bottomNavConstOutlet.constant = -50
-
+            
             self.view.layoutIfNeeded()
             
         }) { (complete) in
@@ -604,11 +608,9 @@ class MainRootController: UIViewController {
     
     
     func showNav(animatingTime: NSTimeInterval, completion: (Bool) -> ()){
-        
-        UIApplication.sharedApplication().statusBarHidden = false
-        
-        UIView.animateWithDuration(animatingTime, animations: {
 
+        UIView.animateWithDuration(animatingTime, animations: {
+            
             self.topNavConstOutlet.constant = 0
             self.bottomNavConstOutlet.constant = 0
             
@@ -630,7 +632,7 @@ class MainRootController: UIViewController {
     func toggleTabs(tab: Int) -> Bool {
         
         let vibesConst = self.view.bounds.width
-
+        
         self.showNav(0.6, completion: { (bool) in
             
             print("nav shown")
@@ -638,23 +640,23 @@ class MainRootController: UIViewController {
         })
         
         if tab == 1 {
-
+            
             slideWithDirection(vibesConst, trailing: vibesConst)
-
+            
             currentTab = 1
             self.bottomNavController?.toggleColour(1)
             
         } else if tab == 2 {
-
+            
             slideWithDirection(0, trailing: 0)
             
             currentTab = 2
             self.bottomNavController?.toggleColour(2)
             
         } else if tab == 3 {
-
+            
             slideWithDirection(-vibesConst, trailing: -vibesConst)
-
+            
             currentTab = 3
             self.bottomNavController?.toggleColour(3)
             
@@ -664,20 +666,20 @@ class MainRootController: UIViewController {
         
     }
     
-
+    
     func slideWithDirection(leading: CGFloat, trailing: CGFloat){
-
+        
         UIView.animateWithDuration(0.6, animations: {
             
             self.vibesLeading.constant = leading
             self.vibesTrailing.constant = trailing
             
             self.view.layoutIfNeeded()
-
-            }) { (bool) in
-                
-                print("slid")
-                
+            
+        }) { (bool) in
+            
+            print("slid")
+            
         }
     }
     
@@ -688,18 +690,18 @@ class MainRootController: UIViewController {
     func loadSelfData(completion: [NSObject : AnyObject] -> ()){
         
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
-
+            
             let ref = FIRDatabase.database().reference().child("users").child(selfUID)
             
             ref.observeEventType(.Value, withBlock: { (snapshot) in
                 
                 if let value = snapshot.value as? [NSObject:AnyObject]{
-
+                    
                     self.selfData = value
                     
                     let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
                     appDelegate.selfData = value
-
+                    
                     
                     if let city = value["city"] as? String {
                         
@@ -722,11 +724,11 @@ class MainRootController: UIViewController {
                         self.nearbyController?.queryNearby(location)
                         
                     }
-
+                    
                     if let matches = value["matches"] as? [NSObject : AnyObject] {
                         self.messagesController?.loadMatches(matches)
                     }
-
+                    
                     self.menuController?.setMenu()
                     
                     completion(value)
@@ -940,7 +942,7 @@ class MainRootController: UIViewController {
         
         let screenHeight = self.view.bounds.height
         let screenWidth = self.view.bounds.width
-
+        
         self.snapchatController?.topContentToHeaderOutlet.constant = -50
         self.snapchatController?.contentHeightConstOutlet.constant = screenHeight
         self.snapchatController?.commentStuffOutlet.alpha = 0
@@ -965,7 +967,7 @@ class MainRootController: UIViewController {
         self.vibesTrailing.constant = -screenWidth
         
         self.bottomNavController?.toggleColour(1)
-
+        
         chatContainerOutlet.alpha = 1
         profileContainer.alpha = 1
         menuContainerOutlet.alpha = 1
@@ -974,9 +976,9 @@ class MainRootController: UIViewController {
     }
     
     override func viewDidAppear(animated: Bool) {
-
+        
         setStage()
-
+        
     }
     
     
