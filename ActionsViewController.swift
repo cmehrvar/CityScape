@@ -28,12 +28,14 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
     
     
     @IBAction func search(sender: AnyObject) {
-        
-        print("search")
-        
+
+        rootController?.toggleSearch({ (bool) in
+            
+            print("search toggled")
+            
+        })
     }
-    
-    
+
     
     @IBAction func camera(sender: AnyObject) {
         
@@ -89,13 +91,12 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
         fusuma.delegate = self
         fusuma.hasVideo = true
         fusuma.modalTransitionStyle = UIModalTransitionStyle.CrossDissolve
-        
-        
-        let scopeRoot = rootController
-        
+
         presentViewController(fusuma, animated: true) {
             
-            scopeRoot?.cameraTransitionOutlet.alpha = 1
+            self.rootController?.cameraTransitionOutlet.alpha = 1
+            
+            self.rootController?.view.layoutIfNeeded()
 
         }
     }

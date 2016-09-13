@@ -638,7 +638,7 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
 
         var index = 0
         
-        ref.child("messages").observeEventType(.ChildAdded, withBlock: { (snapshot) in
+        ref.child("messages").queryLimitedToLast(50).observeEventType(.ChildAdded, withBlock: { (snapshot) in
             
             if let value = snapshot.value as? [NSObject : AnyObject] {
 
@@ -652,7 +652,7 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
                             let sentMessage = self.addedMessages[key]
                             
                             if sentMessage == nil {
-                                
+   
                                 self.addMessage(id, text: text, name: name, isMedia: isMedia, media: media, isImage: isImage, date: date, key: key, i: index)
                                 index += 1
                                 
@@ -674,7 +674,7 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
     func addMessage(id: String, text: String, name: String, isMedia: Bool, media: String, isImage: Bool, date: NSDate, key: String, i: Int) {
         
         print(text)
-
+        
         if addedMessages[key] == false || addedMessages[key] == nil {
             
             addedMessages[key] = true
@@ -684,6 +684,9 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
                 if isImage {
                     
                     if let url = NSURL(string: media){
+                        
+                        self.messageKeys.append("poo")
+                        self.messages.append(JSQMessage(senderId: id, displayName: name, media: JSQPhotoMediaItem(image: UIImage(named: "nil"))))
                         
                         SDWebImageManager.sharedManager().downloadImageWithURL(url, options: .ContinueInBackground, progress: nil, completed: { (image, error, cache, bool, url) in
                             
@@ -706,12 +709,13 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
                                 
                                 let messageData = JSQMessage(senderId: id, senderDisplayName: name, date: date, media: message)
                                 
-                                self.messages.insert(messageData, atIndex: i)
-                                
                                 print("i: \(i)")
                                 print("content offset: \(self.collectionView.contentOffset.y)")
                                 print("max content offset: \(self.maxContentOffset)")
                                 print("scrolling up: \(self.scrollingUp)")
+
+                                self.messageKeys[i] = key
+                                self.messages[i] = messageData
                                 
                                 if self.collectionView.contentOffset.y == 0 {
                                     
@@ -746,14 +750,18 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
                             }
                         }
                         
-                        let messageData = JSQMessage(senderId: id, senderDisplayName: name, date: date, media: message)
                         
-                        self.messages.insert(messageData, atIndex: i)
+                    
                         
                         print("i: \(i)")
                         print("content offset: \(self.collectionView.contentOffset.y)")
                         print("max content offset: \(self.maxContentOffset)")
                         print("scrolling up: \(self.scrollingUp)")
+                        
+                        let messageData = JSQMessage(senderId: id, senderDisplayName: name, date: date, media: message)
+                        
+                        self.messageKeys.append(key)
+                        self.messages.append(messageData)
                         
                         if contentOffset == 0 {
                             
@@ -769,15 +777,17 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
                 
             } else {
                 
-                let message = JSQMessage(senderId: id, senderDisplayName: name, date: date, text: text)
                 
-                self.messageKeys.append(key)
-                self.messages.append(message)
-                
+
                 print("i: \(i)")
                 print("content offset: \(self.collectionView.contentOffset.y)")
                 print("max content offset: \(self.maxContentOffset)")
                 print("scrolling up: \(self.scrollingUp)")
+                
+                let message = JSQMessage(senderId: id, senderDisplayName: name, date: date, text: text)
+                
+                self.messageKeys.append(key)
+                self.messages.append(message)
                 
                 if self.collectionView.contentOffset.y == 0 {
                     
@@ -914,7 +924,7 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
     
     func observeTyping(){
         
-        let refString = "/" + passedRef
+        let refString = passedRef
         
         let ref = FIRDatabase.database().reference().child(refString).child("isTyping")
         
@@ -922,22 +932,39 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
             
             ref.observeEventType(.Value, withBlock:  { (snapshot) in
                 
-                var showType = false
-                
-                if let data = snapshot.value as? [String : Bool] {
+                if let typing = snapshot.value as? [String : Bool] {
                     
-                    for (key, value) in data {
+                    let postUIDREF = FIRDatabase.database().reference().child(refString).child("postChildKey")
+
+                    postUIDREF.observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+
+                        var isTyping = false
                         
-                        if key != selfUID {
-                            
-                            if value == true {
-                                showType = true
+                        if let postKey = snapshot.value as? String {
+
+                            if postKey == self.currentPostKey {
+                                
+                                for (key, value) in typing {
+                                    
+                                    if key != selfUID {
+                                        
+                                        if value == true {
+                                            
+                                            isTyping = true
+                                            
+                                        }
+                                    }
+                                }
+
+                                self.showTypingIndicator = isTyping
+
+                            } else {
+                                
+                                ref.removeAllObservers()
+  
                             }
                         }
-                    }
-                    
-                    self.showTypingIndicator = showType
-                    
+                    })
                 }
             })
         }
@@ -946,7 +973,7 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
     //Add Upload Stuff
     func addUploadStuff(){
         
-        let error = NSErrorPointer()
+        let error = NSErrorPointer.init(nilLiteral: ())
         
         do{
             
@@ -986,8 +1013,7 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
         }
         
     }
-    
-    
+
     
     func showKeyboard(notification: NSNotification){
         

@@ -186,18 +186,15 @@ class HandlePostController: UIViewController, PlayerDelegate, UITextFieldDelegat
             })
         }
     }
-    
-    
-    
+
     func uploadPost(image: UIImage!, videoURL: NSURL!, isImage: Bool) {
         
         var captionString = ""
+        self.view.endEditing(true)
         
         if let text = caption.text {
             captionString = text
         }
-
-        let scopeRoot = rootController
 
         UIView.animateWithDuration(0.3) {
             self.uploadingViewOutlet.alpha = 1
@@ -223,7 +220,7 @@ class HandlePostController: UIViewController, PlayerDelegate, UITextFieldDelegat
                                 
                                 print("save thumbnail & video to firebase")
    
-                                if let userData = scopeRoot?.selfData, selfUID = FIRAuth.auth()?.currentUser?.uid {
+                                if let userData = self.rootController?.selfData, selfUID = FIRAuth.auth()?.currentUser?.uid {
                                     
                                     let currentDate = NSDate().timeIntervalSince1970
                                     
@@ -275,17 +272,17 @@ class HandlePostController: UIViewController, PlayerDelegate, UITextFieldDelegat
                         
                         print("save image only to firebase")
                         
-                        if let userData = scopeRoot?.selfData, selfUID = FIRAuth.auth()?.currentUser?.uid {
+                        if let userData = self.rootController?.selfData, selfUID = FIRAuth.auth()?.currentUser?.uid {
                             
                             let currentDate = NSDate().timeIntervalSince1970
                             
-                            if let firstName = userData["firstName"] as? String, lastName = userData["lastName"] as? String, city = userData["city"] as? String, profile = userData["profilePicture"] as? String, rank = userData["cityRank"] as? Int {
+                            if let firstName = userData["firstName"] as? String, lastName = userData["lastName"] as? String, city = userData["city"] as? String, profile = userData["profilePicture"] as? String, rank = userData["cityRank"] as? Int, longitude = userData["longitude"] as? CLLocationDegrees, latitude = userData["latitude"] as? CLLocationDegrees {
                                 
                                 let ref = FIRDatabase.database().reference()
                                 
                                 let postChildKey = ref.child("posts").child(city).childByAutoId().key
                                 
-                                let postData: [NSObject:AnyObject] = ["views":0, "userUID":selfUID, "firstName":firstName, "lastName":lastName, "city":city, "timeStamp":currentDate, "profilePicture":profile, "imageURL":imageUrl, "caption":captionString, "isImage":isImage, "like" : 0, "dislike" : 0, "postChildKey":postChildKey, "videoURL" : "none", "cityRank" : rank]
+                                let postData: [NSObject:AnyObject] = ["views":0, "userUID":selfUID, "firstName":firstName, "lastName":lastName, "city":"Oakville", "timeStamp":currentDate, "profilePicture":profile, "imageURL":imageUrl, "caption":captionString, "isImage":isImage, "like" : 0, "dislike" : 0, "postChildKey":postChildKey, "videoURL" : "none", "cityRank" : rank]
                                 
                                 
                                 if let score = userData["userScore"] as? Int {
@@ -298,8 +295,11 @@ class HandlePostController: UIViewController, PlayerDelegate, UITextFieldDelegat
                                 ref.child("posts").child(city).child(postChildKey).updateChildValues(postData)
                                 ref.child("users").child(selfUID).child("posts").child(city).child(postChildKey).updateChildValues(postData)
                                 ref.child("allPosts").child(postChildKey).updateChildValues(postData)
-                                //ref.child("postUIDs").child(postChildKey).setValue(currentDate)
+
+                                ref.child("cityLocations").child(city).updateChildValues(["mostRecentPost" : postData, "latitude" : latitude, "longitude" : longitude])
                                 
+                                print("successfuly set city")
+
                                 dispatch_async(dispatch_get_main_queue(), {
                                     
                                     self.rootController?.toggleHandlePost(nil, videoURL: nil, isImage: false, completion: { (bool) in
@@ -312,6 +312,9 @@ class HandlePostController: UIViewController, PlayerDelegate, UITextFieldDelegat
                                     
                                     self.rootController?.toggleVibes({ (bool) in
                                         
+                                        self.rootController?.vibesFeedController?.currentCity = city
+                                        self.rootController?.vibesFeedController?.observeCurrentCityPosts()
+
                                         print("vibes toggled")
                                         
                                     })

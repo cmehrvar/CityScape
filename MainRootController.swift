@@ -34,46 +34,41 @@ class MainRootController: UIViewController {
     
     var timer = NSTimer()
     
-    //Outlets
+    //OUTLETS
+    
+    //constraints
     @IBOutlet weak var topNavCenter: NSLayoutConstraint!
     @IBOutlet weak var vibesTrailing: NSLayoutConstraint!
     @IBOutlet weak var vibesLeading: NSLayoutConstraint!
-    @IBOutlet weak var closeMenuContainer: UIView!
-    @IBOutlet weak var handlePostContainer: UIView!
-    
     @IBOutlet weak var closeMenuTopConstOutlet: NSLayoutConstraint!
-    @IBOutlet weak var profileContainer: UIView!
     @IBOutlet weak var leadingMenu: NSLayoutConstraint!
-    @IBOutlet weak var menuContainerOutlet: UIView!
-    @IBOutlet weak var itsAMatchContainerOutlet: UIView!
-    @IBOutlet weak var snapchatContainerOutlet: UIView!
-    
-    @IBOutlet weak var chatContainerOutlet: UIView!
     @IBOutlet weak var topNavConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var bottomNavConstOutlet: NSLayoutConstraint!
-    
     @IBOutlet weak var menuWidthConstOutlet: NSLayoutConstraint!
-    
     @IBOutlet weak var topProfileConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var bottomProfileConstOutlet: NSLayoutConstraint!
-    
     @IBOutlet weak var topChatConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var bottomChatConstOutlet: NSLayoutConstraint!
-    
-    @IBOutlet weak var cameraTransitionOutlet: UIView!
-    
-    @IBOutlet weak var handlePostX: NSLayoutConstraint!
-    
-    
     @IBOutlet weak var snapWidthConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var snapHeightConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var snapYOutlet: NSLayoutConstraint!
     @IBOutlet weak var snapXOutlet: NSLayoutConstraint!
+    @IBOutlet weak var handlePostX: NSLayoutConstraint!
     
     
+    //views
+    @IBOutlet weak var closeMenuContainer: UIView!
+    @IBOutlet weak var handlePostContainer: UIView!
+    @IBOutlet weak var profileContainer: UIView!
+    @IBOutlet weak var menuContainerOutlet: UIView!
+    @IBOutlet weak var itsAMatchContainerOutlet: UIView!
+    @IBOutlet weak var snapchatContainerOutlet: UIView!
+    @IBOutlet weak var chatContainerOutlet: UIView!
+    @IBOutlet weak var cameraTransitionOutlet: UIView!
+    @IBOutlet weak var searchContainerOutlet: UIView!
+ 
     
-    
-    
+    //View Controllers
     weak var actionsController: ActionsViewController?
     weak var topNavController: TopNavBarController?
     weak var bottomNavController: BottomNavController?
@@ -87,6 +82,7 @@ class MainRootController: UIViewController {
     weak var chatController: CommentController?
     weak var handlePostController: HandlePostController?
     weak var snapchatController: SnapchatViewController?
+    weak var searchController: SearchController?
     
     
     //Toggle Functions
@@ -117,7 +113,6 @@ class MainRootController: UIViewController {
         UIView.animateWithDuration(0.3, animations: {
             
             self.topNavConstOutlet.constant = 0
-            
             self.bottomNavConstOutlet.constant = 0
             
             self.topChatConstOutlet.constant = -(screenHeight * 0.8)
@@ -127,6 +122,8 @@ class MainRootController: UIViewController {
             self.bottomProfileConstOutlet.constant = screenHeight
             
             self.bottomNavController?.topChatBoxView.alpha = 0
+            
+            self.searchContainerOutlet.alpha = 0
             
             self.view.layoutIfNeeded()
             
@@ -265,6 +262,8 @@ class MainRootController: UIViewController {
             
             self.bottomProfileConstOutlet.constant = 0
             self.topProfileConstOutlet.constant = 0
+            
+            self.searchContainerOutlet.alpha = 0
             
             self.view.layoutIfNeeded()
             
@@ -518,12 +517,13 @@ class MainRootController: UIViewController {
                 
             }
             
+            /*
             self.showNav(0.3, completion: { (bool) in
                 
                 print("nav shown")
                 
             })
-            
+            */
             
             print("handle closing snaps")
             
@@ -539,41 +539,56 @@ class MainRootController: UIViewController {
         
         self.snapchatController?.hideChat()
         
+        self.snapXOutlet.constant = 0
+        self.snapYOutlet.constant = 0
+        
+        self.snapchatController?.view.layer.cornerRadius = 0
+        
+        self.snapWidthConstOutlet.constant = self.view.bounds.width
+        self.snapHeightConstOutlet.constant = self.view.bounds.height
+
+        if revealed {
+            
+            self.snapchatController?.observePosts(100, completion: { (bool) in
+                
+                self.snapchatController?.loadPrimary("left", i: -1, completion: { (complete) in
+                    
+                    print("start content loaded")
+                    
+                    UIView.animateWithDuration(0.3, animations: {
+                        self.snapchatContainerOutlet.alpha = 1
+                        self.view.layoutIfNeeded()
+                    })
+
+                    completion(complete)
+                })
+                
+            })
+            
+        } else {
+
+            UIView.animateWithDuration(0.3, animations: {
+                
+                self.snapchatContainerOutlet.alpha = 0
+                
+            })
+        }
+    }
+
+    func toggleSearch(completion: Bool -> ()){
+        
         UIView.animateWithDuration(0.3, animations: {
             
-            self.snapchatContainerOutlet.alpha = snapAlpha
+            self.searchContainerOutlet.alpha = 1
             
-        }) { (bool) in
-            
-            self.snapXOutlet.constant = 0
-            self.snapYOutlet.constant = 0
-            
-            self.snapchatController?.view.layer.cornerRadius = 0
-            
-            self.snapWidthConstOutlet.constant = self.view.bounds.width
-            self.snapHeightConstOutlet.constant = self.view.bounds.height
-            
-            
-            if revealed {
+            }) { (bool) in
                 
-                self.snapchatController?.observePosts(100, completion: { (bool) in
-                    
-                    self.snapchatController?.loadPrimary("left", i: -1, completion: { (complete) in
-                        
-                        print("start content loaded")
-                        
-                        completion(complete)
-                    })
-                    
-                })
-            }
+                completion(bool)
+                
         }
     }
     
-    
-    
-    
-    
+
     func hideAllNav(completion: (Bool) -> ()) {
         
         UIApplication.sharedApplication().statusBarHidden = true
@@ -674,6 +689,8 @@ class MainRootController: UIViewController {
             self.vibesLeading.constant = leading
             self.vibesTrailing.constant = trailing
             
+            self.searchContainerOutlet.alpha = 0
+            
             self.view.layoutIfNeeded()
             
         }) { (bool) in
@@ -682,9 +699,6 @@ class MainRootController: UIViewController {
             
         }
     }
-    
-    
-    
     
     
     func loadSelfData(completion: [NSObject : AnyObject] -> ()){
@@ -696,26 +710,26 @@ class MainRootController: UIViewController {
             ref.observeEventType(.Value, withBlock: { (snapshot) in
                 
                 if let value = snapshot.value as? [NSObject:AnyObject]{
-                    
-                    self.selfData = value
-                    
+
                     let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
                     appDelegate.selfData = value
-                    
-                    
+                    self.selfData = value
+ 
                     if let city = value["city"] as? String {
                         
                         self.vibesFeedController?.currentCity = city
                         
                         if self.vibesLoadedFromSelf == false {
                             
+                            self.searchController?.observeCities()
+
+                            self.vibesFeedController?.currentCity = city
                             self.vibesLoadedFromSelf = true
                             self.vibesFeedController?.observeCurrentCityPosts()
                             
                         }
                     }
-                    
-                    
+
                     self.checkForMatches()
                     
                     if let latitude = value["latitude"] as? CLLocationDegrees, longitude = value["longitude"] as? CLLocationDegrees {
@@ -939,43 +953,49 @@ class MainRootController: UIViewController {
     }
     
     func setStage() {
-        
-        let screenHeight = self.view.bounds.height
-        let screenWidth = self.view.bounds.width
-        
-        self.snapchatController?.topContentToHeaderOutlet.constant = -50
-        self.snapchatController?.contentHeightConstOutlet.constant = screenHeight
-        self.snapchatController?.commentStuffOutlet.alpha = 0
-        
-        
-        self.snapchatController?.alphaHeaderOutlet.alpha = 0.4
-        self.snapchatController?.alphaHeaderOutlet.backgroundColor = UIColor.lightGrayColor()
-        
-        self.snapWidthConstOutlet.constant = screenWidth
-        self.snapHeightConstOutlet.constant = screenHeight
-        
-        self.topProfileConstOutlet.constant = -(screenHeight - 50)
-        self.bottomProfileConstOutlet.constant = screenHeight
-        
-        self.topChatConstOutlet.constant = -(screenHeight - 100)
-        self.bottomChatConstOutlet.constant = screenHeight
-        
-        self.menuWidthConstOutlet.constant = screenWidth * 0.8
-        self.leadingMenu.constant = -(screenWidth * 0.8)
-        
-        self.vibesLeading.constant = screenWidth
-        self.vibesTrailing.constant = -screenWidth
-        
-        self.bottomNavController?.toggleColour(1)
-        
-        chatContainerOutlet.alpha = 1
-        profileContainer.alpha = 1
-        menuContainerOutlet.alpha = 1
-        snapchatContainerOutlet.alpha = 0
-        
+
+        dispatch_async(dispatch_get_main_queue()) {
+            
+            let screenHeight = self.view.bounds.height
+            let screenWidth = self.view.bounds.width
+            
+            self.snapchatController?.topContentToHeaderOutlet.constant = -50
+            self.snapchatController?.contentHeightConstOutlet.constant = screenHeight
+            self.snapchatController?.commentStuffOutlet.alpha = 0
+            
+            
+            self.snapchatController?.alphaHeaderOutlet.alpha = 0.4
+            self.snapchatController?.alphaHeaderOutlet.backgroundColor = UIColor.lightGrayColor()
+            
+            self.snapWidthConstOutlet.constant = screenWidth
+            self.snapHeightConstOutlet.constant = screenHeight
+            
+            self.topProfileConstOutlet.constant = -(screenHeight - 50)
+            self.bottomProfileConstOutlet.constant = screenHeight
+            
+            self.topChatConstOutlet.constant = -(screenHeight - 100)
+            self.bottomChatConstOutlet.constant = screenHeight
+            
+            self.menuWidthConstOutlet.constant = screenWidth * 0.8
+            self.leadingMenu.constant = -(screenWidth * 0.8)
+            
+            self.vibesLeading.constant = screenWidth
+            self.vibesTrailing.constant = -screenWidth
+            
+            self.bottomNavController?.toggleColour(1)
+            
+            self.chatContainerOutlet.alpha = 1
+            self.profileContainer.alpha = 1
+            self.menuContainerOutlet.alpha = 1
+            self.snapchatContainerOutlet.alpha = 0
+            self.searchContainerOutlet.alpha = 0
+ 
+        }
     }
     
-    override func viewDidAppear(animated: Bool) {
+    override func viewWillAppear(animated: Bool) {
+
+        super.viewWillAppear(animated)
         
         setStage()
         
@@ -984,9 +1004,7 @@ class MainRootController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        //updateOnline()
-        
+
         let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
         appDelegate.mainRootController = self
         
@@ -1084,6 +1102,12 @@ class MainRootController: UIViewController {
             let snapchat = segue.destinationViewController as? SnapchatViewController
             snapchatController = snapchat
             snapchatController?.rootController = self
+            
+        } else if segue.identifier == "searchSegue" {
+            
+            let search = segue.destinationViewController as? SearchController
+            searchController = search
+            searchController?.rootController = self
             
         }
         
