@@ -48,12 +48,12 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
             
         }
     }
-
+    
     
     //Collection View Delegates
     func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
         
-        let width = (self.view.bounds.width/2) - 24
+        let width = (self.view.bounds.width/2)
         let height = width*1.223
         
         let size = CGSize(width: width, height: height)
@@ -66,128 +66,26 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
     }
     
     
-    func cellToReturn(value: [NSObject : AnyObject]) -> Int {
-        
-        if value["interestedIn"] != nil {
-            
-            if let matches = rootController?.selfData["matches"] as? [NSObject : AnyObject], uid = value["uid"] as? String {
-                
-                if matches[uid] != nil {
-                    
-                    return 1
-                    
-                } else {
-                    
-                    let myGender = rootController?.selfData["gender"] as? String
-                    let yourGender = value["gender"] as? String
-                    
-                    let myInterests = rootController?.selfData["interestedIn"] as! [String]
-                    let yourInterests = value["interestedIn"] as! [String]
-                    
-                    var imInterestedInYou = false
-                    var youreInterestedInMe = false
-                    
-                    for interest in myInterests {
-                        
-                        if interest == yourGender {
-                            imInterestedInYou = true
-                        }
-                    }
-                    
-                    for interest in yourInterests {
-                        
-                        if interest == myGender {
-                            youreInterestedInMe = true
-                        }
-                    }
-                    
-                    if imInterestedInYou && youreInterestedInMe {
-                        return 2
-                    } else {
-                        return 1
-                    } 
-                }
-                
-            } else {
-                
-                let myGender = rootController?.selfData["gender"] as? String
-                let yourGender = value["gender"] as? String
-                
-                let myInterests = rootController?.selfData["interestedIn"] as! [String]
-                let yourInterests = value["interestedIn"] as! [String]
-                
-                var imInterestedInYou = false
-                var youreInterestedInMe = false
-                
-                for interest in myInterests {
-                    
-                    if interest == yourGender {
-                        imInterestedInYou = true
-                    }
-                }
-                
-                for interest in yourInterests {
-                    
-                    if interest == myGender {
-                        youreInterestedInMe = true
-                    }
-                }
-                
-                if imInterestedInYou && youreInterestedInMe {
-                    return 2
-                } else {
-                    return 1
-                }
-
-            }
-        } else {
-            return 1
-        }
-    }
-    
-    
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         
-        let defaultCell = UICollectionViewCell()
         
-        if cellToReturn(nearbyUsers[indexPath.row]) == 1 {
+        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("nearbyMatchCollectionCell", forIndexPath: indexPath) as! NearbyMatchCollectionCell
+        
+        cell.alpha = 1
+        cell.heartIndicator.alpha = 0
+        
+        cell.loadUser(nearbyUsers[indexPath.row])
+        cell.nearbyController = self
+        cell.index = indexPath.row
+        
+        if let uid = nearbyUsers[indexPath.row]["uid"] as? String {
             
-            let cell = collectionView.dequeueReusableCellWithReuseIdentifier("nearbySquadCollectionCell", forIndexPath: indexPath) as! NearbySquadCollectionCell
-            cell.loadUser(nearbyUsers[indexPath.row])
-            
-            cell.nearbyController = self
-            cell.index = indexPath.row
-            
-            if let uid = nearbyUsers[indexPath.row]["uid"] as? String {
-                cell.uid = uid
-            }
-            
-            return cell
-            
-        } else if cellToReturn(nearbyUsers[indexPath.row]) == 2 {
-            
-            let cell = collectionView.dequeueReusableCellWithReuseIdentifier("nearbyMatchCollectionCell", forIndexPath: indexPath) as! NearbyMatchCollectionCell
-            
-            if let firstName = nearbyUsers[indexPath.row]["firstName"] as? String, lastName = nearbyUsers[indexPath.row]["lastName"] as? String {
-                
-                cell.firstName = firstName
-                cell.lastName = lastName
-                
-            }
-
-            cell.loadUser(nearbyUsers[indexPath.row])
-            cell.nearbyController = self
-            cell.index = indexPath.row
-            
-            if let uid = nearbyUsers[indexPath.row]["uid"] as? String {
-                cell.uid = uid
-            }
-            
-            return cell
+            cell.uid = uid
             
         }
         
-        return defaultCell
+        return cell
+        
     }
     
     //Location Manager Delegates
@@ -260,10 +158,14 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
                     
                     if error == nil {
                         print("succesfully updated location")
+                        
+                        
                     } else {
                         print(error)
                     }
                 })
+                
+                
             }
         }
     }
@@ -274,7 +176,7 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
         
         let ref = FIRDatabase.database().reference().child("userLocations")
         let geoFire = GeoFire(firebaseRef: ref)
-
+        
         if let radius = rootController?.selfData["nearbyRadius"] as? Double {
             
             let circleQuery = geoFire.queryAtLocation(center, withRadius: radius)
@@ -287,10 +189,29 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
                     
                     if let value = snapshot.value as? [NSObject : AnyObject], selfUID = FIRAuth.auth()?.currentUser?.uid {
                         
+                        var valueToAdd = [NSObject : AnyObject]()
+                        valueToAdd = value
+                        
                         if value["uid"] as? String != selfUID {
-                            
+
+                            var isInterested = false
                             var add = true
+                            var haveSentMatch = false
                             
+                            if let mySentMatches = self.rootController?.selfData["sentMatches"] as? [String : Bool] {
+                                
+                                if let uid = value["uid"] as? String {
+                                    
+                                    if mySentMatches[uid] != nil {
+                                        
+                                        haveSentMatch = true
+                                        
+                                    }
+                                }
+                            }
+                            
+                            valueToAdd["haveSentMatch"] = haveSentMatch
+      
                             if let uid = value["uid"] as? String {
                                 
                                 if self.dismissedCells[uid] != nil {
@@ -300,15 +221,27 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
                                 } else if let index = self.addedCells[uid] {
                                     
                                     add = false
-                                    self.nearbyUsers[index] = value
+                                    self.nearbyUsers[index] = valueToAdd
                                     self.globCollectionView.reloadData()
                                     
                                 }
                                 
-                                if add {
+                                if let interestedIn = self.rootController?.selfData["interestedIn"] as? [String], userGender = value["gender"] as? String {
+                                    
+                                    for interest in interestedIn {
+                                        
+                                        if interest == userGender {
+                                            
+                                            isInterested = true
+                                            
+                                        }
+                                    }
+                                }
+                                
+                                if add && isInterested && !haveSentMatch {
                                     
                                     self.addedCells[uid] = self.addedIndex
-                                    self.nearbyUsers.append(value)
+                                    self.nearbyUsers.append(valueToAdd)
                                     self.addedIndex += 1
                                     self.globCollectionView.reloadData()
                                 }
@@ -421,7 +354,7 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
     }
     
     func showNav(){
-
+        
         rootController?.showNav(0.3, completion: { (bool) in
             
             print("nav showed")
@@ -440,7 +373,7 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
             
         })
     }
-
+    
     
     func addGestureRecognizers(){
         
@@ -451,12 +384,12 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
         let leftSwipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(showVibes))
         leftSwipeGestureRecognizer.direction = UISwipeGestureRecognizerDirection.Left
         leftSwipeGestureRecognizer.delegate = self
-
+        
         self.view.addGestureRecognizer(leftSwipeGestureRecognizer)
         self.view.addGestureRecognizer(downSwipeGestureRecognizer)
         
     }
-
+    
     
     //ScrollViewDelegates
     func scrollViewWillEndDragging(scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
@@ -471,11 +404,11 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
                     
                 })
             }
-
+            
         } else {
             print("velocity negative")
         }
-
+        
         
         print("did end dragging")
         print(velocity)
@@ -487,8 +420,8 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
     override func viewDidAppear(animated: Bool) {
         
         settingsConstraint()
-
-
+        
+        
         if rootController?.selfData["interestedIn"] != nil {
             
             requestWhenInUseAuthorization()
@@ -496,7 +429,7 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
             
         }
     }
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -504,18 +437,16 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
         
         let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
         appDelegate.nearbyController = self
-
+        
         // Do any additional setup after loading the view.
     }
-    
-    
     
     func gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWithGestureRecognizer otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         
         return true
         
     }
-
+    
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()

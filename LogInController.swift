@@ -169,8 +169,9 @@ class LogInController: UIViewController {
                                                                     
                                                                     vc.nearbyController?.requestWhenInUseAuthorization()
                                                                     vc.nearbyController?.updateLocation()
+
                                                                 }
-                                                                
+
                                                             })
                                                             
                                                             vc.toggleNearby({ (bool) in

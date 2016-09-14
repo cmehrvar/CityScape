@@ -56,6 +56,8 @@ class SignInController: UIViewController, FBSDKLoginButtonDelegate, UITextFieldD
                         
                         print("main presented")
                         
+                        vc.setStage()
+                        
                         vc.toggleNearby({ (bool) in
                             print("nearby toggled")
                         })
@@ -69,23 +71,18 @@ class SignInController: UIViewController, FBSDKLoginButtonDelegate, UITextFieldD
                                 if let latitude = value["latitude"] as? CLLocationDegrees, longitude = value["longitude"] as? CLLocationDegrees {
                                     
                                     let location = CLLocation(latitude: latitude, longitude: longitude)
+ 
                                     vc.nearbyController?.queryNearby(location)
-                                    
                                     vc.nearbyController?.requestWhenInUseAuthorization()
                                     vc.nearbyController?.updateLocation()
-                                    
-                                    
+ 
                                 } else {
                                     
                                     vc.askInterestedIn()
                                     
                                 }
-                                
                             }
-                            
-                            
                         })
-                        
                     })
                     
                 } else {

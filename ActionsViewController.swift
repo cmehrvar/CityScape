@@ -28,11 +28,15 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
     
     
     @IBAction func search(sender: AnyObject) {
-
-        rootController?.toggleSearch({ (bool) in
+        
+        
+        rootController?.toggleHome({ (bool) in
             
-            print("search toggled")
-            
+            self.rootController?.toggleSearch({ (bool) in
+                
+                print("search toggled")
+                
+            })
         })
     }
 
@@ -69,7 +73,7 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
             
             if let selfUID = FIRAuth.auth()?.currentUser?.uid, selfProfile = self.rootController?.selfData["profilePicture"] as? String {
                 
-                self.rootController?.toggleProfile(selfUID, selfProfile: true, profilePic: selfProfile, completion: { (bool) in
+                self.rootController?.toggleProfile(selfUID, selfProfile: true, completion: { (bool) in
                     
                     print("profile toggled")
                     

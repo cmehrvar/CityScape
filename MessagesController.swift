@@ -24,23 +24,26 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
     func loadMatches(data: [NSObject : AnyObject]){
         
         globMatches.removeAll()
-
-            let sortedMatches = data.sort({ (a: (NSObject, AnyObject), b: (NSObject, AnyObject)) -> Bool in
-                
-                if a.1["lastActivity"] as? NSTimeInterval > b.1["lastActivity"] as? NSTimeInterval {
-                    return true
-                } else {
-                    return false
-                }
-                
-            })
+        
+        let sortedMatches = data.sort({ (a: (NSObject, AnyObject), b: (NSObject, AnyObject)) -> Bool in
             
-            for (_, value) in sortedMatches {
-                
-                if let dictValue = value as? [NSObject : AnyObject] {
-                        globMatches.append(dictValue)
-                }
+            if a.1["lastActivity"] as? NSTimeInterval > b.1["lastActivity"] as? NSTimeInterval {
+                return true
+            } else {
+                return false
             }
+            
+        })
+        
+        for (_, value) in sortedMatches {
+            
+            if let dictValue = value as? [NSObject : AnyObject] {
+                globMatches.append(dictValue)
+            }
+        }
+        
+        
+        
         
         if oldMatches != globMatches {
             
@@ -84,8 +87,8 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
             
         })
     }
-
-
+    
+    
     //Collection View Delegates
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
@@ -102,17 +105,17 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
         if let rootHeight = rootController?.view.bounds.height {
             
             let screenSize = (rootHeight * 0.8)
-
-             diameter = (screenSize * 0.33) - ((screenSize * 0.33) * 0.28)
+            
+            diameter = (screenSize * 0.33) - ((screenSize * 0.33) * 0.28)
             
         }
-
+        
         cell.profileOutlet.layer.cornerRadius = ((((diameter) * 116) / 136) / 2) - 1
         
         cell.indicatorOutlet.layer.cornerRadius = 8
         cell.indicatorOutlet.layer.borderWidth = 2
         cell.indicatorOutlet.layer.borderColor = UIColor.whiteColor().CGColor
-
+        
         if let uid = globMatches[indexPath.row]["uid"] as? String {
             cell.uid = uid
         }
@@ -139,7 +142,7 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
             diameter = (screenSize * 0.33) - ((screenSize * 0.33) * 0.28)
             
         }
-
+        
         let size = CGSize(width: (diameter * 0.934), height: diameter)
         
         return size
@@ -152,14 +155,14 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
         print("view did appear")
         
     }
-
+    
     
     func gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWithGestureRecognizer otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         
         return true
         
     }
-
+    
     
     
     override func viewDidLoad() {

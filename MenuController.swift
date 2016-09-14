@@ -217,9 +217,9 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
             
             self.rootController?.toggleHome({ (bool) in
                 
-                if let uid = FIRAuth.auth()?.currentUser?.uid, profile = self.rootController?.selfData["profilePicture"] as? String {
+                if let uid = FIRAuth.auth()?.currentUser?.uid {
                     
-                    self.rootController?.toggleProfile(uid, selfProfile: true, profilePic: profile, completion: { (bool) in
+                    self.rootController?.toggleProfile(uid, selfProfile: true, completion: { (bool) in
                         
                         print("self profile toggled")
                         

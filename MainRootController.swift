@@ -27,6 +27,7 @@ class MainRootController: UIViewController {
     var handlePostIsRevealed = false
     var profileRevealed = false
     var snapchatRevealed = false
+    var searchRevealed = false
     
     var vibesLoadedFromSelf = false
     
@@ -96,13 +97,16 @@ class MainRootController: UIViewController {
         
         self.vibesFeedController?.navHidden = false
         
-        if self.currentTab == 1 && !self.profileRevealed {
-            self.nearbyController?.globCollectionView.setContentOffset(CGPointZero, animated: true)
-        } else if self.currentTab == 2 && !self.profileRevealed {
-            self.vibesFeedController?.globCollectionView.setContentOffset(CGPointZero, animated: true)
+        
+        if !self.profileRevealed {
+            
+            if self.currentTab == 1 {
+                self.nearbyController?.globCollectionView.setContentOffset(CGPointZero, animated: true)
+            } else if self.currentTab == 2 {
+                self.vibesFeedController?.globCollectionView.setContentOffset(CGPointZero, animated: true)
+            }
         }
-        
-        
+
         if let controller = chatController {
             
             NSNotificationCenter.defaultCenter().removeObserver(controller, name: UIKeyboardWillShowNotification, object: nil)
@@ -123,8 +127,12 @@ class MainRootController: UIViewController {
             
             self.bottomNavController?.topChatBoxView.alpha = 0
             
-            self.searchContainerOutlet.alpha = 0
-            
+            if !self.profileRevealed && self.searchRevealed {
+                
+                self.searchContainerOutlet.alpha = 0
+                
+            }
+ 
             self.view.layoutIfNeeded()
             
         }) { (complete) in
@@ -141,6 +149,8 @@ class MainRootController: UIViewController {
             self.profileController?.currentPicture = 1
             self.profileController?.pictures = 1
             self.profileController?.userData.removeAll()
+
+            self.searchController?.view.endEditing(true)
             
             self.profileRevealed = false
             
@@ -221,34 +231,9 @@ class MainRootController: UIViewController {
     }
     
     
-    func toggleProfile(uid: String, selfProfile: Bool, profilePic: String, completion: Bool -> ()){
-        
-        print(profilePic)
-        
+    func toggleProfile(uid: String, selfProfile: Bool, completion: Bool -> ()){
+
         profileRevealed = true
-        
-        if let url = NSURL(string: profilePic) {
-            
-            SDWebImageManager.sharedManager().downloadImageWithURL(url, options: .ContinueInBackground, progress: { (receivedSize, expectedSize) in
-                
-                print("received size: \(receivedSize)")
-                print("expected size: \(expectedSize)")
-                
-                }, completed: { (image, error, cache, bool, url) in
-                    
-                    if error == nil {
-                        
-                        let calculatedScale = image.size.height / image.size.width
-                        print("calculated scale: \(calculatedScale)")
-                        
-                        self.profileController?.image1Scale = calculatedScale
-                        self.profileController?.globCollectionCell.reloadData()
-                        
-                        
-                    }
-                    
-            })
-        }
         
         self.closeMenuTopConstOutlet.constant = -(self.view.bounds.height - 50)
         
@@ -262,23 +247,17 @@ class MainRootController: UIViewController {
             
             self.bottomProfileConstOutlet.constant = 0
             self.topProfileConstOutlet.constant = 0
-            
-            self.searchContainerOutlet.alpha = 0
-            
+
             self.view.layoutIfNeeded()
             
         }) { (complete) in
-            
-            self.messagesController?.globCollectionViewOutlet.reloadData()
             
             completion(complete)
         }
     }
     
     func toggleMatch(uid: String!, completion: Bool -> ()) {
-        
-        var matchAlpha: CGFloat = 1
-        
+
         if uid != nil {
             
             let ref = FIRDatabase.database().reference()
@@ -348,17 +327,12 @@ class MainRootController: UIViewController {
             })
         }
         
-        if matchIsRevealed {
-            matchAlpha = 0
-            
-        }
-        
-        matchIsRevealed = !matchIsRevealed
+        matchIsRevealed = true
         
         UIView.animateWithDuration(0.3, animations: {
             
-            self.itsAMatchContainerOutlet.alpha = matchAlpha
-            
+            self.itsAMatchContainerOutlet.alpha = 1
+            self.view.layoutIfNeeded()
             
         }) { (complete) in
             
@@ -533,20 +507,7 @@ class MainRootController: UIViewController {
         
         let revealed = snapchatRevealed
         
-        self.snapchatController?.screenIsCircle = false
-        self.snapchatController?.isPanning = false
-        self.snapchatController?.longPressEnabled = false
         
-        self.snapchatController?.hideChat()
-        
-        self.snapXOutlet.constant = 0
-        self.snapYOutlet.constant = 0
-        
-        self.snapchatController?.view.layer.cornerRadius = 0
-        
-        self.snapWidthConstOutlet.constant = self.view.bounds.width
-        self.snapHeightConstOutlet.constant = self.view.bounds.height
-
         if revealed {
             
             self.snapchatController?.observePosts(100, completion: { (bool) in
@@ -554,35 +515,82 @@ class MainRootController: UIViewController {
                 self.snapchatController?.loadPrimary("left", i: -1, completion: { (complete) in
                     
                     print("start content loaded")
-                    
+
                     UIView.animateWithDuration(0.3, animations: {
+                        
                         self.snapchatContainerOutlet.alpha = 1
                         self.view.layoutIfNeeded()
+                        
+                        }, completion: { (bool) in
+                            
+                            self.snapchatController?.screenIsCircle = false
+                            self.snapchatController?.isPanning = false
+                            self.snapchatController?.longPressEnabled = false
+                            
+                            self.snapchatController?.hideChat()
+                            
+                            self.snapXOutlet.constant = 0
+                            self.snapYOutlet.constant = 0
+                            
+                            self.snapchatController?.view.layer.cornerRadius = 0
+                            
+                            self.snapWidthConstOutlet.constant = self.view.bounds.width
+                            self.snapHeightConstOutlet.constant = self.view.bounds.height
+                            
+                            
+                            completion(bool)
+ 
                     })
-
-                    completion(complete)
                 })
-                
             })
             
         } else {
-
+            
             UIView.animateWithDuration(0.3, animations: {
                 
                 self.snapchatContainerOutlet.alpha = 0
+                self.view.layoutIfNeeded()
                 
+                }, completion: { (bool) in
+                    
+                    self.snapchatController?.screenIsCircle = false
+                    self.snapchatController?.isPanning = false
+                    self.snapchatController?.longPressEnabled = false
+                    
+                    self.snapchatController?.hideChat()
+                    
+                    self.snapXOutlet.constant = 0
+                    self.snapYOutlet.constant = 0
+                    
+                    self.snapchatController?.view.layer.cornerRadius = 0
+                    
+                    self.snapWidthConstOutlet.constant = self.view.bounds.width
+                    self.snapHeightConstOutlet.constant = self.view.bounds.height
+                    
+                    completion(bool)
+                    
             })
         }
     }
 
     func toggleSearch(completion: Bool -> ()){
+
+        self.showNav(0.3) { (bool) in
+            
+            print("nav shown")
+            
+        }
         
+        self.searchController?.toggleColour(1)
+        self.searchController?.observeCities()
+
         UIView.animateWithDuration(0.3, animations: {
             
             self.searchContainerOutlet.alpha = 1
             
             }) { (bool) in
-                
+
+                self.searchRevealed = true
                 completion(bool)
                 
         }
@@ -699,8 +707,7 @@ class MainRootController: UIViewController {
             
         }
     }
-    
-    
+
     func loadSelfData(completion: [NSObject : AnyObject] -> ()){
         
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
@@ -721,10 +728,20 @@ class MainRootController: UIViewController {
                         
                         if self.vibesLoadedFromSelf == false {
                             
-                            self.searchController?.observeCities()
-
-                            self.vibesFeedController?.currentCity = city
                             self.vibesLoadedFromSelf = true
+                            
+                            if value["interestedIn"] != nil {
+                                
+                                self.nearbyController?.requestWhenInUseAuthorization()
+                                self.nearbyController?.updateLocation()
+
+                            } else {
+                                
+                                self.askInterestedIn()
+                                
+                            }
+ 
+                            self.vibesFeedController?.currentCity = city
                             self.vibesFeedController?.observeCurrentCityPosts()
                             
                         }
@@ -745,102 +762,39 @@ class MainRootController: UIViewController {
                     
                     self.menuController?.setMenu()
                     
+                    self.nearbyController?.globCollectionView.reloadData()
+
                     completion(value)
                 }
             })
         }
     }
-    
-    
+
     
     func checkForMatches(){
         
-        if let sentMatches = selfData["sentMatches"] as? [String : Bool] {
+        if let displayed = selfData["matchesDisplayed"] as? [String : Bool] {
             
-            for (key, value) in sentMatches {
-                
-                if value == true {
+            var uidToShow: String?
+            
+            for (key, value) in displayed {
+
+                if value == false {
                     
-                    if let matchDisplayed = selfData["matchDisplayed"] as? [String : Bool] {
-                        
-                        if matchDisplayed[key] != true {
-                            
-                            let ref = FIRDatabase.database().reference()
-                            
-                            if let uid = FIRAuth.auth()?.currentUser?.uid {
-                                
-                                ref.child("users").child(uid).child("matchDisplayed").updateChildValues([key : true])
-                                
-                                self.toggleMatch(key, completion: { (bool) in
-                                    
-                                    print("match toggled")
-                                    
-                                })
-                                
-                            }
-                        }
-                        
-                    } else {
-                        
-                        let ref = FIRDatabase.database().reference()
-                        
-                        if let uid = FIRAuth.auth()?.currentUser?.uid {
-                            
-                            ref.child("users").child(uid).child("matchDisplayed").updateChildValues([key : true])
-                            
-                            self.toggleMatch(key, completion: { (bool) in
-                                
-                                print("match toggled")
-                                
-                            })
-                        }
-                    }
+                    uidToShow = key
+                    
                 }
             }
-        }
-        
-        
-        if let receivedMatches = selfData["receivedMatches"] as? [String : Bool] {
             
-            for (key, value) in receivedMatches {
+            if uidToShow != nil {
                 
-                if value == true {
+                self.toggleMatch(uidToShow, completion: { (bool) in
                     
-                    if let matchDisplayed = selfData["matchDisplayed"] as? [String : Bool] {
-                        
-                        if matchDisplayed[key] != true {
-                            
-                            let ref = FIRDatabase.database().reference()
-                            
-                            if let uid = FIRAuth.auth()?.currentUser?.uid {
-                                
-                                ref.child("users").child(uid).child("matchDisplayed").updateChildValues([key : true])
-                                
-                                self.toggleMatch(key, completion: { (bool) in
-                                    
-                                    print("match toggled")
-                                    
-                                })
-                                
-                            }
-                        }
-                        
-                    } else {
-                        
-                        let ref = FIRDatabase.database().reference()
-                        
-                        if let uid = FIRAuth.auth()?.currentUser?.uid {
-                            
-                            ref.child("users").child(uid).child("matchDisplayed").updateChildValues([key : true])
-                            
-                            self.toggleMatch(key, completion: { (bool) in
-                                
-                                print("match toggled")
-                                
-                            })
-                        }
-                    }
-                }
+                    
+                    
+                    print("match shown")
+                    
+                })
             }
         }
     }
@@ -858,8 +812,12 @@ class MainRootController: UIViewController {
         
         if let uid = FIRAuth.auth()?.currentUser?.uid {
             
+            let userLocRef = FIRDatabase.database().reference().child("userLocations")
+            userLocRef.child(uid).updateChildValues(["online" : true])
+            
             let ref = FIRDatabase.database().reference().child("users").child(uid)
             ref.updateChildValues(["online" : true])
+            
             
         }
     }
@@ -871,6 +829,9 @@ class MainRootController: UIViewController {
         self.timer.invalidate()
         
         if let uid = FIRAuth.auth()?.currentUser?.uid {
+            
+            let userLocRef = FIRDatabase.database().reference().child("userLocations")
+            userLocRef.child(uid).updateChildValues(["online" : false])
             
             let ref = FIRDatabase.database().reference().child("users").child(uid)
             ref.updateChildValues(["online" : false])
@@ -909,7 +870,7 @@ class MainRootController: UIViewController {
                 
                 self.nearbyController?.requestWhenInUseAuthorization()
                 self.nearbyController?.updateLocation()
-                
+
             }
         }))
         
@@ -944,7 +905,7 @@ class MainRootController: UIViewController {
                 
                 self.nearbyController?.requestWhenInUseAuthorization()
                 self.nearbyController?.updateLocation()
-                
+
             }
         }))
         
@@ -996,8 +957,7 @@ class MainRootController: UIViewController {
     override func viewWillAppear(animated: Bool) {
 
         super.viewWillAppear(animated)
-        
-        setStage()
+
         
     }
     

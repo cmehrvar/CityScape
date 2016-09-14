@@ -663,11 +663,27 @@
 		A3F3B99E1D87196700313D59 /* Search */ = {
 			isa = PBXGroup;
 			children = (
+				A3F3B9A51D8881EC00313D59 /* Controller */,
+				A3F3B9A61D8881F200313D59 /* Cells */,
+			);
+			name = Search;
+			sourceTree = "<group>";
+		};
+		A3F3B9A51D8881EC00313D59 /* Controller */ = {
+			isa = PBXGroup;
+			children = (
 				A3F3B99F1D87198D00313D59 /* SearchController.swift */,
+			);
+			name = Controller;
+			sourceTree = "<group>";
+		};
+		A3F3B9A61D8881F200313D59 /* Cells */ = {
+			isa = PBXGroup;
+			children = (
 				A3F3B9A11D8730EC00313D59 /* CityCollectionCell.swift */,
 				A3F3B9A31D87934A00313D59 /* HeaderCollectionCell.swift */,
 			);
-			name = Search;
+			name = Cells;
 			sourceTree = "<group>";
 		};
 		A3FC18931D3412AB0031D165 /* Extensions */ = {

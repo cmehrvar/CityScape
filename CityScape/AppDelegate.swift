@@ -65,6 +65,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillResignActive(application: UIApplication) {
         
         nearbyController?.invalidateTimer()
+        //nearbyController?.invalidateTimer()
         mainRootController?.updateOffline()
         
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
@@ -98,6 +99,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
             nearbyController?.requestWhenInUseAuthorization()
             nearbyController?.updateLocation()
+
             
         } else {
             mainRootController?.askInterestedIn()

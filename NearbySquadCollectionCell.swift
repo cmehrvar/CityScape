@@ -34,7 +34,7 @@ class NearbySquadCollectionCell: UICollectionViewCell {
     
     @IBAction func goToProfile(sender: AnyObject) {
         
-        nearbyController?.rootController?.toggleProfile(uid, selfProfile: false, profilePic: profilePic, completion: { (bool) in
+        nearbyController?.rootController?.toggleProfile(uid, selfProfile: false, completion: { (bool) in
             
             print("profile toggled")
             

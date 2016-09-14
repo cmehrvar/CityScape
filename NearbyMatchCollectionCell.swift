@@ -22,83 +22,63 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
     var lastName = ""
     var profilePic = ""
     
+    var globYourMatches = [String : Bool]()
+    var haveSentMeMatch = false
+    
     //Outlets
     @IBOutlet weak var nameOutlet: THLabel!
     @IBOutlet weak var occupationOutlet: UILabel!
     @IBOutlet weak var profileImage: UIImageView!
     @IBOutlet weak var onlineOutlet: NearbyOnline!
     @IBOutlet weak var matchButtonOutlet: UIButton!
-    @IBOutlet weak var squadButtonOutlet: UIButton!
-    @IBOutlet weak var indicatorOutlet: UIImageView!
+    @IBOutlet weak var heartIndicator: UIImageView!
+    @IBOutlet weak var buttonImageOutlet: UIImageView!
+    
     
     //Actions
-    @IBAction func squadRequest(sender: AnyObject) {
-
-        print("squad request sent")
-        
-    }
-    
-    
     @IBAction func matchRequest(sender: AnyObject) {
         
         print("match request sent")
-
-        let ref = FIRDatabase.database().reference()
         
-        print(uid)
+        let scopeUID = uid
+        let scopeYourMatches = globYourMatches
 
-        if let myUid = FIRAuth.auth()?.currentUser?.uid {
-
-            if let myMatchData = nearbyController?.rootController?.selfData["receivedMatches"] as? [String : Bool] {
+        UIView.animateWithDuration(0.3, animations: {
+            
+            self.heartIndicator.alpha = 1
+            self.layoutIfNeeded()
+            
+            }, completion: { (complete) in
                 
-                if myMatchData[uid] != nil {
+                UIView.animateWithDuration(0.3, animations: {
                     
-                    print("you matched with me")
+                    self.heartIndicator.alpha = 0
+                    self.layoutIfNeeded()
                     
-                    let timeInterval = NSDate().timeIntervalSince1970
-                    
-                    ref.child("users").child(uid).child("matches").child(myUid).updateChildValues(["lastActivity" : timeInterval, "uid" : myUid])
-                    
-                    if let myFirstName = self.nearbyController?.rootController?.selfData["firstName"] as? String, myLastName = self.nearbyController?.rootController?.selfData["lastName"] as? String {
+                    }, completion: { (complete) in
                         
-                        ref.child("users").child(uid).child("matches").child(myUid).updateChildValues(["firstName" : myFirstName, "lastName" : myLastName])
-                        
-                    }
-
-                    
-                    ref.child("users").child(myUid).child("matches").child(uid).updateChildValues(["lastActivity" : timeInterval, "uid" : uid, "firstName" : firstName, "lastName" : lastName])
-
-
-                    ref.child("users").child(uid).child("sentMatches").child(myUid).setValue(true)
-                    ref.child("users").child(myUid).child("receivedMatches").child(uid).setValue(true)
-
-                } else {
-                    
-                    print("you didn't match with me")
-                    
-
-                    ref.child("users").child(myUid).child("sentMatches").child(uid).setValue(false)
-                    ref.child("users").child(uid).child("receivedMatches").child(myUid).setValue(false)
-                }
-                
-                
-            } else {
-                
-                print("no match data")
-                
-                ref.child("users").child(myUid).child("sentMatches").child(uid).setValue(false)
-                ref.child("users").child(uid).child("receivedMatches").child(myUid).setValue(false)
-
-                
-                
-            }
-        }
+                        if let myUID = FIRAuth.auth()?.currentUser?.uid {
+                            
+                            let ref = FIRDatabase.database().reference()
+                            ref.child("users").child(myUID).child("sentMatches").child(scopeUID).setValue(false)
+                            
+                            if scopeYourMatches[myUID] != nil {
+                                
+                                ref.child("users").child(myUID).child("matchesDisplayed").child(scopeUID).setValue(false)
+                                ref.child("users").child(scopeUID).child("matchesDisplayed").child(myUID).setValue(false)
+                                
+                                //Create match!
+                                
+                            }
+                        } 
+                })
+        })
     }
     
     
     @IBAction func goToProfile(sender: AnyObject) {
         
-        nearbyController?.rootController?.toggleProfile(uid, selfProfile: false, profilePic: profilePic, completion: { (bool) in
+        nearbyController?.rootController?.toggleProfile(uid, selfProfile: false, completion: { (bool) in
             
             print("profile toggled")
             
@@ -130,6 +110,23 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
     
     //Functions
     func loadUser(data: [NSObject : AnyObject]){
+
+        if let haveSent = data["haveSentMatch"] as? Bool {
+            
+            if haveSent {
+                
+                buttonImageOutlet.image = nil
+                matchButtonOutlet.enabled = false
+                
+            } else {
+                
+                buttonImageOutlet.image = UIImage(named: "heart")
+                matchButtonOutlet.enabled = true
+
+            }
+        }
+        
+        
         
         if let firstName = data["firstName"] as? String {
             
@@ -160,27 +157,12 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                     onlineOutlet.backgroundColor = UIColor.redColor()
                 }
             }
-
-            if let sentData = nearbyController?.rootController?.selfData["sentMatches"] as? [String : Bool] {
+            
+            if let yourMatches = data["sentMatches"] as? [String : Bool] {
                 
-                if sentData[uid] == nil {
-                    
-                    matchButtonOutlet.enabled = true
-                   
-                    
-                } else {
-                    
-                    matchButtonOutlet.setTitleColor(UIColor.grayColor(), forState: .Disabled)
-                    matchButtonOutlet.enabled = false
-
-                }
-                
-            } else {
-                
-                matchButtonOutlet.enabled = true
-
+                globYourMatches = yourMatches
+ 
             }
-
 
             nameOutlet.text = name
             nameOutlet.strokeSize = 0.25

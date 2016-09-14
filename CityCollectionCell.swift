@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import Firebase
+import FirebaseAuth
 
 class CityCollectionCell: UICollectionViewCell {
 
@@ -15,46 +17,103 @@ class CityCollectionCell: UICollectionViewCell {
     @IBOutlet weak var cellView: UIView!
     @IBOutlet weak var imageOutlet: UIImageView!
     @IBOutlet weak var cityNameOutlet: UILabel!
+    @IBOutlet weak var squadRequestButtonOutlet: UIButton!
     
+    
+    var userUID = ""
     var city = ""
+    
 
     @IBAction func goToCity(sender: AnyObject) {
         
-        searchController?.rootController?.vibesFeedController?.observingCity = city
-        searchController?.rootController?.vibesFeedController?.observePosts()
-        
-        searchController?.rootController?.toggleVibes({ (bool) in
+        if let isCity = searchController?.searchIsCity {
             
-            print("vibes toggled")
-            
-        })
+            if isCity {
+                
+                searchController?.rootController?.vibesFeedController?.observingCity = city
+                searchController?.rootController?.vibesFeedController?.observePosts()
+                
+                searchController?.rootController?.toggleVibes({ (bool) in
+                    
+                    self.searchController?.rootController?.vibesFeedController?.globCollectionView.setContentOffset(CGPointZero, animated: true)
+                    print("vibes toggled")
+                    
+                })
+                
+            } else {
+                
+                if let uid = FIRAuth.auth()?.currentUser?.uid {
+                    
+                    var selfProfile = false
+                    
+                    if uid == userUID {
+                        
+                        selfProfile = true
+                        
+                    }
+                    
+                    searchController?.rootController?.toggleProfile(userUID, selfProfile: selfProfile, completion: { (bool) in
+                        
+                        print("profile toggled")
+                        
+                    })
+                }
+            }
+        }
     }
     
 
 
-    func updateUI(cityData: [NSObject : AnyObject]){
+    func updateUI(data: [NSObject : AnyObject]){
 
         cityNameOutlet.adjustsFontSizeToFitWidth = true
-        
-        if let cityName = cityData["city"] as? String {
+        cityNameOutlet.baselineAdjustment = .AlignCenters
+
+        if let isCity = searchController?.searchIsCity {
             
-            
-            city = cityName
-            cityNameOutlet.text = cityName
-            
-        }
-        
-        
-        if let post = cityData["mostRecentPost"] as? [NSObject : AnyObject] {
-            
-            if let imageString = post["imageURL"] as? String, imageUrl = NSURL(string: imageString) {
+            if isCity {
                 
-                imageOutlet.sd_setImageWithURL(imageUrl, completed: { (image, error, cache, url) in
+                if let cityName = data["city"] as? String {
                     
-                    print("image loaded")
+                    city = cityName
+                    cityNameOutlet.text = cityName
                     
-                })
+                }
                 
+                if let post = data["mostRecentPost"] as? [NSObject : AnyObject] {
+                    
+                    if let imageString = post["imageURL"] as? String, imageUrl = NSURL(string: imageString) {
+                        
+                        imageOutlet.sd_setImageWithURL(imageUrl, completed: { (image, error, cache, url) in
+                            
+                            print("image loaded")
+                            
+                        })
+                    }
+                }
+
+            } else {
+                
+                if let uid = data["uid"] as? String {
+                    
+                    userUID = uid
+                    
+                }
+                
+                
+                if let firstName = data["firstName"] as? String, lastName = data["lastName"] as? String {
+                    
+                    let name = firstName + " " + lastName
+                    
+                    cityNameOutlet.text = name
+                    
+                }
+                
+                if let profileString = data["profilePicture"] as? String, url = NSURL(string: profileString){
+                    
+                    imageOutlet.sd_setImageWithURL(url)
+                    
+                }
             }
         }
 

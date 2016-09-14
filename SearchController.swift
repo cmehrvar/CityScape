@@ -17,20 +17,131 @@ class SearchController: UIViewController, UISearchBarDelegate, UICollectionViewD
     weak var rootController: MainRootController?
     
     var globCities = [[NSObject : AnyObject]]()
+    var globUsers = [[NSObject : AnyObject]]()
+    
     var dataSourceForSearchResult = [[NSObject : AnyObject]]()
-
+    
+    var searchIsCity = false
+    
     var firstLoad = false
     var searchBarActive:Bool = false
-
+    
+    
+    @IBOutlet weak var dismissViewOutlet: UIView!
+    
     @IBOutlet weak var searchBarOutlet: UISearchBar!
     @IBOutlet weak var globCollectionView: UICollectionView!
     
     
+    @IBOutlet weak var cityViewOutlet: NavButtonView!
+    @IBOutlet weak var cityButtonOutlet: UIButton!
+    
+    
+    @IBOutlet weak var userViewOutlet: NavButtonView!
+    @IBOutlet weak var userButtonOutlet: UIButton!
+    
+    
+    
+    //Actions
+    @IBAction func cityAction(sender: AnyObject) {
+        
+        toggleColour(1)
+        
+    }
+    
+    
+    @IBAction func userAction(sender: AnyObject) {
+        
+        toggleColour(2)
+        
+    }
+    
+    
+    
     //Functions
+    func toggleColour(button: Int) {
+        
+        if button == 1 {
+            
+            cityViewOutlet.backgroundColor = UIColor.whiteColor()
+            cityButtonOutlet.setTitleColor(UIColor(netHex: 0xDF412E), forState: .Normal)
+            
+            userViewOutlet.backgroundColor = UIColor.clearColor()
+            userButtonOutlet.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+            
+            self.searchIsCity = true
+            self.observeCities()
+            
+            
+        } else if button == 2 {
+            
+            userViewOutlet.backgroundColor = UIColor.whiteColor()
+            userButtonOutlet.setTitleColor(UIColor(netHex: 0xDF412E), forState: .Normal)
+            
+            
+            cityViewOutlet.backgroundColor = UIColor.clearColor()
+            cityButtonOutlet.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+            
+            self.searchIsCity = false
+            self.observeUsers()
+            
+        }
+    }
+    
+    
+    
+    func observeUsers(){
+        
+        if let selfData = rootController?.selfData {
+            
+            if let latitude = selfData["latitude"] as? CLLocationDegrees, longitude = selfData["longitude"] as? CLLocationDegrees {
+                
+                let center = CLLocation(latitude: latitude, longitude: longitude)
+                
+                let ref = FIRDatabase.database().reference().child("userLocations")
+                let geoFire = GeoFire(firebaseRef: ref)
+                
+                let query = geoFire.queryAtLocation(center, withRadius: 22)
+                
+                var index = 0
+                var users = [[NSObject : AnyObject]]()
+                
+                query.observeEventType(.KeyEntered, withBlock: { (key, location) in
+
+                    if let uid = FIRAuth.auth()?.currentUser?.uid {
+                        
+                        if key != uid {
+                            
+                            let userRef = FIRDatabase.database().reference().child("users").child(key)
+                            
+                            let scopeIndex = index
+                            
+                            users.append([NSObject : AnyObject]())
+                            index += 1
+                            
+                            userRef.observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                                
+                                if let value = snapshot.value as? [NSObject : AnyObject] {
+                                    
+                                    users[scopeIndex] = value
+                                    self.globUsers = users
+                                    self.globCollectionView.reloadData()
+                                    
+                                }
+                            })
+                        }
+                    }
+                })
+            }
+        }
+    }
+    
+    
+    
     func observeCities(){
         
         if let selfData = rootController?.selfData {
-
+            
             if let latitude = selfData["latitude"] as? CLLocationDegrees, longitude = selfData["longitude"] as? CLLocationDegrees {
                 
                 let center = CLLocation(latitude: latitude, longitude: longitude)
@@ -51,22 +162,22 @@ class SearchController: UIViewController, UISearchBarDelegate, UICollectionViewD
                                 
                             }
                         }
-
+                        
                         let sortedArray = cities.sort({ (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
-
+                            
                             if let latitudeA = a["latitude"] as? CLLocationDegrees, latitudeB = b["latitude"] as? CLLocationDegrees, longitudeA = a["longitude"] as? CLLocationDegrees, longitudeB = b["longitude"] as? CLLocationDegrees {
-
+                                
                                 let locA = CLLocation(latitude: latitudeA, longitude: longitudeA)
                                 let locB = CLLocation(latitude: latitudeB, longitude: longitudeB)
-
+                                
                                 if center.distanceFromLocation(locA) > center.distanceFromLocation(locB) {
                                     
                                     return false
                                     
                                 } else {
-                                 
+                                    
                                     return true
-
+                                    
                                 }
                                 
                             } else {
@@ -75,33 +186,47 @@ class SearchController: UIViewController, UISearchBarDelegate, UICollectionViewD
                         })
                         
                         self.globCities = sortedArray
-
-                        if !self.firstLoad {
-                            
-                            self.firstLoad = true
-                            self.globCollectionView.reloadData()
-                            
-                        }
+                        self.globCollectionView.reloadData()
+                        
                     }
                 })
             }
         }
     }
     
-
+    
     func filterContentForSearchText(searchText: String){
         
-        self.dataSourceForSearchResult = globCities.filter({ (city: [NSObject : AnyObject]) -> Bool in
+        if searchIsCity {
             
-            if let key = city["city"] as? String {
+            self.dataSourceForSearchResult = globCities.filter({ (city: [NSObject : AnyObject]) -> Bool in
                 
-                return key.containsString(searchText)
+                if let key = city["city"] as? String {
+                    
+                    return key.containsString(searchText)
+                    
+                } else {
+                    
+                    return false
+                }
+            })
+            
+            
+        } else {
+            
+            self.dataSourceForSearchResult = globUsers.filter({ (user: [NSObject : AnyObject]) -> Bool in
                 
-            } else {
-                
-                return false
-            }
-        })
+                if let firstName = user["firstName"] as? String, lastName =  user["lastName"] as? String {
+                    
+                    let name = firstName + " " + lastName
+                    return name.containsString(searchText)
+                    
+                } else {
+                    
+                    return false
+                }
+            })
+        }
     }
     
     
@@ -122,7 +247,7 @@ class SearchController: UIViewController, UISearchBarDelegate, UICollectionViewD
         }
         
         print("search bar active: \(searchBarActive)")
-
+        
     }
     
     
@@ -143,10 +268,10 @@ class SearchController: UIViewController, UISearchBarDelegate, UICollectionViewD
         if kind == UICollectionElementKindSectionHeader {
             
             let cell = collectionView.dequeueReusableSupplementaryViewOfKind(UICollectionElementKindSectionHeader, withReuseIdentifier: "headerCell", forIndexPath: indexPath) as! HeaderCollectionCell
-    
+            
             cell.searchController = self
             cell.exploreOutlet.adjustsFontSizeToFitWidth = true
- 
+            
             reusableView = cell
             
         }
@@ -166,8 +291,15 @@ class SearchController: UIViewController, UISearchBarDelegate, UICollectionViewD
             
         } else {
             
-            return globCities.count
-            
+            if searchIsCity {
+                
+                return globCities.count
+                
+            } else {
+                
+                return globUsers.count
+                
+            }
         }
     }
     
@@ -176,17 +308,27 @@ class SearchController: UIViewController, UISearchBarDelegate, UICollectionViewD
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("cityCell", forIndexPath: indexPath) as! CityCollectionCell
         
         if searchBarActive {
-
+            
             cell.searchController = self
             cell.updateUI(dataSourceForSearchResult[indexPath.row])
             
         } else {
-
-            cell.searchController = self
-            cell.updateUI(globCities[indexPath.row])
             
+            cell.searchController = self
+            
+            if searchIsCity {
+                
+                cell.squadRequestButtonOutlet.alpha = 0
+                cell.updateUI(globCities[indexPath.row])
+                
+            } else {
+                
+                cell.squadRequestButtonOutlet.alpha = 1
+                cell.updateUI(globUsers[indexPath.row])
+                
+            }
         }
-
+        
         return cell
         
     }
@@ -195,7 +337,7 @@ class SearchController: UIViewController, UISearchBarDelegate, UICollectionViewD
     func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
         
         let width = self.view.bounds.width
-
+        
         return CGSize(width: width/2, height: width/2)
         
     }
@@ -204,7 +346,7 @@ class SearchController: UIViewController, UISearchBarDelegate, UICollectionViewD
     override func viewWillAppear(animated: Bool) {
         
         super.viewWillAppear(animated)
-
+        
         
     }
     
@@ -214,32 +356,49 @@ class SearchController: UIViewController, UISearchBarDelegate, UICollectionViewD
         
     }
     
-
-
+    func keyboardDidShow(){
+        
+        dismissViewOutlet.alpha = 1
+        
+        
+    }
+    
+    
+    func keyboardHid(){
+        
+        dismissViewOutlet.alpha = 0
+        
+    }
+    
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardDidShow), name: UIKeyboardWillShowNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardHid), name: UIKeyboardWillHideNotification, object: nil)
+        
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapHandler))
         tapGesture.delegate = self
-        self.view.addGestureRecognizer(tapGesture)
+        self.dismissViewOutlet.addGestureRecognizer(tapGesture)
         
         // Do any additional setup after loading the view.
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     
-
+    
     /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
+     // MARK: - Navigation
+     
+     // In a storyboard-based application, you will often want to do a little preparation before navigation
+     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+     // Get the new view controller using segue.destinationViewController.
+     // Pass the selected object to the new view controller.
+     }
+     */
+    
 }
