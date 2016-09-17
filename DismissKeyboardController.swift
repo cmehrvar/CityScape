@@ -1,55 +1,34 @@
 //
-//  TopNavBarController.swift
+//  DismissKeyboardController.swift
 //  CityScape
 //
-//  Created by Cina Mehrvar on 2016-08-06.
+//  Created by Cina Mehrvar on 2016-09-15.
 //  Copyright © 2016 Cina Mehrvar. All rights reserved.
 //
 
 import UIKit
 
-class TopNavBarController: UIViewController {
+class DismissKeyboardController: UIViewController, UIGestureRecognizerDelegate {
     
-    
-    
-    
-
-    //Variables
     weak var rootController: MainRootController?
-    
 
-    //Actions
-    @IBAction func toggleMenu(sender: AnyObject) {
+    func tapHandler(){
         
-        rootController?.toggleMenu({ (bool) in
+        rootController?.dismissKeyboard({ (bool) in
             
-            print("menu toggled")
+            print("keyboard dismissed")
             
         })
-    }
-    
-    
-    @IBAction func toggleNotification(sender: AnyObject) {
         
-        rootController?.toggleNotifications({ (bool) in
-            
-            print("notification toggled")
-            
-        })
     }
     
-    
-    @IBAction func logoToHome(sender: AnyObject) {
-        
-        rootController?.toggleHome({ (bool) in
-            
-            print("home toggled")
-            
-        })
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapHandler))
+        tapGesture.delegate = self
+        self.view.addGestureRecognizer(tapGesture)
 
         // Do any additional setup after loading the view.
     }

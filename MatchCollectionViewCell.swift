@@ -15,7 +15,11 @@ class MatchCollectionViewCell: UICollectionViewCell {
     
     weak var messagesController: MessagesController?
     
+    var index = 0
     var uid = ""
+    var firstName = ""
+    var lastName = ""
+    var profileString = ""
     
     //Outlets
     @IBOutlet weak var profileOutlet: UIImageView!
@@ -36,6 +40,14 @@ class MatchCollectionViewCell: UICollectionViewCell {
         messagesController?.rootController?.chatController?.typeOfChat = "match"
         messagesController?.rootController?.chatController?.ownerUID = uid
         
+        messagesController?.rootController?.bottomNavController?.chatNameOutlet.text = firstName + " " + lastName
+        
+        if let url = NSURL(string: profileString) {
+            
+            messagesController?.rootController?.bottomNavController?.chatProfileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+            
+        }
+        
         messagesController?.rootController?.toggleChat({ (bool) in
             
             print("chat toggled")
@@ -45,41 +57,54 @@ class MatchCollectionViewCell: UICollectionViewCell {
         })
     }
     
-    
-    
+
     //Functions
-    func loadData() {
+    func loadCell(data: [NSObject : AnyObject]){
         
-        let ref = FIRDatabase.database().reference().child("users").child(uid)
+        nameOutlet.adjustsFontSizeToFitWidth = true
         
-        ref.child("profilePicture").observeEventType(.Value, withBlock: { (snapshot) in
+        if let online = data["online"] as? Bool {
             
-            if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
+            if online {
                 
-                self.profileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                self.indicatorOutlet.backgroundColor = UIColor.greenColor()
+                
+            } else {
+                
+                self.indicatorOutlet.backgroundColor = UIColor.redColor()
                 
             }
-        })
+        }
+
         
-        
-        ref.child("online").observeEventType(.Value, withBlock: { (snapshot) in
+        if let profileURL = data["profilePicture"] as? String, url = NSURL(string: profileURL) {
             
-            if let online = snapshot.value as? Bool {
-                
-                if online {
-                    
-                    self.indicatorOutlet.backgroundColor = UIColor.greenColor()
-                    
-                } else {
-                    
-                    self.indicatorOutlet.backgroundColor = UIColor.redColor()
-                    
-                }
-            }
-        })
+            profileString = profileURL
+            profileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+            
+        }
+        
+        if let firstName = data["firstName"] as? String {
+            
+            self.firstName = firstName
+            nameOutlet.text = firstName
+            
+        }
+        
+        if let lastName = data["lastName"] as? String {
+            
+            self.lastName = lastName
+
+        }
+
+        
+        if let uid = data["uid"] as? String {
+            
+            self.uid = uid
+            
+        }
     }
-    
-    
+
     override var bounds: CGRect {
         didSet {
             contentView.frame = bounds

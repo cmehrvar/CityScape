@@ -675,6 +675,21 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
                                 
                                 self.addMessage(id, text: text, name: name, isMedia: isMedia, media: media, isImage: isImage, date: date, key: key, data: value)
                                 
+                                if isImage {
+                                    
+                                    if let url = NSURL(string: media) {
+                                        
+                                        SDWebImageManager.sharedManager().downloadImageWithURL(url, options: .ContinueInBackground, progress: { (currentSize, expectedSize) in
+                                            
+                                            
+                                            
+                                            }, completed: { (image, error, cache, bool, url) in
+                                                
+                                                self.collectionView.reloadData()
+                                                
+                                        }) 
+                                    }
+                                }
                             }
                         }
                         
@@ -908,6 +923,7 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
         }
     }
     
+    /*
     func observeTyping(){
         
         let refString = passedRef
@@ -955,7 +971,7 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
             })
         }
     }
-    
+    */
     //Add Upload Stuff
     func addUploadStuff(){
         

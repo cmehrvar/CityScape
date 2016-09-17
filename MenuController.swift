@@ -14,7 +14,7 @@ import FirebaseAuth
 import SDWebImage
 import AWSS3
 
-class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate {
+class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate, UITextViewDelegate {
 
     //Variables
     weak var rootController: MainRootController?
@@ -24,10 +24,14 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     
     //Outlets
-    @IBOutlet weak var profilePicOutlet: MenuProfileView!
+    @IBOutlet weak var profilePicOutlet: UIImageView!
     @IBOutlet weak var nameOutlet: UILabel!
     @IBOutlet weak var cityOutlet: UILabel!
-    
+    @IBOutlet weak var worldwideViewOutlet: UIView!
+    @IBOutlet weak var settingsViewOutlet: UIView!
+    @IBOutlet weak var currentStatusTextViewOutlet: UITextView!
+    @IBOutlet weak var charactersOutlet: UILabel!
+
     
     //Functions
     func setMenu(){
@@ -44,10 +48,9 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
             }
         }
         
-        if let firstName = rootController?.selfData["firstName"] as? String, lastName = rootController?.selfData["lastName"] as? String {
-            
-            let name = firstName + " " + lastName
-            nameOutlet.text = name
+        if let firstName = rootController?.selfData["firstName"] as? String {
+
+            nameOutlet.text = firstName
             
         }
         
@@ -168,9 +171,21 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
             
         })
     }
-
     
-   
+
+    //TextView Delegates
+    func textViewDidChange(textView: UITextView) {
+        
+        let textCount = textView.text.characters.count
+        charactersOutlet.text = "\(textCount)/30 Characters"
+
+    }
+    
+    func textView(textView: UITextView, shouldChangeTextInRange range: NSRange, replacementText text: String) -> Bool {
+        return textView.text.characters.count + (text.characters.count - range.length) <= 30
+    }
+    
+
     //Actions
     @IBAction func editProfile(sender: AnyObject) {
         
@@ -203,6 +218,7 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
         
         
     }
+    
     
     
     @IBAction func goToProfile(sender: AnyObject) {
@@ -251,12 +267,45 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
         
     }
     
+    func keyboardDidShow(){
+        
+        rootController?.dismissKeyboardContainerOutlet.alpha = 1
+    }
+    
+    
+    override func viewDidAppear(animated: Bool) {
+        
+        let height = self.view.bounds.height
+        let viewHeight = (height/2) - 62.5
+        let cornerRadius = round((((viewHeight * 0.55)/2)))
+        
+        print("Corner Radius: \(cornerRadius)")
+        print("Profile Picture Height: \(profilePicOutlet.bounds.height)")
+
+        profilePicOutlet.layer.cornerRadius = cornerRadius - 5
+        profilePicOutlet.clipsToBounds = true
+        
+        charactersOutlet.text = "\(currentStatusTextViewOutlet.text.characters.count)/30 Characters"
+
+    }
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        addGestureRecognizers()
+        nameOutlet.adjustsFontSizeToFitWidth = true
+        nameOutlet.baselineAdjustment = .AlignCenters
         
+        worldwideViewOutlet.layer.cornerRadius = 12
+        settingsViewOutlet.layer.cornerRadius = 12
+        
+        currentStatusTextViewOutlet.layer.cornerRadius = 8
+        
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardDidShow), name: UIKeyboardWillShowNotification, object: nil)
+  
+        addGestureRecognizers()
         addUploadStuff()
+        
         // Do any additional setup after loading the view.
     }
 

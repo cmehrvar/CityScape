@@ -89,7 +89,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         nearbyController?.viewDidLoad()
         mainRootController?.viewDidLoad()
         vibeController?.viewDidLoad()
-
+        
         nearbyController?.checkStatus()
 
         mainRootController?.updateOnline()
@@ -99,7 +99,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
             nearbyController?.requestWhenInUseAuthorization()
             nearbyController?.updateLocation()
-
             
         } else {
             mainRootController?.askInterestedIn()

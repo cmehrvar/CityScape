@@ -23,6 +23,10 @@ class BottomNavController: UIViewController {
     @IBOutlet weak var vibesButtonOutlet: UIButton!
     @IBOutlet weak var messagesButtonOutlet: UIButton!
     
+    @IBOutlet weak var chatProfileOutlet: TopChatProfileView!
+    @IBOutlet weak var chatNameOutlet: UILabel!
+    
+    
     @IBOutlet weak var topChatBoxView: UIView!
     
     //Toggle Actions
@@ -70,21 +74,33 @@ class BottomNavController: UIViewController {
     
     //Toggle Outside Actions
     @IBAction func nearbyOutside(sender: AnyObject) {
-        rootController?.toggleNearby({ (Bool) in
+        
+        rootController?.toggleNearby({ (bool) in
+            
+            print("nearby toggled")
             
         })
+
     }
 
     @IBAction func vibesOutside(sender: AnyObject) {
-        rootController?.toggleVibes({ (Bool) in
+        
+        rootController?.toggleVibes({ (bool) in
+        
+            print("vibes toggled")
             
         })
+        
     }
 
     @IBAction func messagesOutside(sender: AnyObject) {
-        rootController?.toggleMessages({ (Bool) in
+        
+        rootController?.toggleMessages({ (bool) in
+            
+            print("messages toggled")
             
         })
+        
     }
   
     

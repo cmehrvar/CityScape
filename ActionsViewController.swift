@@ -28,16 +28,39 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
     
     
     @IBAction func search(sender: AnyObject) {
-        
-        
-        rootController?.toggleHome({ (bool) in
+
+        if let searchRevealed = rootController?.searchRevealed {
             
-            self.rootController?.toggleSearch({ (bool) in
+            if !searchRevealed {
                 
-                print("search toggled")
+                rootController?.toggleHome({ (bool) in
+                    
+                    self.rootController?.toggleSearch({ (bool) in
+                        
+                        print("search revealed")
+                        
+                    })
+                })
+            } else {
                 
-            })
-        })
+                if let profileRevealed = rootController?.profileRevealed {
+                    
+                    if profileRevealed {
+                        
+                        rootController?.closeProfileForSearch({ (bool) in
+                            
+                            print("profile from search closed")
+                            
+                        })
+                    }
+                    
+                    
+                }
+                
+                
+                
+            }
+        }
     }
 
     
@@ -52,8 +75,7 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
     
     
     @IBAction func globe(sender: AnyObject) {
-        
-        
+
         print("globe")
         
         rootController?.toggleSnapchat({ (bool) in
@@ -61,25 +83,27 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
             print("snapchat toggled")
             
         })
-        
     }
     
     
     @IBAction func profile(sender: AnyObject) {
         
-        rootController?.profileRevealed = true
+        if let selfUID = FIRAuth.auth()?.currentUser?.uid {
         
-        rootController?.toggleHome({ (bool) in
-            
-            if let selfUID = FIRAuth.auth()?.currentUser?.uid, selfProfile = self.rootController?.selfData["profilePicture"] as? String {
-                
-                self.rootController?.toggleProfile(selfUID, selfProfile: true, completion: { (bool) in
-                    
-                    print("profile toggled")
+            if rootController?.profileController?.currentUID != selfUID  {
+
+                rootController?.toggleHome({ (bool) in
+
+                    self.rootController?.toggleProfile(selfUID, selfProfile: true, completion: { (bool) in
+                        
+                        self.rootController?.profileRevealed = true
+                        print("profile toggled")
+                        
+                    })
                     
                 })
             }
-        })
+        }
 
         print("profile")
         

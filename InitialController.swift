@@ -29,7 +29,7 @@ class InitialController: UIViewController {
                     vc.setStage()
                     
                     vc.loadSelfData({ (value) in
-
+                        
                         print("self data loaded")
                         
                     })

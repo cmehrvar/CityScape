@@ -21,9 +21,9 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
     var firstName = ""
     var lastName = ""
     var profilePic = ""
-    
-    var globYourMatches = [String : Bool]()
-    var haveSentMeMatch = false
+
+    var youSentMe = false
+    var iSentYou = false
     
     //Outlets
     @IBOutlet weak var nameOutlet: THLabel!
@@ -40,9 +40,9 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
         
         print("match request sent")
         
+        let scopeUsentMe = youSentMe
         let scopeUID = uid
-        let scopeYourMatches = globYourMatches
-
+        
         UIView.animateWithDuration(0.3, animations: {
             
             self.heartIndicator.alpha = 1
@@ -61,16 +61,16 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                             
                             let ref = FIRDatabase.database().reference()
                             ref.child("users").child(myUID).child("sentMatches").child(scopeUID).setValue(false)
-                            
-                            if scopeYourMatches[myUID] != nil {
+
+                            if scopeUsentMe {
                                 
                                 ref.child("users").child(myUID).child("matchesDisplayed").child(scopeUID).setValue(false)
                                 ref.child("users").child(scopeUID).child("matchesDisplayed").child(myUID).setValue(false)
                                 
-                                //Create match!
+                                print("create match")
                                 
                             }
-                        } 
+                        }
                 })
         })
     }
@@ -83,9 +83,8 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
             print("profile toggled")
             
         })
-        
     }
-
+    
     @IBAction func dismiss(sender: AnyObject) {
         
         if let last = nearbyController?.nearbyUsers.last {
@@ -110,78 +109,131 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
     
     //Functions
     func loadUser(data: [NSObject : AnyObject]){
-
-        if let haveSent = data["haveSentMatch"] as? Bool {
+        
+        if let uid = data["uid"] as? String {
             
-            if haveSent {
+            self.uid = uid
+
+            var showButton = true
+            
+            if let yourSentMatches = data["sentMatches"] as? [String : Bool], selfUID = FIRAuth.auth()?.currentUser?.uid {
                 
-                buttonImageOutlet.image = nil
-                matchButtonOutlet.enabled = false
+                if yourSentMatches[selfUID] != nil {
+                    
+                    //You sent me
+                    youSentMe = true
+                    
+                } else {
+
+                    //You did not send me
+                    youSentMe = false
+                    
+                    
+                }
+
+            } else {
+                
+                
+                //You have not sent anyone
+                youSentMe = false
+                
+            }
+
+            
+            if let selfData = nearbyController?.rootController?.selfData {
+                
+                if let mySentMatches = selfData["sentMatches"] as? [String : Bool] {
+                    
+                    if mySentMatches[uid] != nil {
+                        
+                        //I've sent you!!
+                        iSentYou = true
+                        showButton = false
+                        
+                    } else {
+                        
+                        iSentYou = false
+                        //I haven't sent you!!!
+                        
+                    }
+
+                } else {
+                    
+                    iSentYou = false
+                    //I have not sent anyone
+                    
+                }
+
+            } else {
+                
+                //No Self Data!!!
+                print("no self data")
+                showButton = false
+                
+            }
+
+            if showButton {
+                
+                matchButtonOutlet.enabled = true
+                buttonImageOutlet.image = UIImage(named: "heart")
                 
             } else {
                 
-                buttonImageOutlet.image = UIImage(named: "heart")
-                matchButtonOutlet.enabled = true
-
+                matchButtonOutlet.enabled = false
+                buttonImageOutlet.image = nil
+                
             }
+
+            if let firstName = data["firstName"] as? String {
+                
+                var name = firstName
+                var occupation = ""
+                
+                if let age = data["age"] as? NSTimeInterval {
+                    
+                    let date = NSDate(timeIntervalSince1970: age)
+                    name += ", " + timeAgoSince(date, showAccronym: false)
+                    
+                }
+                
+                if let actualOccupation = data["occupation"] as? String {
+                    occupation = actualOccupation
+                }
+                
+                if let profile = data["profilePicture"] as? String, profileURL = NSURL(string: profile) {
+                    self.profilePic = profile
+                    profileImage.sd_setImageWithURL(profileURL, placeholderImage: nil)
+                }
+                
+                if let online = data["online"] as? Bool {
+                    
+                    if online {
+                        onlineOutlet.backgroundColor = UIColor.greenColor()
+                    } else {
+                        onlineOutlet.backgroundColor = UIColor.redColor()
+                    }
+                }
+
+                
+                nameOutlet.text = name
+                nameOutlet.strokeSize = 0.25
+                nameOutlet.strokeColor = UIColor.blackColor()
+                nameOutlet.lineBreakMode = .ByWordWrapping
+                
+                occupationOutlet.adjustsFontSizeToFitWidth = true
+                occupationOutlet.text = occupation
+                
+            }  
         }
         
-        
-        
-        if let firstName = data["firstName"] as? String {
-            
-            var name = firstName
-            var occupation = ""
-            
-            if let age = data["age"] as? NSTimeInterval {
-                
-                let date = NSDate(timeIntervalSince1970: age)
-                name += ", " + timeAgoSince(date, showAccronym: false)
-                
-            }
-            
-            if let actualOccupation = data["occupation"] as? String {
-                occupation = actualOccupation
-            }
-            
-            if let profile = data["profilePicture"] as? String, profileURL = NSURL(string: profile) {
-                self.profilePic = profile
-                profileImage.sd_setImageWithURL(profileURL, placeholderImage: nil)
-            }
-            
-            if let online = data["online"] as? Bool {
-                
-                if online {
-                    onlineOutlet.backgroundColor = UIColor.greenColor()
-                } else {
-                    onlineOutlet.backgroundColor = UIColor.redColor()
-                }
-            }
-            
-            if let yourMatches = data["sentMatches"] as? [String : Bool] {
-                
-                globYourMatches = yourMatches
- 
-            }
-
-            nameOutlet.text = name
-            nameOutlet.strokeSize = 0.25
-            nameOutlet.strokeColor = UIColor.blackColor()
-            nameOutlet.lineBreakMode = .ByWordWrapping
-            
-            occupationOutlet.adjustsFontSizeToFitWidth = true
-            occupationOutlet.text = occupation
-
-        }  
     }
     
     
     
-
     override var bounds: CGRect {
         didSet {
             contentView.frame = bounds
         }
     }
-
+    
 }

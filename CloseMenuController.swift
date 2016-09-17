@@ -14,11 +14,25 @@ class CloseMenuController: UIViewController {
     
     @IBAction func closeMenu(sender: AnyObject) {
         
-        rootController?.toggleMenu({ (bool) in
+        if let menuRevealed = rootController?.menuIsRevealed, notificationRevealed = rootController?.notificationRevealed {
             
-            print("menu toggled")
-            
-        })
+            if menuRevealed {
+                
+                rootController?.toggleMenu({ (bool) in
+                    
+                    print("menu closed")
+                    
+                })
+                
+            } else if notificationRevealed {
+                
+                rootController?.toggleNotifications({ (bool) in
+                    
+                    print("notifications toggled")
+                    
+                })
+            }
+        }
     }
     
 

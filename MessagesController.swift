@@ -7,6 +7,9 @@
 //
 
 import UIKit
+import Firebase
+import FirebaseDatabase
+import FirebaseAuth
 
 class MessagesController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UIGestureRecognizerDelegate {
     
@@ -18,8 +21,7 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
     
     //Outlets
     @IBOutlet weak var globCollectionViewOutlet: UICollectionView!
-    
-    
+
     //Actions
     func loadMatches(data: [NSObject : AnyObject]){
         
@@ -35,24 +37,48 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
             
         })
         
+        var i = 0
+        
         for (_, value) in sortedMatches {
             
             if let dictValue = value as? [NSObject : AnyObject] {
+                
                 globMatches.append(dictValue)
+                
+                if let userUID = dictValue["uid"] as? String {
+                    
+                    let ref = FIRDatabase.database().reference().child("users").child(userUID)
+                    
+                    ref.observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                        
+                        if let userDataValue = snapshot.value as? [NSObject : AnyObject], selfUID = FIRAuth.auth()?.currentUser?.uid {
+ 
+                            if dictValue["online"] as? Bool != userDataValue["online"] as? Bool {
+                                
+                                print("update online!")
+                                let myRef = FIRDatabase.database().reference().child("users").child(selfUID).child("matches").child(userUID)
+                                myRef.child("online").setValue(userDataValue["online"] as? Bool)
+  
+                            }
+                            
+                            if value["profilePicture"] as? String != userDataValue["profilePicture"] as? String {
+                                ref.child("users").child(selfUID).child("matches").child(userUID).child("profilePicture").setValue(userDataValue["profilePicture"])
+
+                            }
+                        }
+                    })
+                }
+                
+                i += 1
             }
         }
-        
-        
-        
-        
+
         if oldMatches != globMatches {
             
             oldMatches = globMatches
             globCollectionViewOutlet.reloadData()
             
         }
-        
-        
     }
     
     func addGestureRecognizers(){
@@ -100,32 +126,26 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
         
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("matchCell", forIndexPath: indexPath) as! MatchCollectionViewCell
         
+        
         var diameter: CGFloat!
         
         if let rootHeight = rootController?.view.bounds.height {
             
-            let screenSize = (rootHeight * 0.8)
+            let screenSize = (rootHeight - 120)
             
-            diameter = (screenSize * 0.33) - ((screenSize * 0.33) * 0.28)
+            diameter = (screenSize * 0.33) - ((screenSize * 0.33) * 0.3)
             
         }
         
-        cell.profileOutlet.layer.cornerRadius = ((((diameter) * 116) / 136) / 2) - 1
+        cell.profileOutlet.layer.cornerRadius = (((diameter - 20) / 2) - 1)
         
         cell.indicatorOutlet.layer.cornerRadius = 8
         cell.indicatorOutlet.layer.borderWidth = 2
         cell.indicatorOutlet.layer.borderColor = UIColor.whiteColor().CGColor
         
-        if let uid = globMatches[indexPath.row]["uid"] as? String {
-            cell.uid = uid
-        }
-        
-        if let firstName = globMatches[indexPath.row]["firstName"] as? String {
-            cell.nameOutlet.text = firstName
-        }
-        
-        cell.loadData()
         cell.messagesController = self
+        
+        cell.loadCell(globMatches[indexPath.row])
         
         return cell
         
@@ -133,17 +153,17 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
     
     func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
         
-        var diameter: CGFloat!
+        var diameter: CGFloat = 0.0
         
         if let rootHeight = rootController?.view.bounds.height {
             
-            let screenSize = (rootHeight * 0.8)
+            let screenSize = (rootHeight - 120)
             
-            diameter = (screenSize * 0.33) - ((screenSize * 0.33) * 0.28)
+            diameter = (screenSize * 0.33) - ((screenSize * 0.33) * 0.3)
             
         }
         
-        let size = CGSize(width: (diameter * 0.934), height: diameter)
+        let size = CGSize(width: (diameter), height: diameter)
         
         return size
     }

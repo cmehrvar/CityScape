@@ -10,6 +10,9 @@ import UIKit
 
 class ItsAMatchController: UIViewController {
 
+    //Variables
+    weak var rootController: MainRootController?
+    
     //Outlets
     @IBOutlet weak var itsAOutlet: UILabel!
     @IBOutlet weak var matchOutlet: UILabel!
@@ -22,16 +25,18 @@ class ItsAMatchController: UIViewController {
     @IBOutlet weak var yourRankOutlet: UILabel!
     @IBOutlet weak var distanceOutlet: UILabel!
     
-    
-    
-    
+    var firstName = ""
+    var lastName = ""
+    var uid = ""
+    var profileString = ""
+
     //Actions
-    
     @IBAction func sendMessage(sender: AnyObject) {
-        
-        rootController?.toggleMatch(nil, completion: { (bool) in
+
+        rootController?.closeMatch(uid, profile: profileString, firstName: firstName, lastName: lastName, keepPlaying: false, completion: { (bool) in
+
             
-            print("send message")
+            print("go to send message")
             
         })
     }
@@ -39,17 +44,13 @@ class ItsAMatchController: UIViewController {
     
     @IBAction func keepPlaying(sender: AnyObject) {
         
-        rootController?.toggleMatch(nil, completion: { (bool) in
+        rootController?.closeMatch(uid, profile: profileString, firstName: firstName, lastName: lastName, keepPlaying: true, completion: { (bool) in
             
             print("keep playing")
             
         })
     }
     
-    
-    
-    //Variables
-    weak var rootController: MainRootController?
     
     //Functions
     func setStage() {

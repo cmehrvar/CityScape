@@ -1024,7 +1024,6 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
         }
         
         self.nextEnabled = true
-        self.snapchatChatController?.observeTyping()
         self.snapchatChatController?.newObserveMessages()
         
         self.isPanning = false

@@ -870,9 +870,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
         self.messageData.append(offlineMessage)
         self.messageKeys.append(fileName)
         self.messages.append(messageData)
-        
-        
-        
+ 
         self.addedMessages[fileName] = true
         
         finishReceivingMessage()

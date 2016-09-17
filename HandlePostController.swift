@@ -243,7 +243,6 @@ class HandlePostController: UIViewController, PlayerDelegate, UITextFieldDelegat
                                         ref.child("posts").child(city).child(postChildKey).updateChildValues(postData)
                                         ref.child("users").child(selfUID).child("posts").child(city).child(postChildKey).updateChildValues(postData)
                                         ref.child("allPosts").child(postChildKey).updateChildValues(postData)
-                                        //ref.child("postUIDs").child(postChildKey).setValue(currentDate)
 
                                         dispatch_async(dispatch_get_main_queue(), {
                                             
@@ -276,13 +275,13 @@ class HandlePostController: UIViewController, PlayerDelegate, UITextFieldDelegat
                             
                             let currentDate = NSDate().timeIntervalSince1970
                             
-                            if let firstName = userData["firstName"] as? String, lastName = userData["lastName"] as? String, city = userData["city"] as? String, profile = userData["profilePicture"] as? String, rank = userData["cityRank"] as? Int, longitude = userData["longitude"] as? CLLocationDegrees, latitude = userData["latitude"] as? CLLocationDegrees {
+                            if let firstName = userData["firstName"] as? String, lastName = userData["lastName"] as? String, city = userData["city"] as? String, profile = userData["profilePicture"] as? String, rank = userData["cityRank"] as? Int, longitude = userData["longitude"] as? CLLocationDegrees, latitude = userData["latitude"] as? CLLocationDegrees, state = userData["state"] as? String {
                                 
                                 let ref = FIRDatabase.database().reference()
                                 
                                 let postChildKey = ref.child("posts").child(city).childByAutoId().key
                                 
-                                let postData: [NSObject:AnyObject] = ["views":0, "userUID":selfUID, "firstName":firstName, "lastName":lastName, "city":"Oakville", "timeStamp":currentDate, "profilePicture":profile, "imageURL":imageUrl, "caption":captionString, "isImage":isImage, "like" : 0, "dislike" : 0, "postChildKey":postChildKey, "videoURL" : "none", "cityRank" : rank]
+                                let postData: [NSObject:AnyObject] = ["views":0, "userUID":selfUID, "firstName":firstName, "lastName":lastName, "city": city, "timeStamp":currentDate, "profilePicture":profile, "imageURL":imageUrl, "caption":captionString, "isImage":isImage, "like" : 0, "dislike" : 0, "postChildKey":postChildKey, "videoURL" : "none", "cityRank" : rank]
                                 
                                 
                                 if let score = userData["userScore"] as? Int {
@@ -296,7 +295,7 @@ class HandlePostController: UIViewController, PlayerDelegate, UITextFieldDelegat
                                 ref.child("users").child(selfUID).child("posts").child(city).child(postChildKey).updateChildValues(postData)
                                 ref.child("allPosts").child(postChildKey).updateChildValues(postData)
 
-                                ref.child("cityLocations").child(city).updateChildValues(["mostRecentPost" : postData, "latitude" : latitude, "longitude" : longitude])
+                                ref.child("cityLocations").child(city).updateChildValues(["mostRecentPost" : postData, "latitude" : latitude, "longitude" : longitude, "city" : city, "state" : state])
                                 
                                 print("successfuly set city")
 
@@ -334,8 +333,6 @@ class HandlePostController: UIViewController, PlayerDelegate, UITextFieldDelegat
                 return nil
             }
         }
-        
- 
     }
     
     
@@ -424,8 +421,8 @@ class HandlePostController: UIViewController, PlayerDelegate, UITextFieldDelegat
     }
     func addDismissKeyboard() {
         
-        let dismissKeyboard: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "dismissKeyboard")
-        view.addGestureRecognizer(dismissKeyboard)
+        let dismissKeyboardGesture: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        view.addGestureRecognizer(dismissKeyboardGesture)
         
     }
     func dismissKeyboard() {

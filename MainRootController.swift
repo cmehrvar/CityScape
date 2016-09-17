@@ -16,7 +16,7 @@ import SDWebImage
 class MainRootController: UIViewController {
     
     var selfData = [NSObject : AnyObject]()
-    
+
     var locationFromFirebase = false
     
     var menuIsRevealed = false
@@ -28,6 +28,7 @@ class MainRootController: UIViewController {
     var profileRevealed = false
     var snapchatRevealed = false
     var searchRevealed = false
+    var notificationRevealed = false
     
     var vibesLoadedFromSelf = false
     
@@ -41,9 +42,10 @@ class MainRootController: UIViewController {
     @IBOutlet weak var topNavCenter: NSLayoutConstraint!
     @IBOutlet weak var vibesTrailing: NSLayoutConstraint!
     @IBOutlet weak var vibesLeading: NSLayoutConstraint!
-    @IBOutlet weak var closeMenuTopConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var leadingMenu: NSLayoutConstraint!
+
     @IBOutlet weak var topNavConstOutlet: NSLayoutConstraint!
+
     @IBOutlet weak var bottomNavConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var menuWidthConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var topProfileConstOutlet: NSLayoutConstraint!
@@ -55,6 +57,8 @@ class MainRootController: UIViewController {
     @IBOutlet weak var snapYOutlet: NSLayoutConstraint!
     @IBOutlet weak var snapXOutlet: NSLayoutConstraint!
     @IBOutlet weak var handlePostX: NSLayoutConstraint!
+    @IBOutlet weak var notificationWidthConstOutlet: NSLayoutConstraint!
+    @IBOutlet weak var notificationTrailingConstOutlet: NSLayoutConstraint!
     
     
     //views
@@ -67,6 +71,8 @@ class MainRootController: UIViewController {
     @IBOutlet weak var chatContainerOutlet: UIView!
     @IBOutlet weak var cameraTransitionOutlet: UIView!
     @IBOutlet weak var searchContainerOutlet: UIView!
+    @IBOutlet weak var dismissKeyboardContainerOutlet: UIView!
+    @IBOutlet weak var notificationContainer: UIView!
  
     
     //View Controllers
@@ -84,20 +90,29 @@ class MainRootController: UIViewController {
     weak var handlePostController: HandlePostController?
     weak var snapchatController: SnapchatViewController?
     weak var searchController: SearchController?
+    weak var notificationController: NotificationController?
+    weak var dismissController: DismissKeyboardController?
     
     
     //Toggle Functions
+    func dismissKeyboard(completion: Bool -> ()){
+        
+        self.dismissKeyboardContainerOutlet.alpha = 0
+        self.menuController?.view.endEditing(true)
+
+        completion(true)
+    }
+    
+    
+    
     func toggleHome(completion: Bool -> ()) {
         
         let screenHeight = self.view.bounds.height
-        
-        self.closeMenuTopConstOutlet.constant = 0
-        
+
         self.chatController?.view.endEditing(true)
         
         self.vibesFeedController?.navHidden = false
-        
-        
+
         if !self.profileRevealed {
             
             if self.currentTab == 1 {
@@ -146,12 +161,13 @@ class MainRootController: UIViewController {
             self.chatController?.finishReceivingMessage()
             
             self.profileController?.currentUID = ""
-            self.profileController?.currentPicture = 1
-            self.profileController?.pictures = 1
             self.profileController?.userData.removeAll()
+            
+            self.searchController?.view.endEditing(true)
 
             self.searchController?.view.endEditing(true)
             
+            self.searchRevealed = false
             self.profileRevealed = false
             
             completion(complete)
@@ -197,12 +213,10 @@ class MainRootController: UIViewController {
         var menuOffset: CGFloat = 0
         
         var closeMenuAlpha: CGFloat = 0
-        var buttonsEnabled = true
         
         if !menuIsRevealed {
-            closeMenuAlpha = 1
             
-            buttonsEnabled = false
+            closeMenuAlpha = 1
             
         } else {
             
@@ -216,11 +230,7 @@ class MainRootController: UIViewController {
             
             self.closeMenuContainer.alpha = closeMenuAlpha
             self.leadingMenu.constant = menuOffset
-            
-            self.bottomNavController?.nearbyButtonOutlet.enabled = buttonsEnabled
-            self.bottomNavController?.vibesButtonOutlet.enabled = buttonsEnabled
-            self.bottomNavController?.messagesButtonOutlet.enabled = buttonsEnabled
-            
+
             self.view.layoutIfNeeded()
             
         }) { (complete) in
@@ -231,15 +241,51 @@ class MainRootController: UIViewController {
     }
     
     
+    
+    func toggleNotifications(completion: Bool -> ()){
+        
+        let mainDrawerWidthConstant: CGFloat = (self.view.bounds.width) * 0.8
+        
+        var notificationOffset: CGFloat = 0
+        
+        var closeMenuAlpha: CGFloat = 0
+        
+        if !notificationRevealed {
+            closeMenuAlpha = 1
+            
+        } else {
+            
+            notificationOffset = -mainDrawerWidthConstant
+            
+        }
+        
+        notificationRevealed = !notificationRevealed
+        
+        UIView.animateWithDuration(0.3, animations: { () -> Void in
+            
+            self.closeMenuContainer.alpha = closeMenuAlpha
+            self.notificationTrailingConstOutlet.constant = notificationOffset
+
+            self.view.layoutIfNeeded()
+            
+        }) { (complete) in
+            
+            completion(complete)
+            
+        }
+    }
+    
+    
+    
     func toggleProfile(uid: String, selfProfile: Bool, completion: Bool -> ()){
 
         profileRevealed = true
-        
-        self.closeMenuTopConstOutlet.constant = -(self.view.bounds.height - 50)
-        
+
+        profileController?.currentPicture = 1
         profileController?.currentUID = uid
         profileController?.retrieveUserData(uid)
         profileController?.selfProfile = selfProfile
+        
         
         UIView.animateWithDuration(0.3, animations: {
             
@@ -256,78 +302,131 @@ class MainRootController: UIViewController {
         }
     }
     
-    func toggleMatch(uid: String!, completion: Bool -> ()) {
+    func closeProfileForSearch(completion: Bool -> ()){
+        
+        let screenHeight = self.view.bounds.height
+        
+        UIView.animateWithDuration(0.3, animations: {
+            
+            self.topNavConstOutlet.constant = 0
+            self.bottomNavConstOutlet.constant = 0
 
-        if uid != nil {
+            self.topProfileConstOutlet.constant = -(screenHeight)
+            self.bottomProfileConstOutlet.constant = screenHeight
             
-            let ref = FIRDatabase.database().reference()
+            self.bottomNavController?.topChatBoxView.alpha = 0
+
+            self.view.layoutIfNeeded()
             
-            ref.child("users").child(uid).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+        }) { (complete) in
+            
+            self.chatController?.messages.removeAll()
+            self.chatController?.messageKeys.removeAll()
+            self.chatController?.messageData.removeAll()
+            self.chatController?.addedMessages.removeAll()
+            self.chatController?.messageIndex = 0
+            
+            self.chatController?.finishReceivingMessage()
+
+            self.profileController?.currentUID = ""
+            self.profileController?.userData.removeAll()
+            
+            self.searchController?.view.endEditing(true)
+            
+            self.profileRevealed = false
+            
+            completion(complete)
+            
+        }
+    }
+    
+    
+    
+    
+    func revealMatch(uid: String!, completion: Bool -> ()) {
+
+        self.chatController?.view.endEditing(true)
+        
+        if !matchIsRevealed {
+            
+            matchIsRevealed = true
+            
+            if uid != nil {
                 
-                if let value = snapshot.value as? [NSObject : AnyObject] {
+                let ref = FIRDatabase.database().reference()
+                
+                ref.child("users").child(uid).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
                     
-                    
-                    if let firstName = value["firstName"] as? String, lastName = value["lastName"] as? String {
+                    if let value = snapshot.value as? [NSObject : AnyObject] {
                         
-                        self.matchController?.likesYouOutlet.text = "\(firstName) \(lastName) Likes You"
+                        self.matchController?.uid = uid
                         
-                    }
-                    
-                    if let myProfile = self.selfData["profilePicture"] as? String, url = NSURL(string: myProfile) {
-                        
-                        self.matchController?.myProfileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
-                        
-                    }
-                    
-                    
-                    if let yourProfile = value["profilePicture"] as? String, url = NSURL(string: yourProfile) {
-                        
-                        self.matchController?.yourProfileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
-                        
-                    }
-                    
-                    if let myRank = self.selfData["cityRank"] as? Int {
-                        
-                        self.matchController?.myRankOutlet.text = String(myRank)
-                        
-                    }
-                    
-                    if let yourRank = value["cityRank"] as? Int {
-                        
-                        self.matchController?.yourRankOutlet.text = String(yourRank)
-                        
-                    }
-                    
-                    
-                    if let myLatitude = self.selfData["latitude"] as? CLLocationDegrees, myLongitude = self.selfData["longitude"] as? CLLocationDegrees, yourLatitude = value["latitude"] as? CLLocationDegrees, yourLongitude = value["longitude"] as? CLLocationDegrees {
-                        
-                        let myLocation = CLLocation(latitude: myLatitude, longitude: myLongitude)
-                        let yourLocation = CLLocation(latitude: yourLatitude, longitude: yourLongitude)
-                        
-                        let distance = myLocation.distanceFromLocation(yourLocation)
-                        
-                        if distance > 9999 {
+                        if let firstName = value["firstName"] as? String, lastName = value["lastName"] as? String {
                             
-                            let kilometers: Int = Int(distance) / 1000
-                            self.matchController?.distanceOutlet.text = String(kilometers) + " kilometers away"
+                            self.matchController?.firstName = firstName
+                            self.matchController?.lastName = lastName
                             
-                        } else if distance > 99 {
-                            
-                            let kilometers: Double = Double(distance) / 1000
-                            let rounded = round(kilometers*10) / 10
-                            self.matchController?.distanceOutlet.text = String(rounded) + " kilometers away"
-                            
-                        } else {
-                            
-                            self.matchController?.distanceOutlet.text = String(Int(round(distance))) + " meters away"
+                            self.matchController?.likesYouOutlet.text = "\(firstName) \(lastName) Likes You"
                             
                         }
+                        
+                        if let myProfile = self.selfData["profilePicture"] as? String, url = NSURL(string: myProfile) {
+                            
+                            self.matchController?.myProfileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                            
+                        }
+                        
+                        
+                        if let yourProfile = value["profilePicture"] as? String, url = NSURL(string: yourProfile) {
+                            
+                            self.matchController?.profileString = yourProfile
+                            
+                            self.matchController?.yourProfileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                            
+                        }
+                        
+                        if let myRank = self.selfData["cityRank"] as? Int {
+                            
+                            self.matchController?.myRankOutlet.text = String(myRank)
+                            
+                        }
+                        
+                        if let yourRank = value["cityRank"] as? Int {
+                            
+                            self.matchController?.yourRankOutlet.text = String(yourRank)
+                            
+                        }
+                        
+                        
+                        if let myLatitude = self.selfData["latitude"] as? CLLocationDegrees, myLongitude = self.selfData["longitude"] as? CLLocationDegrees, yourLatitude = value["latitude"] as? CLLocationDegrees, yourLongitude = value["longitude"] as? CLLocationDegrees {
+                            
+                            let myLocation = CLLocation(latitude: myLatitude, longitude: myLongitude)
+                            let yourLocation = CLLocation(latitude: yourLatitude, longitude: yourLongitude)
+                            
+                            let distance = myLocation.distanceFromLocation(yourLocation)
+                            
+                            if distance > 9999 {
+                                
+                                let kilometers: Int = Int(distance) / 1000
+                                self.matchController?.distanceOutlet.text = String(kilometers) + " kilometers away"
+                                
+                            } else if distance > 99 {
+                                
+                                let kilometers: Double = Double(distance) / 1000
+                                let rounded = round(kilometers*10) / 10
+                                self.matchController?.distanceOutlet.text = String(rounded) + " kilometers away"
+                                
+                            } else {
+                                
+                                self.matchController?.distanceOutlet.text = String(Int(round(distance))) + " meters away"
+                                
+                            }
+                        }
                     }
-                }
-            })
+                })
+            }
         }
-        
-        matchIsRevealed = true
+
         
         UIView.animateWithDuration(0.3, animations: {
             
@@ -341,11 +440,69 @@ class MainRootController: UIViewController {
         }
     }
     
+    
+    func closeMatch(uid: String, profile: String, firstName: String, lastName: String, keepPlaying: Bool, completion: Bool -> ()){
+        
+        print(uid)
+
+        if let myUID = FIRAuth.auth()?.currentUser?.uid {
+            
+            let ref = FIRDatabase.database().reference()
+            let activityTime = NSDate().timeIntervalSince1970
+
+            let matchData: [NSObject : AnyObject] = ["uid" : uid, "lastActivity" : activityTime, "firstName" : firstName, "lastName" : lastName, "profilePicture" : profile, "online" : false]
+            
+            ref.child("users").child(myUID).child("matches").child(uid).updateChildValues(matchData)
+            ref.child("users").child(myUID).child("matchesDisplayed").updateChildValues([uid : true])
+            
+            UIView.animateWithDuration(0.3, animations: {
+                
+                self.itsAMatchContainerOutlet.alpha = 0
+                self.view.layoutIfNeeded()
+
+                }, completion: { (bool) in
+                    
+                    if keepPlaying {
+                        
+                        print("back to last screen")
+                        self.matchIsRevealed = false
+                        
+                    } else {
+                        
+                        self.toggleMessages({ (bool) in
+                            
+                            let refToPass = "/users/\(myUID)/matches/\(uid)"
+                            
+                            self.messagesController?.rootController?.chatController?.passedRef = refToPass
+                            self.messagesController?.rootController?.chatController?.typeOfChat = "match"
+                            self.messagesController?.rootController?.chatController?.ownerUID = uid
+                            
+                            self.messagesController?.rootController?.bottomNavController?.chatNameOutlet.text = firstName + " " + lastName
+  
+                            if let url = NSURL(string: profile) {
+                                
+                                self.messagesController?.rootController?.bottomNavController?.chatProfileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                                
+                            }
+
+                            self.toggleChat({ (bool) in
+                                
+                                print("chat toggled")
+                                self.matchIsRevealed = false
+                                self.messagesController?.rootController?.chatController?.newObserveMessages()
+                                
+                            })
+                        })
+                    }
+            })
+        }
+    }
+
+    
     func toggleChat(completion: (Bool) -> ()) {
-        
-        self.chatController?.senderId = selfData["uid"] as? String
-        
+
         if let uid = FIRAuth.auth()?.currentUser?.uid {
+
             self.chatController?.senderId = uid
         }
         
@@ -359,13 +516,10 @@ class MainRootController: UIViewController {
             
             NSNotificationCenter.defaultCenter().addObserver(controller, selector: #selector(controller.keyboardDidShow), name: UIKeyboardWillShowNotification, object: nil)
             NSNotificationCenter.defaultCenter().addObserver(controller, selector: #selector(controller.keyboardHid), name: UIKeyboardWillHideNotification, object: nil)
-            
-            
-            
+
         }
         
-        
-        
+
         UIView.animateWithDuration(0.3, animations: {
             
             self.bottomNavController?.topChatBoxView.alpha = 1
@@ -431,13 +585,9 @@ class MainRootController: UIViewController {
     
     
     func toggleSnapchat(completion: Bool -> ()){
-        
-        var snapAlpha: CGFloat = 0
-        
+
         if !snapchatRevealed {
-            
-            snapAlpha = 1
-            
+
             UIApplication.sharedApplication().statusBarHidden = true
             
             if let snapController = snapchatController, chatController = snapController.snapchatChatController {
@@ -490,14 +640,7 @@ class MainRootController: UIViewController {
                 NSNotificationCenter.defaultCenter().removeObserver(chatController, name: UIKeyboardWillHideNotification, object: nil)
                 
             }
-            
-            /*
-            self.showNav(0.3, completion: { (bool) in
-                
-                print("nav shown")
-                
-            })
-            */
+
             
             print("handle closing snaps")
             
@@ -582,8 +725,7 @@ class MainRootController: UIViewController {
         }
         
         self.searchController?.toggleColour(1)
-        self.searchController?.observeCities()
-
+        
         UIView.animateWithDuration(0.3, animations: {
             
             self.searchContainerOutlet.alpha = 1
@@ -603,7 +745,7 @@ class MainRootController: UIViewController {
         
         UIView.animateWithDuration(0.3, animations: {
             
-            self.topNavConstOutlet.constant = -100
+            self.topNavConstOutlet.constant = -115
             self.view.layoutIfNeeded()
             
         }) { (complete) in
@@ -614,8 +756,7 @@ class MainRootController: UIViewController {
     }
     
     func hideTopNav(completion: (Bool) -> ()){
-        
-        
+
         UIView.animateWithDuration(0.3, animations: {
             
             self.bottomNavConstOutlet.constant = -50
@@ -631,6 +772,8 @@ class MainRootController: UIViewController {
     
     
     func showNav(animatingTime: NSTimeInterval, completion: (Bool) -> ()){
+        
+        UIApplication.sharedApplication().statusBarHidden = false
 
         UIView.animateWithDuration(animatingTime, animations: {
             
@@ -727,9 +870,12 @@ class MainRootController: UIViewController {
                         self.vibesFeedController?.currentCity = city
                         
                         if self.vibesLoadedFromSelf == false {
-                            
+        
                             self.vibesLoadedFromSelf = true
                             
+                            self.searchController?.userController?.observeUsers()
+                            self.searchController?.cityController?.observeCities()
+
                             if value["interestedIn"] != nil {
                                 
                                 self.nearbyController?.requestWhenInUseAuthorization()
@@ -747,7 +893,11 @@ class MainRootController: UIViewController {
                         }
                     }
 
-                    self.checkForMatches()
+                    if !self.matchIsRevealed {
+                        self.checkForMatches()
+                    }
+                    
+                    
                     
                     if let latitude = value["latitude"] as? CLLocationDegrees, longitude = value["longitude"] as? CLLocationDegrees {
                         
@@ -757,7 +907,9 @@ class MainRootController: UIViewController {
                     }
                     
                     if let matches = value["matches"] as? [NSObject : AnyObject] {
+    
                         self.messagesController?.loadMatches(matches)
+ 
                     }
                     
                     self.menuController?.setMenu()
@@ -788,10 +940,8 @@ class MainRootController: UIViewController {
             
             if uidToShow != nil {
                 
-                self.toggleMatch(uidToShow, completion: { (bool) in
-                    
-                    
-                    
+                self.revealMatch(uidToShow, completion: { (bool) in
+
                     print("match shown")
                     
                 })
@@ -939,7 +1089,10 @@ class MainRootController: UIViewController {
             
             self.menuWidthConstOutlet.constant = screenWidth * 0.8
             self.leadingMenu.constant = -(screenWidth * 0.8)
-            
+
+            self.notificationWidthConstOutlet.constant = screenWidth * 0.8
+            self.notificationTrailingConstOutlet.constant = -(screenWidth * 0.8)
+
             self.vibesLeading.constant = screenWidth
             self.vibesTrailing.constant = -screenWidth
             
@@ -948,6 +1101,7 @@ class MainRootController: UIViewController {
             self.chatContainerOutlet.alpha = 1
             self.profileContainer.alpha = 1
             self.menuContainerOutlet.alpha = 1
+            self.notificationContainer.alpha = 1
             self.snapchatContainerOutlet.alpha = 0
             self.searchContainerOutlet.alpha = 0
  
@@ -1069,11 +1223,21 @@ class MainRootController: UIViewController {
             searchController = search
             searchController?.rootController = self
             
+        } else if segue.identifier == "dismissSegue" {
+            
+            let dismiss = segue.destinationViewController as? DismissKeyboardController
+            dismissController = dismiss
+            dismissController?.rootController = self
+ 
+        } else if segue.identifier == "notificationController" {
+            
+            let notification = segue.destinationViewController as? NotificationController
+            notificationController = notification
+            notificationController?.rootController = self
+            
         }
         
         // Get the new view controller using segue.destinationViewController.
         // Pass the selected object to the new view controller.
     }
-    
-    
 }

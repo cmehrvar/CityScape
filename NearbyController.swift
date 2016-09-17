@@ -71,19 +71,11 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
         
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("nearbyMatchCollectionCell", forIndexPath: indexPath) as! NearbyMatchCollectionCell
         
-        cell.alpha = 1
-        cell.heartIndicator.alpha = 0
-        
-        cell.loadUser(nearbyUsers[indexPath.row])
         cell.nearbyController = self
         cell.index = indexPath.row
         
-        if let uid = nearbyUsers[indexPath.row]["uid"] as? String {
-            
-            cell.uid = uid
-            
-        }
-        
+        cell.loadUser(nearbyUsers[indexPath.row])
+
         return cell
         
     }
@@ -99,7 +91,7 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
                 
                 initialLocation = true
                 updateLocationToFirebase()
-                self.timer = NSTimer.scheduledTimerWithTimeInterval(60, target: self, selector: #selector(updateLocationToFirebase), userInfo: nil, repeats: true)
+                self.timer = NSTimer.scheduledTimerWithTimeInterval(30, target: self, selector: #selector(updateLocationToFirebase), userInfo: nil, repeats: true)
                 
             }
         }
@@ -188,30 +180,12 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
                 userRef.observeEventType(.Value, withBlock: { (snapshot) in
                     
                     if let value = snapshot.value as? [NSObject : AnyObject], selfUID = FIRAuth.auth()?.currentUser?.uid {
-                        
-                        var valueToAdd = [NSObject : AnyObject]()
-                        valueToAdd = value
-                        
+
                         if value["uid"] as? String != selfUID {
 
                             var isInterested = false
                             var add = true
-                            var haveSentMatch = false
-                            
-                            if let mySentMatches = self.rootController?.selfData["sentMatches"] as? [String : Bool] {
-                                
-                                if let uid = value["uid"] as? String {
-                                    
-                                    if mySentMatches[uid] != nil {
-                                        
-                                        haveSentMatch = true
-                                        
-                                    }
-                                }
-                            }
-                            
-                            valueToAdd["haveSentMatch"] = haveSentMatch
-      
+
                             if let uid = value["uid"] as? String {
                                 
                                 if self.dismissedCells[uid] != nil {
@@ -221,7 +195,7 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
                                 } else if let index = self.addedCells[uid] {
                                     
                                     add = false
-                                    self.nearbyUsers[index] = valueToAdd
+                                    self.nearbyUsers[index] = value
                                     self.globCollectionView.reloadData()
                                     
                                 }
@@ -238,10 +212,10 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
                                     }
                                 }
                                 
-                                if add && isInterested && !haveSentMatch {
+                                if add && isInterested /*&& !haveSentMatch */{
                                     
                                     self.addedCells[uid] = self.addedIndex
-                                    self.nearbyUsers.append(valueToAdd)
+                                    self.nearbyUsers.append(value)
                                     self.addedIndex += 1
                                     self.globCollectionView.reloadData()
                                 }
@@ -357,8 +331,8 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
         
         rootController?.showNav(0.3, completion: { (bool) in
             
-            print("nav showed")
-            
+            print("nav shown")
+
         })
     }
     
@@ -400,9 +374,10 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
                 
                 rootController?.hideTopNav({ (bool) in
                     
-                    print("top nav hidded")
+                    print("top nav hidden")
                     
                 })
+                
             }
             
         } else {

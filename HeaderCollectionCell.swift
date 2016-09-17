@@ -10,19 +10,29 @@ import UIKit
 
 class HeaderCollectionCell: UICollectionViewCell {
     
-    weak var searchController: SearchController?
+    weak var userController: UserController?
+    weak var cityController: CityController?
     
     @IBOutlet weak var exploreOutlet: UILabel!
     
     @IBAction func showSnapchat(sender: AnyObject) {
         
-        searchController?.rootController?.toggleSnapchat({ (bool) in
+        if let user = userController {
             
-            print("snapchat toggled")
+            user.searchController?.rootController?.toggleSnapchat({ (bool) in
+                
+                print("snapchat toggled")
+                
+            })
+
+        } else if let city = cityController {
             
-        })
-        
-        
+            city.searchController?.rootController?.toggleSnapchat({ (bool) in
+                
+                print("snapchat toggled")
+                
+            })
+        }
     }
     
     override var bounds: CGRect {
