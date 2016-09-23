@@ -201,19 +201,17 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
     //Functions
     func retrieveUserData(uid: String){
         
-        let ref = FIRDatabase.database().reference().child("users").child(uid)
-        
-        ref.observeEventType(.Value, withBlock: { (snapshot) in
+        if let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
-            if let value = snapshot.value as? [NSObject : AnyObject] {
+            if uid == selfUID {
                 
-                if self.currentUID == value["uid"] as? String {
+                if let selfData = self.rootController?.selfData {
                     
-                    self.userData = value
+                    self.userData = selfData
                     
                     var scopePosts = [[NSObject:AnyObject]]()
                     
-                    if let posts = value["posts"] as? [NSObject : AnyObject] {
+                    if let posts = selfData["posts"] as? [NSObject : AnyObject] {
                         
                         for post in posts {
                             
@@ -223,7 +221,6 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                                 
                             }
                         }
-                        
                     }
                     
                     scopePosts.sortInPlace({ (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
@@ -233,19 +230,63 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                         } else {
                             return false
                         }
-                        
-                        
                     })
                     
                     self.userPosts = scopePosts
                     
                     self.globCollectionCell.reloadData()
-                    
-                } else {
-                    ref.removeAllObservers()
+
                 }
+
+            } else {
+                
+                let ref = FIRDatabase.database().reference().child("users").child(uid)
+                
+                ref.observeEventType(.Value, withBlock: { (snapshot) in
+                    
+                    if let value = snapshot.value as? [NSObject : AnyObject] {
+                        
+                        if self.currentUID == value["uid"] as? String {
+                            
+                            self.userData = value
+                            
+                            var scopePosts = [[NSObject:AnyObject]]()
+                            
+                            if let posts = value["posts"] as? [NSObject : AnyObject] {
+                                
+                                for post in posts {
+                                    
+                                    if let data = post.1 as? [NSObject : AnyObject] {
+                                        
+                                        scopePosts.append(data)
+                                        
+                                    }
+                                }
+                                
+                            }
+                            
+                            scopePosts.sortInPlace({ (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
+                                
+                                if a["timeStamp"] as? NSTimeInterval > b["timeStamp"] as? NSTimeInterval {
+                                    return true
+                                } else {
+                                    return false
+                                }
+                                
+                                
+                            })
+                            
+                            self.userPosts = scopePosts
+                            
+                            self.globCollectionCell.reloadData()
+                            
+                        } else {
+                            ref.removeAllObservers()
+                        }
+                    }
+                })
             }
-        })
+        }
     }
 
     //CollectionViewDelegates

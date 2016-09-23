@@ -220,32 +220,31 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                     
                     let myRef = FIRDatabase.database().reference().child("users").child(selfUID)
                     
-                    myRef.child("notifications").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                    
+                    if let selfData = self.profileController?.rootController?.selfData, notifications = selfData["notifications"] as? [NSObject : AnyObject] {
                         
-                        if let notifications = snapshot.value as? [NSObject : AnyObject] {
+                        for (key, value) in notifications {
                             
-                            for (key, value) in notifications {
+                            if let dictValue = value as? [NSObject : AnyObject], notUID = dictValue["uid"] as? String {
                                 
-                                if let dictValue = value as? [NSObject : AnyObject], notUID = dictValue["uid"] as? String {
+                                if notUID == userUID {
                                     
-                                    if notUID == userUID {
+                                    if let notificationKey = key as? String {
                                         
-                                        if let notificationKey = key as? String {
-                                            
-                                            myRef.child("notifications").child(notificationKey).removeValue()
-  
-                                        }
+                                        myRef.child("notifications").child(notificationKey).removeValue()
+                                        
                                     }
                                 }
                             }
-                            
-                            
-                            myRef.child("squad").child(userUID).removeValue()
-                            myRef.child("squadRequests").child(userUID).removeValue()
-
                         }
-                    })
+                        
+                        myRef.child("squad").child(userUID).removeValue()
+                        myRef.child("squadRequests").child(userUID).removeValue()
+                        
+                        
+                    }
 
+                    
                     let yourRef = FIRDatabase.database().reference().child("users").child(userUID)
                     
                     yourRef.child("notifications").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
@@ -266,8 +265,7 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                                     }
                                 }
                             }
-                            
-                            
+
                             yourRef.child("squad").child(selfUID).removeValue()
                             yourRef.child("squadRequests").child(selfUID).removeValue()
                         }
@@ -356,27 +354,25 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                         
                         let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
                         
-                        ref.child("squadRequests").child(scopeUID).child("notificationKey").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                        if let mySquadRequests = selfData["squadRequests"] as? [NSObject : AnyObject], userSquadRequest = mySquadRequests[scopeUID] as? [NSObject : AnyObject], scopeNotificationKey = userSquadRequest["notificationKey"] as? String {
                             
-                            if let scopeNotificationKey = snapshot.value as? String {
-                                
-                                ref.child("notifications").child(scopeNotificationKey).updateChildValues(["status" : "approved"])
-                                ref.child("squadRequests").child(scopeUID).removeValue()
-                                
-                                ref.child("squad").child(scopeUID).setValue(["firstName" : scopeFirstName, "lastName" : scopeLastName, "uid" : scopeUID])
+                            ref.child("notifications").child(scopeNotificationKey).updateChildValues(["status" : "approved"])
+                            ref.child("squadRequests").child(scopeUID).removeValue()
+                            
+                            ref.child("squad").child(scopeUID).setValue(["firstName" : scopeFirstName, "lastName" : scopeLastName, "uid" : scopeUID])
+                            
+                            let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
+                            
+                            let timeInterval = NSDate().timeIntervalSince1970
+                            
+                            let key = yourRef.child("notifications").childByAutoId().key
+                            
+                            yourRef.child("notifications").child(key).setValue(["firstName" : myFirstName, "lastName" : myLastName, "type" : "addedYou", "timeStamp" : timeInterval, "uid" : selfUID, "read" : false, "notificationKey" : key])
+                            
+                            yourRef.child("squad").child(selfUID).setValue(["firstName" : myFirstName, "lastName" : myLastName, "uid" : selfUID])
+       
+                        }
 
-                                let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
-                                
-                                let timeInterval = NSDate().timeIntervalSince1970
-                                
-                                let key = yourRef.child("notifications").childByAutoId().key
-                                
-                                yourRef.child("notifications").child(key).setValue(["firstName" : myFirstName, "lastName" : myLastName, "type" : "addedYou", "timeStamp" : timeInterval, "uid" : selfUID, "read" : false, "notificationKey" : key])
-                                
-                                yourRef.child("squad").child(selfUID).setValue(["firstName" : myFirstName, "lastName" : myLastName, "uid" : selfUID])
-  
-                            }
-                        })
                     }
                 }))
                 
@@ -386,26 +382,21 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                     if let selfUID = FIRAuth.auth()?.currentUser?.uid, scopeUID = scopeUserData["uid"] as? String {
                         
                         let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
-                        
-                        ref.child("squadRequests").child(scopeUID).child("notificationKey").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+
+                        if let selfData = self.profileController?.rootController?.selfData, mySquadRequests = selfData["squadRequests"] as? [NSObject : AnyObject], userSquadRequest = mySquadRequests[scopeUID] as? [NSObject : AnyObject], scopeNotificationKey = userSquadRequest["notificationKey"] as? String {
                             
-                            if let scopeNotificationKey = snapshot.value as? String {
-                                
-                                ref.child("notifications").child(scopeNotificationKey).removeValue()
-                                ref.child("squadRequests").child(scopeUID).removeValue()
-                                
-                            }
-                        })
+                            ref.child("notifications").child(scopeNotificationKey).removeValue()
+                            ref.child("squadRequests").child(scopeUID).removeValue()
+
+                            
+                        }
                     }
                 }))
 
                 alertController.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
                     
                     print("canceled")
-                    
-        
-
-                    
+ 
                 }))
                 
                 self.profileController?.presentViewController(alertController, animated: true, completion: {
