@@ -63,27 +63,44 @@ class MatchCollectionViewCell: UICollectionViewCell {
         
         nameOutlet.adjustsFontSizeToFitWidth = true
         
-        if let online = data["online"] as? Bool {
+        if let uid = data["uid"] as? String {
             
-            if online {
+            self.uid = uid
+            
+            let ref = FIRDatabase.database().reference().child("users").child(uid)
+            
+            ref.child("profilePicture").observeEventType(.Value, withBlock: { (snapshot) in
                 
-                self.indicatorOutlet.backgroundColor = UIColor.greenColor()
+                if self.uid == uid {
+                    
+                    if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
+                        
+                        self.profileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                        
+                    }
+                }
+            })
+ 
+            ref.child("online").observeEventType(.Value, withBlock: { (snapshot) in
                 
-            } else {
-                
-                self.indicatorOutlet.backgroundColor = UIColor.redColor()
-                
-            }
+                if self.uid == uid {
+                    
+                    if let online = snapshot.value as? Bool {
+                        
+                        if online {
+                            
+                            self.indicatorOutlet.backgroundColor = UIColor.greenColor()
+                            
+                        } else {
+                            
+                            self.indicatorOutlet.backgroundColor = UIColor.redColor()
+                            
+                        }
+                    }
+                }
+            })
         }
 
-        
-        if let profileURL = data["profilePicture"] as? String, url = NSURL(string: profileURL) {
-            
-            profileString = profileURL
-            profileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
-            
-        }
-        
         if let firstName = data["firstName"] as? String {
             
             self.firstName = firstName
@@ -95,13 +112,6 @@ class MatchCollectionViewCell: UICollectionViewCell {
             
             self.lastName = lastName
 
-        }
-
-        
-        if let uid = data["uid"] as? String {
-            
-            self.uid = uid
-            
         }
     }
 

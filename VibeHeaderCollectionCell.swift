@@ -7,8 +7,16 @@
 //
 
 import UIKit
+import Firebase
+import FirebaseAuth
+import FirebaseDatabase
 
 class VibeHeaderCollectionCell: UICollectionViewCell {
+    
+    weak var vibesController: NewVibesController?
+    
+    var data = [NSObject : AnyObject]()
+    
     
     //Outlets
     @IBOutlet weak var profilePicOutlet: VibeHeaderProfilePic!
@@ -16,7 +24,40 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
     @IBOutlet weak var nameOutlet: UILabel!
     
     
+    
+    //Action
+    @IBAction func squadRequest(sender: AnyObject) {
+        
+        
+        
+        
+    }
+    
+    
+    @IBAction func toProfile(sender: AnyObject) {
+        
+        if let userUid = data["userUID"] as? String, selfUID = FIRAuth.auth()?.currentUser?.uid {
+         
+            var selfProfile = false
+            
+            if userUid == selfUID {
+                
+                selfProfile = true
+                
+            }
+            
+            vibesController?.rootController?.toggleProfile(userUid, selfProfile: selfProfile, completion: { (bool) in
+                
+                print("profile toggled")
+                
+            })
+        }
+    }
+    
+    
     func loadCell(data: [NSObject : AnyObject]) {
+        
+        self.data = data
         
         if let profileString = data["profilePicture"] as? String, url = NSURL(string: profileString) {
             

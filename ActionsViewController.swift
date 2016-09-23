@@ -43,22 +43,11 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
                 })
             } else {
                 
-                if let profileRevealed = rootController?.profileRevealed {
+                rootController?.toggleHome({ (bool) in
                     
-                    if profileRevealed {
-                        
-                        rootController?.closeProfileForSearch({ (bool) in
-                            
-                            print("profile from search closed")
-                            
-                        })
-                    }
+                    print("close purple")
                     
-                    
-                }
-                
-                
-                
+                })
             }
         }
     }
@@ -78,7 +67,7 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
 
         print("globe")
         
-        rootController?.toggleSnapchat({ (bool) in
+        rootController?.toggleSnapchat(nil, startingi: nil, completion: { (bool) in
             
             print("snapchat toggled")
             
@@ -87,6 +76,28 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
     
     
     @IBAction func profile(sender: AnyObject) {
+
+        UIView.animateWithDuration(0.3, animations: {
+            
+            if let screenHeight = self.rootController?.view.bounds.height {
+                
+                self.rootController?.squadTopConstOutlet.constant = -screenHeight
+                self.rootController?.squadBottomConstOutlet.constant = screenHeight
+                
+                self.rootController?.requestsTopConstOutlet.constant = -screenHeight
+                self.rootController?.requestsBottomConstOutlet.constant = screenHeight
+                
+                self.rootController?.view.layoutIfNeeded()
+
+            }
+
+            }) { (bool) in
+                
+                self.rootController?.squadCountRevealed = false
+                self.rootController?.requestsRevealed = false
+                
+        }
+        
         
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
         
@@ -97,10 +108,9 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
                     self.rootController?.toggleProfile(selfUID, selfProfile: true, completion: { (bool) in
                         
                         self.rootController?.profileRevealed = true
-                        print("profile toggled")
+                        
                         
                     })
-                    
                 })
             }
         }

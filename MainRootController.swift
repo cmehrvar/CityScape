@@ -16,7 +16,7 @@ import SDWebImage
 class MainRootController: UIViewController {
     
     var selfData = [NSObject : AnyObject]()
-
+    
     var locationFromFirebase = false
     
     var menuIsRevealed = false
@@ -29,6 +29,8 @@ class MainRootController: UIViewController {
     var snapchatRevealed = false
     var searchRevealed = false
     var notificationRevealed = false
+    var squadCountRevealed = false
+    var requestsRevealed = false
     
     var vibesLoadedFromSelf = false
     
@@ -43,9 +45,9 @@ class MainRootController: UIViewController {
     @IBOutlet weak var vibesTrailing: NSLayoutConstraint!
     @IBOutlet weak var vibesLeading: NSLayoutConstraint!
     @IBOutlet weak var leadingMenu: NSLayoutConstraint!
-
+    
     @IBOutlet weak var topNavConstOutlet: NSLayoutConstraint!
-
+    
     @IBOutlet weak var bottomNavConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var menuWidthConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var topProfileConstOutlet: NSLayoutConstraint!
@@ -59,6 +61,11 @@ class MainRootController: UIViewController {
     @IBOutlet weak var handlePostX: NSLayoutConstraint!
     @IBOutlet weak var notificationWidthConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var notificationTrailingConstOutlet: NSLayoutConstraint!
+    @IBOutlet weak var squadBottomConstOutlet: NSLayoutConstraint!
+    @IBOutlet weak var requestsBottomConstOutlet: NSLayoutConstraint!
+    @IBOutlet weak var squadTopConstOutlet: NSLayoutConstraint!
+    @IBOutlet weak var requestsTopConstOutlet: NSLayoutConstraint!
+    
     
     
     //views
@@ -73,7 +80,7 @@ class MainRootController: UIViewController {
     @IBOutlet weak var searchContainerOutlet: UIView!
     @IBOutlet weak var dismissKeyboardContainerOutlet: UIView!
     @IBOutlet weak var notificationContainer: UIView!
- 
+    
     
     //View Controllers
     weak var actionsController: ActionsViewController?
@@ -92,6 +99,8 @@ class MainRootController: UIViewController {
     weak var searchController: SearchController?
     weak var notificationController: NotificationController?
     weak var dismissController: DismissKeyboardController?
+    weak var requestsController: RequestsController?
+    weak var squadCountController: SquadCountController?
     
     
     //Toggle Functions
@@ -99,20 +108,19 @@ class MainRootController: UIViewController {
         
         self.dismissKeyboardContainerOutlet.alpha = 0
         self.menuController?.view.endEditing(true)
-
+        self.handlePostController?.view.endEditing(true)
+        
         completion(true)
     }
-    
-    
     
     func toggleHome(completion: Bool -> ()) {
         
         let screenHeight = self.view.bounds.height
-
+        
         self.chatController?.view.endEditing(true)
         
         self.vibesFeedController?.navHidden = false
-
+        
         if !self.profileRevealed {
             
             if self.currentTab == 1 {
@@ -121,11 +129,22 @@ class MainRootController: UIViewController {
                 self.vibesFeedController?.globCollectionView.setContentOffset(CGPointZero, animated: true)
             }
         }
-
+        
         if let controller = chatController {
             
             NSNotificationCenter.defaultCenter().removeObserver(controller, name: UIKeyboardWillShowNotification, object: nil)
             NSNotificationCenter.defaultCenter().removeObserver(controller, name: UIKeyboardWillHideNotification, object: nil)
+            
+        }
+        
+        var searchAlpha: CGFloat = 0
+        var scopeSearchRevealed = false
+        
+        
+        if searchRevealed && profileRevealed {
+            
+            searchAlpha = 1
+            scopeSearchRevealed = true
             
         }
         
@@ -137,17 +156,28 @@ class MainRootController: UIViewController {
             self.topChatConstOutlet.constant = -(screenHeight * 0.8)
             self.bottomChatConstOutlet.constant = screenHeight
             
-            self.topProfileConstOutlet.constant = -(screenHeight * 0.9)
-            self.bottomProfileConstOutlet.constant = screenHeight
+            self.requestsTopConstOutlet.constant = -screenHeight
+            self.requestsBottomConstOutlet.constant = screenHeight
+            
+            self.squadTopConstOutlet.constant = -screenHeight
+            self.squadBottomConstOutlet.constant = screenHeight
+            
+            if self.squadCountRevealed || self.requestsRevealed {
+                
+                self.topProfileConstOutlet.constant = 0
+                self.bottomProfileConstOutlet.constant = 0
+                
+            } else {
+                
+                self.topProfileConstOutlet.constant = -(screenHeight * 0.9)
+                self.bottomProfileConstOutlet.constant = screenHeight
+                
+            }
             
             self.bottomNavController?.topChatBoxView.alpha = 0
             
-            if !self.profileRevealed && self.searchRevealed {
-                
-                self.searchContainerOutlet.alpha = 0
-                
-            }
- 
+            self.searchContainerOutlet.alpha = searchAlpha
+            
             self.view.layoutIfNeeded()
             
         }) { (complete) in
@@ -160,20 +190,31 @@ class MainRootController: UIViewController {
             
             self.chatController?.finishReceivingMessage()
             
-            self.profileController?.currentUID = ""
-            self.profileController?.userData.removeAll()
-            
-            self.searchController?.view.endEditing(true)
-
             self.searchController?.view.endEditing(true)
             
-            self.searchRevealed = false
-            self.profileRevealed = false
+            self.searchRevealed = scopeSearchRevealed
+            
+            if (self.squadCountRevealed || self.requestsRevealed){
+                
+                self.profileRevealed = true
+                
+            } else {
+                
+                self.profileRevealed = false
+                self.profileController?.currentUID = ""
+                self.profileController?.userData.removeAll()
+                self.profileController?.globCollectionCell.reloadData()
+            }
+            
+            self.squadCountRevealed = false
+            self.requestsRevealed = false
             
             completion(complete)
             
         }
     }
+    
+    
     
     
     func toggleNearby(completion: (Bool) -> ()) {
@@ -186,6 +227,9 @@ class MainRootController: UIViewController {
         }
     }
     
+    
+    
+    
     func toggleVibes(completion: (Bool) -> ()){
         
         dispatch_async(dispatch_get_main_queue()) {
@@ -196,6 +240,9 @@ class MainRootController: UIViewController {
         }
     }
     
+    
+    
+    
     func toggleMessages(completion: (Bool) -> ()){
         
         dispatch_async(dispatch_get_main_queue()) {
@@ -205,6 +252,9 @@ class MainRootController: UIViewController {
             
         }
     }
+    
+    
+    
     
     func toggleMenu(completion: (Bool) -> ()) {
         
@@ -230,7 +280,7 @@ class MainRootController: UIViewController {
             
             self.closeMenuContainer.alpha = closeMenuAlpha
             self.leadingMenu.constant = menuOffset
-
+            
             self.view.layoutIfNeeded()
             
         }) { (complete) in
@@ -259,13 +309,15 @@ class MainRootController: UIViewController {
             
         }
         
+        notificationController?.globTableViewOutlet.reloadData()
+        
         notificationRevealed = !notificationRevealed
         
         UIView.animateWithDuration(0.3, animations: { () -> Void in
             
             self.closeMenuContainer.alpha = closeMenuAlpha
             self.notificationTrailingConstOutlet.constant = notificationOffset
-
+            
             self.view.layoutIfNeeded()
             
         }) { (complete) in
@@ -277,15 +329,23 @@ class MainRootController: UIViewController {
     
     
     
+    
     func toggleProfile(uid: String, selfProfile: Bool, completion: Bool -> ()){
-
+        
         profileRevealed = true
-
+        
+        profileController?.globCollectionCell.setContentOffset(CGPointZero, animated: false)
+        
         profileController?.currentPicture = 1
         profileController?.currentUID = uid
-        profileController?.retrieveUserData(uid)
         profileController?.selfProfile = selfProfile
+        profileController?.userData.removeAll()
+        profileController?.userPosts.removeAll()
+        profileController?.videoPlayers.removeAll()
         
+        profileController?.globCollectionCell.reloadData()
+        
+        profileController?.retrieveUserData(uid)
         
         UIView.animateWithDuration(0.3, animations: {
             
@@ -293,7 +353,7 @@ class MainRootController: UIViewController {
             
             self.bottomProfileConstOutlet.constant = 0
             self.topProfileConstOutlet.constant = 0
-
+            
             self.view.layoutIfNeeded()
             
         }) { (complete) in
@@ -302,40 +362,99 @@ class MainRootController: UIViewController {
         }
     }
     
-    func closeProfileForSearch(completion: Bool -> ()){
+    
+    
+    func openSquadCount(userData: [NSObject : AnyObject], completion: Bool -> ()){
+
+        if let squad = userData["squad"] as? [NSObject : AnyObject] {
+            
+            var sortedSquad = [[NSObject : AnyObject]]()
+            
+            for (_, value) in squad {
+                
+                if let valueToAdd = value as? [NSObject : AnyObject] {
+                    
+                    sortedSquad.append(valueToAdd)
+                    
+                }
+            }
+            
+            sortedSquad.sortInPlace({ (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
+                
+                if a["lastName"] as? String > b["lastName"] as? String {
+                    
+                    return true
+                    
+                } else {
+                    
+                    return false
+                    
+                }
+            })
+            
+            self.squadCountController?.squad = sortedSquad
+            self.squadCountController?.globTableViewOutlet.reloadData()
+            
+        } else {
+            
+            self.squadCountController?.squad.removeAll()
+            self.squadCountController?.globTableViewOutlet.reloadData()
+            
+        }
+
+        if let userUID = userData["uid"] as? String, selfUID = FIRAuth.auth()?.currentUser?.uid {
+            
+            squadCountRevealed = true
+            
+            if userUID == selfUID {
+                
+                squadCountController?.nameOutlet.text = "My Squad"
+                squadCountController?.selfSquad = true
+                
+            } else {
+                
+                if let firstName = userData["firstName"] as? String, lastName = userData["lastName"] as? String {
+                    
+                    let name = firstName + " " + lastName
+                    squadCountController?.nameOutlet.text = name + "'s Squad"
+                    squadCountController?.selfSquad = false
+                }
+            }
+            
+            UIView.animateWithDuration(0.3, animations: {
+                
+                self.squadTopConstOutlet.constant = 0
+                self.squadBottomConstOutlet.constant = 0
+                
+                self.view.layoutIfNeeded()
+                
+            }) { (bool) in
+                
+                completion(bool)
+                
+            }
+        }
+    }
+    
+    
+    
+    
+    func openRequests(completion: Bool -> ()){
         
-        let screenHeight = self.view.bounds.height
+        requestsRevealed = true
         
+        requestsController?.globTableViewOutlet.reloadData()
+
         UIView.animateWithDuration(0.3, animations: {
             
-            self.topNavConstOutlet.constant = 0
-            self.bottomNavConstOutlet.constant = 0
-
-            self.topProfileConstOutlet.constant = -(screenHeight)
-            self.bottomProfileConstOutlet.constant = screenHeight
+            self.requestsTopConstOutlet.constant = 0
+            self.requestsBottomConstOutlet.constant = 0
             
-            self.bottomNavController?.topChatBoxView.alpha = 0
-
             self.view.layoutIfNeeded()
             
-        }) { (complete) in
+        }) { (bool) in
             
-            self.chatController?.messages.removeAll()
-            self.chatController?.messageKeys.removeAll()
-            self.chatController?.messageData.removeAll()
-            self.chatController?.addedMessages.removeAll()
-            self.chatController?.messageIndex = 0
-            
-            self.chatController?.finishReceivingMessage()
-
-            self.profileController?.currentUID = ""
-            self.profileController?.userData.removeAll()
-            
-            self.searchController?.view.endEditing(true)
-            
-            self.profileRevealed = false
-            
-            completion(complete)
+            completion(bool)
             
         }
     }
@@ -344,7 +463,7 @@ class MainRootController: UIViewController {
     
     
     func revealMatch(uid: String!, completion: Bool -> ()) {
-
+        
         self.chatController?.view.endEditing(true)
         
         if !matchIsRevealed {
@@ -426,7 +545,7 @@ class MainRootController: UIViewController {
                 })
             }
         }
-
+        
         
         UIView.animateWithDuration(0.3, animations: {
             
@@ -440,16 +559,13 @@ class MainRootController: UIViewController {
         }
     }
     
-    
     func closeMatch(uid: String, profile: String, firstName: String, lastName: String, keepPlaying: Bool, completion: Bool -> ()){
         
-        print(uid)
-
         if let myUID = FIRAuth.auth()?.currentUser?.uid {
             
             let ref = FIRDatabase.database().reference()
             let activityTime = NSDate().timeIntervalSince1970
-
+            
             let matchData: [NSObject : AnyObject] = ["uid" : uid, "lastActivity" : activityTime, "firstName" : firstName, "lastName" : lastName, "profilePicture" : profile, "online" : false]
             
             ref.child("users").child(myUID).child("matches").child(uid).updateChildValues(matchData)
@@ -459,7 +575,7 @@ class MainRootController: UIViewController {
                 
                 self.itsAMatchContainerOutlet.alpha = 0
                 self.view.layoutIfNeeded()
-
+                
                 }, completion: { (bool) in
                     
                     if keepPlaying {
@@ -478,13 +594,13 @@ class MainRootController: UIViewController {
                             self.messagesController?.rootController?.chatController?.ownerUID = uid
                             
                             self.messagesController?.rootController?.bottomNavController?.chatNameOutlet.text = firstName + " " + lastName
-  
+                            
                             if let url = NSURL(string: profile) {
                                 
                                 self.messagesController?.rootController?.bottomNavController?.chatProfileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
                                 
                             }
-
+                            
                             self.toggleChat({ (bool) in
                                 
                                 print("chat toggled")
@@ -497,12 +613,11 @@ class MainRootController: UIViewController {
             })
         }
     }
-
     
     func toggleChat(completion: (Bool) -> ()) {
-
+        
         if let uid = FIRAuth.auth()?.currentUser?.uid {
-
+            
             self.chatController?.senderId = uid
         }
         
@@ -516,10 +631,10 @@ class MainRootController: UIViewController {
             
             NSNotificationCenter.defaultCenter().addObserver(controller, selector: #selector(controller.keyboardDidShow), name: UIKeyboardWillShowNotification, object: nil)
             NSNotificationCenter.defaultCenter().addObserver(controller, selector: #selector(controller.keyboardHid), name: UIKeyboardWillHideNotification, object: nil)
-
+            
         }
         
-
+        
         UIView.animateWithDuration(0.3, animations: {
             
             self.bottomNavController?.topChatBoxView.alpha = 1
@@ -536,8 +651,6 @@ class MainRootController: UIViewController {
             
         }
     }
-    
-    
     
     func toggleHandlePost(image: UIImage?, videoURL: NSURL?, isImage: Bool, completion: Bool -> ()) {
         
@@ -566,6 +679,7 @@ class MainRootController: UIViewController {
             UIView.animateWithDuration(0.3, animations: {
                 
                 self.handlePostX.constant = rootHeight
+                self.view.layoutIfNeeded()
                 
             }) { (complete) in
                 
@@ -582,12 +696,28 @@ class MainRootController: UIViewController {
         
     }
     
-    
-    
-    func toggleSnapchat(completion: Bool -> ()){
-
+    func toggleSnapchat(givenPosts: [[NSObject : AnyObject]]?, startingi: Int?, completion: Bool -> ()){
+        
+        //GET RID OF SNAPS
+        snapchatController?.posts.removeAll()
+        
+        snapchatController?.videoOutlet.alpha = 0
+        snapchatController?.imageOutlet.image = nil
+        snapchatController?.profilePicOutlet.image = nil
+        snapchatController?.nameOutlet.text = ""
+        snapchatController?.cityRankOutlet.text = "#"
+        
+        snapchatController?.secondaryImageOutlet.image = nil
+        
+        //HANDLE SNAPS
+        snapchatController?.nextEnabled = true
+        snapchatController?.mostRecentTimeInterval = nil
+        snapchatController?.firstImageLoaded = false
+        snapchatController?.currentIndex = 0
+        snapchatController?.snapchatChatController?.currentPostKey = ""
+        
         if !snapchatRevealed {
-
+            
             UIApplication.sharedApplication().statusBarHidden = true
             
             if let snapController = snapchatController, chatController = snapController.snapchatChatController {
@@ -598,41 +728,14 @@ class MainRootController: UIViewController {
                 
             }
             
-            //GET RID OF SNAPS
-            snapchatController?.posts.removeAll()
-            
-            snapchatController?.videoOutlet.alpha = 0
-            snapchatController?.imageOutlet.image = nil
-            snapchatController?.profilePicOutlet.image = nil
-            snapchatController?.nameOutlet.text = ""
-            snapchatController?.cityRankOutlet.text = "#"
-            
-            snapchatController?.secondaryImageOutlet.image = nil
-            
-            //HANDLE SNAPS
-            snapchatController?.nextEnabled = true
-            snapchatController?.mostRecentTimeInterval = nil
-            snapchatController?.firstImageLoaded = false
-            snapchatController?.currentIndex = 0
-            snapchatController?.snapchatChatController?.currentPostKey = ""
-            
-            
             print("handle snaps on reveal")
             
         } else {
             
             //GET RID OF SNAPS
+            UIApplication.sharedApplication().statusBarHidden = false
             
             print("handle snaps on close")
-            
-            snapchatController?.posts.removeAll()
-            
-            snapchatController?.imageOutlet.image = nil
-            snapchatController?.profilePicOutlet.image = nil
-            snapchatController?.nameOutlet.text = ""
-            snapchatController?.cityRankOutlet.text = "#"
-            
-            snapchatController?.secondaryImageOutlet.image = nil
             
             if let snapController = snapchatController, chatController = snapController.snapchatChatController {
                 
@@ -640,7 +743,7 @@ class MainRootController: UIViewController {
                 NSNotificationCenter.defaultCenter().removeObserver(chatController, name: UIKeyboardWillHideNotification, object: nil)
                 
             }
-
+            
             
             print("handle closing snaps")
             
@@ -650,15 +753,53 @@ class MainRootController: UIViewController {
         
         let revealed = snapchatRevealed
         
-        
         if revealed {
             
-            self.snapchatController?.observePosts(100, completion: { (bool) in
+            if let given = givenPosts, givenIndex = startingi {
                 
-                self.snapchatController?.loadPrimary("left", i: -1, completion: { (complete) in
+                self.snapchatController?.posts = given
+                
+                for i in 0..<given.count {
+                    
+                    self.snapchatController?.loadContent(i)
+                    
+                }
+                
+                self.snapchatController?.loadPrimary("left", i: givenIndex - 1, completion: { (complete) in
                     
                     print("start content loaded")
-
+                    
+                    UIView.animateWithDuration(0.3, animations: {
+                        
+                        self.snapchatContainerOutlet.alpha = 1
+                        self.view.layoutIfNeeded()
+                        
+                        }, completion: { (bool) in
+                            
+                            self.snapchatController?.screenIsCircle = false
+                            self.snapchatController?.isPanning = false
+                            self.snapchatController?.longPressEnabled = false
+                            
+                            self.snapchatController?.hideChat()
+                            
+                            self.snapXOutlet.constant = 0
+                            self.snapYOutlet.constant = 0
+                            
+                            self.snapchatController?.view.layer.cornerRadius = 0
+                            
+                            self.snapWidthConstOutlet.constant = self.view.bounds.width
+                            
+                            self.snapWidthConstOutlet.constant = self.view.bounds.width
+                            self.snapHeightConstOutlet.constant = self.view.bounds.height
+                            
+                    })
+                })
+                
+                
+            } else {
+                
+                self.snapchatController?.observePosts(100, completion: { (bool) in
+                    
                     UIView.animateWithDuration(0.3, animations: {
                         
                         self.snapchatContainerOutlet.alpha = 1
@@ -682,10 +823,10 @@ class MainRootController: UIViewController {
                             
                             
                             completion(bool)
- 
+                            
                     })
                 })
-            })
+            }
             
         } else {
             
@@ -715,30 +856,44 @@ class MainRootController: UIViewController {
             })
         }
     }
-
+    
     func toggleSearch(completion: Bool -> ()){
-
+        
         self.showNav(0.3) { (bool) in
             
             print("nav shown")
             
-        }
-        
-        self.searchController?.toggleColour(1)
-        
-        UIView.animateWithDuration(0.3, animations: {
+            self.searchController?.toggleColour(1)
             
-            self.searchContainerOutlet.alpha = 1
+            let screenHeight = self.view.bounds.height
             
+            UIView.animateWithDuration(0.3, animations: {
+                
+                self.topProfileConstOutlet.constant = -screenHeight
+                self.bottomProfileConstOutlet.constant = screenHeight
+                
+                self.squadTopConstOutlet.constant = -screenHeight
+                self.squadBottomConstOutlet.constant = screenHeight
+                
+                self.requestsTopConstOutlet.constant = -screenHeight
+                self.requestsBottomConstOutlet.constant = screenHeight
+                
+                self.searchContainerOutlet.alpha = 1
+                self.view.layoutIfNeeded()
+                
             }) { (bool) in
-
+                
                 self.searchRevealed = true
+                
+                self.profileRevealed = false
+                self.squadCountRevealed = false
+                self.requestsRevealed = false
                 completion(bool)
                 
+            }
         }
     }
     
-
     func hideAllNav(completion: (Bool) -> ()) {
         
         UIApplication.sharedApplication().statusBarHidden = true
@@ -756,7 +911,7 @@ class MainRootController: UIViewController {
     }
     
     func hideTopNav(completion: (Bool) -> ()){
-
+        
         UIView.animateWithDuration(0.3, animations: {
             
             self.bottomNavConstOutlet.constant = -50
@@ -770,11 +925,10 @@ class MainRootController: UIViewController {
         }
     }
     
-    
     func showNav(animatingTime: NSTimeInterval, completion: (Bool) -> ()){
         
         UIApplication.sharedApplication().statusBarHidden = false
-
+        
         UIView.animateWithDuration(animatingTime, animations: {
             
             self.topNavConstOutlet.constant = 0
@@ -792,6 +946,8 @@ class MainRootController: UIViewController {
             
         }
     }
+    
+    
     
     
     //Other Functions
@@ -832,7 +988,6 @@ class MainRootController: UIViewController {
         
     }
     
-    
     func slideWithDirection(leading: CGFloat, trailing: CGFloat){
         
         UIView.animateWithDuration(0.6, animations: {
@@ -850,7 +1005,7 @@ class MainRootController: UIViewController {
             
         }
     }
-
+    
     func loadSelfData(completion: [NSObject : AnyObject] -> ()){
         
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
@@ -860,44 +1015,28 @@ class MainRootController: UIViewController {
             ref.observeEventType(.Value, withBlock: { (snapshot) in
                 
                 if let value = snapshot.value as? [NSObject:AnyObject]{
-
+                    
                     let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
                     appDelegate.selfData = value
                     self.selfData = value
- 
+                    
+                    
+                    if let currentStatus = value["currentStatus"] as? String {
+                        
+                        self.menuController?.currentStatusTextViewOutlet.text = currentStatus
+                        self.menuController?.charactersOutlet.text = "\(currentStatus.characters.count)/30 Characters"
+                        
+                    }
+                    
                     if let city = value["city"] as? String {
                         
                         self.vibesFeedController?.currentCity = city
                         
-                        if self.vibesLoadedFromSelf == false {
-        
-                            self.vibesLoadedFromSelf = true
-                            
-                            self.searchController?.userController?.observeUsers()
-                            self.searchController?.cityController?.observeCities()
-
-                            if value["interestedIn"] != nil {
-                                
-                                self.nearbyController?.requestWhenInUseAuthorization()
-                                self.nearbyController?.updateLocation()
-
-                            } else {
-                                
-                                self.askInterestedIn()
-                                
-                            }
- 
-                            self.vibesFeedController?.currentCity = city
-                            self.vibesFeedController?.observeCurrentCityPosts()
-                            
-                        }
                     }
-
+                    
                     if !self.matchIsRevealed {
                         self.checkForMatches()
                     }
-                    
-                    
                     
                     if let latitude = value["latitude"] as? CLLocationDegrees, longitude = value["longitude"] as? CLLocationDegrees {
                         
@@ -907,21 +1046,146 @@ class MainRootController: UIViewController {
                     }
                     
                     if let matches = value["matches"] as? [NSObject : AnyObject] {
-    
+                        
                         self.messagesController?.loadMatches(matches)
- 
+                        
                     }
                     
                     self.menuController?.setMenu()
+
+                    //NOTIFICATIONS - selfLoadData
+                    if let notifications = value["notifications"] as? [NSObject : AnyObject] {
+                        
+                        print(notifications)
+                        
+                        var sortedNotifications = [[NSObject : AnyObject]]()
+                        
+                        var index = 0
+                        
+                        for (key, value) in notifications {
+                            
+                            if let valueToAdd = value as? [NSObject : AnyObject] {
+                                
+                                sortedNotifications.append(valueToAdd)
+                                
+                                if let read = valueToAdd["read"] as? Bool {
+                                    
+                                    if !read {
+                                        
+                                        index += 1
+                                        
+                                    }
+                                }
+                            }
+                        }
+        
+                        sortedNotifications.sortInPlace({ (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
+                            
+                            if a["timeStamp"] as? NSTimeInterval > b["timeStamp"] as? NSTimeInterval {
+                                
+                                return true
+                                
+                            } else {
+                                
+                                return false
+                                
+                            }
+                        })
+ 
+                        if index == 0 {
+                            
+                            self.topNavController?.numberOfNotificationsViewOutlet.alpha = 0
+                            
+                        } else {
+                            
+                            self.topNavController?.numberOfNotificationsViewOutlet.alpha = 1
+                            self.topNavController?.numberOfNotificationsOutlet.text = "\(index)"
+                            
+                        }
+
+                        self.notificationController?.globNotifications = sortedNotifications
+                        
+                    } else {
+                        
+                        self.topNavController?.numberOfNotificationsViewOutlet.alpha = 0
+                        self.notificationController?.globNotifications.removeAll()
+                        
+
+                    }
+
+                    //Requests
+                    if let requests = value["squadRequests"] as? [NSObject : AnyObject] {
+                        
+                        var sortedRequests = [[NSObject : AnyObject]]()
+                        
+                        for (_, value) in requests {
+                            
+                            if let valueToAdd = value as? [NSObject : AnyObject] {
+                                
+                                if valueToAdd["status"] as? Int == 0 {
+                                    
+                                    sortedRequests.append(valueToAdd)
+                                    
+                                }
+                            }
+                        }
+                        
+                        sortedRequests.sortInPlace({ (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
+                            
+                            if a["timeStamp"] as? NSTimeInterval > b["timeStamp"] as? NSTimeInterval {
+                                
+                                return true
+                                
+                            } else {
+                                
+                                return false
+                                
+                            }
+                        })
+                        
+                        self.requestsController?.numberOfRequestsOutlet.text = "Requests: \(sortedRequests.count)"
+                        self.requestsController?.requests = sortedRequests
+                        
+                    } else {
+                        
+                        self.requestsController?.numberOfRequestsOutlet.text = "Requests: 0"
+                        self.requestsController?.requests.removeAll()
+
+                    }
+
+                    if self.vibesLoadedFromSelf == false {
+                        
+                        self.vibesLoadedFromSelf = true
+                        
+                        self.searchController?.userController?.observeUsers()
+                        self.searchController?.cityController?.observeCities()
+                        
+                        if value["interestedIn"] != nil {
+                            
+                            self.nearbyController?.requestWhenInUseAuthorization()
+                            self.nearbyController?.updateLocation()
+                            self.nearbyController?.timer = NSTimer.scheduledTimerWithTimeInterval(30, target: self.nearbyController!, selector: #selector(self.nearbyController?.updateLocationToFirebase), userInfo: nil, repeats: true)
+                            
+                        } else {
+                            
+                            self.askInterestedIn()
+                            
+                        }
+                        
+                        self.vibesFeedController?.observeCurrentCityPosts()
+                        self.updateOnline()
+                        
+                    }
                     
                     self.nearbyController?.globCollectionView.reloadData()
-
+                    self.profileController?.globCollectionCell.reloadData()
+                    
                     completion(value)
+                    
                 }
             })
         }
     }
-
     
     func checkForMatches(){
         
@@ -930,7 +1194,7 @@ class MainRootController: UIViewController {
             var uidToShow: String?
             
             for (key, value) in displayed {
-
+                
                 if value == false {
                     
                     uidToShow = key
@@ -941,16 +1205,13 @@ class MainRootController: UIViewController {
             if uidToShow != nil {
                 
                 self.revealMatch(uidToShow, completion: { (bool) in
-
+                    
                     print("match shown")
                     
                 })
             }
         }
     }
-    
-    
-    
     
     func updateOnline(){
         
@@ -1002,7 +1263,6 @@ class MainRootController: UIViewController {
         }
     }
     
-    
     func askInterestedIn(){
         
         let alertController = UIAlertController(title: "Gender Preference", message: "This information is needed to match with good looking people around you!", preferredStyle: .Alert)
@@ -1020,7 +1280,8 @@ class MainRootController: UIViewController {
                 
                 self.nearbyController?.requestWhenInUseAuthorization()
                 self.nearbyController?.updateLocation()
-
+                self.nearbyController?.timer = NSTimer.scheduledTimerWithTimeInterval(30, target: self, selector: #selector(self.nearbyController?.updateLocationToFirebase), userInfo: nil, repeats: true)
+                
             }
         }))
         
@@ -1037,6 +1298,7 @@ class MainRootController: UIViewController {
                 
                 self.nearbyController?.requestWhenInUseAuthorization()
                 self.nearbyController?.updateLocation()
+                self.nearbyController?.timer = NSTimer.scheduledTimerWithTimeInterval(30, target: self, selector: #selector(self.nearbyController?.updateLocationToFirebase), userInfo: nil, repeats: true)
                 
             }
         }))
@@ -1055,7 +1317,8 @@ class MainRootController: UIViewController {
                 
                 self.nearbyController?.requestWhenInUseAuthorization()
                 self.nearbyController?.updateLocation()
-
+                self.nearbyController?.timer = NSTimer.scheduledTimerWithTimeInterval(30, target: self, selector: #selector(self.nearbyController?.updateLocationToFirebase), userInfo: nil, repeats: true)
+                
             }
         }))
         
@@ -1064,7 +1327,7 @@ class MainRootController: UIViewController {
     }
     
     func setStage() {
-
+        
         dispatch_async(dispatch_get_main_queue()) {
             
             let screenHeight = self.view.bounds.height
@@ -1081,18 +1344,24 @@ class MainRootController: UIViewController {
             self.snapWidthConstOutlet.constant = screenWidth
             self.snapHeightConstOutlet.constant = screenHeight
             
-            self.topProfileConstOutlet.constant = -(screenHeight - 50)
+            self.topProfileConstOutlet.constant = -screenHeight
             self.bottomProfileConstOutlet.constant = screenHeight
+            
+            self.squadTopConstOutlet.constant = -screenHeight
+            self.squadBottomConstOutlet.constant = screenHeight
+            
+            self.requestsTopConstOutlet.constant = -screenHeight
+            self.requestsBottomConstOutlet.constant = screenHeight
             
             self.topChatConstOutlet.constant = -(screenHeight - 100)
             self.bottomChatConstOutlet.constant = screenHeight
             
             self.menuWidthConstOutlet.constant = screenWidth * 0.8
             self.leadingMenu.constant = -(screenWidth * 0.8)
-
+            
             self.notificationWidthConstOutlet.constant = screenWidth * 0.8
             self.notificationTrailingConstOutlet.constant = -(screenWidth * 0.8)
-
+            
             self.vibesLeading.constant = screenWidth
             self.vibesTrailing.constant = -screenWidth
             
@@ -1104,24 +1373,23 @@ class MainRootController: UIViewController {
             self.notificationContainer.alpha = 1
             self.snapchatContainerOutlet.alpha = 0
             self.searchContainerOutlet.alpha = 0
- 
+            
         }
     }
     
     override func viewWillAppear(animated: Bool) {
-
+        
         super.viewWillAppear(animated)
-
+        
         
     }
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
         appDelegate.mainRootController = self
-        
         
         // Do any additional setup after loading the view.
     }
@@ -1228,12 +1496,24 @@ class MainRootController: UIViewController {
             let dismiss = segue.destinationViewController as? DismissKeyboardController
             dismissController = dismiss
             dismissController?.rootController = self
- 
-        } else if segue.identifier == "notificationController" {
+            
+        } else if segue.identifier == "notificationSegue" {
             
             let notification = segue.destinationViewController as? NotificationController
             notificationController = notification
             notificationController?.rootController = self
+            
+        } else if segue.identifier == "requestsSegue" {
+            
+            let request = segue.destinationViewController as? RequestsController
+            requestsController = request
+            requestsController?.rootController = self
+            
+        } else if segue.identifier == "squadCountSegue" {
+            
+            let squadCount = segue.destinationViewController as? SquadCountController
+            squadCountController = squadCount
+            squadCountController?.rootController = self
             
         }
         

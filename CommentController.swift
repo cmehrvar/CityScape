@@ -477,12 +477,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                     let minutesAgo = date.minutesFrom(previousDate)
                     
                     let text = message.text!()
-                    
-                    if text != nil {
-                        print(text)
-                    }
-                    
-                    print(minutesAgo)
+
                     
                     if minutesAgo >= 10 {
                         
@@ -662,9 +657,6 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                         ref.removeAllObservers()
                     }
                 }
-                
-                print(value)
-                
             }
         })
     }

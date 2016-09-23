@@ -21,11 +21,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     //ViewControllers
     weak var mainRootController: MainRootController?
-    
     weak var vibeController: NewVibesController?
     weak var nearbyController: NearbyController?
-    
-    
+
     //Constants
     let CLIENT_ID = "a7708df10b6543febd5b42bb9bd18189"
     let CLIENT_SECRET = "a26fee79-6884-47c3-82e1-c7f8e82a2b23"
@@ -65,8 +63,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillResignActive(application: UIApplication) {
         
         nearbyController?.invalidateTimer()
-        //nearbyController?.invalidateTimer()
+        nearbyController?.currentCityLoaded = false
         mainRootController?.updateOffline()
+        
         
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
@@ -94,11 +93,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         mainRootController?.updateOnline()
 
+        if vibeController?.currentCity != nil {
+            vibeController?.observeCurrentCityPosts()
+        }
 
         if selfData["interestedIn"] != nil {
             
             nearbyController?.requestWhenInUseAuthorization()
             nearbyController?.updateLocation()
+            self.nearbyController?.timer = NSTimer.scheduledTimerWithTimeInterval(30, target: self.nearbyController!, selector: #selector(self.nearbyController?.updateLocationToFirebase), userInfo: nil, repeats: true)
             
         } else {
             mainRootController?.askInterestedIn()

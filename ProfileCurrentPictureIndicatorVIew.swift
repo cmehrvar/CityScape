@@ -13,7 +13,7 @@ class ProfileCurrentPictureIndicatorVIew: UIView {
     override func awakeFromNib() {
         
         super.awakeFromNib()
-        layer.cornerRadius = 10
+        layer.cornerRadius = 8
         layer.borderWidth = 2
         layer.borderColor = UIColor.whiteColor().CGColor
         self.clipsToBounds = true

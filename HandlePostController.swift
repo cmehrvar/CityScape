@@ -241,7 +241,7 @@ class HandlePostController: UIViewController, PlayerDelegate, UITextFieldDelegat
                                         }
                                         
                                         ref.child("posts").child(city).child(postChildKey).updateChildValues(postData)
-                                        ref.child("users").child(selfUID).child("posts").child(city).child(postChildKey).updateChildValues(postData)
+                                        ref.child("users").child(selfUID).child("posts").child(postChildKey).updateChildValues(postData)
                                         ref.child("allPosts").child(postChildKey).updateChildValues(postData)
 
                                         dispatch_async(dispatch_get_main_queue(), {
@@ -292,7 +292,7 @@ class HandlePostController: UIViewController, PlayerDelegate, UITextFieldDelegat
                                 }
                                 
                                 ref.child("posts").child(city).child(postChildKey).updateChildValues(postData)
-                                ref.child("users").child(selfUID).child("posts").child(city).child(postChildKey).updateChildValues(postData)
+                                ref.child("users").child(selfUID).child("posts").child(postChildKey).updateChildValues(postData)
                                 ref.child("allPosts").child(postChildKey).updateChildValues(postData)
 
                                 ref.child("cityLocations").child(city).updateChildValues(["mostRecentPost" : postData, "latitude" : latitude, "longitude" : longitude, "city" : city, "state" : state])

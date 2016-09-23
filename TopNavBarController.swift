@@ -9,13 +9,13 @@
 import UIKit
 
 class TopNavBarController: UIViewController {
-    
-    
-    
-    
 
     //Variables
     weak var rootController: MainRootController?
+    
+    //Outlets
+    @IBOutlet weak var numberOfNotificationsOutlet: UILabel!
+    @IBOutlet weak var numberOfNotificationsViewOutlet: NotificationNumberIndicatorView!
     
 
     //Actions
@@ -31,6 +31,7 @@ class TopNavBarController: UIViewController {
     
     @IBAction func toggleNotification(sender: AnyObject) {
         
+                
         rootController?.toggleNotifications({ (bool) in
             
             print("notification toggled")

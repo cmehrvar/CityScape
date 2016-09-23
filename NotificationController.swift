@@ -7,52 +7,70 @@
 //
 
 import UIKit
+import Firebase
+import FirebaseDatabase
+import FirebaseAuth
 
 class NotificationController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     weak var rootController: MainRootController?
     
     var globNotifications = [[NSObject : AnyObject]]()
-    
-    
+
+    //Outlets
+    @IBOutlet weak var globTableViewOutlet: UITableView!
+
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
-        if indexPath.row == 0 {
+        tableView.allowsSelection = false
+        
+        if let notificationRevealed = rootController?.notificationRevealed {
             
-            let cell = tableView.dequeueReusableCellWithIdentifier("likeCell", forIndexPath: indexPath) as! LikeCell
-            cell.profileOutlet.layer.cornerRadius = ((60 - (8*2)) / 2)
-            return cell
-            
-        } else if indexPath.row == 1 {
-            
-            let cell = tableView.dequeueReusableCellWithIdentifier("postUpdateCell", forIndexPath: indexPath) as! PostUpdateCell
-            cell.profileOutlet.layer.cornerRadius = ((60 - (8*2)) / 2)
-            return cell
-
-        } else if indexPath.row == 2 {
-            
-            let cell = tableView.dequeueReusableCellWithIdentifier("messageCell", forIndexPath: indexPath) as! MessageCell
-            cell.profileOutlet.layer.cornerRadius = ((60 - (8*2)) / 2)
-            return cell
-            
-        } else {
-            
-            let cell = tableView.dequeueReusableCellWithIdentifier("squadRequestCell", forIndexPath: indexPath) as! SquadRequestCell
-            cell.profilePictureOutlet.layer.cornerRadius = ((60 - (8*2)) / 2)
-            return cell
-            
+            if notificationRevealed {
+                
+                if let read = globNotifications[indexPath.row]["read"] as? Bool {
+                    
+                    if !read {
+                        
+                        if let notificationKey = globNotifications[indexPath.row]["notificationKey"] as? String, selfUID = FIRAuth.auth()?.currentUser?.uid  {
+                            
+                            let ref = FIRDatabase.database().reference().child("users").child(selfUID)
+                            ref.child("notifications").child(notificationKey).updateChildValues(["read" : true])
+                            
+                        }
+                    }
+                }
+            }
         }
+
+        
+        if let type = globNotifications[indexPath.row]["type"] as? String {
+            
+            if type == "squadRequest" || type == "addedYou" {
+                
+                let cell = tableView.dequeueReusableCellWithIdentifier("squadRequestCell", forIndexPath: indexPath) as! SquadRequestCell
+
+                cell.notificationController = self
+                
+                cell.profilePictureOutlet.layer.cornerRadius = ((60 - (8*2)) / 2)
+                cell.loadCell(globNotifications[indexPath.row])
+                return cell
+                
+            }
+        }
+        
+        return UITableViewCell()
+   
     }
     
-    
-    
+
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        return 4
+        print(globNotifications.count)
+        
+        return globNotifications.count
         
     }
-    
-    
 
     override func viewDidLoad() {
         super.viewDidLoad()

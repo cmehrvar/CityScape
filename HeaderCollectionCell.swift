@@ -19,7 +19,7 @@ class HeaderCollectionCell: UICollectionViewCell {
         
         if let user = userController {
             
-            user.searchController?.rootController?.toggleSnapchat({ (bool) in
+            user.searchController?.rootController?.toggleSnapchat(nil, startingi: nil, completion: { (bool) in
                 
                 print("snapchat toggled")
                 
@@ -27,7 +27,7 @@ class HeaderCollectionCell: UICollectionViewCell {
 
         } else if let city = cityController {
             
-            city.searchController?.rootController?.toggleSnapchat({ (bool) in
+            city.searchController?.rootController?.toggleSnapchat(nil, startingi: nil, completion: { (bool) in
                 
                 print("snapchat toggled")
                 

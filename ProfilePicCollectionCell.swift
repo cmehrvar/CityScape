@@ -21,6 +21,7 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
     var currentPicture = 1
     var pictures = 1
     
+    var uid = ""
     var editedPhoto = ""
     
     var profile1 = ""
@@ -65,28 +66,23 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
         
         if currentPicture == 1 {
             
-            editedPhoto = "profilePicture"
-            callCamera()
+            callCamera("profilePicture")
             
         } else if currentPicture == 2 {
             
-            editedPhoto = "profilePicture2"
-            callCamera()
+            callCamera("profilePicture2")
             
         } else if currentPicture == 3 {
             
-            editedPhoto = "profilePicture3"
-            callCamera()
+            callCamera("profilePicture3")
             
         } else if currentPicture == 4 {
             
-            editedPhoto = "profilePicture4"
-            callCamera()
+            callCamera("profilePicture4")
             
         } else if currentPicture == 5 {
             
-            editedPhoto = "profilePicture5"
-            callCamera()
+            callCamera("profilePicture5")
             
         }
     }
@@ -101,7 +97,15 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
         print("total pictures: \(pictures)")
         print("swipe left")
         
-        if currentPicture < pictures && pictures != 1 {
+        var scopePictures = pictures
+        
+        if selfProfile && pictures < 5 {
+            
+            scopePictures += 1
+            
+        }
+
+        if currentPicture < scopePictures && scopePictures != 1 {
             
             let screenWidth = self.bounds.width
             
@@ -207,7 +211,16 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
         print("total pictures: \(pictures)")
         print("swipe right")
         
-        if (currentPicture == pictures || currentPicture > 1) && pictures != 1 {
+        var scopePictures = pictures
+        
+        if selfProfile && pictures < 5 {
+            
+            scopePictures += 1
+            
+        }
+
+        
+        if (currentPicture == scopePictures || currentPicture > 1) && scopePictures != 1 {
             
             let screenWidth = self.bounds.width
             
@@ -311,9 +324,7 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
     
     
     func loadImages(data: [NSObject : AnyObject], screenWidth: CGFloat){
-        
-        addUploadStuff()
-        
+
         if let profilePicture = data["profilePicture"] as? String, url = NSURL(string: profilePicture) {
             
             profilePicOutlet.sd_setImageWithURL(url, placeholderImage: nil)
@@ -355,6 +366,13 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
             
         }
         
+        if let userUID = data["uid"] as? String {
+            
+            uid = userUID
+            
+        }
+        
+        
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
             if selfUID == data["uid"] as? String {
@@ -377,6 +395,8 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                     plus4Outlet.alpha = 0
                     plus5Outlet.alpha = 0
                     
+                    profilePic2Outlet.image = nil
+                    
                     indicator2WidthConstOutlet.constant = 24
                     indicator3WidthConstOutlet.constant = 0
                     indicator4WidthConstOutlet.constant = 0
@@ -394,6 +414,8 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                     plus3Outlet.alpha = 1
                     plus4Outlet.alpha = 0
                     plus5Outlet.alpha = 0
+                    
+                    profilePic3Outlet.image = nil
                     
                     indicator2WidthConstOutlet.constant = 24
                     indicator3WidthConstOutlet.constant = 24
@@ -413,6 +435,8 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                     plus4Outlet.alpha = 1
                     plus5Outlet.alpha = 0
                     
+                    profilePic4Outlet.image = nil
+                    
                     indicator2WidthConstOutlet.constant = 24
                     indicator3WidthConstOutlet.constant = 24
                     indicator4WidthConstOutlet.constant = 24
@@ -430,6 +454,8 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                     plus3Outlet.alpha = 0
                     plus4Outlet.alpha = 0
                     plus5Outlet.alpha = 1
+                    
+                    profilePic5Outlet.image = nil
                     
                     indicator2WidthConstOutlet.constant = 24
                     indicator3WidthConstOutlet.constant = 24
@@ -617,12 +643,7 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
     
     
     
-    func callCamera(){
-        
-        let cameraProfile = UIImagePickerController()
-        
-        cameraProfile.delegate = self
-        cameraProfile.allowsEditing = false
+    func callCamera(imageToEdit: String){
         
         let scopeCurrentPicture = currentPicture
         let scopePictures = pictures
@@ -642,12 +663,13 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
             alertController.addAction(UIAlertAction(title: "Edit Image", style: .Default, handler: { (action) in
                 
                 print("edit image")
+                self.profileController?.presentFusuma(imageToEdit)
                 
                 
             }))
             
-            if scopeCurrentPicture > 1 {
-                
+            if scopeCurrentPicture > 1 && scopeCurrentPicture <= scopePictures {
+
                 alertController.addAction(UIAlertAction(title: "Swap with first image", style: .Default, handler: { (action) in
                     
                     print("make first picture")
@@ -801,7 +823,6 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
             self.profileController?.presentViewController(alertController, animated: true, completion: nil)
             
         }
-        
     }
     
     
@@ -821,134 +842,7 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
         
         
     }
-    
-    
-    
-    
-    
-    
-    
-    //Image Picker Delegates
-    func imagePickerController(picker: UIImagePickerController, didFinishPickingImage image: UIImage, editingInfo: [String : AnyObject]?) {
-        
-        let scopeEditedPhoto = editedPhoto
-        let scopeProfileController = profileController
-        
-        
-        scopeProfileController?.rootController?.chatController?.senderId = "none"
-        scopeProfileController?.rootController?.chatController?.senderDisplayName = "none"
-        
-        scopeProfileController?.dismissViewControllerAnimated(true, completion: {
-            
-            
-            if scopeEditedPhoto == "profilePicture" {
-                
-                scopeProfileController?.tempImage1 = image
-                
-                
-            }
-            
-            
-            
-            if scopeEditedPhoto == "profilePicture2" {
-                
-                scopeProfileController?.tempImage2 = image
-                
-            }
-            
-            print("dismissed")
-            
-            self.imageUploadRequest(image) { (url, uploadRequest) in
-                
-                let transferManager = AWSS3TransferManager.defaultS3TransferManager()
-                
-                
-                transferManager.upload(uploadRequest).continueWithBlock { (task) -> AnyObject? in
-                    
-                    if task.error == nil {
-                        
-                        print("successful image upload")
-                        let ref = FIRDatabase.database().reference()
-                        
-                        if let uid = FIRAuth.auth()?.currentUser?.uid {
-                            
-                            if scopeEditedPhoto == "profilePicture" {
-                                
-                                self.profileController?.tempImage1 = nil
-                                
-                                
-                            } else if scopeEditedPhoto == "profilePicture2" {
-                                
-                                self.profileController?.tempImage2 = nil
-                                
-                                
-                            }
-                            
-                            
-                            ref.child("users").child(uid).updateChildValues([scopeEditedPhoto: url])
-                        }
-                        
-                    } else {
-                        print("error uploading: \(task.error)")
-                        
-                        let alertController = UIAlertController(title: "Sorry", message: "Error uploading profile picture, please try again later", preferredStyle:  UIAlertControllerStyle.Alert)
-                        alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Cancel, handler: nil))
-                        self.profileController?.presentViewController(alertController, animated: true, completion: nil)
-                        
-                    }
-                    return nil
-                }
-            }
-            
-        })
-    }
-    
-    //Image Uploads
-    func imageUploadRequest(image: UIImage, completion: (url: String, uploadRequest: AWSS3TransferManagerUploadRequest) -> ()) {
-        
-        let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".jpeg")
-        let fileURL = NSURL(fileURLWithPath: NSTemporaryDirectory()).URLByAppendingPathComponent("upload").URLByAppendingPathComponent(fileName)
-        let filePath = fileURL.path!
-        
-        let imageData = UIImageJPEGRepresentation(image, 0.5)
-        
-        //SEGMENTATION BUG, IF FAULT 11 - COMMENT OUT AND REWRITE
-        dispatch_async(dispatch_get_main_queue()) {
-            imageData?.writeToFile(filePath, atomically: true)
-            
-            let uploadRequest = AWSS3TransferManagerUploadRequest()
-            uploadRequest.body = fileURL
-            uploadRequest.key = fileName
-            uploadRequest.bucket = "cityscapebucket"
-            
-            var imageUrl = ""
-            
-            if let key = uploadRequest.key {
-                imageUrl = "https://s3.amazonaws.com/cityscapebucket/" + key
-                
-            }
-            
-            completion(url: imageUrl, uploadRequest: uploadRequest)
-        }
-    }
-    
-    
-    func addUploadStuff(){
-        
-        let error = NSErrorPointer.init(nilLiteral: ())
-        
-        do{
-            try NSFileManager.defaultManager().createDirectoryAtURL(NSURL(fileURLWithPath: NSTemporaryDirectory()).URLByAppendingPathComponent("upload"), withIntermediateDirectories: true, attributes: nil)
-        } catch let error1 as NSError {
-            error.memory = error1
-            print("Creating upload directory failed. Error: \(error)")
-        }
-    }
-    
-    
-    
-    
-    
+
     
     override var bounds: CGRect {
         didSet {

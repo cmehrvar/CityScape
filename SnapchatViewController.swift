@@ -205,6 +205,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
                     
                 }
                 
+                
                 if !self.firstImageLoaded {
                     
                     self.firstImageLoaded = true
@@ -218,7 +219,6 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
                     })
                     
                 }
-
                 
                 
                 for i in 0..<self.posts.count {
@@ -351,16 +351,14 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
             
             }, completion: { (bool) in
                 
-                self.rootController?.toggleSnapchat({ (bool) in
+                self.rootController?.toggleSnapchat(nil, startingi: nil, completion: { (bool) in
                     
                     self.isPanning = false
                     self.longPressEnabled = false
                     print("snapchat toggled")
                     
                 })
-                
         })
-        
     }
     
     
@@ -725,7 +723,10 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
     
     func loadSecondaryContent(direction: String, i: Int, completion: Bool -> ()){
         
-        if i == posts.count - 1 {
+        print("i: \(i)")
+        print("posts.count: \(posts.count)")
+        
+        if i == posts.count - 1 && direction == "left"{
             
             print("end")
             
@@ -872,6 +873,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
             }
         }
     }
+    
     
     
     func loadPrimary(direction: String, i: Int, completion: Bool -> ()){

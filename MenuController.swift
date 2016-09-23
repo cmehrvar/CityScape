@@ -21,8 +21,7 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
     var profileUID = ""
     
     var tempCaptured: UIImage! = nil
-    
-    
+
     //Outlets
     @IBOutlet weak var profilePicOutlet: UIImageView!
     @IBOutlet weak var nameOutlet: UILabel!
@@ -31,6 +30,7 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
     @IBOutlet weak var settingsViewOutlet: UIView!
     @IBOutlet weak var currentStatusTextViewOutlet: UITextView!
     @IBOutlet weak var charactersOutlet: UILabel!
+    @IBOutlet weak var cityRankOutlet: UILabel!
 
     
     //Functions
@@ -68,6 +68,12 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
             
             cityOutlet.text = state
             
+        }
+        
+        if let rank = rootController?.selfData["cityRank"] as? Int {
+            
+            cityRankOutlet.text = "#\(rank)"
+
         }
     }
     
@@ -182,8 +188,31 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
     }
     
     func textView(textView: UITextView, shouldChangeTextInRange range: NSRange, replacementText text: String) -> Bool {
+        
+        if text == "\n" {
+            
+            textView.resignFirstResponder()
+            return false
+            
+        }
+
         return textView.text.characters.count + (text.characters.count - range.length) <= 30
     }
+    
+    
+    
+    
+    
+    func textViewDidEndEditing(textView: UITextView) {
+        
+        if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+            
+            let ref = FIRDatabase.database().reference().child("users").child(selfUID)
+            ref.child("currentStatus").setValue(textView.text)
+
+        }
+    }
+    
     
 
     //Actions

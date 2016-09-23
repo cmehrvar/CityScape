@@ -23,7 +23,6 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
     var addedCells = [String:Int]()
     var dismissedCells = [String:Bool]()
     
-    var initialLocation = false
     var globLocation: CLLocation!
     
     var addedIndex = 0
@@ -32,7 +31,7 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
     var s = 0
     
     var transitioning = false
-    
+    var currentCityLoaded = false
     
     //Outlets
     @IBOutlet weak var settingsView: UIView!
@@ -75,7 +74,7 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
         cell.index = indexPath.row
         
         cell.loadUser(nearbyUsers[indexPath.row])
-
+        
         return cell
         
     }
@@ -85,82 +84,88 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
         
         if let lastLocation = locations.last {
             
-            self.globLocation = lastLocation
+            globLocation = lastLocation
             
-            if !initialLocation {
+            if currentCityLoaded == false {
                 
-                initialLocation = true
+                
+                currentCityLoaded = true
                 updateLocationToFirebase()
-                self.timer = NSTimer.scheduledTimerWithTimeInterval(30, target: self, selector: #selector(updateLocationToFirebase), userInfo: nil, repeats: true)
                 
             }
+            
+            
+            //updateLocationToFirebase(lastLocation)
+            
+            
+            /*
+             self.timer = NSTimer.scheduledTimerWithTimeInterval(30, target: self, selector: #selector(updateLocationToFirebase), userInfo: nil, repeats: true)
+             */
+            
         }
+        
     }
     
     
     //Functions
     func updateLocationToFirebase(){
         
-        if self.globLocation != nil {
+        let ref = FIRDatabase.database().reference().child("userLocations")
+        
+        let geoFire = GeoFire(firebaseRef: ref)
+        let geoCoder = CLGeocoder()
+        
+        if let uid = FIRAuth.auth()?.currentUser?.uid {
             
-            let ref = FIRDatabase.database().reference().child("userLocations")
+            queryNearby(globLocation)
             
-            let geoFire = GeoFire(firebaseRef: ref)
-            let geoCoder = CLGeocoder()
+            let userRef = FIRDatabase.database().reference().child("users").child(uid)
             
-            if let uid = FIRAuth.auth()?.currentUser?.uid {
+            userRef.updateChildValues(["latitude" : globLocation.coordinate.latitude, "longitude" : globLocation.coordinate.longitude])
+            
+            geoCoder.reverseGeocodeLocation(globLocation) { (placemark, error) in
                 
-                queryNearby(self.globLocation)
-                
-                let userRef = FIRDatabase.database().reference().child("users").child(uid)
-                
-                userRef.updateChildValues(["latitude" : self.globLocation.coordinate.latitude, "longitude" : self.globLocation.coordinate.longitude])
-                
-                geoCoder.reverseGeocodeLocation(self.globLocation) { (placemark, error) in
+                if error == nil {
                     
-                    if error == nil {
+                    if let place = placemark?[0] {
                         
-                        if let place = placemark?[0] {
+                        if let city = place.locality  {
                             
-                            if let city = place.locality  {
-                                
-                                userRef.updateChildValues(["city" : city])
-                                
-                            }
+                            userRef.updateChildValues(["city" : city])
                             
-                            if let state = place.administrativeArea {
-                                
-                                userRef.updateChildValues(["state" : state])
-                                
-                            }
-                            
-                            if let country = place.country {
-                                
-                                userRef.updateChildValues(["country" : country])
-                                
-                            }
                         }
                         
-                    } else {
-                        print(error)
+                        if let state = place.administrativeArea {
+                            
+                            userRef.updateChildValues(["state" : state])
+                            
+                        }
+                        
+                        if let country = place.country {
+                            
+                            userRef.updateChildValues(["country" : country])
+                            
+                        }
                     }
-                }
-                
-                geoFire.setLocation(CLLocation(latitude: self.globLocation.coordinate.latitude, longitude: self.globLocation.coordinate.longitude), forKey: uid, withCompletionBlock: { (error) in
                     
-                    if error == nil {
-                        print("succesfully updated location")
-                        
-                        
-                    } else {
-                        print(error)
-                    }
-                })
-                
-                
+                } else {
+                    print(error)
+                }
             }
+            
+            geoFire.setLocation(CLLocation(latitude: globLocation.coordinate.latitude, longitude: globLocation.coordinate.longitude), forKey: uid, withCompletionBlock: { (error) in
+                
+                if error == nil {
+                    print("succesfully updated location")
+                    
+                    
+                } else {
+                    print(error)
+                }
+            })
         }
     }
+    
     
     
     
@@ -180,12 +185,12 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
                 userRef.observeEventType(.Value, withBlock: { (snapshot) in
                     
                     if let value = snapshot.value as? [NSObject : AnyObject], selfUID = FIRAuth.auth()?.currentUser?.uid {
-
+                        
                         if value["uid"] as? String != selfUID {
-
+                            
                             var isInterested = false
                             var add = true
-
+                            
                             if let uid = value["uid"] as? String {
                                 
                                 if self.dismissedCells[uid] != nil {
@@ -224,21 +229,6 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
                     }
                 })
             }
-            
-            circleQuery.observeEventType(.KeyExited) { (key, location) in
-                
-                for i in 0..<self.nearbyUsers.count {
-                    
-                    if key == self.nearbyUsers[i]["uid"] as? String {
-                        
-                        if let last = self.nearbyUsers.last {
-                            self.nearbyUsers[i] = last
-                            self.nearbyUsers.removeLast()
-                            self.globCollectionView.reloadData()
-                        }
-                    }
-                }
-            }
         }
     }
     
@@ -265,8 +255,11 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
         } else if status == CLAuthorizationStatus.AuthorizedWhenInUse{
             print("enabled")
             
-            updateLocationToFirebase()
+            updateLocation()
+            
+            
             self.timer = NSTimer.scheduledTimerWithTimeInterval(60, target: self, selector: #selector(updateLocationToFirebase), userInfo: nil, repeats: true)
+            
             
             UIView.animateWithDuration(0.3, animations: {
                 self.settingsView.alpha = 0
@@ -332,7 +325,7 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
         rootController?.showNav(0.3, completion: { (bool) in
             
             print("nav shown")
-
+            
         })
     }
     
@@ -396,13 +389,6 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
         
         settingsConstraint()
         
-        
-        if rootController?.selfData["interestedIn"] != nil {
-            
-            requestWhenInUseAuthorization()
-            updateLocation()
-            
-        }
     }
     
     override func viewDidLoad() {

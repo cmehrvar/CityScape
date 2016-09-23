@@ -150,9 +150,7 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
         return CGSize(width: width, height: 100)
         
     }
-    
-    
-    
+
     
     func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
         
@@ -162,12 +160,7 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
         
     }
 
-    
-    
-    
-    
-    
-    
+
     //ScrollView Delegates
     func scrollViewWillEndDragging(scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
         

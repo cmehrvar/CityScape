@@ -187,7 +187,6 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
             if let firstName = data["firstName"] as? String {
                 
                 var name = firstName
-                var occupation = ""
                 
                 if let age = data["age"] as? NSTimeInterval {
                     
@@ -196,8 +195,10 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                     
                 }
                 
-                if let actualOccupation = data["occupation"] as? String {
-                    occupation = actualOccupation
+                if let actualStatus = data["currentStatus"] as? String {
+                    occupationOutlet.text = actualStatus
+                } else {
+                    occupationOutlet.text = ""
                 }
                 
                 if let profile = data["profilePicture"] as? String, profileURL = NSURL(string: profile) {
@@ -220,12 +221,8 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                 nameOutlet.strokeColor = UIColor.blackColor()
                 nameOutlet.lineBreakMode = .ByWordWrapping
                 
-                occupationOutlet.adjustsFontSizeToFitWidth = true
-                occupationOutlet.text = occupation
-                
             }  
         }
-        
     }
     
     

@@ -16,69 +16,40 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
     weak var rootController: MainRootController?
     
     var globMatches = [[NSObject : AnyObject]]()
-    var oldMatches = [[NSObject : AnyObject]]()
-    
-    
+
     //Outlets
     @IBOutlet weak var globCollectionViewOutlet: UICollectionView!
 
     //Actions
     func loadMatches(data: [NSObject : AnyObject]){
-        
-        globMatches.removeAll()
-        
-        let sortedMatches = data.sort({ (a: (NSObject, AnyObject), b: (NSObject, AnyObject)) -> Bool in
+
+        var matches = [[NSObject : AnyObject]]()
+
+        for (_, value) in data {
             
-            if a.1["lastActivity"] as? NSTimeInterval > b.1["lastActivity"] as? NSTimeInterval {
+            if let valueToAdd = value as? [NSObject : AnyObject] {
+                
+                matches.append(valueToAdd)
+
+            }
+        }
+        
+        matches.sortInPlace { (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
+            
+            if a["lastActivity"] as? NSTimeInterval > b["lastActivity"] as? NSTimeInterval {
+                
                 return true
+                
             } else {
+                
                 return false
+                
             }
-            
-        })
+        }
         
-        var i = 0
-        
-        for (_, value) in sortedMatches {
-            
-            if let dictValue = value as? [NSObject : AnyObject] {
-                
-                globMatches.append(dictValue)
-                
-                if let userUID = dictValue["uid"] as? String {
-                    
-                    let ref = FIRDatabase.database().reference().child("users").child(userUID)
-                    
-                    ref.observeSingleEventOfType(.Value, withBlock: { (snapshot) in
-                        
-                        if let userDataValue = snapshot.value as? [NSObject : AnyObject], selfUID = FIRAuth.auth()?.currentUser?.uid {
+        globMatches = matches
+        globCollectionViewOutlet.reloadData()
  
-                            if dictValue["online"] as? Bool != userDataValue["online"] as? Bool {
-                                
-                                print("update online!")
-                                let myRef = FIRDatabase.database().reference().child("users").child(selfUID).child("matches").child(userUID)
-                                myRef.child("online").setValue(userDataValue["online"] as? Bool)
-  
-                            }
-                            
-                            if value["profilePicture"] as? String != userDataValue["profilePicture"] as? String {
-                                ref.child("users").child(selfUID).child("matches").child(userUID).child("profilePicture").setValue(userDataValue["profilePicture"])
-
-                            }
-                        }
-                    })
-                }
-                
-                i += 1
-            }
-        }
-
-        if oldMatches != globMatches {
-            
-            oldMatches = globMatches
-            globCollectionViewOutlet.reloadData()
-            
-        }
     }
     
     func addGestureRecognizers(){

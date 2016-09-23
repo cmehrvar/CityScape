@@ -15,8 +15,7 @@ import FBSDKCoreKit
 import FBSDKLoginKit
 
 class LogInController: UIViewController {
-    
-    
+
     //Outlets
     @IBOutlet weak var gifBackground: FLAnimatedImageView!
     @IBOutlet weak var neverPost: UILabel!
@@ -155,8 +154,13 @@ class LogInController: UIViewController {
                                                         
                                                         let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
 
+                                                        
+                                                        
+                                                        
                                                         self.presentViewController(vc, animated: true, completion: {
 
+                                                            vc.setStage()
+                                                            
                                                             vc.loadSelfData({ (userData) in
                                                                 
                                                                 print("first time selfData loaded")
@@ -180,6 +184,8 @@ class LogInController: UIViewController {
                                                                 
                                                             })
                                                             
+                                                            
+                                                            
                                                         })
 
                                                     }
@@ -196,6 +202,7 @@ class LogInController: UIViewController {
 
                                         self.presentViewController(vc, animated: true, completion: {
 
+                                            vc.setStage()
                                             
                                             vc.loadSelfData({ (value) in
                                                 
@@ -222,7 +229,6 @@ class LogInController: UIViewController {
                                                 print("nearby toggled")
                                                 
                                             })
-
                                         })
                                     }
                                 })

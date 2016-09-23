@@ -13,6 +13,7 @@ import FirebaseAuth
 import Player
 import AVFoundation
 import NVActivityIndicatorView
+import SDWebImage
 
 class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, PlayerDelegate {
     
@@ -60,10 +61,17 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     //Outlets
     @IBOutlet weak var globCollectionView: UICollectionView!
     @IBOutlet weak var vibeFlowLayout: UICollectionViewFlowLayout!
-    //@IBOutlet weak var JSQHeightConstOutlet: NSLayoutConstraint!
-    //@IBOutlet weak var JSQContainerOutlet: UIView!
-    //@IBOutlet weak var CollectionViewBottomConstOutlet: NSLayoutConstraint!
 
+
+    
+    //Actions
+    @IBAction func goToProfile(sender: AnyObject) {
+    }
+    
+    
+    
+    
+    
     //CollectionView Delegates
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
  
@@ -156,6 +164,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
             
             let cell = collectionView.dequeueReusableSupplementaryViewOfKind(UICollectionElementKindSectionHeader, withReuseIdentifier: "headerCell", forIndexPath: indexPath) as! VibeHeaderCollectionCell
 
+            cell.vibesController = self
             cell.loadCell(newPosts[indexPath.section])
             cell.nameOutlet.adjustsFontSizeToFitWidth = true
  
@@ -490,15 +499,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(showNav), name: UIApplicationDidBecomeActiveNotification, object: nil)
 
         addGestureRecognizers()
-        
-        /*
-         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(panHandler))
-         panGesture.delegate = self
-         self.view.addGestureRecognizer(panGesture)
-         */
-        
-        
-        
+
         // Do any additional setup after loading the view.
     }
     
@@ -511,88 +512,11 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+        
+        self.videoPlayers.removeAll()
+        SDWebImageManager.sharedManager().imageCache.clearMemory()
     }
     
-    
-    /*
-     
-     func panHandler(sender: UIPanGestureRecognizer) {
-     
-     let translation = sender.translationInView(self.view)
-     
-     var initialX: CGFloat = 0
-     var initialY: CGFloat = 0
-     
-     switch sender.state {
-     
-     case.Began:
-     
-     initialX = translation.x
-     initialY = translation.y
-     //self.globCollectionView.scrollEnabled = false
-     
-     case .Changed:
-     
-     //self.rootController?.vibesLeading.constant += translation.x / 25
-     //self.rootController?.vibesTrailing.constant -= translation.x / 25
-     
-     print(translation.x)
-     
-     case .Ended:
-     
-     self.globCollectionView.scrollEnabled = true
-     
-     /*
-     if translation.x + 50 < initialX {
-     
-     self.rootController?.toggleMessages({ (bool) in
-     
-     print("messages toggled")
-     
-     })
-     } else if translation.x > initialX + 50 {
-     
-     self.rootController?.toggleNearby({ (bool) in
-     
-     print("nearby toggled")
-     
-     })
-     
-     }
-     */
-     
-     if translation.y < initialY {
-     
-     if !transitioning {
-     
-     self.rootController?.hideAllNav({ (bool) in
-     
-     print("all nav hidden")
-     
-     })
-     
-     }
-     
-     downScroll = true
-     
-     } else {
-     print("dont hide nav")
-     
-     downScroll = false
-     }
-     
-     
-     
-     
-     print("pan ended")
-     
-     default:
-     break
-     }
-     }
-     
-     
-     */
     
     
     
