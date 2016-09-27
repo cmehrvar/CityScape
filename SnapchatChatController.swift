@@ -34,8 +34,6 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
     var messageData = [[NSObject : AnyObject]]()
     var addedMessages = [String : Bool]()
     
-    var avatars = [String : JSQMessagesAvatarImage]()
-    var avatarDataSource = [JSQMessageAvatarImageDataSource]()
     var incomingBubbleImageView: JSQMessagesBubbleImage!
     var outgoingBubbleImageView: JSQMessagesBubbleImage!
     
@@ -280,7 +278,7 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
     }
     
     func beganTyping(){
-
+        
         let ref = FIRDatabase.database().reference()
         
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
@@ -357,15 +355,9 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
     //Avatar
     override func collectionView(collectionView: JSQMessagesCollectionView!, avatarImageDataForItemAtIndexPath indexPath: NSIndexPath!) -> JSQMessageAvatarImageDataSource! {
         
-        let message = messages[indexPath.row]
+        return JSQMessagesAvatarImageFactory.avatarImageWithImage(UIImage(named: "Kate"), diameter: 48)
         
-        if let id = message.senderId(){
-            
-            return avatars[id]
-            
-        }
         
-        return nil
     }
     
     //Cell for item at index path
@@ -376,6 +368,37 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
         let message = messages[indexPath.item]
         
         cell.cellBottomLabel.textColor = UIColor.blackColor()
+        
+        if let id = message.senderId() {
+            
+            let ref = FIRDatabase.database().reference().child("users").child(id)
+            
+            ref.child("profilePicture").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                
+                if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
+                    
+                    SDWebImageManager.sharedManager().downloadImageWithURL(url, options: .ContinueInBackground, progress: { (currentSize, expectedSize) in
+                        
+                        
+                        
+                        }, completed: { (image, error, cache, bool, url) in
+                            
+                            dispatch_async(dispatch_get_main_queue(), {
+                                
+                                let imageView = UIImageView(image: image)
+                                imageView.frame = cell.avatarContainerView.bounds
+                                imageView.contentMode = .ScaleAspectFill
+                                
+                                imageView.layer.cornerRadius = cell.avatarContainerView.bounds.width/2
+                                imageView.clipsToBounds = true
+                                
+                                cell.avatarImageView.addSubview(imageView)
+                                
+                            })
+                    })
+                }
+            })
+        }
         
         let isMedia = message.isMediaMessage()
         
@@ -394,67 +417,66 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
             }
         } else {
             
-            if let media = message.media!() as? JSQVideoMediaItem {
+            if let key = messageData[indexPath.item]["key"] as? String {
                 
-                if let key = messageData[indexPath.item]["key"] as? String {
+                if let media = message.media!() as? JSQVideoMediaItem {
                     
-                    if videoPlayers[key] == nil {
+                    if let player = videoPlayers[key], view = player.view {
+                        
+                        dispatch_async(dispatch_get_main_queue(), {
+                            
+                            self.addChildViewController(player)
+                            player.didMoveToParentViewController(self)
+                            player.playFromCurrentTime()
+                            view.removeFromSuperview()
+                            cell.mediaView.addSubview(view)
+                            
+                        })
+                        
+                    } else {
                         
                         if let url = media.fileURL {
                             
                             dispatch_async(dispatch_get_main_queue(), {
                                 
-                                self.videoPlayers[key] = Player()
-                                self.videoPlayers[key]?.delegate = self
+                                let player = Player()
+                                player.delegate = self
                                 
-                                if let player = self.videoPlayers[key] {
+                                if let videoPlayerView = player.view {
                                     
-                                    if let videoPlayerView = player.view {
-                                        
-                                        self.addChildViewController(player)
-                                        player.view.frame = cell.mediaView.bounds
-                                        player.didMoveToParentViewController(self)
-                                        player.setUrl(url)
-                                        player.fillMode = AVLayerVideoGravityResizeAspectFill
-                                        player.playbackLoops = true
-                                        player.playFromCurrentTime()
-                                        cell.mediaView.addSubview(videoPlayerView)
-                                        
-                                    }
+                                    self.addChildViewController(player)
+                                    player.view.frame = cell.mediaView.bounds
+                                    player.didMoveToParentViewController(self)
+                                    player.setUrl(url)
+                                    player.fillMode = AVLayerVideoGravityResizeAspectFill
+                                    player.playbackLoops = true
+                                    player.playFromCurrentTime()
+                                    cell.mediaView.addSubview(videoPlayerView)
+                                    self.videoPlayers[key] = player
                                 }
                             })
                         }
-                    } else {
-                        
-                        if let player = self.videoPlayers[key] {
-                            
-                            if let videoPlayerView = player.view {
-                                
-                                self.addChildViewController(player)
-                                cell.mediaView.addSubview(videoPlayerView)
-                                player.playFromCurrentTime()
-                                
-                            }
-                        }
                     }
-                }
-            } else if let media = message.media!() as? JSQPhotoMediaItem {
-                
-                if let imageString = messageData[indexPath.item]["media"] as? String, imageURL = NSURL(string: imageString) {
                     
-                    SDWebImageManager.sharedManager().downloadImageWithURL(imageURL, options: .ContinueInBackground, progress: { (currentSize, expectedSize) in
+                } else if message.media!() is JSQPhotoMediaItem {
+                    
+                    if let imageString = messageData[indexPath.item]["media"] as? String, imageURL = NSURL(string: imageString) {
                         
-                        }, completed: { (image, error, cache, bool, url) in
+                        SDWebImageManager.sharedManager().downloadImageWithURL(imageURL, options: .ContinueInBackground, progress: { (currentSize, expectedSize) in
                             
-                            if error == nil {
+                            }, completed: { (image, error, cache, bool, url) in
                                 
                                 dispatch_async(dispatch_get_main_queue(), {
                                     
-                                    media.image = image
+                                    let imageView = UIImageView(image: image)
+                                    imageView.frame = cell.mediaView.bounds
+                                    imageView.contentMode = .ScaleAspectFill
+                                    imageView.clipsToBounds = true
+                                    cell.mediaView.addSubview(imageView)
                                     
                                 })
-                            }
-                    })
+                        })
+                    }
                 }
             }
         }
@@ -463,6 +485,34 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
         
     }
     
+    
+    override func collectionView(collectionView: UICollectionView, willDisplayCell cell: UICollectionViewCell, forItemAtIndexPath indexPath: NSIndexPath) {
+        
+        let message = messages[indexPath.item]
+        
+        if message.media!() is JSQVideoMediaItem {
+            
+            if let jsqCell = cell as? JSQMessagesCollectionViewCell, key = messageData[indexPath.item]["key"] as? String {
+                
+                if let player = self.videoPlayers[key] {
+                    
+                    if let videoPlayerView = player.view {
+                        
+                        dispatch_async(dispatch_get_main_queue(), {
+                            
+                            self.addChildViewController(player)
+                            player.didMoveToParentViewController(self)
+                            player.playFromCurrentTime()
+                            
+                            jsqCell.mediaView.addSubview(videoPlayerView)
+                            
+                        })
+                    }
+                }
+            }
+        }
+    }
+
     //Top Cell Label Text
     override func collectionView(collectionView: JSQMessagesCollectionView!, attributedTextForCellTopLabelAtIndexPath indexPath: NSIndexPath!) -> NSAttributedString! {
         
@@ -687,7 +737,7 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
                                                 
                                                 self.collectionView.reloadData()
                                                 
-                                        }) 
+                                        })
                                     }
                                 }
                             }
@@ -796,50 +846,9 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
                 self.finishReceivingMessage()
                 
             }
-            
-            
-            if avatars[id] == nil {
-                
-                let ref = FIRDatabase.database().reference().child("users").child(id).child("profilePicture")
-                
-                ref.observeSingleEventOfType(.Value, withBlock: { (snapshot) in
-                    
-                    if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
-                        
-                        SDWebImageManager.sharedManager().downloadImageWithURL(url, options: SDWebImageOptions.ContinueInBackground, progress: nil, completed: { (image, error, cache, bool, url) in
-                            
-                            if let selfUID = FIRAuth.auth()?.currentUser?.uid {
-                                
-                                if id == selfUID {
-                                    
-                                    let userImage = JSQMessagesAvatarImageFactory.avatarImageWithImage(image, diameter: 36)
-                                    
-                                    self.avatars[id] = userImage
-                                    
-                                    
-                                } else {
-                                    
-                                    let userImage = JSQMessagesAvatarImageFactory.avatarImageWithImage(image, diameter: 48)
-                                    self.avatars[id] = userImage
-                                }
-                                
-                                if self.collectionView.contentOffset.y == 0 {
-                                    
-                                    self.finishReceivingMessage()
-                                    
-                                } else if ((self.maxContentOffset - self.collectionView.contentOffset.y) <= 300) {
-                                    
-                                    self.finishReceivingMessage()
-                                    
-                                }
-                                
-                            }
-                        })
-                    }
-                })
-            }
         }
     }
+    
     
     //Upload Media
     func uploadMedia(isImage: Bool, image: UIImage?, videoURL: NSURL?, handler: (date: NSDate, fileName: String, messageData: JSQMessageData) -> Void){
@@ -924,54 +933,54 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
     }
     
     /*
-    func observeTyping(){
-        
-        let refString = passedRef
-        
-        let ref = FIRDatabase.database().reference().child(refString).child("isTyping")
-        
-        if let selfUID = FIRAuth.auth()?.currentUser?.uid {
-            
-            ref.observeEventType(.Value, withBlock:  { (snapshot) in
-                
-                if let typing = snapshot.value as? [String : Bool] {
-                    
-                    let postUIDREF = FIRDatabase.database().reference().child(refString).child("postChildKey")
-                    
-                    postUIDREF.observeSingleEventOfType(.Value, withBlock: { (snapshot) in
-                        
-                        var isTyping = false
-                        
-                        if let postKey = snapshot.value as? String {
-                            
-                            if postKey == self.currentPostKey {
-                                
-                                for (key, value) in typing {
-                                    
-                                    if key != selfUID {
-                                        
-                                        if value == true {
-                                            
-                                            isTyping = true
-                                            
-                                        }
-                                    }
-                                }
-                                
-                                self.showTypingIndicator = isTyping
-                                
-                            } else {
-                                
-                                ref.removeAllObservers()
-                                
-                            }
-                        }
-                    })
-                }
-            })
-        }
-    }
-    */
+     func observeTyping(){
+     
+     let refString = passedRef
+     
+     let ref = FIRDatabase.database().reference().child(refString).child("isTyping")
+     
+     if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+     
+     ref.observeEventType(.Value, withBlock:  { (snapshot) in
+     
+     if let typing = snapshot.value as? [String : Bool] {
+     
+     let postUIDREF = FIRDatabase.database().reference().child(refString).child("postChildKey")
+     
+     postUIDREF.observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+     
+     var isTyping = false
+     
+     if let postKey = snapshot.value as? String {
+     
+     if postKey == self.currentPostKey {
+     
+     for (key, value) in typing {
+     
+     if key != selfUID {
+     
+     if value == true {
+     
+     isTyping = true
+     
+     }
+     }
+     }
+     
+     self.showTypingIndicator = isTyping
+     
+     } else {
+     
+     ref.removeAllObservers()
+     
+     }
+     }
+     })
+     }
+     })
+     }
+     }
+     */
     //Add Upload Stuff
     func addUploadStuff(){
         

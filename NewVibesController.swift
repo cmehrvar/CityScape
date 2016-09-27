@@ -17,6 +17,10 @@ import SDWebImage
 
 class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, PlayerDelegate {
     
+    var profilePics = [String : String]()
+    var ranks = [String : Int]()
+    
+    
     //Player Delegates
     func playerReady(player: Player){
         
@@ -66,13 +70,26 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     
     //Actions
     @IBAction func goToProfile(sender: AnyObject) {
+        
+        
+        
+    }
+    
+  
+    //CollectionView Delegates
+    func collectionView(collectionView: UICollectionView, didEndDisplayingCell cell: UICollectionViewCell, forItemAtIndexPath indexPath: NSIndexPath) {
+        
+        if let cell = collectionView.dequeueReusableCellWithReuseIdentifier("videoCell", forIndexPath: indexPath) as? VideoVibeCollectionCell {
+
+            if let player = videoPlayers[cell.postKey] {
+                
+                player.stop()
+                
+            }
+        }
     }
     
     
-    
-    
-    
-    //CollectionView Delegates
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
  
         if let isImage = newPosts[indexPath.section]["isImage"] as? Bool {
@@ -87,73 +104,83 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                     cell.addPinchRecognizer()
                     return cell
                 }
+                
             } else {
+
+                
+                if let videoURLString = newPosts[indexPath.section]["videoURL"] as? String, url = NSURL(string: videoURLString), imageUrlString = newPosts[indexPath.section]["imageURL"] as? String, imageUrl = NSURL(string: imageUrlString) {
                 
                 let cell = collectionView.dequeueReusableCellWithReuseIdentifier("videoCell", forIndexPath: indexPath) as! VideoVibeCollectionCell
 
+                
+                cell.videoThumbnailOutlet.sd_setImageWithURL(imageUrl, completed: { (image, error, cache, url) in
+                        
+                        print("done loading video thumbnail")
+                        
+                    })
+                    
+                    
                 if let key = newPosts[indexPath.section]["postChildKey"] as? String {
                     
-                    if videoPlayers[key] == nil {
-                        
-                        if let videoURLString = newPosts[indexPath.section]["videoURL"] as? String, url = NSURL(string: videoURLString), imageUrlString = newPosts[indexPath.section]["imageURL"] as? String, imageUrl = NSURL(string: imageUrlString) {
-                            
-                            cell.videoThumbnailOutlet.sd_setImageWithURL(imageUrl, completed: { (image, error, cache, url) in
-                                
-                                print("done loading video thumbnail")
-                                
-                            })
-                            
-                            cell.createIndicator()
+                    cell.postKey = key
+                    
+                    if let player = videoPlayers[key] {
+  
+                        dispatch_async(dispatch_get_main_queue(), {
 
+                                if let videoPlayerView = player.view {
+                                    
+                                    self.addChildViewController(player)
+                                    player.didMoveToParentViewController(self)
+                                    player.playFromCurrentTime()
+                                    videoPlayerView.removeFromSuperview()
+                                    cell.videoOutlet.addSubview(videoPlayerView)
+                                    cell.videoOutlet.alpha = 1
+                                    
+                                }
+                            
+                        })
+
+                    } else {
+ 
+                            cell.createIndicator()
+                            
                             dispatch_async(dispatch_get_main_queue(), {
                                 
-                                self.videoPlayers[key] = Player()
-                                self.videoPlayers[key]?.delegate = self
+                                let scopePlayer = Player()
+                                scopePlayer.delegate = self
                                 
-                                if let player = self.videoPlayers[key] {
-                                    
-                                    if let videoPlayerView = player.view {
-                                        
-                                        self.addChildViewController(player)
-                                        player.view.frame = cell.videoOutlet.bounds
-                                        player.didMoveToParentViewController(self)
-                                        player.setUrl(url)
-                                        player.fillMode = AVLayerVideoGravityResizeAspectFill
-                                        player.playbackLoops = true
-                                        player.playFromCurrentTime()
-                                        
-                                        
+                                self.addChildViewController(scopePlayer)
+                                scopePlayer.view.frame = cell.videoOutlet.bounds
+                                scopePlayer.didMoveToParentViewController(self)
+                                scopePlayer.setUrl(url)
+                                scopePlayer.fillMode = AVLayerVideoGravityResizeAspectFill
+                                scopePlayer.playbackLoops = true
+                                scopePlayer.playFromCurrentTime()
+
+                                    if let videoPlayerView = scopePlayer.view {
+
                                         cell.videoOutlet.addSubview(videoPlayerView)
+                                        cell.videoOutlet.alpha = 1
                                         
                                     }
-                                }
+                                
+                                self.videoPlayers[key] = scopePlayer
+                                
                             })
                         }
-                    } else {
-                        
-                        if let player = self.videoPlayers[key] {
-                            
-                            if let videoPlayerView = player.view {
-                                
-                                self.addChildViewController(player)
-                                cell.videoOutlet.addSubview(videoPlayerView)
-                                player.playFromCurrentTime()
-                                
-                            }
-                        }
                     }
+                    
+                    return cell
+
                 }
-
-                return cell
-
             }
         } 
         
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("imageCell", forIndexPath: indexPath) as! ImageVibeCollectionCell
         
         return cell
-        
-        
+
     }
     
     func collectionView(collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, atIndexPath indexPath: NSIndexPath) -> UICollectionReusableView {
@@ -166,7 +193,6 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
 
             cell.vibesController = self
             cell.loadCell(newPosts[indexPath.section])
-            cell.nameOutlet.adjustsFontSizeToFitWidth = true
  
             reusableView = cell
             
@@ -198,18 +224,12 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         
         let width = self.view.bounds.width
-        
-        
-        
+
         return CGSize(width: width, height: 50)
-        
-        
+
     }
     
-    
-    
-    
-    
+
     func collectionView(collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, atIndexPath indexPath: NSIndexPath) {
         
         print("began displaying index path: \(indexPath.section)")
@@ -326,6 +346,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
         
         self.newPosts.removeAll()
         self.addedPosts.removeAll()
+        self.videoPlayers.removeAll()
         
         if scopeCity != "" {
             
@@ -333,7 +354,9 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
             
             let ref = FIRDatabase.database().reference().child("posts").child(self.currentCity)
             
-            ref.queryLimitedToLast(25).observeEventType(.ChildAdded, withBlock: { (snapshot) in
+            ref.queryLimitedToLast(100).observeEventType(.Value, withBlock: { (snapshot) in
+                
+                var scopeData = [[NSObject : AnyObject]]()
                 
                 if let value = snapshot.value as? [NSObject : AnyObject] {
                     
@@ -343,17 +366,31 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                         
                     } else {
                         
-                        if let key = value["postChildKey"] as? String {
+                        for (_, snapValue) in value {
                             
-                            if self.addedPosts[key] != true {
+                            if let valueToAdd = snapValue as? [NSObject : AnyObject] {
                                 
-                                self.addedPosts[key] = true
-                                self.newPosts.insert(value, atIndex: 0)
-                                
-                                self.globCollectionView.reloadData()
+                                scopeData.append(valueToAdd)
                                 
                             }
                         }
+                        
+                        scopeData.sortInPlace({ (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
+                            
+                            if a["timeStamp"] as? NSTimeInterval > b["timeStamp"] as? NSTimeInterval {
+                                
+                                return true
+                                
+                            } else {
+                                
+                                return false
+                                
+                            }
+                        })
+                        
+                        self.newPosts = scopeData
+                        self.globCollectionView.reloadData()
+                        
                     }
                 }
             })
@@ -370,6 +407,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
         
         self.newPosts.removeAll()
         self.addedPosts.removeAll()
+        self.videoPlayers.removeAll()
         
         if scopeCity != "" {
             
@@ -377,7 +415,9 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
             
             let ref = FIRDatabase.database().reference().child("posts").child(scopeCity)
             
-            ref.queryLimitedToLast(25).observeEventType(.ChildAdded, withBlock: { (snapshot) in
+            ref.queryLimitedToLast(100).observeEventType(.Value, withBlock: { (snapshot) in
+
+                var scopeData = [[NSObject : AnyObject]]()
                 
                 if let value = snapshot.value as? [NSObject : AnyObject] {
                     
@@ -387,17 +427,31 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                         
                     } else {
                         
-                        if let key = value["postChildKey"] as? String {
+                        for (_, snapValue) in value {
                             
-                            if self.addedPosts[key] != true {
+                            if let valueToAdd = snapValue as? [NSObject : AnyObject] {
                                 
-                                self.addedPosts[key] = true
-                                self.newPosts.insert(value, atIndex: 0)
-                                
-                                self.globCollectionView.reloadData()
+                                scopeData.append(valueToAdd)
                                 
                             }
                         }
+                        
+                        scopeData.sortInPlace({ (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
+                            
+                            if a["timeStamp"] as? NSTimeInterval > b["timeStamp"] as? NSTimeInterval {
+                                
+                                return true
+                                
+                            } else {
+                                
+                                return false
+                                
+                            }
+                        })
+                        
+                        self.newPosts = scopeData
+                        self.globCollectionView.reloadData()
+                        
                     }
                 }
             })
@@ -405,8 +459,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     }
 
     func addGestureRecognizers(){
-        
-        
+
         let downSwipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(showNav))
         downSwipeGestureRecognizer.direction = UISwipeGestureRecognizerDirection.Down
         downSwipeGestureRecognizer.delegate = self
@@ -512,9 +565,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
-        
-        self.videoPlayers.removeAll()
-        SDWebImageManager.sharedManager().imageCache.clearMemory()
+
     }
     
     

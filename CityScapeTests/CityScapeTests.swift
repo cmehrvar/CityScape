@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import CityScape
+
 
 class CityScapeTests: XCTestCase {
     

@@ -188,6 +188,12 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
         searchController?.toggleColour(2)
         
     }
+    
+    func dismissKeyboard(){
+        
+        self.view.endEditing(true)
+        
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -196,6 +202,10 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
         leftSwipeGesture.direction = .Left
         leftSwipeGesture.delegate = self
         self.globCollectionView.addGestureRecognizer(leftSwipeGesture)
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        self.globCollectionView.addGestureRecognizer(tapGesture)
+        
         
         
         // Do any additional setup after loading the view.

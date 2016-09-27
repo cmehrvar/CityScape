@@ -11,16 +11,34 @@ import Firebase
 import FirebaseDatabase
 import FirebaseAuth
 
-class MessagesController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UIGestureRecognizerDelegate {
+class MessagesController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UIGestureRecognizerDelegate, UITableViewDataSource, UITableViewDelegate {
     
     weak var rootController: MainRootController?
+    
+    var tableViewMessages = [[NSObject : AnyObject]]()
     
     var globMatches = [[NSObject : AnyObject]]()
 
     //Outlets
     @IBOutlet weak var globCollectionViewOutlet: UICollectionView!
+    @IBOutlet weak var matchesHeightConstOutlet: NSLayoutConstraint!
+    @IBOutlet weak var globTableView: UITableView!
 
     //Actions
+    @IBAction func composeMessage(sender: AnyObject) {
+
+        self.rootController?.composeChat(true, completion: { (bool) in
+            
+            print("compose revealed")
+            
+        })
+    }
+    
+    
+    
+    
+    
+    //Functions
     func loadMatches(data: [NSObject : AnyObject]){
 
         var matches = [[NSObject : AnyObject]]()
@@ -52,29 +70,122 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
  
     }
     
-    func addGestureRecognizers(){
+    
+    
+    
+    func sortMessages(selfData: [NSObject : AnyObject]) {
+
+        var allMessages = [[NSObject : AnyObject]]()
+
+        if let mySquad = selfData["squad"] as? [NSObject : AnyObject] {
+            
+            for (_, value) in mySquad {
+                
+                var read = false
+                
+                if let readValue = value["read"] as? Bool {
+                    
+                    read = readValue
+                    
+                }
+
+                if let messages = value["messages"] as? [NSObject : AnyObject] {
+                    
+                let sortedMessages = messages.sort({ (a: (NSObject, AnyObject), b: (NSObject, AnyObject)) -> Bool in
+                        
+                        if a.1["timeStamp"] as? NSTimeInterval > b.1["timeStamp"] as? NSTimeInterval {
+                            
+                            return true
+                            
+                        } else {
+                            
+                            return false
+                            
+                        }
+                    })
+
+                    if let first = sortedMessages.first?.1 as? [NSObject : AnyObject] {
+
+                        var toAppend = first
+                        toAppend["type"] = "squad"
+                        toAppend["read"] = read
+                        allMessages.append(toAppend)
+                        
+                    }
+                }
+            }
+        }
+
+        if let myMatches = selfData["matches"] as? [NSObject : AnyObject] {
+            
+            for (_, value) in myMatches {
+                
+                var read = false
+                
+                if let readValue = value["read"] as? Bool {
+                    
+                    read = readValue
+                    
+                }
+                
+                if let messages = value["messages"] as? [NSObject : AnyObject] {
+                    
+                    let sortedMessages = messages.sort({ (a: (NSObject, AnyObject), b: (NSObject, AnyObject)) -> Bool in
+                        
+                        if a.1["timeStamp"] as? NSTimeInterval > b.1["timeStamp"] as? NSTimeInterval {
+                            
+                            return true
+                            
+                        } else {
+                            
+                            return false
+                            
+                        }
+                    })
+                    
+                    if let first = sortedMessages.first?.1 as? [NSObject : AnyObject] {
+                        
+                        var toAppend = first
+                        toAppend["type"] = "matches"
+                        toAppend["read"] = read
+                        allMessages.append(toAppend)
+                        
+                    }
+                }
+            }
+        }
+
+        allMessages.sortInPlace { (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
+            
+            if a["timeStamp"] as? NSTimeInterval > b["timeStamp"] as? NSTimeInterval {
+                
+                return true
+                
+            } else {
+                
+                return false
+                
+            }
+        }
         
-        let downSwipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(showNav))
-        downSwipeGestureRecognizer.direction = UISwipeGestureRecognizerDirection.Down
-        downSwipeGestureRecognizer.delegate = self
+        self.tableViewMessages = allMessages
+        self.globTableView.reloadData()
+
+    }
+    
+    
+    
+    
+    func addGestureRecognizers(){
         
         let rightSwipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(showVibes))
         rightSwipeGestureRecognizer.direction = UISwipeGestureRecognizerDirection.Right
         rightSwipeGestureRecognizer.delegate = self
         
-        self.view.addGestureRecognizer(rightSwipeGestureRecognizer)
-        self.view.addGestureRecognizer(downSwipeGestureRecognizer)
+        self.globTableView.addGestureRecognizer(rightSwipeGestureRecognizer)
         
     }
     
-    func showNav(){
-        
-        rootController?.showNav(0.3, completion: { (bool) in
-            
-            print("nav showed")
-            
-        })
-    }
     
     func showVibes(){
         
@@ -85,6 +196,31 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
         })
     }
     
+    
+    
+    
+    //TableView Delegates
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
+        return tableViewMessages.count
+        
+    }
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        
+        tableView.allowsSelection = false
+        
+        let cell = tableView.dequeueReusableCellWithIdentifier("messageTableCell", forIndexPath: indexPath) as! MessageTableCell
+        
+        cell.messagesController = self
+        
+        cell.loadCell(tableViewMessages[indexPath.row])
+        
+        return cell
+        
+    }
+    
+
     
     //Collection View Delegates
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -144,7 +280,9 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
     override func viewDidAppear(animated: Bool) {
         
         print("view did appear")
-        
+        if let rootHeight = rootController?.view.bounds.height {
+            self.matchesHeightConstOutlet.constant = rootHeight * 0.25
+        }
     }
     
     
@@ -154,8 +292,32 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
         
     }
     
+    func scrollViewWillEndDragging(scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+
+        print(velocity.y)
+        
+        if velocity.y > 1 {
+            
+            if tableViewMessages.count > 3 {
+                
+                rootController?.hideAllNav({ (bool) in
+                    
+                    print("nav hid")
+                    
+                })
+            }
+
+        } else if velocity.y < -1 {
+            
+            rootController?.showNav(0.3, completion: { (bool) in
+                
+                print("nav shown")
+                
+            })
+        }
+    }
     
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         

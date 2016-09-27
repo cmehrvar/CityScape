@@ -224,13 +224,13 @@ class HandlePostController: UIViewController, PlayerDelegate, UITextFieldDelegat
                                     
                                     let currentDate = NSDate().timeIntervalSince1970
                                     
-                                    if let firstName = userData["firstName"] as? String, lastName = userData["lastName"] as? String, city = userData["city"] as? String, profile = userData["profilePicture"] as? String, rank = userData["cityRank"] as? Int {
+                                    if let firstName = userData["firstName"] as? String, lastName = userData["lastName"] as? String, city = userData["city"] as? String {
                                         
                                         let ref = FIRDatabase.database().reference()
                                         
                                         let postChildKey = ref.child("posts").child(city).childByAutoId().key
                                         
-                                        let postData: [NSObject:AnyObject] = ["views":0, "userUID":selfUID, "firstName":firstName, "lastName":lastName, "city":city, "timeStamp":currentDate, "profilePicture":profile, "imageURL":imageUrl, "caption":captionString, "isImage":isImage, "like" : 0, "dislike" : 0, "postChildKey":postChildKey, "videoURL" : FIRVideoURL, "cityRank" : rank]
+                                        let postData: [NSObject:AnyObject] = ["views":0, "userUID":selfUID, "firstName":firstName, "lastName":lastName, "city":city, "timeStamp":currentDate, "imageURL":imageUrl, "caption":captionString, "isImage":isImage, "like" : 0, "dislike" : 0, "postChildKey":postChildKey, "videoURL" : FIRVideoURL]
                                         
                                         
                                         if let score = userData["userScore"] as? Int {
@@ -275,13 +275,13 @@ class HandlePostController: UIViewController, PlayerDelegate, UITextFieldDelegat
                             
                             let currentDate = NSDate().timeIntervalSince1970
                             
-                            if let firstName = userData["firstName"] as? String, lastName = userData["lastName"] as? String, city = userData["city"] as? String, profile = userData["profilePicture"] as? String, rank = userData["cityRank"] as? Int, longitude = userData["longitude"] as? CLLocationDegrees, latitude = userData["latitude"] as? CLLocationDegrees, state = userData["state"] as? String {
+                            if let firstName = userData["firstName"] as? String, lastName = userData["lastName"] as? String, city = userData["city"] as? String, longitude = userData["longitude"] as? CLLocationDegrees, latitude = userData["latitude"] as? CLLocationDegrees, state = userData["state"] as? String {
                                 
                                 let ref = FIRDatabase.database().reference()
                                 
                                 let postChildKey = ref.child("posts").child(city).childByAutoId().key
                                 
-                                let postData: [NSObject:AnyObject] = ["views":0, "userUID":selfUID, "firstName":firstName, "lastName":lastName, "city": city, "timeStamp":currentDate, "profilePicture":profile, "imageURL":imageUrl, "caption":captionString, "isImage":isImage, "like" : 0, "dislike" : 0, "postChildKey":postChildKey, "videoURL" : "none", "cityRank" : rank]
+                                let postData: [NSObject:AnyObject] = ["views":0, "userUID":selfUID, "firstName":firstName, "lastName":lastName, "city": city, "timeStamp":currentDate, "imageURL":imageUrl, "caption":captionString, "isImage":isImage, "like" : 0, "dislike" : 0, "postChildKey":postChildKey, "videoURL" : "none"]
                                 
                                 
                                 if let score = userData["userScore"] as? Int {

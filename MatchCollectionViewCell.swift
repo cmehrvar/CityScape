@@ -25,36 +25,24 @@ class MatchCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var profileOutlet: UIImageView!
     @IBOutlet weak var nameOutlet: UILabel!
     @IBOutlet weak var indicatorOutlet: UIView!
-    
-    
+
     //Actions
     @IBAction func openChat(sender: AnyObject) {
         
-        let mainRootController = messagesController?.rootController
-
-        guard let selfUID = FIRAuth.auth()?.currentUser?.uid else {return}
-
-        let refToPass = "/users/\(selfUID)/matches/\(uid)"
         
-        messagesController?.rootController?.chatController?.passedRef = refToPass
-        messagesController?.rootController?.chatController?.typeOfChat = "match"
-        messagesController?.rootController?.chatController?.ownerUID = uid
         
-        messagesController?.rootController?.bottomNavController?.chatNameOutlet.text = firstName + " " + lastName
+        let scopeUID = uid
+        let scopeFirstname = firstName
+        let scopeLastname = lastName
+        let scopeProfile = profileString
         
-        if let url = NSURL(string: profileString) {
-            
-            messagesController?.rootController?.bottomNavController?.chatProfileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
-            
-        }
-        
-        messagesController?.rootController?.toggleChat({ (bool) in
+        self.messagesController?.rootController?.toggleChat("matches", userUID: scopeUID, postUID: nil, city: nil, firstName: scopeFirstname, lastName: scopeLastname, profile: scopeProfile, completion: { (bool) in
             
             print("chat toggled")
             
-            mainRootController?.chatController?.newObserveMessages()
-            
         })
+        
+        
     }
     
 
@@ -62,6 +50,9 @@ class MatchCollectionViewCell: UICollectionViewCell {
     func loadCell(data: [NSObject : AnyObject]){
         
         nameOutlet.adjustsFontSizeToFitWidth = true
+        
+        
+        
         
         if let uid = data["uid"] as? String {
             
@@ -75,6 +66,7 @@ class MatchCollectionViewCell: UICollectionViewCell {
                     
                     if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
                         
+                        self.profileString = profileString
                         self.profileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
                         
                     }
@@ -100,6 +92,33 @@ class MatchCollectionViewCell: UICollectionViewCell {
                 }
             })
         }
+        
+        
+        
+        if let read = data["read"] as? Bool {
+            
+            if read {
+                
+                nameOutlet.font = UIFont.systemFontOfSize(14)
+                nameOutlet.textColor = UIColor.darkGrayColor()
+                
+            } else {
+                
+                nameOutlet.font = UIFont.boldSystemFontOfSize(14)
+                nameOutlet.textColor = UIColor.blackColor()
+                
+            }
+
+        } else {
+            
+            
+            nameOutlet.font = UIFont.systemFontOfSize(14)
+            nameOutlet.textColor = UIColor.darkGrayColor()
+            
+            
+        }
+        
+        
 
         if let firstName = data["firstName"] as? String {
             

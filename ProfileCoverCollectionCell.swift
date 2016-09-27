@@ -43,6 +43,8 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
 
         if let userUID = data["uid"] as? String, selfUID = FIRAuth.auth()?.currentUser?.uid {
             
+            self.uid = userUID
+            
             if userUID == selfUID {
                 
                 squadImageOutlet.image = nil
@@ -219,57 +221,19 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                 if let userUID = scopeUserData["uid"] as? String, selfUID = FIRAuth.auth()?.currentUser?.uid {
                     
                     let myRef = FIRDatabase.database().reference().child("users").child(selfUID)
-                    
-                    
-                    if let selfData = self.profileController?.rootController?.selfData, notifications = selfData["notifications"] as? [NSObject : AnyObject] {
-                        
-                        for (key, value) in notifications {
-                            
-                            if let dictValue = value as? [NSObject : AnyObject], notUID = dictValue["uid"] as? String {
-                                
-                                if notUID == userUID {
-                                    
-                                    if let notificationKey = key as? String {
-                                        
-                                        myRef.child("notifications").child(notificationKey).removeValue()
-                                        
-                                    }
-                                }
-                            }
-                        }
-                        
-                        myRef.child("squad").child(userUID).removeValue()
-                        myRef.child("squadRequests").child(userUID).removeValue()
-                        
-                        
-                    }
 
-                    
+                    myRef.child("notifications").child(userUID).child("squad").removeValue()
+                    myRef.child("notifications").child(userUID).child("squadRequest").removeValue()
+                    myRef.child("squad").child(userUID).removeValue()
+                    myRef.child("squadRequests").child(userUID).removeValue()
+
                     let yourRef = FIRDatabase.database().reference().child("users").child(userUID)
                     
-                    yourRef.child("notifications").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
-                        
-                        if let notifications = snapshot.value as? [NSObject : AnyObject] {
-                            
-                            for (key, value) in notifications {
-                                
-                                if let dictValue = value as? [NSObject : AnyObject], notUID = dictValue["uid"] as? String {
-                                    
-                                    if notUID == selfUID {
-                                        
-                                        if let notificationKey = key as? String {
-                                            
-                                            yourRef.child("notifications").child(notificationKey).removeValue()
-                                            
-                                        }
-                                    }
-                                }
-                            }
-
-                            yourRef.child("squad").child(selfUID).removeValue()
-                            yourRef.child("squadRequests").child(selfUID).removeValue()
-                        }
-                    })
+                    yourRef.child("notifications").child(selfUID).child("squad").removeValue()
+                    yourRef.child("notifications").child(selfUID).child("squadRequest").removeValue()
+                    yourRef.child("squad").child(selfUID).removeValue()
+                    yourRef.child("squadRequests").child(selfUID).removeValue()
+    
                 }
             }))
 
@@ -277,18 +241,14 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
             alertController.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
                 
                 print("canceled")
-                
 
-                
             }))
             
             
             self.profileController?.presentViewController(alertController, animated: true, completion: {
                 
                 print("alert controller presented")
-                
 
-                
             })
 
         } else if currentInstance == "sentSquad" {
@@ -301,46 +261,28 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                 alertController.addAction(UIAlertAction(title: "Unsend Request", style: .Destructive, handler: { (action) in
                     
                     if let userUID = scopeUserData["uid"] as? String, selfUID = FIRAuth.auth()?.currentUser?.uid {
-                        
-
-                        
+    
                         let ref = FIRDatabase.database().reference().child("users").child(userUID)
                         
-                        ref.child("squadRequests").child(selfUID).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
-                            
-                            if let mySquadRequest = snapshot.value as? [NSObject : AnyObject] {
-                                
-                                if let notKey = mySquadRequest["notificationKey"] as? String {
-                                    
-                                    ref.child("squadRequests").child(selfUID).removeValue()
-                                    ref.child("notifications").child(notKey).removeValue()
-                                    
-                                }
-                            }
-                        })
+                        ref.child("squadRequests").child(selfUID).removeValue()
+                        ref.child("notifications").child(selfUID).child("squadRequest").removeValue()
+                        
+                    
                     }
                 }))
 
                 alertController.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
                     
                     print("canceled")
-                    
-    
 
-                    
                 }))
                 
                 self.profileController?.presentViewController(alertController, animated: true, completion: {
                     
                     print("alert controller presented")
-                    
-
-
-                    
-                    
+ 
                 })
-                
-                
+
             } else if currentInstance == "confirmSquad" {
                 
                 //Confrim or Deny
@@ -349,14 +291,11 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                 let alertController = UIAlertController(title: "Confirm \(firstName + " " + lastName) to your squad?", message: nil, preferredStyle: .ActionSheet)
                 
                 alertController.addAction(UIAlertAction(title: "Add to Squad", style: .Default, handler: { (action) in
- 
+
                     if let selfUID = FIRAuth.auth()?.currentUser?.uid, selfData = self.profileController?.rootController?.selfData, myFirstName = selfData["firstName"] as? String, myLastName = selfData["lastName"] as? String, scopeUID = scopeUserData["uid"] as? String {
-                        
-                        let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
-                        
-                        if let mySquadRequests = selfData["squadRequests"] as? [NSObject : AnyObject], userSquadRequest = mySquadRequests[scopeUID] as? [NSObject : AnyObject], scopeNotificationKey = userSquadRequest["notificationKey"] as? String {
-                            
-                            ref.child("notifications").child(scopeNotificationKey).updateChildValues(["status" : "approved"])
+
+                            let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
+                            ref.child("notifications").child(scopeUID).child("squadRequest").updateChildValues(["status" : "approved"])
                             ref.child("squadRequests").child(scopeUID).removeValue()
                             
                             ref.child("squad").child(scopeUID).setValue(["firstName" : scopeFirstName, "lastName" : scopeLastName, "uid" : scopeUID])
@@ -364,16 +303,14 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                             let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
                             
                             let timeInterval = NSDate().timeIntervalSince1970
-                            
-                            let key = yourRef.child("notifications").childByAutoId().key
-                            
-                            yourRef.child("notifications").child(key).setValue(["firstName" : myFirstName, "lastName" : myLastName, "type" : "addedYou", "timeStamp" : timeInterval, "uid" : selfUID, "read" : false, "notificationKey" : key])
+
+                            yourRef.child("notifications").child(selfUID).child("squadRequest").setValue(["firstName" : myFirstName, "lastName" : myLastName, "type" : "addedYou", "timeStamp" : timeInterval, "uid" : selfUID, "read" : false])
                             
                             yourRef.child("squad").child(selfUID).setValue(["firstName" : myFirstName, "lastName" : myLastName, "uid" : selfUID])
        
                         }
 
-                    }
+                    
                 }))
                 
                 alertController.addAction(UIAlertAction(title: "Reject \(firstName)", style: .Destructive, handler: { (action) in
@@ -383,13 +320,9 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                         
                         let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
 
-                        if let selfData = self.profileController?.rootController?.selfData, mySquadRequests = selfData["squadRequests"] as? [NSObject : AnyObject], userSquadRequest = mySquadRequests[scopeUID] as? [NSObject : AnyObject], scopeNotificationKey = userSquadRequest["notificationKey"] as? String {
-                            
-                            ref.child("notifications").child(scopeNotificationKey).removeValue()
+                            ref.child("notifications").child(scopeUID).child("squadRequest").removeValue()
                             ref.child("squadRequests").child(scopeUID).removeValue()
 
-                            
-                        }
                     }
                 }))
 
@@ -425,15 +358,13 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                         //0 -> Hasn't responded yet, 1 -> Approved, 2 -> Denied
                         
                         let ref = FIRDatabase.database().reference().child("users").child(userUID)
+    
+                        let squadItem = ["uid" : selfUID, "read" : false, "status": 0, "timeStamp" : timeInterval, "firstName" : firstName, "lastName" : lastName]
                         
-                        let notificationKey = ref.child("notifications").childByAutoId().key
-                        
-                        let squadItem = ["uid" : selfUID, "read" : false, "status": 0, "timeStamp" : timeInterval, "firstName" : firstName, "lastName" : lastName, "notificationKey" : notificationKey]
-                        
-                        let notificationItem = ["uid" : selfUID, "read" : false, "status" : "awaitingAction", "type" : "squadRequest", "timeStamp" : timeInterval, "firstName" : firstName, "lastName" : lastName, "notificationKey" : notificationKey]
+                        let notificationItem = ["uid" : selfUID, "read" : false, "status" : "awaitingAction", "type" : "squadRequest", "timeStamp" : timeInterval, "firstName" : firstName, "lastName" : lastName]
                         
                         ref.child("squadRequests").child(selfUID).setValue(squadItem)
-                        ref.child("notifications").child(notificationKey).setValue(notificationItem)
+                        ref.child("notifications").child(selfUID).child("squadRequest").setValue(notificationItem)
                         
                     }
                 }))
@@ -462,18 +393,13 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
     @IBAction func message(sender: AnyObject) {
         print("send message")
         
+        let profile = profileController?.profile1
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+        self.profileController?.rootController?.toggleChat("squad", userUID: uid, postUID: nil, city: nil, firstName: firstName, lastName: lastName, profile: profile, completion: { (bool) in
+            
+            print("chat toggled")
+
+        })
     }
     
     

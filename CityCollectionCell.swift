@@ -25,9 +25,9 @@ class CityCollectionCell: UICollectionViewCell {
         
         cityController?.searchController?.rootController?.vibesFeedController?.observingCity = city
         cityController?.searchController?.rootController?.vibesFeedController?.observePosts()
-        
+
         cityController?.searchController?.rootController?.searchRevealed = false
-        
+
         cityController?.searchController?.rootController?.toggleVibes({ (bool) in
             
             self.cityController?.searchController?.rootController?.vibesFeedController?.globCollectionView.setContentOffset(CGPointZero, animated: true)

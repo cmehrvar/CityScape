@@ -14,16 +14,18 @@ import FirebaseAuth
 class SquadRequestCell: UITableViewCell {
 
     var uid = ""
-    var notificationKey = ""
     var firstName = ""
     var lastName = ""
+    var profile = ""
+    
+    var inSquad = false
     
     weak var notificationController: NotificationController?
     
     @IBOutlet weak var nameOutlet: UILabel!
     @IBOutlet weak var profilePictureOutlet: UIImageView!
-    
-    
+
+    @IBOutlet weak var denyImageOutlet: UIImageView!
     @IBOutlet weak var respondImageOutlet: UIImageView!
     @IBOutlet weak var denyButtonOutlet: UIButton!
     @IBOutlet weak var approveButtonOutlet: UIButton!
@@ -33,11 +35,14 @@ class SquadRequestCell: UITableViewCell {
         let scopeUID = uid
         
         notificationController?.rootController?.toggleNotifications({ (bool) in
-            
-            self.notificationController?.rootController?.toggleProfile(scopeUID, selfProfile: false, completion: { (bool) in
+
+            self.notificationController?.rootController?.toggleHome({ (bool) in
                 
-                print("profile toggled")
-                
+                self.notificationController?.rootController?.toggleProfile(scopeUID, selfProfile: false, completion: { (bool) in
+                    
+                    print("profile toggled")
+                    
+                })
             })
         })
     }
@@ -45,15 +50,14 @@ class SquadRequestCell: UITableViewCell {
     
     
     @IBAction func deny(sender: AnyObject) {
-        
-        let scopeNotificationKey = notificationKey
+
         let scopeUID = uid
         
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
             let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
             
-            ref.child("notifications").child(scopeNotificationKey).removeValue()
+            ref.child("notifications").child(scopeUID).child("squadRequest").removeValue()
             ref.child("squadRequests").child(scopeUID).removeValue()
             
         }
@@ -73,69 +77,77 @@ class SquadRequestCell: UITableViewCell {
                 }, completion: { (bool) in
                     
                     self.notificationController?.globTableViewOutlet.reloadData()
-                
+                    
             })
         }
     }
     
     @IBAction func approve(sender: AnyObject) {
-        
-        let scopeNotificationKey = notificationKey
-        let scopeUID = uid
-        let scopeFirstName = firstName
-        let scopeLastName = lastName
 
-        if let selfUID = FIRAuth.auth()?.currentUser?.uid, selfData = self.notificationController?.rootController?.selfData, myFirstName = selfData["firstName"] as? String, myLastName = selfData["lastName"] as? String {
+        if inSquad {
             
-            let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
+            print("toggle messages")
             
-            ref.child("notifications").child(scopeNotificationKey).updateChildValues(["status" : "approved"])
-            ref.child("squadRequests").child(scopeUID).updateChildValues(["status" : 1])
+            let scopeFirstname = firstName
+            let scopeLastname = lastName
+            let scopeProfile = profile
+            let scopeUID = uid
             
-            ref.child("squad").child(scopeUID).setValue(["firstName" : scopeFirstName, "lastName" : scopeLastName, "uid" : scopeUID])
-            
-            
-            let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
-            
-            let timeInterval = NSDate().timeIntervalSince1970
-            
-            let key = yourRef.child("notifications").childByAutoId().key
-            
-            yourRef.child("notifications").child(key).setValue(["firstName" : myFirstName, "lastName" : myLastName, "type" : "addedYou", "timeStamp" : timeInterval, "uid" : selfUID, "read" : false, "notificationKey" : key])
-            
-            yourRef.child("squad").child(selfUID).setValue(["firstName" : myFirstName, "lastName" : myLastName, "uid" : selfUID])
-            
-            UIView.animateWithDuration(0.3, animations: {
+            self.notificationController?.rootController?.toggleNotifications({ (bool) in
                 
-                self.backgroundColor = UIColor.greenColor()
-                self.layoutIfNeeded()
+                self.notificationController?.rootController?.toggleChat("squad", userUID: scopeUID, postUID: nil, city: nil, firstName: scopeFirstname, lastName: scopeLastname, profile: scopeProfile, completion: { (bool) in
+                    
+                    print("chat toggled")
+                    
+                })
+            })
+
+        } else {
+
+            let scopeUID = uid
+            let scopeFirstName = firstName
+            let scopeLastName = lastName
+            
+            if let selfUID = FIRAuth.auth()?.currentUser?.uid, selfData = self.notificationController?.rootController?.selfData, myFirstName = selfData["firstName"] as? String, myLastName = selfData["lastName"] as? String {
                 
-            }) { (bool) in
+                let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
+                
+                ref.child("notifications").child(scopeUID).child("squadRequest").updateChildValues(["status" : "approved"])
+                ref.child("squadRequests").child(scopeUID).updateChildValues(["status" : 1])
+                
+                ref.child("squad").child(scopeUID).setValue(["firstName" : scopeFirstName, "lastName" : scopeLastName, "uid" : scopeUID])
+
+                let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
+                
+                let timeInterval = NSDate().timeIntervalSince1970
+
+                yourRef.child("notifications").child(selfUID).child("squadRequest").setValue(["firstName" : myFirstName, "lastName" : myLastName, "type" : "addedYou", "timeStamp" : timeInterval, "uid" : selfUID, "read" : false])
+                
+                yourRef.child("squad").child(selfUID).setValue(["firstName" : myFirstName, "lastName" : myLastName, "uid" : selfUID])
                 
                 UIView.animateWithDuration(0.3, animations: {
                     
-                    self.backgroundColor = UIColor.whiteColor()
+                    self.backgroundColor = UIColor.greenColor()
                     self.layoutIfNeeded()
                     
-                    }, completion: { (bool) in
+                }) { (bool) in
+                    
+                    UIView.animateWithDuration(0.3, animations: {
                         
-                        self.notificationController?.globTableViewOutlet.reloadData()
+                        self.backgroundColor = UIColor.whiteColor()
+                        self.layoutIfNeeded()
                         
-                })
+                        }, completion: { (bool) in
+                            
+                            self.notificationController?.globTableViewOutlet.reloadData()
+                            
+                    })
+                }
             }
         }
     }
-    
-    
-    
+
     func loadCell(data: [NSObject : AnyObject]) {
-        
-        
-        if let key = data["notificationKey"] as? String {
-            
-            self.notificationKey = key
-            
-        }
 
         if let read = data["read"] as? Bool {
             
@@ -152,24 +164,23 @@ class SquadRequestCell: UITableViewCell {
         
         if data["status"] as? String == "approved" || data["type"] as? String == "addedYou" {
             
-            denyButtonOutlet.alpha = 0
-            approveButtonOutlet.alpha = 0
+            self.denyButtonOutlet.enabled = false
+            self.approveButtonOutlet.enabled = true
             
-            respondImageOutlet.image = UIImage(named: "inSquad")
+            inSquad = true
             
-        } else if data["status"] as? String == "denied" {
-            
-            denyButtonOutlet.alpha = 0
-            approveButtonOutlet.alpha = 0
-            
-            respondImageOutlet.image = UIImage(named: "RedX")
+            denyImageOutlet.image = UIImage(named: "inSquad")
+            respondImageOutlet.image = UIImage(named: "enabledMessage")
             
         } else {
             
-            denyButtonOutlet.alpha = 1
-            approveButtonOutlet.alpha = 1
+            self.denyButtonOutlet.enabled = true
+            self.approveButtonOutlet.enabled = true
             
-            respondImageOutlet.image = nil
+            inSquad = false
+            
+            denyImageOutlet.image = UIImage(named: "RedX")
+            respondImageOutlet.image = UIImage(named: "Checkmark")
             
         }
 
@@ -180,9 +191,10 @@ class SquadRequestCell: UITableViewCell {
             let ref = FIRDatabase.database().reference().child("users").child(userUID)
 
             ref.child("profilePicture").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
-                
+
                 if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
-                    
+
+                    self.profile = profileString
                     self.profilePictureOutlet.sd_setImageWithURL(url, placeholderImage: nil)
 
                 }

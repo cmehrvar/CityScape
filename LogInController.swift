@@ -140,8 +140,7 @@ class LogInController: UIViewController {
                                                 userData["lastActive"] = NSDate().timeIntervalSince1970
 
                                                 let ref = FIRDatabase.database().reference()
-                                                
-                                                
+
                                                 ref.child("lastCityRank").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
                                                     
                                                     if let rank = snapshot.value as? Int {
@@ -154,9 +153,6 @@ class LogInController: UIViewController {
                                                         
                                                         let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
 
-                                                        
-                                                        
-                                                        
                                                         self.presentViewController(vc, animated: true, completion: {
 
                                                             vc.setStage()

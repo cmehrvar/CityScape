@@ -11,6 +11,9 @@ import NVActivityIndicatorView
 
 class VideoVibeCollectionCell: UICollectionViewCell {
 
+    var postKey = ""
+    
+    
 
     @IBOutlet weak var videoThumbnailOutlet: UIImageView!
     @IBOutlet weak var videoOutlet: UIView!

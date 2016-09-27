@@ -15,13 +15,15 @@ import SDWebImage
 import AWSS3
 
 class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIGestureRecognizerDelegate, UITextViewDelegate {
-
+    
     //Variables
     weak var rootController: MainRootController?
     var profileUID = ""
     
     var tempCaptured: UIImage! = nil
-
+    
+    var keyboardShown = false
+    
     //Outlets
     @IBOutlet weak var profilePicOutlet: UIImageView!
     @IBOutlet weak var nameOutlet: UILabel!
@@ -31,7 +33,8 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
     @IBOutlet weak var currentStatusTextViewOutlet: UITextView!
     @IBOutlet weak var charactersOutlet: UILabel!
     @IBOutlet weak var cityRankOutlet: UILabel!
-
+    @IBOutlet weak var dismissKeyboardViewOutlet: UIView!
+    
     
     //Functions
     func setMenu(){
@@ -49,7 +52,7 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
         }
         
         if let firstName = rootController?.selfData["firstName"] as? String {
-
+            
             nameOutlet.text = firstName
             
         }
@@ -63,7 +66,7 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
             }
             
             cityOutlet.text = fullLocation
-
+            
         } else if let state = rootController?.selfData["state"] as? String {
             
             cityOutlet.text = state
@@ -73,7 +76,7 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
         if let rank = rootController?.selfData["cityRank"] as? Int {
             
             cityRankOutlet.text = "#\(rank)"
-
+            
         }
     }
     
@@ -83,8 +86,8 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
         
         tempCaptured = image
         profilePicOutlet.image = image
-
-        dismissViewControllerAnimated(true) { 
+        
+        dismissViewControllerAnimated(true) {
             
             self.imageUploadRequest(image) { (url, uploadRequest) in
                 
@@ -101,7 +104,7 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
                         if let uid = FIRAuth.auth()?.currentUser?.uid {
                             ref.child("users").child(uid).updateChildValues(["profilePicture": url])
                         }
-                         
+                        
                     } else {
                         print("error uploading: \(task.error)")
                         
@@ -143,7 +146,7 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
             completion(url: imageUrl, uploadRequest: uploadRequest)
         }
     }
-
+    
     
     func addUploadStuff(){
         
@@ -157,6 +160,12 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
         }
     }
     
+    func dismissKeyboard(){
+        
+        self.view.endEditing(true)
+        
+    }
+    
     
     func addGestureRecognizers(){
         
@@ -166,6 +175,9 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
         
         self.view.addGestureRecognizer(leftSwipeGestureRecognizer)
         
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGestureRecognizer.delegate = self
+        self.dismissKeyboardViewOutlet.addGestureRecognizer(tapGestureRecognizer)
         
     }
     
@@ -178,13 +190,13 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
         })
     }
     
-
+    
     //TextView Delegates
     func textViewDidChange(textView: UITextView) {
         
         let textCount = textView.text.characters.count
         charactersOutlet.text = "\(textCount)/30 Characters"
-
+        
     }
     
     func textView(textView: UITextView, shouldChangeTextInRange range: NSRange, replacementText text: String) -> Bool {
@@ -195,7 +207,7 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
             return false
             
         }
-
+        
         return textView.text.characters.count + (text.characters.count - range.length) <= 30
     }
     
@@ -209,12 +221,12 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
             
             let ref = FIRDatabase.database().reference().child("users").child(selfUID)
             ref.child("currentStatus").setValue(textView.text)
-
+            
         }
     }
     
     
-
+    
     //Actions
     @IBAction func editProfile(sender: AnyObject) {
         
@@ -273,16 +285,17 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
             })
         })
     }
-
+    
     @IBAction func logOut(sender: AnyObject) {
+        
+        var selfUID = ""
         
         if let uid = FIRAuth.auth()?.currentUser?.uid {
             
-            let ref = FIRDatabase.database().reference().child("users").child(uid)
-            ref.updateChildValues(["online" : false])
-
+            selfUID = uid
+            
         }
-
+        
         FBSDKLoginManager().logOut()
         
         do {
@@ -292,13 +305,29 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
         }
         
         let vc = self.storyboard?.instantiateViewControllerWithIdentifier("initial") as! LogInController
-        presentViewController(vc, animated: true, completion: nil)
         
+        presentViewController(vc, animated: true) {
+            
+            let ref = FIRDatabase.database().reference().child("users").child(selfUID)
+            ref.updateChildValues(["online" : false])
+            
+        }
     }
     
     func keyboardDidShow(){
         
-        rootController?.dismissKeyboardContainerOutlet.alpha = 1
+        self.dismissKeyboardViewOutlet.alpha = 1
+        keyboardShown = true
+        
+        
+    }
+    
+    func keyboardDidHide(){
+        
+        self.dismissKeyboardViewOutlet.alpha = 0
+        keyboardShown = false
+        
+        
     }
     
     
@@ -310,18 +339,18 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
         
         print("Corner Radius: \(cornerRadius)")
         print("Profile Picture Height: \(profilePicOutlet.bounds.height)")
-
+        
         profilePicOutlet.layer.cornerRadius = cornerRadius - 5
         profilePicOutlet.clipsToBounds = true
         
         charactersOutlet.text = "\(currentStatusTextViewOutlet.text.characters.count)/30 Characters"
-
+        
     }
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         nameOutlet.adjustsFontSizeToFitWidth = true
         nameOutlet.baselineAdjustment = .AlignCenters
         
@@ -331,27 +360,28 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
         currentStatusTextViewOutlet.layer.cornerRadius = 8
         
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardDidShow), name: UIKeyboardWillShowNotification, object: nil)
-  
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardDidHide), name: UIKeyboardWillHideNotification, object: nil)
+        
         addGestureRecognizers()
         addUploadStuff()
         
         // Do any additional setup after loading the view.
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     
-
+    
     /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
+     // MARK: - Navigation
+     
+     // In a storyboard-based application, you will often want to do a little preparation before navigation
+     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+     // Get the new view controller using segue.destinationViewController.
+     // Pass the selected object to the new view controller.
+     }
+     */
+    
 }

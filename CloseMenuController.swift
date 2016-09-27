@@ -18,11 +18,21 @@ class CloseMenuController: UIViewController {
             
             if menuRevealed {
                 
-                rootController?.toggleMenu({ (bool) in
+                if let keyboardShown = self.rootController?.menuController?.keyboardShown {
                     
-                    print("menu closed")
-                    
-                })
+                    if keyboardShown {
+                        
+                        self.rootController?.menuController?.view.endEditing(true)
+                        
+                    } else {
+                        
+                        rootController?.toggleMenu({ (bool) in
+                            
+                            print("menu closed")
+                            
+                        })
+                    }
+                }
                 
             } else if notificationRevealed {
                 

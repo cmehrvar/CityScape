@@ -19,14 +19,14 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
     //Variables
     weak var rootController: MainRootController?
     let locationManager = CLLocationManager()
-    var nearbyUsers = [[NSObject : AnyObject]]()
-    var addedCells = [String:Int]()
+    var nearbyUsers = [String]()
+    var addedCells = [String:Bool]()
     var dismissedCells = [String:Bool]()
     
+    var users = [NSObject : AnyObject]()
+    
     var globLocation: CLLocation!
-    
-    var addedIndex = 0
-    
+
     var timer = NSTimer()
     var s = 0
     
@@ -66,13 +66,14 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
     
     
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        
-        
+
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("nearbyMatchCollectionCell", forIndexPath: indexPath) as! NearbyMatchCollectionCell
         
         cell.nearbyController = self
         cell.index = indexPath.row
-        
+ 
+        cell.uid = nearbyUsers[indexPath.row]
+ 
         cell.loadUser(nearbyUsers[indexPath.row])
         
         return cell
@@ -87,28 +88,19 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
             globLocation = lastLocation
             
             if currentCityLoaded == false {
-                
-                
+  
                 currentCityLoaded = true
                 updateLocationToFirebase()
                 
             }
-            
-            
-            //updateLocationToFirebase(lastLocation)
-            
-            
-            /*
-             self.timer = NSTimer.scheduledTimerWithTimeInterval(30, target: self, selector: #selector(updateLocationToFirebase), userInfo: nil, repeats: true)
-             */
-            
         }
-        
     }
     
     
     //Functions
     func updateLocationToFirebase(){
+        
+        guard let scopeLocation = globLocation else {return}
         
         let ref = FIRDatabase.database().reference().child("userLocations")
         
@@ -117,13 +109,13 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
         
         if let uid = FIRAuth.auth()?.currentUser?.uid {
             
-            queryNearby(globLocation)
+            queryNearby(scopeLocation)
             
             let userRef = FIRDatabase.database().reference().child("users").child(uid)
             
-            userRef.updateChildValues(["latitude" : globLocation.coordinate.latitude, "longitude" : globLocation.coordinate.longitude])
+            userRef.updateChildValues(["latitude" : scopeLocation.coordinate.latitude, "longitude" : scopeLocation.coordinate.longitude])
             
-            geoCoder.reverseGeocodeLocation(globLocation) { (placemark, error) in
+            geoCoder.reverseGeocodeLocation(scopeLocation) { (placemark, error) in
                 
                 if error == nil {
                     
@@ -153,7 +145,7 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
                 }
             }
             
-            geoFire.setLocation(CLLocation(latitude: globLocation.coordinate.latitude, longitude: globLocation.coordinate.longitude), forKey: uid, withCompletionBlock: { (error) in
+            geoFire.setLocation(CLLocation(latitude: scopeLocation.coordinate.latitude, longitude: scopeLocation.coordinate.longitude), forKey: uid, withCompletionBlock: { (error) in
                 
                 if error == nil {
                     print("succesfully updated location")
@@ -179,33 +171,34 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
             let circleQuery = geoFire.queryAtLocation(center, withRadius: radius)
             
             circleQuery.observeEventType(.KeyEntered) { (key, location) in
-                
-                let userRef = FIRDatabase.database().reference().child("users").child(key)
-                
-                userRef.observeEventType(.Value, withBlock: { (snapshot) in
+   
+                if let selfUID = FIRAuth.auth()?.currentUser?.uid {
                     
-                    if let value = snapshot.value as? [NSObject : AnyObject], selfUID = FIRAuth.auth()?.currentUser?.uid {
+                    if key != selfUID {
+      
+                        var add = true
                         
-                        if value["uid"] as? String != selfUID {
+                        if self.dismissedCells[key] != nil {
                             
-                            var isInterested = false
-                            var add = true
+                            add = false
                             
-                            if let uid = value["uid"] as? String {
+                        } else if self.addedCells[key] != nil {
+                            
+                            add = false
+                            
+                        }
+                        
+                        if add {
+                            
+                            self.addedCells[key] = true
+   
+                            let userRef = FIRDatabase.database().reference().child("users").child(key)
+                            
+                            userRef.child("gender").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
                                 
-                                if self.dismissedCells[uid] != nil {
-                                    
-                                    add = false
-                                    
-                                } else if let index = self.addedCells[uid] {
-                                    
-                                    add = false
-                                    self.nearbyUsers[index] = value
-                                    self.globCollectionView.reloadData()
-                                    
-                                }
+                                var isInterested = false
                                 
-                                if let interestedIn = self.rootController?.selfData["interestedIn"] as? [String], userGender = value["gender"] as? String {
+                                if let interestedIn = self.rootController?.selfData["interestedIn"] as? [String], userGender = snapshot.value as? String {
                                     
                                     for interest in interestedIn {
                                         
@@ -215,19 +208,18 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
                                             
                                         }
                                     }
-                                }
-                                
-                                if add && isInterested /*&& !haveSentMatch */{
                                     
-                                    self.addedCells[uid] = self.addedIndex
-                                    self.nearbyUsers.append(value)
-                                    self.addedIndex += 1
-                                    self.globCollectionView.reloadData()
+                                    if isInterested {
+
+                                        self.nearbyUsers.append(key)
+                                        self.globCollectionView.reloadData()
+                                        
+                                    }
                                 }
-                            }
+                            })
                         }
                     }
-                })
+                }
             }
         }
     }

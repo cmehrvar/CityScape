@@ -192,15 +192,16 @@ class SearchController: UIViewController, UISearchBarDelegate, UIGestureRecogniz
     
     func keyboardDidShow(){
         
-        dismissViewOutlet.alpha = 1
-        
+        self.dismissViewOutlet.alpha = 1
+ 
         
     }
     
     
     func keyboardHid(){
         
-        dismissViewOutlet.alpha = 0
+        self.dismissViewOutlet.alpha = 0
+
         
     }
     

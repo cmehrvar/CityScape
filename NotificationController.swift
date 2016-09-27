@@ -32,11 +32,19 @@ class NotificationController: UIViewController, UITableViewDelegate, UITableView
                     
                     if !read {
                         
-                        if let notificationKey = globNotifications[indexPath.row]["notificationKey"] as? String, selfUID = FIRAuth.auth()?.currentUser?.uid  {
+                        if let selfUid = FIRAuth.auth()?.currentUser?.uid, userUID = globNotifications[indexPath.row]["uid"] as? String, type = globNotifications[indexPath.row]["type"] as? String {
                             
-                            let ref = FIRDatabase.database().reference().child("users").child(selfUID)
-                            ref.child("notifications").child(notificationKey).updateChildValues(["read" : true])
-                            
+                            let ref = FIRDatabase.database().reference().child("users").child(selfUid).child("notifications").child(userUID)
+   
+                            if type == "addedYou" {
+                                
+                                ref.child("squadRequest").child("read").setValue(true)
+                                
+                            } else {
+                                
+                                ref.child(type).child("read").setValue(true)
+                                
+                            }
                         }
                     }
                 }
@@ -56,7 +64,26 @@ class NotificationController: UIViewController, UITableViewDelegate, UITableView
                 cell.loadCell(globNotifications[indexPath.row])
                 return cell
                 
+            } else if type == "matches" || type == "squad" {
+                
+                let cell = tableView.dequeueReusableCellWithIdentifier("messageCell", forIndexPath: indexPath) as! MessageCell
+                
+                cell.notificationController = self
+                cell.profileOutlet.layer.cornerRadius = ((60 - (8*2)) / 2)
+                cell.loadCell(globNotifications[indexPath.row])
+                return cell
+                
+            } else if type == "likesYou" {
+                
+                let cell = tableView.dequeueReusableCellWithIdentifier("likeCell", forIndexPath: indexPath) as! LikeCell
+                cell.profileOutlet.layer.cornerRadius = ((60 - (8*2)) / 2)
+                
+                cell.loadData(globNotifications[indexPath.row])
+                
+                
+                return cell
             }
+            
         }
         
         return UITableViewCell()
@@ -66,14 +93,28 @@ class NotificationController: UIViewController, UITableViewDelegate, UITableView
 
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        print(globNotifications.count)
-        
         return globNotifications.count
+        
+    }
+    
+    
+    func slideRight(){
+        
+        rootController?.toggleNotifications({ (bool) in
+            
+            print("notifications toggled")
+            
+        })
+        
         
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        let swipeGesture = UISwipeGestureRecognizer(target: self, action: #selector(slideRight))
+        swipeGesture.direction = .Right
+        self.globTableViewOutlet.addGestureRecognizer(swipeGesture)
 
         // Do any additional setup after loading the view.
     }

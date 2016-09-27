@@ -32,10 +32,10 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
     @IBOutlet weak var closeOrSquadButton: UIButton!
     @IBOutlet weak var nameOutlet: UILabel!
     @IBOutlet weak var contentViewOutlet: UIView!
+    @IBOutlet weak var squadIndicatorImage: UIImageView!
     
     @IBOutlet weak var primaryImageLeadingConstant: NSLayoutConstraint!
     @IBOutlet weak var primaryImageTrailingOutlet: NSLayoutConstraint!
-    
     
     @IBOutlet weak var videoOutlet: UIView!
     
@@ -50,12 +50,20 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
     
     var firstImageLoaded = false
     
+    var currentIndex = 0
+    
     var posts = [[NSObject : AnyObject]]()
     var addedPosts = [String : Bool]()
     
     var videoPlayers = [String : Player]()
     
     var currentPostKey = ""
+    var currentSquadInstance = ""
+    var currentUID = ""
+    
+    var firstName = ""
+    var lastName = ""
+    var profilePic = ""
     
     //Player Delegates
     func playerReady(player: Player){
@@ -90,12 +98,207 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
     }
     
     
-    
-    
     //Actions
+    @IBAction func toProfile(sender: AnyObject) {
+        
+        let screenHeight = self.view.bounds.height
+        let scopeUID = currentUID
+        
+        self.closeWithDirection(0, y: screenHeight, animationTime: 0.3)
+        
+        if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+            
+            var selfProfile = false
+            
+            if scopeUID == selfUID {
+                
+                selfProfile = true
+                
+            }
+            
+            self.rootController?.toggleHome({ (bool) in
+                
+                self.rootController?.toggleProfile(scopeUID, selfProfile: selfProfile, completion: { (bool) in
+                    
+                    print("profileToggled")
+                    
+                })
+            })
+        }
+    }
+    
+    
     @IBAction func closeOrSquad(sender: AnyObject) {
         
+        let scopeUserUID = currentUID
+        let scopeFirstName = firstName
+        let scopeLastName = lastName
+        let scopeProfile = profilePic
         
+        if currentSquadInstance == "inSquad" {
+            
+            //Delete Squad?
+            print("toggle messages")
+            
+            let screenHeight = self.view.bounds.height
+            
+            closeWithDirection(0, y: screenHeight, animationTime: 0.3)
+            
+            self.rootController?.toggleChat("squad", userUID: scopeUserUID, postUID: nil, city: nil, firstName: scopeFirstName, lastName: scopeLastName, profile: scopeProfile, completion: { (bool) in
+                
+                print("chat toggled")
+                
+            })
+            
+        } else if currentSquadInstance == "sentSquad" {
+            
+            //Cancel send?
+            print("cancel send?")
+            
+            let alertController = UIAlertController(title: "Unsend squad request to \(firstName + " " + lastName)", message: nil, preferredStyle: .ActionSheet)
+            
+            alertController.addAction(UIAlertAction(title: "Unsend Request", style: .Destructive, handler: { (action) in
+                
+                if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                    
+                    dispatch_async(dispatch_get_main_queue(), {
+                        
+                        let ref = FIRDatabase.database().reference().child("users").child(scopeUserUID)
+                        
+                        ref.child("squadRequests").child(selfUID).removeValue()
+                        ref.child("notifications").child(selfUID).child("squadRequest").removeValue()
+                        
+                        self.checkSquad(scopeUserUID, selfUID: selfUID)
+                        
+                    })
+                }
+            }))
+            
+            alertController.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
+                
+                print("canceled")
+                
+            }))
+            
+            self.presentViewController(alertController, animated: true, completion: {
+                
+                print("alert controller presented")
+                
+            })
+            
+            
+        } else if currentSquadInstance == "confirmSquad" {
+            
+            //Confrim or Deny
+            print("confirm or deny")
+            
+            let alertController = UIAlertController(title: "Confirm \(firstName + " " + lastName) to your squad?", message: nil, preferredStyle: .ActionSheet)
+            
+            alertController.addAction(UIAlertAction(title: "Add to Squad", style: .Default, handler: { (action) in
+                
+                if let selfUID = FIRAuth.auth()?.currentUser?.uid, selfData = self.rootController?.selfData, myFirstName = selfData["firstName"] as? String, myLastName = selfData["lastName"] as? String {
+                    
+                    let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
+
+                        dispatch_async(dispatch_get_main_queue(), {
+                            
+                            ref.child("notifications").child(scopeUserUID).child("squadRequest").updateChildValues(["status" : "approved"])
+                            ref.child("squadRequests").child(scopeUserUID).removeValue()
+                            
+                            ref.child("squad").child(scopeUserUID).setValue(["firstName" : scopeFirstName, "lastName" : scopeLastName, "uid" : scopeUserUID])
+                            
+                            let yourRef = FIRDatabase.database().reference().child("users").child(scopeUserUID)
+                            
+                            let timeInterval = NSDate().timeIntervalSince1970
+
+                            yourRef.child("notifications").child(selfUID).child("squadRequest").setValue(["firstName" : myFirstName, "lastName" : myLastName, "type" : "addedYou", "timeStamp" : timeInterval, "uid" : selfUID, "read" : false])
+                            
+                            yourRef.child("squad").child(selfUID).setValue(["firstName" : myFirstName, "lastName" : myLastName, "uid" : selfUID])
+                            
+                            
+                            self.checkSquad(self.currentUID, selfUID: selfUID)
+                            
+                        })
+                    
+                }
+            }))
+            
+            alertController.addAction(UIAlertAction(title: "Reject \(firstName)", style: .Destructive, handler: { (action) in
+                
+                if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                    
+                    let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
+                    
+                    dispatch_async(dispatch_get_main_queue(), {
+                        
+                        ref.child("notifications").child(scopeUserUID).child("squadRequest").removeValue()
+                        ref.child("squadRequests").child(scopeUserUID).removeValue()
+                        
+                        
+                        self.checkSquad(self.currentUID, selfUID: selfUID)
+                        
+                    })
+                }
+            }))
+            
+            alertController.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
+                
+                print("canceled")
+                
+            }))
+            
+            self.presentViewController(alertController, animated: true, completion: {
+                
+                print("alert controller presented")
+                
+                
+            })
+            
+            
+        } else {
+            
+            //Send a request
+            print("send a request")
+            
+            let alertController = UIAlertController(title: "Add \(firstName + " " + lastName) to your squad!", message: nil, preferredStyle: .ActionSheet)
+            
+            alertController.addAction(UIAlertAction(title: "Send Request", style: .Default, handler: { (action) in
+                
+                if let selfUID = FIRAuth.auth()?.currentUser?.uid, selfData = self.rootController?.selfData, firstName = selfData["firstName"] as? String, lastName = selfData["lastName"] as? String {
+                    
+                    let timeInterval = NSDate().timeIntervalSince1970
+                    
+                    //0 -> Hasn't responded yet, 1 -> Approved, 2 -> Denied
+                    let ref = FIRDatabase.database().reference().child("users").child(scopeUserUID)
+
+                    let squadItem = ["uid" : selfUID, "read" : false, "status": 0, "timeStamp" : timeInterval, "firstName" : firstName, "lastName" : lastName]
+                    
+                    let notificationItem = ["uid" : selfUID, "read" : false, "status" : "awaitingAction", "type" : "squadRequest", "timeStamp" : timeInterval, "firstName" : firstName, "lastName" : lastName]
+                    
+                    
+                    dispatch_async(dispatch_get_main_queue(), {
+                        
+                        ref.child("squadRequests").child(selfUID).setValue(squadItem)
+                        ref.child("notifications").child(selfUID).child("squadRequest").setValue(notificationItem)
+                        
+                        self.checkSquad(self.currentUID, selfUID: selfUID)
+                        
+                    })
+                }
+            }))
+            
+            alertController.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
+                
+                print("canceled")
+                
+            }))
+            
+            self.presentViewController(alertController, animated: true, completion: {
+                
+                print("alert controller presented")
+                
+            })
+        }
     }
     
     
@@ -113,7 +316,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
                     print("isImage")
                     
                 } else if let postKey = post["postChildKey"] as? String {
-
+                    
                     if self.videoPlayers[postKey] == nil {
                         
                         if let videoString = post["videoURL"] as? String, videoURL = NSURL(string: videoString), key = post["postChildKey"] as? String {
@@ -132,7 +335,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
                                 self.videoPlayers[key] = player
                                 
                                 print("video downloaded!")
- 
+                                
                             })
                         }
                     }
@@ -146,7 +349,6 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
             }
         }
     }
-    
     
     func observePosts(lastNumber: UInt, completion: Bool -> ()){
         
@@ -190,7 +392,6 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
                         return false
                         
                     }
-                    
                 })
                 
                 self.posts = scopePosts
@@ -202,31 +403,26 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
                         self.mostRecentTimeInterval = timeInterval
                         
                     }
-                    
                 }
-                
                 
                 if !self.firstImageLoaded {
                     
                     self.firstImageLoaded = true
                     
                     self.loadPrimary("left", i: -1, completion: { (bool) in
- 
+                        
                         completion(bool)
                         
                         print("primary loaded")
                         
                     })
-                    
                 }
-                
                 
                 for i in 0..<self.posts.count {
                     
                     self.loadContent(i)
                     
                 }
-                
             }
         })
     }
@@ -254,7 +450,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
                     
                     self.chatIsRevealed = true
                     self.snapchatChatController?.finishReceivingMessage()
-   
+                    
             })
         }
     }
@@ -280,7 +476,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
                     self.snapchatChatController?.chatEnlarged = false
                     self.isPanning = false
                     self.longPressEnabled = false
-
+                    
                     
             })
         }
@@ -336,7 +532,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
                     self.longPressEnabled = false
             })
             
-
+            
         }
     }
     
@@ -399,7 +595,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
             
             print("end x: \(translation.x)")
             print("end y: \(translation.y)")
-
+            
             let endTranslationX = translation.x
             let endTranslationY = translation.y
             
@@ -580,7 +776,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
                             loadSecondaryContent("left", i: scopeIndex, completion: { (bool) in
                                 
                                 self.loadPrimary("left", i: scopeIndex, completion: { (Bool) in
-
+                                    
                                 })
                             })
                         }
@@ -609,7 +805,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
                                 self.loadPrimary("right", i: scopeIndex, completion: { (Bool) in
                                     
                                     
-
+                                    
                                 })
                             })
                         }
@@ -719,7 +915,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
     }
     
     
-    var currentIndex = 0
+    
     
     func loadSecondaryContent(direction: String, i: Int, completion: Bool -> ()){
         
@@ -745,9 +941,9 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
             if let key = post[i] as? String, player = videoPlayers[key] {
                 
                 player.view.removeFromSuperview()
-
+                
             }
-
+            
             if direction == "left" {
                 
                 print("direction is left")
@@ -786,15 +982,11 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
                 })
             }
             
-            
             self.slideContent(direction, completion: { (bool) in
                 
                 completion(bool)
                 
             })
-            
-            
-            
         }
     }
     
@@ -853,11 +1045,11 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
     func tapHandler(){
         
         if let chatEnlarged = snapchatChatController?.chatEnlarged {
-
+            
             if chatEnlarged {
                 
                 snapchatChatController?.shrinkChat()
-   
+                
             } else if nextEnabled && !longPressEnabled {
                 
                 let scopeIndex = currentIndex
@@ -875,164 +1067,318 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
     }
     
     
+    func checkSquad(uid: String, selfUID: String){
+        
+        //LOAD SQUAD ICON
+        
+        if uid == selfUID {
+            
+            squadIndicatorImage.image = nil
+            closeOrSquadButton.enabled = false
+            
+        } else if uid != "" || !uid.isEmpty {
+            
+            closeOrSquadButton.enabled = true
+            
+            if let selfData = self.rootController?.selfData {
+                
+                var inMySquad = false
+                var iSentYou = false
+                var youSentMe = false
+                
+                if let mySquad = selfData["squad"] as? [NSObject : AnyObject] {
+                    
+                    if mySquad[uid] != nil {
+                        
+                        inMySquad = true
+                        
+                    }
+                }
+                
+                if inMySquad {
+                    
+                    self.squadIndicatorImage.image = UIImage(named: "enabledMessage")
+                    self.currentSquadInstance = "inSquad"
+                    
+                } else {
+                    
+                    if let mySquadRequests = selfData["squadRequests"] as? [NSObject : AnyObject] {
+                        
+                        for (key, _) in mySquadRequests {
+                            
+                            if let squadUID = key as? String {
+                                
+                                if uid == squadUID {
+                                    
+                                    youSentMe = true
+                                    
+                                }
+                            }
+                        }
+                    }
+                    
+                    if youSentMe {
+                        
+                        self.squadIndicatorImage.image = UIImage(named: "confirmSquad")
+                        self.currentSquadInstance = "confirmSquad"
+                        
+                    } else {
+                        
+                        let ref = FIRDatabase.database().reference().child("users").child(uid)
+                        
+                        ref.child("squadRequests").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                            
+                            print(snapshot.value)
+                            
+                            if snapshot.exists() {
+                                
+                                if let yourSquadRequests = snapshot.value as? [NSObject : AnyObject] {
+                                    
+                                    for (key, _) in yourSquadRequests {
+                                        
+                                        if let squadUID = key as? String {
+                                            
+                                            if selfUID == squadUID {
+                                                
+                                                iSentYou = true
+                                                
+                                            }
+                                        }
+                                    }
+                                }
+                                
+                                if iSentYou {
+                                    
+                                    if self.currentUID == uid {
+                                        
+                                        self.squadIndicatorImage.image = UIImage(named: "sentSquad")
+                                        self.currentSquadInstance = "sentSquad"
+                                        
+                                    }
+                                    
+                                } else {
+                                    
+                                    if self.currentUID == uid {
+                                        
+                                        self.squadIndicatorImage.image = UIImage(named: "sendSquad")
+                                        self.currentSquadInstance = "sendSquad"
+                                        
+                                    }
+                                }
+                                
+                            } else {
+                                
+                                if self.currentUID == uid {
+                                    
+                                    self.squadIndicatorImage.image = UIImage(named: "sendSquad")
+                                    self.currentSquadInstance = "sendSquad"
+                                    
+                                }
+                            }
+                        })
+                    }
+                }
+            }
+        }
+    }
+    
     
     func loadPrimary(direction: String, i: Int, completion: Bool -> ()){
         
         var post = [NSObject : AnyObject]()
         
-        if direction == "left" {
-            
-            print("primary direction is left")
-            
-            post = posts[i + 1]
-            
-            if i >= posts.count - 1 {
-                
-                if let rootHeight = self.rootController?.view.bounds.height {
-                    
-                    screenToCircle(0.15)
-                    closeWithDirection(0, y: rootHeight, animationTime: 0.75)
-                    completion(true)
-                    
-                }
-            }
-            
-        } else if direction == "right" {
-            
-            post = posts[i - 1]
-            
-            print("primary direction is right")
-            
-        }
-
-        if let profileString = post["profilePicture"] as? String, profileURL = NSURL(string: profileString) {
-            
-            profilePicOutlet.sd_setImageWithURL(profileURL, placeholderImage: nil)
-            
-        }
-        
-        if let imageString = post["imageURL"] as? String, imageURL = NSURL(string: imageString) {
-            
-            imageOutlet.sd_setImageWithURL(imageURL, placeholderImage: nil)
-            
-        }
-        
-        if let key = post["postChildKey"] as? String, player = videoPlayers[key] {
-            
-            dispatch_async(dispatch_get_main_queue(), {
-                
-                self.videoOutlet.alpha = 1
-                self.videoOutlet.addSubview(player.view)
-                player.playFromCurrentTime()
-                
-            })
-
-        } else {
-            
-            if let isImage = post["isImage"] as? Bool {
-                
-                if !isImage {
-                    
-                    print("load video")
-                    
-                    if let videoString = post["videoURL"] as? String, videoURL = NSURL(string: videoString), key = post["postChildKey"] as? String {
-                        
-                        dispatch_async(dispatch_get_main_queue(), {
-                            
-                            let player = Player()
-                            player.delegate = self
-                            self.addChildViewController(player)
-                            player.view.frame = self.videoOutlet.bounds
-                            player.didMoveToParentViewController(self)
-                            player.setUrl(videoURL)
-                            player.fillMode = AVLayerVideoGravityResizeAspectFill
-                            player.playbackLoops = true
-                            
-                            self.videoPlayers[key] = player
-                            
-                            self.videoOutlet.alpha = 1
-                            self.videoOutlet.addSubview(player.view)
-                            player.playFromCurrentTime()
-                            
-                            print("video downloaded!")
-                            
-                        })
-                    }
-                    
-                } else {
-                    
-                    print("is image!")
-    
-                }
-            }
-        }
-        
-        
-        if let caption = post["caption"] as? String {
-            
-            captionOutlet.text = caption
-            
-        }
-        
-        if let rank = post["cityRank"] as? Int {
-            
-            cityRankOutlet.text = "#" + String(rank)
-            
-        }
-        
-        if let firstName = post["firstName"] as? String, lastName = post["lastName"] as? String {
-            
-            nameOutlet.text = firstName + " " + lastName
-            
-        }
-        
-        
-        if let postKey = post["postChildKey"] as? String, city = post["city"] as? String {
-            
-            let ref = "posts/\(city)/\(postKey)"
-            currentPostKey = postKey
-            snapchatChatController?.currentPostKey = postKey
-            snapchatChatController?.passedRef = ref
-            
-        }
-        
-        if let uid = FIRAuth.auth()?.currentUser?.uid {
-            
-            snapchatChatController?.senderId = uid
-            
-        }
-        
-        if let firstName = self.rootController?.selfData["firstName"] as? String, lastName = self.rootController?.selfData["lastName"] as? String {
-            
-            self.snapchatChatController?.senderDisplayName = "\(firstName) \(lastName)"
-            
-        }
-
-        self.imageOutlet.alpha = 1
-        self.secondaryImageOutlet.alpha = 0
-        
-        if i >= 0 {
+        if let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
             if direction == "left" {
                 
-                currentIndex += 1
+                print("primary direction is left")
+                
+                post = posts[i + 1]
+                
+                if i >= posts.count - 1 {
+                    
+                    if let rootHeight = self.rootController?.view.bounds.height {
+                        
+                        screenToCircle(0.15)
+                        closeWithDirection(0, y: rootHeight, animationTime: 0.75)
+                        completion(true)
+                        
+                    }
+                }
                 
             } else if direction == "right" {
                 
-                currentIndex -= 1
+                post = posts[i - 1]
+                
+                print("primary direction is right")
                 
             }
             
+            if let uid = post["userUID"] as? String {
+                
+                self.currentUID = uid
+                snapchatChatController?.senderId = selfUID
+                
+                self.checkSquad(uid, selfUID: selfUID)
+                
+                let ref = FIRDatabase.database().reference().child("users").child(uid)
+                
+                ref.child("profilePicture").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                    
+                    if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
+                        
+                        self.profilePic = profileString
+                        
+                        if self.currentUID == uid {
+                            
+                            self.profilePicOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                            
+                        }
+                    }
+                })
+                
+                
+                ref.child("cityRank").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                    
+                    if let rank = snapshot.value as? Int {
+                        
+                        if self.currentUID == uid {
+                            
+                            self.cityRankOutlet.text = "#\(rank)"
+                            
+                        }
+                    }
+                })
+                
+                
+                if let profileString = post["profilePicture"] as? String, profileURL = NSURL(string: profileString) {
+                    
+                    profilePicOutlet.sd_setImageWithURL(profileURL, placeholderImage: nil)
+                    
+                }
+                
+                if let rank = post["cityRank"] as? Int {
+                    
+                    cityRankOutlet.text = "#" + String(rank)
+                    
+                }
+                
+                
+                
+                
+                
+                if let imageString = post["imageURL"] as? String, imageURL = NSURL(string: imageString) {
+                    
+                    imageOutlet.sd_setImageWithURL(imageURL, placeholderImage: nil)
+                    
+                }
+                
+                
+                if let isImage = post["isImage"] as? Bool {
+                    
+                    if !isImage {
+                        
+                        print("load video")
+                        
+                        if let key = post["postChildKey"] as? String {
+                            
+                            if let player = videoPlayers[key] {
+                                
+                                dispatch_async(dispatch_get_main_queue(), {
+                                    
+                                    if let videoPlayerView = player.view {
+                                        
+                                        self.addChildViewController(player)
+                                        player.didMoveToParentViewController(self)
+                                        player.playFromCurrentTime()
+                                        videoPlayerView.removeFromSuperview()
+                                        self.videoOutlet.addSubview(videoPlayerView)
+                                        self.videoOutlet.alpha = 1
+                                        
+                                    }
+                                })
+                                
+                            } else if let videoString = post["videoURL"] as? String, videoURL = NSURL(string: videoString)  {
+                                
+                                dispatch_async(dispatch_get_main_queue(), {
+                                    
+                                    let player = Player()
+                                    player.delegate = self
+                                    self.addChildViewController(player)
+                                    player.view.frame = self.videoOutlet.bounds
+                                    player.didMoveToParentViewController(self)
+                                    player.setUrl(videoURL)
+                                    player.fillMode = AVLayerVideoGravityResizeAspectFill
+                                    player.playbackLoops = true
+                                    self.videoOutlet.addSubview(player.view)
+                                    player.playFromCurrentTime()
+                                    self.videoPlayers[key] = player
+                                    self.videoOutlet.alpha = 1
+                                    
+                                    print("video downloaded!")
+                                    
+                                })
+                            }
+                        }
+                    }
+                    
+                }
+                
+                if let caption = post["caption"] as? String {
+                    
+                    captionOutlet.text = caption
+                    
+                }
+                
+                if let firstName = post["firstName"] as? String, lastName = post["lastName"] as? String {
+                    
+                    self.firstName = firstName
+                    self.lastName = lastName
+                    
+                    nameOutlet.text = firstName + " " + lastName
+                    
+                }
+                
+                if let postKey = post["postChildKey"] as? String, city = post["city"] as? String {
+                    
+                    let ref = "posts/\(city)/\(postKey)"
+                    currentPostKey = postKey
+                    snapchatChatController?.currentPostKey = postKey
+                    snapchatChatController?.passedRef = ref
+                    
+                }
+                
+                if let firstName = self.rootController?.selfData["firstName"] as? String, lastName = self.rootController?.selfData["lastName"] as? String {
+                    
+                    self.snapchatChatController?.senderDisplayName = "\(firstName) \(lastName)"
+                    
+                }
+                
+                self.imageOutlet.alpha = 1
+                self.secondaryImageOutlet.alpha = 0
+                
+                if i >= 0 {
+                    
+                    if direction == "left" {
+                        
+                        currentIndex += 1
+                        
+                    } else if direction == "right" {
+                        
+                        currentIndex -= 1
+                        
+                    }
+                }
+                
+                self.nextEnabled = true
+                self.snapchatChatController?.newObserveMessages()
+                
+                self.isPanning = false
+                self.longPressEnabled = false
+                
+                completion(true)
+            }
         }
-        
-        self.nextEnabled = true
-        self.snapchatChatController?.newObserveMessages()
-        
-        self.isPanning = false
-        self.longPressEnabled = false
-        
-        completion(true)
-        
     }
     
     
@@ -1051,7 +1397,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
         self.contentViewOutlet.addGestureRecognizer(tapGesture)
         
     }
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         

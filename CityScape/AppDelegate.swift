@@ -101,7 +101,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
             nearbyController?.requestWhenInUseAuthorization()
             nearbyController?.updateLocation()
-            self.nearbyController?.timer = NSTimer.scheduledTimerWithTimeInterval(30, target: self.nearbyController!, selector: #selector(self.nearbyController?.updateLocationToFirebase), userInfo: nil, repeats: true)
+            
+            guard let scopeController = nearbyController else {return}
+            
+            self.nearbyController?.timer = NSTimer.scheduledTimerWithTimeInterval(30, target: scopeController, selector: #selector(self.nearbyController?.updateLocationToFirebase), userInfo: nil, repeats: true)
             
         } else {
             mainRootController?.askInterestedIn()

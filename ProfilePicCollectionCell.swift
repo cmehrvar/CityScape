@@ -329,6 +329,7 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
             
             profilePicOutlet.sd_setImageWithURL(url, placeholderImage: nil)
             profile1 = profilePicture
+            profileController?.profile1 = profilePicture
             pictures = 1
             
         }

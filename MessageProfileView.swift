@@ -1,14 +1,14 @@
 //
-//  TableViewProfilePicView.swift
+//  MessageProfileView.swift
 //  CityScape
 //
-//  Created by Cina Mehrvar on 2016-09-21.
+//  Created by Cina Mehrvar on 2016-09-25.
 //  Copyright © 2016 Cina Mehrvar. All rights reserved.
 //
 
 import UIKit
 
-class TableViewProfilePicView: UIImageView {
+class MessageProfileView: UIImageView {
 
     override func awakeFromNib() {
         
@@ -17,4 +17,5 @@ class TableViewProfilePicView: UIImageView {
         self.clipsToBounds = true
         
     }
+
 }
