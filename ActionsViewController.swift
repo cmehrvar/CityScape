@@ -19,6 +19,8 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
     //Actions
     @IBAction func home(sender: AnyObject) {
         
+        UIApplication.sharedApplication().statusBarHidden = false
+        
         rootController?.toggleHome({ (bool) in
             
             print("home toggled")

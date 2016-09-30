@@ -62,13 +62,23 @@
 		A37AC1C11D2A19FD00EBF813 /* LikeOrDislikeDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = A37AC1C01D2A19FD00EBF813 /* LikeOrDislikeDisplay.swift */; };
 		A37B50801D2AFEF400A38FAE /* TimeAgo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A37B507F1D2AFEF400A38FAE /* TimeAgo.swift */; };
 		A38289CB1D2B433B00C17F48 /* CommentController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A38289CA1D2B433B00C17F48 /* CommentController.swift */; };
+		A393BDA81D9C1C9C002DD80E /* TopGroupChatCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A393BDA71D9C1C9C002DD80E /* TopGroupChatCollectionCell.swift */; };
+		A393BDAA1D9C6C15002DD80E /* AddToChatController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A393BDA91D9C6C15002DD80E /* AddToChatController.swift */; };
+		A393BDAC1D9C715F002DD80E /* AddToChatCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A393BDAB1D9C715F002DD80E /* AddToChatCell.swift */; };
 		A397371E1D57024300E406D7 /* NearbyMatchCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A397371D1D57024300E406D7 /* NearbyMatchCollectionCell.swift */; };
+		A3A31D1B1D9C760000BB0509 /* AddToChatCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3A31D1A1D9C760000BB0509 /* AddToChatCollectionCell.swift */; };
 		A3BB98191D12E67E00BD384F /* TextFields.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BB98181D12E67E00BD384F /* TextFields.swift */; };
 		A3BB981B1D12E89E00BD384F /* ExploreButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BB981A1D12E89E00BD384F /* ExploreButton.swift */; };
 		A3BB981D1D136CB600BD384F /* LogInController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BB981C1D136CB600BD384F /* LogInController.swift */; };
 		A3BB98291D1B63D800BD384F /* ProfileSignUpController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BB98281D1B63D800BD384F /* ProfileSignUpController.swift */; };
 		A3BB982B1D1C5ACD00BD384F /* SignInController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BB982A1D1C5ACD00BD384F /* SignInController.swift */; };
 		A3BB982D1D1C5DC200BD384F /* ForgotPasswordController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BB982C1D1C5DC200BD384F /* ForgotPasswordController.swift */; };
+		A3C2D1D51D9DF4BA0083D302 /* LikeButtonsCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C2D1D41D9DF4BA0083D302 /* LikeButtonsCollectionCell.swift */; };
+		A3C2D1D71D9DF4DA0083D302 /* IncomingCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C2D1D61D9DF4DA0083D302 /* IncomingCollectionCell.swift */; };
+		A3C2D1D91D9DF4EB0083D302 /* OutgoingCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C2D1D81D9DF4EB0083D302 /* OutgoingCollectionCell.swift */; };
+		A3C2D1DB1D9DF4FF0083D302 /* TimeAgoCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C2D1DA1D9DF4FF0083D302 /* TimeAgoCollectionCell.swift */; };
+		A3C2D1DD1D9DF50F0083D302 /* CaptionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C2D1DC1D9DF50F0083D302 /* CaptionCell.swift */; };
+		A3C2D1DF1D9DF6440083D302 /* GoToChatCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C2D1DE1D9DF6440083D302 /* GoToChatCell.swift */; };
 		A3C4977B1D561F0800D293A4 /* NearbyController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C4977A1D561F0800D293A4 /* NearbyController.swift */; };
 		A3C4977D1D561F2200D293A4 /* MessagesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C4977C1D561F2200D293A4 /* MessagesController.swift */; };
 		A3C497811D56F7AB00D293A4 /* NearbyCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C497801D56F7AB00D293A4 /* NearbyCellView.swift */; };
@@ -195,13 +205,23 @@
 		A37AC1C01D2A19FD00EBF813 /* LikeOrDislikeDisplay.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LikeOrDislikeDisplay.swift; sourceTree = "<group>"; };
 		A37B507F1D2AFEF400A38FAE /* TimeAgo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeAgo.swift; sourceTree = "<group>"; };
 		A38289CA1D2B433B00C17F48 /* CommentController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommentController.swift; sourceTree = "<group>"; };
+		A393BDA71D9C1C9C002DD80E /* TopGroupChatCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TopGroupChatCollectionCell.swift; sourceTree = "<group>"; };
+		A393BDA91D9C6C15002DD80E /* AddToChatController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddToChatController.swift; sourceTree = "<group>"; };
+		A393BDAB1D9C715F002DD80E /* AddToChatCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddToChatCell.swift; sourceTree = "<group>"; };
 		A397371D1D57024300E406D7 /* NearbyMatchCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NearbyMatchCollectionCell.swift; sourceTree = "<group>"; };
+		A3A31D1A1D9C760000BB0509 /* AddToChatCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddToChatCollectionCell.swift; sourceTree = "<group>"; };
 		A3BB98181D12E67E00BD384F /* TextFields.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextFields.swift; sourceTree = "<group>"; };
 		A3BB981A1D12E89E00BD384F /* ExploreButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExploreButton.swift; sourceTree = "<group>"; };
 		A3BB981C1D136CB600BD384F /* LogInController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogInController.swift; sourceTree = "<group>"; };
 		A3BB98281D1B63D800BD384F /* ProfileSignUpController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileSignUpController.swift; sourceTree = "<group>"; };
 		A3BB982A1D1C5ACD00BD384F /* SignInController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignInController.swift; sourceTree = "<group>"; };
 		A3BB982C1D1C5DC200BD384F /* ForgotPasswordController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForgotPasswordController.swift; sourceTree = "<group>"; };
+		A3C2D1D41D9DF4BA0083D302 /* LikeButtonsCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LikeButtonsCollectionCell.swift; sourceTree = "<group>"; };
+		A3C2D1D61D9DF4DA0083D302 /* IncomingCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IncomingCollectionCell.swift; sourceTree = "<group>"; };
+		A3C2D1D81D9DF4EB0083D302 /* OutgoingCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutgoingCollectionCell.swift; sourceTree = "<group>"; };
+		A3C2D1DA1D9DF4FF0083D302 /* TimeAgoCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeAgoCollectionCell.swift; sourceTree = "<group>"; };
+		A3C2D1DC1D9DF50F0083D302 /* CaptionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptionCell.swift; sourceTree = "<group>"; };
+		A3C2D1DE1D9DF6440083D302 /* GoToChatCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GoToChatCell.swift; sourceTree = "<group>"; };
 		A3C4977A1D561F0800D293A4 /* NearbyController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NearbyController.swift; sourceTree = "<group>"; };
 		A3C4977C1D561F2200D293A4 /* MessagesController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessagesController.swift; sourceTree = "<group>"; };
 		A3C497801D56F7AB00D293A4 /* NearbyCellView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NearbyCellView.swift; sourceTree = "<group>"; };
@@ -375,7 +395,7 @@
 		A34F26791D999F2D007ABFB9 /* ChatControllers */ = {
 			isa = PBXGroup;
 			children = (
-				A34F266E1D977B90007ABFB9 /* TopChatController.swift */,
+				A393BDA41D9C1C56002DD80E /* TopChat */,
 				A34F267A1D999F3D007ABFB9 /* Controllers */,
 			);
 			name = ChatControllers;
@@ -526,6 +546,12 @@
 				A35DB73A1D7BB3F900409D16 /* ImageVibeCollectionCell.swift */,
 				A35DB73C1D7BB41100409D16 /* VideoVibeCollectionCell.swift */,
 				A35DB7421D7BBD8E00409D16 /* VibeHeaderCollectionCell.swift */,
+				A3C2D1D41D9DF4BA0083D302 /* LikeButtonsCollectionCell.swift */,
+				A3C2D1D61D9DF4DA0083D302 /* IncomingCollectionCell.swift */,
+				A3C2D1D81D9DF4EB0083D302 /* OutgoingCollectionCell.swift */,
+				A3C2D1DA1D9DF4FF0083D302 /* TimeAgoCollectionCell.swift */,
+				A3C2D1DC1D9DF50F0083D302 /* CaptionCell.swift */,
+				A3C2D1DE1D9DF6440083D302 /* GoToChatCell.swift */,
 			);
 			name = Cells;
 			sourceTree = "<group>";
@@ -611,6 +637,34 @@
 				A34F26701D98BD68007ABFB9 /* MessageTableCell.swift */,
 			);
 			name = Cells;
+			sourceTree = "<group>";
+		};
+		A393BDA41D9C1C56002DD80E /* TopChat */ = {
+			isa = PBXGroup;
+			children = (
+				A393BDA51D9C1C5F002DD80E /* Controller */,
+				A393BDA61D9C1C71002DD80E /* Cell */,
+			);
+			name = TopChat;
+			sourceTree = "<group>";
+		};
+		A393BDA51D9C1C5F002DD80E /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				A34F266E1D977B90007ABFB9 /* TopChatController.swift */,
+				A393BDA91D9C6C15002DD80E /* AddToChatController.swift */,
+			);
+			name = Controller;
+			sourceTree = "<group>";
+		};
+		A393BDA61D9C1C71002DD80E /* Cell */ = {
+			isa = PBXGroup;
+			children = (
+				A393BDA71D9C1C9C002DD80E /* TopGroupChatCollectionCell.swift */,
+				A393BDAB1D9C715F002DD80E /* AddToChatCell.swift */,
+				A3A31D1A1D9C760000BB0509 /* AddToChatCollectionCell.swift */,
+			);
+			name = Cell;
 			sourceTree = "<group>";
 		};
 		A3A136841D637712000EA9FF /* CurrentLogIn */ = {
@@ -1040,15 +1094,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A3C2D1DF1D9DF6440083D302 /* GoToChatCell.swift in Sources */,
 				A3DA53011D93022000FCC91B /* SquadCountController.swift in Sources */,
 				A30874791D8C3C2E005ECD3A /* NotificationController.swift in Sources */,
 				A34F26711D98BD69007ABFB9 /* MessageTableCell.swift in Sources */,
 				A30874891D8DF46B005ECD3A /* ActiveDistanceCell.swift in Sources */,
 				A3D879511D3CD44800FB7358 /* homeCommentProfile.swift in Sources */,
 				A341522F1D94408E00C6DB3C /* TableViewOnlineIndicatorView.swift in Sources */,
+				A3C2D1DD1D9DF50F0083D302 /* CaptionCell.swift in Sources */,
 				A3DA530D1D933F9100FCC91B /* NotificationNumberIndicatorView.swift in Sources */,
 				A3DA52FF1D93021000FCC91B /* RequestsController.swift in Sources */,
 				A36A427E1D62046C0062E9AD /* ProfilePictureView.swift in Sources */,
+				A3A31D1B1D9C760000BB0509 /* AddToChatCollectionCell.swift in Sources */,
 				A3C8C24A1D55E64500F703AA /* TopNavBarController.swift in Sources */,
 				A3DA530B1D93384B00FCC91B /* RequestTableViewCell.swift in Sources */,
 				A3D11B421D5763A8006884BF /* GFGeoHash.m in Sources */,
@@ -1060,11 +1117,14 @@
 				A38289CB1D2B433B00C17F48 /* CommentController.swift in Sources */,
 				A3D11B431D5763A8006884BF /* GFGeoHashQuery.m in Sources */,
 				A308747B1D8CB683005ECD3A /* SquadRequestCell.swift in Sources */,
+				A3C2D1D71D9DF4DA0083D302 /* IncomingCollectionCell.swift in Sources */,
 				A3D119731D262290009D7EAB /* HandlePostController.swift in Sources */,
 				A3D11B2E1D575499006884BF /* NearbyOnline.swift in Sources */,
+				A3C2D1DB1D9DF4FF0083D302 /* TimeAgoCollectionCell.swift in Sources */,
 				A34F267C1D999F68007ABFB9 /* ComposeTableViewCell.swift in Sources */,
 				A36BDF751D720404005E0806 /* MatchButtons.swift in Sources */,
 				A308747F1D8CB6D4005ECD3A /* MessageCell.swift in Sources */,
+				A3C2D1D51D9DF4BA0083D302 /* LikeButtonsCollectionCell.swift in Sources */,
 				A34F26821D99A6FE007ABFB9 /* SquadChatProfileView.swift in Sources */,
 				A3C8C24C1D55F89100F703AA /* NavButtonsView.swift in Sources */,
 				A35DB7341D79CAEE00409D16 /* NewVibesController.swift in Sources */,
@@ -1074,11 +1134,13 @@
 				A3D8794F1D3BF7EF00FB7358 /* HexColorExtension.swift in Sources */,
 				A35DB7451D7C8B0D00409D16 /* SnapchatChatController.swift in Sources */,
 				A3E138921D25B5A0002A5031 /* MenuController.swift in Sources */,
+				A393BDA81D9C1C9C002DD80E /* TopGroupChatCollectionCell.swift in Sources */,
 				A30874831D8DA30F005ECD3A /* ProfileCurrentPictureIndicatorVIew.swift in Sources */,
 				A34F267E1D99A0FA007ABFB9 /* ComposeIndicatorView.swift in Sources */,
 				A3DA52F91D91AF8D00FCC91B /* VideoPostCell.swift in Sources */,
 				A3C4977B1D561F0800D293A4 /* NearbyController.swift in Sources */,
 				A308748B1D8E23BD005ECD3A /* ImagePostCell.swift in Sources */,
+				A393BDAC1D9C715F002DD80E /* AddToChatCell.swift in Sources */,
 				A34F26801D99A46A007ABFB9 /* ComposeChatCollectionCell.swift in Sources */,
 				A35DB73D1D7BB41100409D16 /* VideoVibeCollectionCell.swift in Sources */,
 				A37AC1C11D2A19FD00EBF813 /* LikeOrDislikeDisplay.swift in Sources */,
@@ -1088,6 +1150,7 @@
 				A3DA53051D93269A00FCC91B /* SquadTableViewCell.swift in Sources */,
 				A35644F21D7F9F1F00D005A9 /* SnapchatViewController.swift in Sources */,
 				A3BB982D1D1C5DC200BD384F /* ForgotPasswordController.swift in Sources */,
+				A3C2D1D91D9DF4EB0083D302 /* OutgoingCollectionCell.swift in Sources */,
 				A3E8AF491D8A29C400C60A08 /* CityController.swift in Sources */,
 				A3C8C24E1D56021E00F703AA /* NavButtonView.swift in Sources */,
 				A37B50801D2AFEF400A38FAE /* TimeAgo.swift in Sources */,
@@ -1125,6 +1188,7 @@
 				A36BDF731D71F573005E0806 /* MatchProfileViews.swift in Sources */,
 				A3DA52FB1D92C73F00FCC91B /* StatusCell.swift in Sources */,
 				A35DB7471D7C970B00409D16 /* VibeHeaderProfilePic.swift in Sources */,
+				A393BDAA1D9C6C15002DD80E /* AddToChatController.swift in Sources */,
 				A366B8131D5A23BD0079F686 /* FacebookButtonHolder.swift in Sources */,
 				A312C26B1D347AE600F272F0 /* MemoryLeak.swift in Sources */,
 				A35DB7431D7BBD8E00409D16 /* VibeHeaderCollectionCell.swift in Sources */,

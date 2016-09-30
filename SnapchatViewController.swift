@@ -144,7 +144,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
             
             closeWithDirection(0, y: screenHeight, animationTime: 0.3)
             
-            self.rootController?.toggleChat("squad", userUID: scopeUserUID, postUID: nil, city: nil, firstName: scopeFirstName, lastName: scopeLastName, profile: scopeProfile, completion: { (bool) in
+            self.rootController?.toggleChat("squad", key: scopeUserUID, city: nil, firstName: scopeFirstName, lastName: scopeLastName, profile: scopeProfile, completion: { (bool) in
                 
                 print("chat toggled")
                 

@@ -57,7 +57,6 @@ class ComposeTableViewCell: UITableViewCell {
                     
                     composeController?.userSelected[uid] = count
                     
-                }
 
                 //Add
                 composeController?.selectedSquad.append(userData)
@@ -65,6 +64,11 @@ class ComposeTableViewCell: UITableViewCell {
                 composeController?.globTableViewOutlet.reloadData()
                 composeController?.globCollectionViewOutlet.reloadData()
                 
+                let indexPath = NSIndexPath(forRow: count, inSection: 0)
+                
+                composeController?.globCollectionViewOutlet.scrollToItemAtIndexPath(indexPath, atScrollPosition: .None, animated: true)
+                
+                }
             }
 
         } else {
@@ -107,23 +111,22 @@ class ComposeTableViewCell: UITableViewCell {
             
         }
 
-        if (composeController?.userSelected[uid]) != nil {
-            
-            self.selectedIndicator.image = UIImage(named: "Checkmark")
-  
-        } else {
-            
-            self.selectedIndicator.image = nil
-            
-        }
-
-        
         if let uid = data["uid"] as? String {
-            
-            let ref = FIRDatabase.database().reference().child("users").child(uid)
             
             self.uid = uid
             
+            let ref = FIRDatabase.database().reference().child("users").child(uid)
+
+            if (composeController?.userSelected[uid]) != nil {
+                
+                self.selectedIndicator.image = UIImage(named: "Checkmark")
+                
+            } else {
+                
+                self.selectedIndicator.image = nil
+                
+            }
+
             ref.child("profilePicture").observeEventType(.Value, withBlock: { (snapshot) in
                 
                 if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {

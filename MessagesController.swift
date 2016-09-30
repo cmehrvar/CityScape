@@ -34,10 +34,6 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
         })
     }
     
-    
-    
-    
-    
     //Functions
     func loadMatches(data: [NSObject : AnyObject]){
 
@@ -69,10 +65,7 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
         globCollectionViewOutlet.reloadData()
  
     }
-    
-    
-    
-    
+
     func sortMessages(selfData: [NSObject : AnyObject]) {
 
         var allMessages = [[NSObject : AnyObject]]()
@@ -154,6 +147,23 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
                 }
             }
         }
+        
+        
+        if let myGroupChats = selfData["groupChats"] as? [NSObject : AnyObject] {
+            
+            for (_, value) in myGroupChats {
+                
+                if let valueToAdd = value as? [NSObject : AnyObject] {
+                    
+                    var toAppend = valueToAdd
+                    toAppend["type"] = "groupChats"
+                    allMessages.append(toAppend)
+                    
+                }
+            }
+        }
+        
+        
 
         allMessages.sortInPlace { (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
             

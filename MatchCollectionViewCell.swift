@@ -36,7 +36,7 @@ class MatchCollectionViewCell: UICollectionViewCell {
         let scopeLastname = lastName
         let scopeProfile = profileString
         
-        self.messagesController?.rootController?.toggleChat("matches", userUID: scopeUID, postUID: nil, city: nil, firstName: scopeFirstname, lastName: scopeLastname, profile: scopeProfile, completion: { (bool) in
+        self.messagesController?.rootController?.toggleChat("matches", key: scopeUID, city: nil, firstName: scopeFirstname, lastName: scopeLastname, profile: scopeProfile, completion: { (bool) in
             
             print("chat toggled")
             

@@ -32,18 +32,32 @@ class NotificationController: UIViewController, UITableViewDelegate, UITableView
                     
                     if !read {
                         
-                        if let selfUid = FIRAuth.auth()?.currentUser?.uid, userUID = globNotifications[indexPath.row]["uid"] as? String, type = globNotifications[indexPath.row]["type"] as? String {
+                        if let selfUid = FIRAuth.auth()?.currentUser?.uid, type = globNotifications[indexPath.row]["type"] as? String {
                             
-                            let ref = FIRDatabase.database().reference().child("users").child(selfUid).child("notifications").child(userUID)
+                            let ref = FIRDatabase.database().reference().child("users").child(selfUid).child("notifications")
    
-                            if type == "addedYou" {
+                            if type == "groupChats" {
                                 
-                                ref.child("squadRequest").child("read").setValue(true)
+                                if let chatKey = globNotifications[indexPath.row]["chatKey"] as? String {
+                                    
+                                    ref.child("groupChats").child(chatKey).child("read").setValue(true)
+                                    
+                                }
                                 
                             } else {
                                 
-                                ref.child(type).child("read").setValue(true)
-                                
+                                if let userUID = globNotifications[indexPath.row]["uid"] as? String {
+                                    
+                                    if type == "addedYou" {
+                                        
+                                        ref.child(userUID).child("squadRequest").child("read").setValue(true)
+                                        
+                                    } else {
+                                        
+                                        ref.child(userUID).child(type).child("read").setValue(true)
+                                        
+                                    }
+                                }
                             }
                         }
                     }
@@ -64,7 +78,7 @@ class NotificationController: UIViewController, UITableViewDelegate, UITableView
                 cell.loadCell(globNotifications[indexPath.row])
                 return cell
                 
-            } else if type == "matches" || type == "squad" {
+            } else if type == "matches" || type == "squad" || type == "groupChats" {
                 
                 let cell = tableView.dequeueReusableCellWithIdentifier("messageCell", forIndexPath: indexPath) as! MessageCell
                 

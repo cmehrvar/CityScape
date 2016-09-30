@@ -42,7 +42,7 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
             //Delete Squad?
             print("toggle messages")
 
-            self.vibesController?.rootController?.toggleChat("squad", userUID: uid, postUID: nil, city: nil, firstName: firstName, lastName: lastName, profile: profilePic, completion: { (bool) in
+            self.vibesController?.rootController?.toggleChat("squad", key: uid, city: nil, firstName: firstName, lastName: lastName, profile: profilePic, completion: { (bool) in
                 
                 print("chat toggled")
                 
@@ -233,20 +233,6 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
         if let uid = data["userUID"] as? String, selfUID = FIRAuth.auth()?.currentUser?.uid {
             
             self.uid = uid
- 
-            if let profilePic = self.vibesController?.profilePics[uid], url = NSURL(string: profilePic) {
-               
-                profilePicOutlet.sd_setImageWithURL(url, placeholderImage: nil)
-                
-            }
-            
-            
-            if let rank = self.vibesController?.ranks[uid] {
-                
-                cityRankOutlet.text = "#\(rank)"
-                
-            }
-            
 
             if uid == selfUID {
                 
@@ -368,8 +354,7 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
                     if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
                         
                         self.profilePic = profileString
-                        
-                        self.vibesController?.profilePics[uid] = profileString
+
                         self.profilePicOutlet.sd_setImageWithURL(url, placeholderImage: nil)
                         
                     }
@@ -381,8 +366,7 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
                 if self.uid == uid {
                     
                     if let rank = snapshot.value as? Int {
-                        
-                        self.vibesController?.ranks[uid] = rank
+
                         self.cityRankOutlet.text = "#\(rank)"
                         
                     }

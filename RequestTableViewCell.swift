@@ -14,8 +14,7 @@ import FirebaseDatabase
 class RequestTableViewCell: UITableViewCell {
     
     weak var requestController: RequestsController?
-    
-    var notificationKey = ""
+
     var uid = ""
     var firstName = ""
     var lastName = ""
@@ -39,16 +38,14 @@ class RequestTableViewCell: UITableViewCell {
     }
     
     @IBAction func deny(sender: AnyObject) {
-        
-        let scopeNotificationKey = notificationKey
+
         let scopeUID = uid
-        
-        
+
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
             let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
             
-            ref.child("notifications").child(scopeNotificationKey).removeValue()
+            ref.child("notifications").child(scopeUID).child("squadRequest").removeValue()
             ref.child("squadRequests").child(scopeUID).removeValue()
             
         }
@@ -76,8 +73,7 @@ class RequestTableViewCell: UITableViewCell {
     
     
     @IBAction func approve(sender: AnyObject) {
-        
-        let scopeNotificationKey = notificationKey
+
         let scopeUID = uid
         let scopeFirstName = firstName
         let scopeLastName = lastName
@@ -86,7 +82,7 @@ class RequestTableViewCell: UITableViewCell {
             
             let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
             
-            ref.child("notifications").child(scopeNotificationKey).updateChildValues(["status" : "approved"])
+            ref.child("notifications").child(scopeUID).child("squadRequest").updateChildValues(["status" : "approved"])
             ref.child("squadRequests").child(scopeUID).updateChildValues(["status" : 1])
             
             ref.child("squad").child(scopeUID).setValue(["firstName" : scopeFirstName, "lastName" : scopeLastName, "uid" : scopeUID])
@@ -132,13 +128,6 @@ class RequestTableViewCell: UITableViewCell {
         nameOutlet.adjustsFontSizeToFitWidth = true
         nameOutlet.baselineAdjustment = .AlignCenters
         
-        
-        if let key = data["notificationKey"] as? String {
-            
-            self.notificationKey = key
-            
-        }
-        
         if let uid = data["uid"] as? String {
             
             self.uid = uid
@@ -169,7 +158,7 @@ class RequestTableViewCell: UITableViewCell {
             self.firstName = firstName
             self.lastName = lastName
             
-            nameOutlet.text = firstName
+            nameOutlet.text = firstName + " " + lastName
             
         }
     }

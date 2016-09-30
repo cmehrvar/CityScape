@@ -357,7 +357,7 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
             
             if !transitioning {
                 
-                rootController?.hideTopNav({ (bool) in
+                rootController?.hideAllNav({ (bool) in
                     
                     print("top nav hidden")
                     

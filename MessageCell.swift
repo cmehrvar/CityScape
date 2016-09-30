@@ -19,7 +19,9 @@ class MessageCell: UITableViewCell {
     var firstName = ""
     var lastName = ""
     var type = ""
+    
     var uid = ""
+    var chatKey = ""
 
     @IBOutlet weak var profileOutlet: UIImageView!
     @IBOutlet weak var nameOutlet: UILabel!
@@ -30,23 +32,33 @@ class MessageCell: UITableViewCell {
     @IBAction func goToMessage(sender: AnyObject) {
         
         let scopeUID = uid
+        let scopeChatKey = chatKey
+        
         let scopeType = type
         let scopeFirstName = firstName
         let scopeLastName = lastName
         let scopeProfile = profile
         
         notificationController?.rootController?.toggleNotifications({ (bool) in
-
-            self.notificationController?.rootController?.toggleChat(scopeType, userUID: scopeUID, postUID: nil, city: nil, firstName: scopeFirstName, lastName: scopeLastName, profile: scopeProfile, completion: { (bool) in
+            
+            if scopeType == "groupChats" {
                 
-                print("chat toggled")
+                self.notificationController?.rootController?.toggleChat("groupChats", key: scopeChatKey, city: nil, firstName: nil, lastName: nil, profile: nil, completion: { (bool) in
+                    
+                    print("chat toggled")
+                    
+                })
                 
-            })
+            } else {
+                
+                self.notificationController?.rootController?.toggleChat(scopeType, key: scopeUID, city: nil, firstName: scopeFirstName, lastName: scopeLastName, profile: scopeProfile, completion: { (bool) in
+                    
+                    print("chat toggled")
+                    
+                })
+            }
         })
     }
-    
-    
-    
     
     func loadCell(data: [NSObject : AnyObject]) {
 
@@ -80,13 +92,42 @@ class MessageCell: UITableViewCell {
             })
         }
 
+        
+        if let chatTitle = data["title"] as? String {
+            
+            nameOutlet.text = chatTitle
+            
+        }
+        
         if let type = data["type"] as? String {
             
             self.type = type
             
-            if type == "squad" {
+            if type == "squad" || type == "groupChats" {
                 
                 chatTypeImageOutlet.image = UIImage(named: "sendSquad")
+
+                if type == "groupChats" {
+                    
+                    if let key = data["chatKey"] as? String {
+                        
+                        self.chatKey = key
+                        
+                        let ref = FIRDatabase.database().reference().child("groupChats").child(key)
+                        
+                        ref.child("groupPhoto").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                            
+                            if self.chatKey == key {
+                                
+                                if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
+                                    
+                                    self.profileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                                    
+                                }
+                            }
+                        })
+                    }
+                }
 
             } else if type == "matches" {
  
@@ -110,9 +151,6 @@ class MessageCell: UITableViewCell {
             messageOutlet.text = text
             
         }
-        
-        
-     
     }
     
     

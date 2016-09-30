@@ -395,7 +395,7 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
         
         let profile = profileController?.profile1
         
-        self.profileController?.rootController?.toggleChat("squad", userUID: uid, postUID: nil, city: nil, firstName: firstName, lastName: lastName, profile: profile, completion: { (bool) in
+        self.profileController?.rootController?.toggleChat("squad", key: uid, city: nil, firstName: firstName, lastName: lastName, profile: profile, completion: { (bool) in
             
             print("chat toggled")
 

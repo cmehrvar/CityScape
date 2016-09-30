@@ -20,54 +20,54 @@ class ComposeChatCollectionCell: UICollectionViewCell {
     @IBOutlet weak var profilePicOutlet: MessageProfileView!
     @IBOutlet weak var onlineIndicatorOutlet: TableViewOnlineIndicatorView!
     @IBOutlet weak var firstNameOutlet: UILabel!
-
     
-    func loadData(data: [NSObject : AnyObject]) {
-
-        if let firstName = data["firstName"] as? String {
-            
-            firstNameOutlet.text = firstName
-            
-        }
+    func loadData(uid: String) {
         
-        if let uid = data["uid"] as? String {
-            
-            self.uid = uid
-            
-            let ref = FIRDatabase.database().reference().child("users").child(uid)
+        self.uid = uid
+        
+        let ref = FIRDatabase.database().reference().child("users").child(uid)
 
-            ref.child("profilePicture").observeEventType(.Value, withBlock: { (snapshot) in
+        ref.child("firstName").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+            
+            if let firstName = snapshot.value as? String {
                 
-                if self.uid == uid {
+                self.firstNameOutlet.text = firstName
+                
+            }
+        })
+        
+        ref.child("profilePicture").observeEventType(.Value, withBlock: { (snapshot) in
+            
+            if self.uid == uid {
+                
+                if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
                     
-                    if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
+                    self.profilePicOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                    
+                }
+            }
+        })
+        
+        
+        ref.child("online").observeEventType(.Value, withBlock: { (snapshot) in
+            
+            if self.uid == uid {
+                
+                if let online = snapshot.value as? Bool {
+                    
+                    if online {
                         
-                        self.profilePicOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                        self.onlineIndicatorOutlet.backgroundColor = UIColor.greenColor()
+                        
+                    } else {
+                        
+                        self.onlineIndicatorOutlet.backgroundColor = UIColor.redColor()
                         
                     }
                 }
-            })
-            
-            
-            ref.child("online").observeEventType(.Value, withBlock: { (snapshot) in
-                
-                if self.uid == uid {
-                    
-                    if let online = snapshot.value as? Bool {
-                        
-                        if online {
-                            
-                            self.onlineIndicatorOutlet.backgroundColor = UIColor.greenColor()
-                            
-                        } else {
-                            
-                            self.onlineIndicatorOutlet.backgroundColor = UIColor.redColor()
-                            
-                        }
-                    }
-                }
-            })
-        }
+            }
+        })
+        
     }
     
     

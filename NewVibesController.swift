@@ -17,10 +17,6 @@ import SDWebImage
 
 class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, PlayerDelegate {
     
-    var profilePics = [String : String]()
-    var ranks = [String : Int]()
-    
-    
     //Player Delegates
     func playerReady(player: Player){
         
@@ -91,95 +87,107 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     
     
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
- 
-        if let isImage = newPosts[indexPath.section]["isImage"] as? Bool {
+        
+        
+        if indexPath.row == 0 {
             
-            if isImage {
+            if let isImage = newPosts[indexPath.section]["isImage"] as? Bool {
                 
-                if let urlString = newPosts[indexPath.section]["imageURL"] as? String, url = NSURL(string: urlString){
+                if isImage {
                     
-                    let cell = collectionView.dequeueReusableCellWithReuseIdentifier("imageCell", forIndexPath: indexPath) as! ImageVibeCollectionCell
-                    cell.createIndicator()
-                    cell.loadImage(url)
-                    cell.addPinchRecognizer()
-                    return cell
-                }
-                
-            } else {
-
-                
-                if let videoURLString = newPosts[indexPath.section]["videoURL"] as? String, url = NSURL(string: videoURLString), imageUrlString = newPosts[indexPath.section]["imageURL"] as? String, imageUrl = NSURL(string: imageUrlString) {
-                
-                let cell = collectionView.dequeueReusableCellWithReuseIdentifier("videoCell", forIndexPath: indexPath) as! VideoVibeCollectionCell
-
-                
-                cell.videoThumbnailOutlet.sd_setImageWithURL(imageUrl, completed: { (image, error, cache, url) in
+                    if let urlString = newPosts[indexPath.section]["imageURL"] as? String, url = NSURL(string: urlString){
                         
-                        print("done loading video thumbnail")
+                        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("imageCell", forIndexPath: indexPath) as! ImageVibeCollectionCell
+                        cell.createIndicator()
+                        cell.loadImage(url)
+                        cell.addPinchRecognizer()
+                        return cell
+                    }
+                    
+                } else {
+                    
+                    
+                    if let videoURLString = newPosts[indexPath.section]["videoURL"] as? String, url = NSURL(string: videoURLString), imageUrlString = newPosts[indexPath.section]["imageURL"] as? String, imageUrl = NSURL(string: imageUrlString) {
                         
-                    })
-                    
-                    
-                if let key = newPosts[indexPath.section]["postChildKey"] as? String {
-                    
-                    cell.postKey = key
-                    
-                    if let player = videoPlayers[key] {
-  
-                        dispatch_async(dispatch_get_main_queue(), {
-
-                                if let videoPlayerView = player.view {
-                                    
-                                    self.addChildViewController(player)
-                                    player.didMoveToParentViewController(self)
-                                    player.playFromCurrentTime()
-                                    videoPlayerView.removeFromSuperview()
-                                    cell.videoOutlet.addSubview(videoPlayerView)
-                                    cell.videoOutlet.alpha = 1
-                                    
-                                }
+                        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("videoCell", forIndexPath: indexPath) as! VideoVibeCollectionCell
+                        
+                        
+                        cell.videoThumbnailOutlet.sd_setImageWithURL(imageUrl, completed: { (image, error, cache, url) in
+                            
+                            print("done loading video thumbnail")
                             
                         })
-
-                    } else {
- 
-                            cell.createIndicator()
+                        
+                        
+                        if let key = newPosts[indexPath.section]["postChildKey"] as? String {
                             
-                            dispatch_async(dispatch_get_main_queue(), {
+                            cell.postKey = key
+                            
+                            if let player = videoPlayers[key] {
                                 
-                                let scopePlayer = Player()
-                                scopePlayer.delegate = self
-                                
-                                self.addChildViewController(scopePlayer)
-                                scopePlayer.view.frame = cell.videoOutlet.bounds
-                                scopePlayer.didMoveToParentViewController(self)
-                                scopePlayer.setUrl(url)
-                                scopePlayer.fillMode = AVLayerVideoGravityResizeAspectFill
-                                scopePlayer.playbackLoops = true
-                                scopePlayer.playFromCurrentTime()
-
-                                    if let videoPlayerView = scopePlayer.view {
-
+                                dispatch_async(dispatch_get_main_queue(), {
+                                    
+                                    if let videoPlayerView = player.view {
+                                        
+                                        self.addChildViewController(player)
+                                        player.didMoveToParentViewController(self)
+                                        player.playFromCurrentTime()
+                                        videoPlayerView.removeFromSuperview()
                                         cell.videoOutlet.addSubview(videoPlayerView)
                                         cell.videoOutlet.alpha = 1
                                         
                                     }
+                                    
+                                })
                                 
-                                self.videoPlayers[key] = scopePlayer
+                            } else {
                                 
-                            })
+                                cell.createIndicator()
+                                
+                                dispatch_async(dispatch_get_main_queue(), {
+                                    
+                                    let scopePlayer = Player()
+                                    scopePlayer.delegate = self
+                                    
+                                    self.addChildViewController(scopePlayer)
+                                    scopePlayer.view.frame = cell.videoOutlet.bounds
+                                    scopePlayer.didMoveToParentViewController(self)
+                                    scopePlayer.setUrl(url)
+                                    scopePlayer.fillMode = AVLayerVideoGravityResizeAspectFill
+                                    scopePlayer.playbackLoops = true
+                                    scopePlayer.playFromCurrentTime()
+                                    
+                                    if let videoPlayerView = scopePlayer.view {
+                                        
+                                        cell.videoOutlet.addSubview(videoPlayerView)
+                                        cell.videoOutlet.alpha = 1
+                                        
+                                    }
+                                    
+                                    self.videoPlayers[key] = scopePlayer
+                                    
+                                })
+                            }
                         }
+                        
+                        return cell
+                        
                     }
-                    
-                    return cell
-
                 }
-            }
-        } 
-        
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("imageCell", forIndexPath: indexPath) as! ImageVibeCollectionCell
-        
-        return cell
+            } 
+
+            
+        } else if indexPath.row == 1 {
+            
+            let cell = collectionView.dequeueReusableCellWithReuseIdentifier("buttonsCell", forIndexPath: indexPath) as! LikeButtonsCollectionCell
+            
+            cell.loadData(newPosts[indexPath.section])
+            
+            return cell
+            
+        }
+
+        return UICollectionViewCell()
 
     }
     
@@ -210,14 +218,24 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
-        return 1
+        return 2
         
     }
     
     func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
-        
         let width = self.view.bounds.width
-        return CGSize(width: width, height: width)
+        
+        if indexPath.row == 0 {
+
+            return CGSize(width: width, height: width)
+            
+        } else if indexPath.row == 1 {
+            
+            return CGSize(width: width, height: 55)
+            
+        }
+        
+        return CGSizeZero
         
     }
 

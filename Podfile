@@ -22,6 +22,7 @@ pod ‘Player’
 pod 'JSQMessagesViewController'
 pod ‘THLabel’
 pod ‘NVActivityIndicatorView’
+pod 'NYAlertViewController'
 
 end
 

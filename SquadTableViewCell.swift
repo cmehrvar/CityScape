@@ -103,7 +103,7 @@ class SquadTableViewCell: UITableViewCell {
             //Delete Squad?
             print("toggle messages")
             
-            self.squadCountController?.rootController?.toggleChat("squad", userUID: scopeUID, postUID: nil, city: nil, firstName: scopeFirstName, lastName: scopeLastName, profile: profile, completion: { (bool) in
+            self.squadCountController?.rootController?.toggleChat("squad", key: scopeUID, city: nil, firstName: scopeFirstName, lastName: scopeLastName, profile: profile, completion: { (bool) in
                 
                 print("chat toggled")
                 
@@ -315,7 +315,7 @@ class SquadTableViewCell: UITableViewCell {
             self.firstName = firstName
             self.lastName = lastName
 
-            nameOutlet.text = firstName
+            nameOutlet.text = firstName + " " + lastName
             
         }
         

@@ -33,6 +33,7 @@ class MainRootController: UIViewController {
     var requestsRevealed = false
     var chatRevealed = false
     var composedRevealed = false
+    var addToChatRevealed = false
     
     var vibesLoadedFromSelf = false
     
@@ -69,6 +70,9 @@ class MainRootController: UIViewController {
     @IBOutlet weak var topChatConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var composeContainerTopConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var composeContainerBottomConstOutlet: NSLayoutConstraint!
+    @IBOutlet weak var topChatHeightConstOutlet: NSLayoutConstraint!
+    @IBOutlet weak var addToChatBottomConstOutlet: NSLayoutConstraint!
+    @IBOutlet weak var addToChatTopConstOutlet: NSLayoutConstraint!
 
     //views
     @IBOutlet weak var closeMenuContainer: UIView!
@@ -105,6 +109,7 @@ class MainRootController: UIViewController {
     weak var squadCountController: SquadCountController?
     weak var topChatController: TopChatController?
     weak var composeChatController: ComposeChatController?
+    weak var addToChatController: AddToChatController?
 
     //Toggle Functions
     func toggleHome(completion: Bool -> ()) {
@@ -292,7 +297,7 @@ class MainRootController: UIViewController {
         self.chatController?.view.endEditing(true)
         self.menuController?.view.endEditing(true)
         self.snapchatController?.view.endEditing(true)
-        
+
         let mainDrawerWidthConstant: CGFloat = (self.view.bounds.width) * 0.8
         
         var notificationOffset: CGFloat = 0
@@ -309,6 +314,7 @@ class MainRootController: UIViewController {
         }
         
         notificationController?.globTableViewOutlet.reloadData()
+        notificationController?.globTableViewOutlet.setContentOffset(CGPointZero, animated: true)
         
         notificationRevealed = !notificationRevealed
         
@@ -601,22 +607,23 @@ class MainRootController: UIViewController {
                     } else {
                         
                         self.toggleMessages({ (bool) in
- 
-                            self.toggleChat("matches", userUID: uid, postUID: nil, city: nil, firstName: firstName, lastName: lastName, profile: profile, completion: { (bool) in
+
+                            self.toggleChat("matches", key: uid, city: nil, firstName: firstName, lastName: lastName, profile: profile, completion: { (bool) in
                                 
                                 print("chat toggled")
                                 
                                 self.matchIsRevealed = false
                                 
                             })
+                            
                         })
                     }
             })
         }
     }
     
-    func toggleChat(type: String, userUID: String?, postUID: String?, city: String?, firstName: String?, lastName: String?, profile: String?, completion: (Bool) -> ()) {
-        
+    func toggleChat(type: String, key: String?, city: String?, firstName: String?, lastName: String?, profile: String?, completion: (Bool) -> ()) {
+
         chatRevealed = true
 
         var refToPass = ""
@@ -627,49 +634,60 @@ class MainRootController: UIViewController {
 
             if type == "matches" {
 
-                if let uid = userUID {
+                if let uid = key {
                     
                     chatController?.currentKey = uid
-                    self.topChatController?.uid = uid
+                    topChatController?.uid = uid
                     
                     refToPass = "/users/\(selfUID)/matches/\(uid)"
                     
-                    selfRef.child("matches").child(uid).child("read").setValue(true)
                 }
                 
-                self.topChatController?.icon1Outlet.image = UIImage(named: "sentMatch")
-                self.topChatController?.icon2Outlet.image = UIImage(named: "sentMatch")
+                topChatController?.icon1Outlet.image = UIImage(named: "sentMatch")
+                topChatController?.icon2Outlet.image = UIImage(named: "sentMatch")
                 
-                self.topChatController?.type = "matches"
+                topChatController?.type = "matches"
                 
-
-            } else if type == "posts" {
+                topChatHeightConstOutlet.constant = 100
+                topChatController?.singleTitleViewOutlet.alpha = 1
+                topChatController?.groupTopViewOutlet.alpha = 0
                 
-                if let scopeCity = city, scopePostUID = postUID {
-                    
-                    chatController?.currentKey = scopePostUID
-                    
-                    refToPass = "/posts/\(scopeCity)/\(scopePostUID))"
-                    
-                }
-
             } else if type == "squad" {
                 
-                if let uid = userUID {
+                if let uid = key {
                     
                     chatController?.currentKey = uid
-                    self.topChatController?.uid = uid
+                    topChatController?.uid = uid
                     refToPass = "/users/\(selfUID)/squad/\(uid)"
-                    selfRef.child("squad").child(uid).child("read").setValue(true)
 
                 }
                 
-                self.topChatController?.icon1Outlet.image = UIImage(named: "sentSquad")
-                self.topChatController?.icon2Outlet.image = UIImage(named: "sentSquad")
+                topChatController?.icon1Outlet.image = UIImage(named: "sentSquad")
+                topChatController?.icon2Outlet.image = UIImage(named: "sentSquad")
                 
-                self.topChatController?.type = "squad"
+                topChatController?.type = "squad"
+                
+                topChatHeightConstOutlet.constant = 100
+                topChatController?.singleTitleViewOutlet.alpha = 1
+                topChatController?.groupTopViewOutlet.alpha = 0
 
-                
+            } else if type == "groupChats" {
+
+                if let chatKey = key {
+                    
+                    chatController?.currentKey = chatKey
+                    topChatController?.chatKey = chatKey
+                    refToPass = "/groupChats/\(chatKey)"
+
+                }
+
+                topChatController?.loadGroup()
+                topChatController?.globCollectionViewOutlet.setContentOffset(CGPointZero, animated: true)
+
+                topChatHeightConstOutlet.constant = 216
+                topChatController?.singleTitleViewOutlet.alpha = 0
+                topChatController?.groupTopViewOutlet.alpha = 1
+
             }
         }
 
@@ -683,17 +701,14 @@ class MainRootController: UIViewController {
             topChatController?.firstName = firstName
             topChatController?.lastName = lastName
 
-            
         }
 
         if let profileString = profile, url = NSURL(string: profileString) {
             
             topChatController?.profilePicOutlet.sd_setImageWithURL(url, placeholderImage: nil)
-            
-            
+ 
         }
 
-        
         if let uid = FIRAuth.auth()?.currentUser?.uid {
             
             self.chatController?.senderId = uid
@@ -937,6 +952,49 @@ class MainRootController: UIViewController {
             })
         }
     }
+
+    func toggleAddToChat(members: [String]?, chatKey: String?, completion: (Bool -> ())){
+        
+        var topConstOutlet: CGFloat = 0
+        var bottomConstOutlet: CGFloat = 0
+        
+        if addToChatRevealed {
+            
+            topConstOutlet = self.view.bounds.height
+            bottomConstOutlet = -self.view.bounds.height
+            
+            addToChatController?.squad.removeAll()
+            addToChatController?.selectedSquad.removeAll()
+            addToChatController?.userSelected.removeAll()
+            addToChatController?.dataSoruceForSearchResult.removeAll()
+            addToChatController?.members.removeAll()
+            addToChatController?.chatKey = ""
+            
+            addToChatController?.globTableViewOutlet.reloadData()
+            addToChatController?.globCollectionViewOutlet.reloadData()
+
+        } else {
+            
+            if let memberValue = members, key = chatKey {
+                
+                addToChatController?.members = memberValue
+                addToChatController?.chatKey = key
+                
+            }
+        }
+        
+        addToChatRevealed = !addToChatRevealed
+        
+        UIView.animateWithDuration(0.3) { 
+            
+            self.addToChatTopConstOutlet.constant = topConstOutlet
+            self.addToChatBottomConstOutlet.constant = bottomConstOutlet
+            
+            self.view.layoutIfNeeded()
+
+        }
+    }
+
     
     func toggleSearch(completion: Bool -> ()){
         
@@ -993,6 +1051,8 @@ class MainRootController: UIViewController {
 
         }
 
+        composeChatController?.globTableViewOutlet.setContentOffset(CGPointZero, animated: false)
+        
         UIView.animateWithDuration(0.3, animations: {
             
             self.composeContainerTopConstOutlet.constant = topConst
@@ -1102,6 +1162,7 @@ class MainRootController: UIViewController {
             
             currentTab = 3
             self.bottomNavController?.toggleColour(3)
+            self.messagesController?.globTableView.setContentOffset(CGPointZero, animated: true)
             
         }
         
@@ -1520,10 +1581,12 @@ class MainRootController: UIViewController {
             self.topChatConstOutlet.constant = -screenHeight
             self.bottomChatConstOutlet.constant = screenHeight
             
+            self.addToChatTopConstOutlet.constant = screenHeight
+            self.addToChatBottomConstOutlet.constant = -screenHeight
+            
             self.composeContainerTopConstOutlet.constant = screenHeight
             self.composeContainerBottomConstOutlet.constant = -screenHeight
-            
-            
+
             self.menuWidthConstOutlet.constant = screenWidth * 0.8
             self.leadingMenu.constant = -(screenWidth * 0.8)
             
@@ -1693,6 +1756,12 @@ class MainRootController: UIViewController {
             composeChatController = composeChat
             composeChatController?.rootController = self
 
+        } else if segue.identifier == "addToChatSegue" {
+            
+            let addToChat = segue.destinationViewController as? AddToChatController
+            addToChatController = addToChat
+            addToChatController?.rootController = self
+            
         }
         
         // Get the new view controller using segue.destinationViewController.

@@ -28,9 +28,8 @@ class MessageTableCell: UITableViewCell {
     @IBOutlet weak var typeIndicatorImageOutlet: UIImageView!
 
     @IBAction func goToMessage(sender: AnyObject) {
-        
-        
-        messagesController?.rootController?.toggleChat(type, userUID: uid, postUID: nil, city: nil, firstName: firstName, lastName: lastName, profile: profile, completion: { (bool) in
+ 
+        messagesController?.rootController?.toggleChat(type, key: uid, city: nil, firstName: firstName, lastName: lastName, profile: profile, completion: { (bool) in
             
             print("chat toggled")
             
@@ -67,7 +66,7 @@ class MessageTableCell: UITableViewCell {
             
             self.type = type
             
-            if type == "squad" {
+            if type == "squad" || type == "groupChats" {
                 
                 typeIndicatorImageOutlet.image = UIImage(named: "sendSquad")
                 
@@ -78,98 +77,139 @@ class MessageTableCell: UITableViewCell {
             }
         }
         
-        if let text = data["text"] as? String {
+        
+        
+        if type == "groupChats" {
             
-            self.textOutlet.text = text
+            self.onlineIndicatorOutlet.alpha = 0
+
+            if let title = data["title"] as? String {
+                
+                self.nameOutlet.text = title
+                
+            }
             
-        }
-
-        if let senderId = data["senderId"] as? String, selfUID = FIRAuth.auth()?.currentUser?.uid {
-
-            if senderId != selfUID {
+            
+            if let members = data["members"] as? [String : Bool] {
                 
-                self.uid = senderId
-                scopeUID = senderId
+                self.textOutlet.text = "\(members.count) Members in chat"
                 
-                if let firstName = data["firstName"] as? String, lastName = data["lastName"] as? String {
-                    
-                    self.firstName = firstName
-                    self.lastName = lastName
-                    
-                    self.nameOutlet.text = firstName + " " + lastName
-                    
-                }
+            }
+            
+            
+            if let key = data["key"] as? String {
+                
+                self.uid = key
+                
+            }
+            
+            if let chatPhoto = data["groupPhoto"] as? String, url = NSURL(string: chatPhoto) {
 
+                self.profileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+ 
             } else {
                 
-                if let userUid = data["userUID"] as? String {
+                self.profileOutlet.image = UIImage(named: "sendSquad")
+                
+            }
+  
+        } else {
+            
+            self.onlineIndicatorOutlet.alpha = 1
+            
+            if let text = data["text"] as? String {
+                
+                self.textOutlet.text = text
+                
+            }
+            
+            if let senderId = data["senderId"] as? String, selfUID = FIRAuth.auth()?.currentUser?.uid {
+                
+                if senderId != selfUID {
                     
-                    self.uid = userUid
-                    scopeUID = userUid
+                    self.uid = senderId
+                    scopeUID = senderId
                     
-                    let yourRef = FIRDatabase.database().reference().child("users").child(userUid)
-                    
-                    yourRef.child("firstName").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                    if let firstName = data["firstName"] as? String, lastName = data["lastName"] as? String {
                         
-                        if let firstName = snapshot.value as? String {
+                        self.firstName = firstName
+                        self.lastName = lastName
+                        
+                        self.nameOutlet.text = firstName + " " + lastName
+                        
+                    }
+                    
+                } else {
+                    
+                    if let userUid = data["userUID"] as? String {
+                        
+                        self.uid = userUid
+                        scopeUID = userUid
+                        
+                        let yourRef = FIRDatabase.database().reference().child("users").child(userUid)
+                        
+                        yourRef.child("firstName").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
                             
-                            yourRef.child("lastName").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                            if let firstName = snapshot.value as? String {
                                 
-                                if let lastName = snapshot.value as? String {
+                                yourRef.child("lastName").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
                                     
-                                    if self.uid == scopeUID {
+                                    if let lastName = snapshot.value as? String {
                                         
-                                        self.firstName = firstName
-                                        self.lastName = lastName
-                                        
-                                        self.nameOutlet.text = firstName + " " + lastName
-                                        
+                                        if self.uid == scopeUID {
+                                            
+                                            self.firstName = firstName
+                                            self.lastName = lastName
+                                            
+                                            self.nameOutlet.text = firstName + " " + lastName
+                                            
+                                        }
                                     }
-                                }
-                            })
-                        }
-                    })
+                                })
+                            }
+                        })
+                    }
                 }
             }
-        }
-        
-        
-        if !scopeUID.isEmpty {
             
-            let ref = FIRDatabase.database().reference().child("users").child(scopeUID)
             
-            ref.child("profilePicture").observeEventType(.Value, withBlock: { (snapshot) in
+            if !scopeUID.isEmpty {
                 
-                if self.uid == scopeUID {
-                    
-                    if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
-                        
-                        self.profile = profileString
-                        
-                        self.profileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
-                        
-                    }
-                }
-            })
-            
-            ref.child("online").observeEventType(.Value, withBlock: { (snapshot) in
+                let ref = FIRDatabase.database().reference().child("users").child(scopeUID)
                 
-                if self.uid == scopeUID {
+                ref.child("profilePicture").observeEventType(.Value, withBlock: { (snapshot) in
                     
-                    if let online = snapshot.value as? Bool {
+                    if self.uid == scopeUID {
                         
-                        if online {
+                        if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
                             
-                            self.onlineIndicatorOutlet.backgroundColor = UIColor.greenColor()
+                            self.profile = profileString
                             
-                        } else {
-                            
-                            self.onlineIndicatorOutlet.backgroundColor = UIColor.redColor()
+                            self.profileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
                             
                         }
                     }
-                }
-            })
+                })
+                
+                ref.child("online").observeEventType(.Value, withBlock: { (snapshot) in
+                    
+                    if self.uid == scopeUID {
+     
+                        if let online = snapshot.value as? Bool {
+                            
+                            if online {
+                                
+                                self.onlineIndicatorOutlet.backgroundColor = UIColor.greenColor()
+                                
+                            } else {
+                                
+                                self.onlineIndicatorOutlet.backgroundColor = UIColor.redColor()
+                                
+                            }
+                        }
+                    }
+                })
+            }
         }
     }
 

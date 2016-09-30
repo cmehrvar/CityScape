@@ -46,7 +46,7 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
             
             print("toggle messaged")
             
-            nearbyController?.rootController?.toggleChat("matches", userUID: uid, postUID: nil, city: nil, firstName: firstName, lastName: lastName, profile: profilePic, completion: { (bool) in
+            nearbyController?.rootController?.toggleChat("matches", key: uid, city: nil, firstName: firstName, lastName: lastName, profile: profilePic, completion: { (bool) in
                 
                 print("chat toggled")
                 

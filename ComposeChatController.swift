@@ -10,30 +10,31 @@ import UIKit
 import Firebase
 import FirebaseDatabase
 import FirebaseAuth
+import NYAlertViewController
 
 class ComposeChatController: UIViewController, UITableViewDataSource, UITableViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     
     weak var rootController: MainRootController?
-
+    
     @IBOutlet weak var searchBarOutlet: UISearchBar!
     @IBOutlet weak var getTalkinOutlet: UIButton!
     @IBOutlet weak var globTableViewOutlet: UITableView!
     @IBOutlet weak var globCollectionViewOutlet: UICollectionView!
     @IBOutlet weak var dismissKeyboardView: UIView!
-
+    
     var userSelected = [String : Int]()
-
+    
     var squad = [[NSObject : AnyObject]]()
     var selectedSquad = [[NSObject : AnyObject]]()
     var dataSourceForSearchResult = [[NSObject : AnyObject]]()
     
     var searchBarActive = false
-
+    
     //Actions
     @IBAction func getTalkin(sender: AnyObject) {
         
         if selectedSquad.count == 1 {
-
+            
             if let first = selectedSquad.first, uid = first["uid"] as? String, firstName = first["firstName"] as? String, lastName = first["lastName"] as? String {
                 
                 let ref = FIRDatabase.database().reference().child("users").child(uid)
@@ -44,7 +45,7 @@ class ComposeChatController: UIViewController, UITableViewDataSource, UITableVie
                         
                         self.rootController?.composeChat(false, completion: { (bool) in
                             
-                            self.rootController?.toggleChat("squad", userUID: uid, postUID: nil, city: nil, firstName: firstName, lastName: lastName, profile: profileString, completion: { (bool) in
+                            self.rootController?.toggleChat("squad", key: uid, city: nil, firstName: firstName, lastName: lastName, profile: profileString, completion: { (bool) in
                                 
                                 print("chat toggled")
                                 
@@ -55,42 +56,117 @@ class ComposeChatController: UIViewController, UITableViewDataSource, UITableVie
             }
             
         } else {
-
+            
             //CREATE GROUPCHAT
-            let alertController = UIAlertController(title: nil, message: "Enter a title for your chat!", preferredStyle: .Alert)
+            let scopeSelectedSquad = selectedSquad
+            let alertConroller = NYAlertViewController()
+            var scopeTextField = UITextField()
             
-            var scopeField = UITextField()
+            alertConroller.title = "Squad Chat"
+            alertConroller.message = "Give a name to your squad!"
             
+            alertConroller.backgroundTapDismissalGestureEnabled = true
             
-            alertController.addTextFieldWithConfigurationHandler({ (textField) in
+            alertConroller.titleColor = UIColor.redColor()
+            alertConroller.buttonColor = UIColor.redColor()
+            alertConroller.buttonTitleColor = UIColor.whiteColor()
+            
+            alertConroller.addTextFieldWithConfigurationHandler({ (textField) in
                 
-                scopeField = textField
-
-            })
-            
-            
-            alertController.addAction(UIAlertAction(title: "Cancel", style: .Destructive, handler: { (action) in
-                
-                print("cancel")
-                self.view.endEditing(true)
-                
-                
-            }))
-            
-            
-            alertController.addAction(UIAlertAction(title: "Create Chat", style: .Cancel, handler: { (action) in
-                
-                print("create chat")
-                
-
-            }))
-
-            
-            self.presentViewController(alertController, animated: true, completion: {
-                
-                print("controller presented")
+                textField.textAlignment = .Center
+                textField.autocorrectionType = .No
+                scopeTextField = textField
                 
             })
+            
+            let cancelAction = NYAlertAction(
+                title: "Create Chat",
+                style: .Default,
+                
+                handler: { (action: NYAlertAction!) -> Void in
+
+                    if let chatTitle = scopeTextField.text {
+                        
+                        if chatTitle != "" {
+                            
+                            //Create chat
+                            print("create chat with title: \(chatTitle)")
+                            
+                            var memberUIDs = [String : Bool]()
+                            
+                            for member in scopeSelectedSquad {
+                                
+                                if let uid = member["uid"] as? String {
+                                    
+                                    memberUIDs[uid] = true
+                                    
+                                }
+                            }
+                            
+                            if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                                
+                                memberUIDs[selfUID] = true
+                                
+                            }
+                            
+                            let ref = FIRDatabase.database().reference().child("groupChats")
+                            let chatKey = ref.childByAutoId().key
+                            let timeStamp = NSDate().timeIntervalSince1970
+                            
+                            let chatItem = [
+                                
+                                "title" : chatTitle,
+                                "members" : memberUIDs,
+                                "key" : chatKey,
+                                "timeStamp" : timeStamp
+                                
+                            ]
+                            
+                            ref.child(chatKey).setValue(chatItem)
+                            
+                            let userChatItem = [
+                                
+                                "title" : chatTitle,
+                                "key" : chatKey,
+                                "timeStamp" : timeStamp,
+                                "members" : memberUIDs,
+                                "read" : false
+                                
+                                
+                            ]
+
+                            if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                                FIRDatabase.database().reference().child("users").child(selfUID).child("groupChats").child(chatKey).setValue(userChatItem)
+                                
+                            }
+                            
+                            for (key, _) in memberUIDs {
+                                
+                                FIRDatabase.database().reference().child("users").child(key).child("groupChats").child(chatKey).setValue(userChatItem)
+
+                            }
+
+                            self.dismissViewControllerAnimated(true, completion: {
+                                
+                                self.rootController?.composeChat(false, completion: { (bool) in
+                                    
+                                    self.rootController?.toggleChat("groupChats", key: chatKey, city: nil, firstName: nil, lastName: nil, profile: nil, completion: { (bool) in
+                                        
+                                        print("group chat toggled")
+                                        
+                                    })
+                                })
+                            })
+                        }
+                    }
+                }
+            )
+            
+            alertConroller.addAction(cancelAction)
+            
+            // Present the alert view controller
+            self.presentViewController(alertConroller, animated: true, completion: nil)
+            
             
         }
     }
@@ -104,7 +180,7 @@ class ComposeChatController: UIViewController, UITableViewDataSource, UITableVie
             
         })
     }
-
+    
     
     //Functions
     func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
@@ -125,7 +201,7 @@ class ComposeChatController: UIViewController, UITableViewDataSource, UITableVie
             
         }
     }
-
+    
     func filterContentForSearchText(searchText: String){
         
         dataSourceForSearchResult = squad.filter({ (user: [NSObject : AnyObject]) -> Bool in
@@ -142,11 +218,11 @@ class ComposeChatController: UIViewController, UITableViewDataSource, UITableVie
             }
         })
     }
-
+    
     func loadTableView(data: [NSObject : AnyObject]){
         
         var scopeSquad = [[NSObject : AnyObject]]()
-
+        
         for (_, value) in data {
             
             if let valueToAdd = value as? [NSObject : AnyObject] {
@@ -174,8 +250,8 @@ class ComposeChatController: UIViewController, UITableViewDataSource, UITableVie
         
     }
     
-
-    //CollectionView Delegates 
+    
+    //CollectionView Delegates
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
         return selectedSquad.count
@@ -186,17 +262,21 @@ class ComposeChatController: UIViewController, UITableViewDataSource, UITableVie
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("squadChatCell", forIndexPath: indexPath) as! ComposeChatCollectionCell
-        
-        
+
         cell.composeController = self
-        cell.loadData(selectedSquad[indexPath.row])
         
+        if let userUid = selectedSquad[indexPath.row]["uid"] as? String {
+            
+            cell.loadData(userUid)
+            
+        }
+
         return cell
     }
     
     
     func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
-
+        
         return CGSize(width: 96, height: 103)
     }
     
@@ -220,7 +300,7 @@ class ComposeChatController: UIViewController, UITableViewDataSource, UITableVie
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCellWithIdentifier("squadSelectCell", forIndexPath: indexPath) as! ComposeTableViewCell
-
+        
         cell.composeController = self
         
         if searchBarActive {
@@ -232,7 +312,7 @@ class ComposeChatController: UIViewController, UITableViewDataSource, UITableVie
             cell.loadData(squad[indexPath.row])
             
         }
-
+        
         return cell
     }
     
@@ -273,24 +353,24 @@ class ComposeChatController: UIViewController, UITableViewDataSource, UITableVie
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         self.dismissKeyboardView.addGestureRecognizer(tapGesture)
         
-
+        
         // Do any additional setup after loading the view.
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     
-
+    
     /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
+     // MARK: - Navigation
+     
+     // In a storyboard-based application, you will often want to do a little preparation before navigation
+     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+     // Get the new view controller using segue.destinationViewController.
+     // Pass the selected object to the new view controller.
+     }
+     */
+    
 }

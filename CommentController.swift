@@ -102,18 +102,22 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
             messageItem["userUID"] = currentKey
            
             
-        } else if typeOfChat == "posts" {
+        } else if typeOfChat == "groupChats" {
             
-            messageItem["postChildKey"] = currentKey
-            notificationItem["postChildKey"] = currentKey
+            messageItem["chatKey"] = currentKey
+            notificationItem["chatKey"] = currentKey
             
         }
         
         if let firstName = self.rootController?.selfData["firstName"] as? String, lastName = self.rootController?.selfData["lastName"] as? String {
             
-            notificationItem["firstName"] = firstName
-            notificationItem["lastName"] = lastName
-            
+            if typeOfChat != "groupChats" {
+                
+                notificationItem["firstName"] = firstName
+                notificationItem["lastName"] = lastName
+                
+            }
+
             messageItem["firstName"] = firstName
             messageItem["lastName"] = lastName
             
@@ -129,8 +133,6 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
         self.messages.append(message)
         self.messageData.append(messageItem)
         self.addedMessages[fileName] = true
-        
-        ref.child(passedRef).child("messages").childByAutoId().setValue(messageItem)
 
         if typeOfChat == "matches" || typeOfChat == "squad" {
             
@@ -146,6 +148,43 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                 
                 ref.child("users").child(currentKey).child("notifications").child(selfUID).child("\(typeOfChat)").setValue(notificationItem)
                 
+            }
+        } else if typeOfChat == "groupChats" {
+            
+            //notificationItem["title"] =
+            
+            if let scopeTitle = rootController?.topChatController?.chatTitleOutlet.text {
+                
+                notificationItem["title"] = scopeTitle
+                
+            }
+            
+            if let groupPhoto = rootController?.topChatController?.groupPicture {
+                
+                notificationItem["groupPhoto"] = groupPhoto
+                
+            }
+            
+            
+            ref.child(passedRef).child("messages").childByAutoId().setValue(messageItem)
+            ref.child(passedRef).child("timeStamp").setValue(timeStamp)
+            
+            if let members = rootController?.topChatController?.members {
+                
+                for member in members {
+                    
+                    FIRDatabase.database().reference().child("users").child(member).child("groupChats").child(currentKey).child("timeStamp").setValue(timeStamp)
+                    FIRDatabase.database().reference().child("users").child(member).child("groupChats").child(currentKey).child("read").setValue(false)
+                    
+                    if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                        
+                        if member != selfUID {
+                            
+                            FIRDatabase.database().reference().child("users").child(member).child("notifications").child("groupChats").child(currentKey).setValue(notificationItem)
+                            
+                        }
+                    }
+                }
             }
         }
         
@@ -220,6 +259,10 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                             
                             messageItem["postChildKey"] = scopeCurrentKey
                             
+                        } else if scopeType == "groupChats" {
+                            
+                            messageItem["chatKey"] = scopeCurrentKey
+                            
                         }
                         
                         if let firstName = self.rootController?.selfData["firstName"] as? String, lastName = self.rootController?.selfData["lastName"] as? String {
@@ -256,7 +299,20 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                                 ref.child("users").child(scopeCurrentKey).child("squad").child(selfUID).child("messages").childByAutoId().setValue(messageItem)
                                 
                             }
+                        } else if scopeType == "groupChats" {
+                            
+                            ref.child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
+                            ref.child(scopePassedRef).child("timeStamp").setValue(timeStamp)
+                            
+                            if let members = self.rootController?.topChatController?.members {
+                                
+                                for member in members {
+                                    FIRDatabase.database().reference().child("users").child(member).child("groupChats").child(scopeCurrentKey).child("timeStamp").setValue(timeStamp)
+                                    
+                                }
+                            }
                         }
+
                         
                         notificationItem["type"] = scopeType
                         notificationItem["timeStamp"] = timeStamp
@@ -338,6 +394,10 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                                 
                                 messageItem["postChildKey"] = scopeCurrentKey
                                 
+                            } else if scopeType == "groupChats" {
+                                
+                                messageItem["chatKey"] = scopeCurrentKey
+                                
                             }
                             
                             
@@ -376,10 +436,20 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                                     ref.child("users").child(scopeCurrentKey).child("squad").child(selfUID).child("messages").childByAutoId().setValue(messageItem)
                                     
                                 }
+                            } else if scopeType == "groupChats" {
+                                
+                                ref.child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
+                                ref.child(scopePassedRef).child("timeStamp").setValue(timeStamp)
+                                
+                                if let members = self.rootController?.topChatController?.members {
+                                    
+                                    for member in members {
+                                        
+                                        FIRDatabase.database().reference().child("users").child(member).child("groupChats").child(scopeCurrentKey).child("timeStamp").setValue(timeStamp)
+                                        
+                                    }
+                                }
                             }
-                            
-                            
-                            
                         }
                         
                         return nil
@@ -838,7 +908,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
             if let value = snapshot.value as? [NSObject : AnyObject] {
                 
                 print(value)
-                
+
                 if self.typeOfChat == "matches" || self.typeOfChat == "squad" {
                     
                     if let userUid = value["userUID"] as? String, senderUid = value["senderId"] as? String {
@@ -864,12 +934,11 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                             
                         }
                     }
+                } else if self.typeOfChat == "groupChats" {
                     
-                } else if self.typeOfChat == "posts" {
-                    
-                    if let postKey = value["postChildKey"] as? String {
+                    if let chatKey = value["chatKey"] as? String {
                         
-                        if self.currentKey == postKey {
+                        if self.currentKey == chatKey {
                             
                             if let id = value["senderId"] as? String, text = value["text"] as? String, name = value["senderDisplayName"] as? String, media = value["media"] as? String, isImage = value["isImage"] as? Bool, isMedia = value["isMedia"] as? Bool, key = value["key"] as? String, timeStamp = value["timeStamp"] as? NSTimeInterval {
                                 
@@ -1040,6 +1109,10 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
             
             messageItem["postChildKey"] = currentKey
             
+        } else if typeOfChat == "groupChats" {
+            
+            messageItem["chatKey"] = currentKey
+            
         }
         
         
@@ -1170,9 +1243,44 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
     
     
     //ScrollView Stuff
+    var originalHeight: CGFloat = 0
+    
+    
     override func scrollViewWillEndDragging(scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
         
         print(velocity.y)
+        
+        if velocity.y > 1 {
+            
+            if let const = rootController?.topChatHeightConstOutlet.constant {
+                
+                if const != 0 {
+                    
+                    originalHeight = const
+                    
+                }
+            }
+            
+            UIView.animateWithDuration(0.3, animations: {
+                
+                self.rootController?.topChatContainerOutlet.alpha = 0
+                self.rootController?.topChatHeightConstOutlet.constant = 0
+                self.rootController?.view.layoutIfNeeded()
+                
+            })
+        } else if velocity.y < -1 {
+            
+            let scopeHeight = originalHeight
+            
+            UIView.animateWithDuration(0.3, animations: {
+                
+                self.rootController?.topChatContainerOutlet.alpha = 1
+                self.rootController?.topChatHeightConstOutlet.constant = scopeHeight
+                self.rootController?.view.layoutIfNeeded()
+                
+            })
+        }
+        
         
         if velocity.y > 0 && (maxContentOffset - scrollView.contentOffset.y) <= 300 {
             

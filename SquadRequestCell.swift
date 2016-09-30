@@ -95,7 +95,7 @@ class SquadRequestCell: UITableViewCell {
             
             self.notificationController?.rootController?.toggleNotifications({ (bool) in
                 
-                self.notificationController?.rootController?.toggleChat("squad", userUID: scopeUID, postUID: nil, city: nil, firstName: scopeFirstname, lastName: scopeLastname, profile: scopeProfile, completion: { (bool) in
+                self.notificationController?.rootController?.toggleChat("squad", key: scopeUID, city: nil, firstName: scopeFirstname, lastName: scopeLastname, profile: scopeProfile, completion: { (bool) in
                     
                     print("chat toggled")
                     
