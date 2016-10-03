@@ -15,6 +15,7 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
     
     weak var vibesController: NewVibesController?
     
+    
     var uid = ""
     var currentSquadInstance = ""
     var firstName = ""

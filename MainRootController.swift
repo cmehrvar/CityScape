@@ -113,7 +113,7 @@ class MainRootController: UIViewController {
 
     //Toggle Functions
     func toggleHome(completion: Bool -> ()) {
-        
+
         let screenHeight = self.view.bounds.height
         
         self.squadCountController?.view.endEditing(true)
@@ -168,9 +168,7 @@ class MainRootController: UIViewController {
                 self.bottomProfileConstOutlet.constant = screenHeight
                 
             }
-            
-            self.bottomNavController?.topChatBoxView.alpha = 0
-            
+
             self.searchContainerOutlet.alpha = searchAlpha
             
             self.view.layoutIfNeeded()
@@ -1262,9 +1260,7 @@ class MainRootController: UIViewController {
 
                     //NOTIFICATIONS - selfLoadData
                     if let notifications = value["notifications"] as? [NSObject : AnyObject] {
-                        
-                        print(notifications)
-                        
+
                         var sortedNotifications = [[NSObject : AnyObject]]()
                         
                         var index = 0

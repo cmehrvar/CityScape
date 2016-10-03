@@ -133,6 +133,24 @@ class UserVideoPostCell: UICollectionViewCell {
         
     }
     
+    override func prepareForReuse() {
+        
+        for view in imageOutlet.subviews {
+            
+            view.removeFromSuperview()
+            
+        }
+        
+        if let subLayers = self.videoOutlet.layer.sublayers {
+            
+            for layer in subLayers {
+                
+                layer.removeFromSuperlayer()
+                
+            }
+        }
+    }
+
     override var bounds: CGRect {
         didSet {
             contentView.frame = bounds

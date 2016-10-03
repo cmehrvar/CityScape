@@ -10,43 +10,33 @@ import UIKit
 import Firebase
 import FirebaseDatabase
 import FirebaseAuth
-import Player
+//import Player
 import AVFoundation
 import NVActivityIndicatorView
 import SDWebImage
 
-class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, PlayerDelegate {
+class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
-    //Player Delegates
-    func playerReady(player: Player){
-        
-    }
-    func playerPlaybackStateDidChange(player: Player){
-        
-    }
-    func playerBufferingStateDidChange(player: Player){
-        
-    }
-    
-    func playerPlaybackWillStartFromBeginning(player: Player){
-        
-    }
-    func playerPlaybackDidEnd(player: Player){
-        
-        //player.playFromBeginning()
-        
-    }
-    
-    func playerCurrentTimeDidChange(player: Player) {
-        
-    }
+    var videoWithSound = ""
     
     //Variables
     weak var rootController: MainRootController?
     var transitioning = false
-    var videoPlayers = [String : Player]()
+    var videoAssets = [String : AVAsset]()
     var newPosts = [[NSObject : AnyObject]]()
     var addedPosts = [String : Bool]()
+    
+    var player1Key = ""
+    var player2Key = ""
+    var player3Key = ""
+    
+    var playerItem1: AVPlayerItem?
+    var playerItem2: AVPlayerItem?
+    var playerItem3: AVPlayerItem?
+    
+    var player1: Player1?
+    var player2: Player2?
+    var player3: Player3?
     
     var beganDisplaying = 0
     var endedDisplaying = 0
@@ -61,25 +51,185 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     //Outlets
     @IBOutlet weak var globCollectionView: UICollectionView!
     @IBOutlet weak var vibeFlowLayout: UICollectionViewFlowLayout!
-
-
     
-    //Actions
-    @IBAction func goToProfile(sender: AnyObject) {
-        
-        
-        
-    }
     
-  
+    
+    
+    
+    
     //CollectionView Delegates
     func collectionView(collectionView: UICollectionView, didEndDisplayingCell cell: UICollectionViewCell, forItemAtIndexPath indexPath: NSIndexPath) {
-        
-        if let cell = collectionView.dequeueReusableCellWithReuseIdentifier("videoCell", forIndexPath: indexPath) as? VideoVibeCollectionCell {
 
-            if let player = videoPlayers[cell.postKey] {
+        if let videoCell = cell as? VideoVibeCollectionCell {
+            
+            if videoCell.playerTitle == "player1" {
                 
-                player.stop()
+                player1?.removeObserver(self, forKeyPath: "rate")
+                player1?.pause()
+                player1 = nil
+                playerItem1 = nil
+                player1Key = ""
+                
+            } else if videoCell.playerTitle == "player2" {
+                
+                player2?.removeObserver(self, forKeyPath: "rate")
+                player2?.pause()
+                player2 = nil
+                playerItem2 = nil
+                player2Key = ""
+                
+            } else if videoCell.playerTitle == "player3" {
+                
+                player3?.removeObserver(self, forKeyPath: "rate")
+                player3?.pause()
+                player3 = nil
+                playerItem3 = nil
+                player3Key = ""
+                
+            }
+        }
+    }
+    
+    
+    func collectionView(collectionView: UICollectionView, willDisplayCell cell: UICollectionViewCell, forItemAtIndexPath indexPath: NSIndexPath) {
+        
+        if let videoCell = cell as? VideoVibeCollectionCell {
+            
+            if let key = newPosts[indexPath.section]["postChildKey"] as? String, videoURLString = newPosts[indexPath.section]["videoURL"] as? String, url = NSURL(string: videoURLString) {
+                
+                var playerTitle = ""
+                
+                if key == player1Key {
+                    
+                    player1?.play()
+                    
+                } else if key == player2Key {
+                    
+                    player2?.play()
+                    
+                } else if key == player3Key {
+                    
+                    player3?.play()
+                    
+                } else {
+                    
+                    var asset: AVAsset!
+                    
+                    if let loadedAsset = videoAssets[key] {
+                        
+                        asset = loadedAsset
+                        
+                    } else {
+                        
+                        asset = AVAsset(URL: url)
+                        
+                    }
+                    
+                    if player1 == nil {
+                        
+                        player1Key = key
+                        playerTitle = "player1"
+                        playerItem1 = AVPlayerItem(asset: asset)
+                        
+                        if let item = playerItem1 {
+                            
+                            player1 = Player1(playerItem: item)
+                            
+                        }
+                        
+                        if videoWithSound == key {
+                            
+                            player1?.muted = false
+                            
+                        } else {
+                            
+                            player1?.muted = true
+                            
+                        }
+                        
+                        player1?.addObserver(self, forKeyPath: "rate", options: NSKeyValueObservingOptions(), context: nil)
+                        
+                        dispatch_async(dispatch_get_main_queue(), {
+                            
+                            let playerLayer = AVPlayerLayer(player: self.player1)
+                            playerLayer.frame = videoCell.videoOutlet.bounds
+                            playerLayer.videoGravity = AVLayerVideoGravityResizeAspectFill
+                            videoCell.videoOutlet.layer.addSublayer(playerLayer)
+                            self.player1?.play()
+                            
+                        })
+                        
+                    } else if player2 == nil {
+                        
+                        player2Key = key
+                        playerTitle = "player2"
+                        playerItem2 = AVPlayerItem(asset: asset)
+                        
+                        if let item = playerItem2 {
+                            
+                            player2 = Player2(playerItem: item)
+                            
+                        }
+                        
+                        if videoWithSound == key {
+                            
+                            player2?.muted = false
+                            
+                        } else {
+                            
+                            player2?.muted = true
+                            
+                        }
+                        
+                        player2?.addObserver(self, forKeyPath: "rate", options: NSKeyValueObservingOptions(), context: nil)
+                        
+                        dispatch_async(dispatch_get_main_queue(), {
+                            
+                            let playerLayer = AVPlayerLayer(player: self.player2)
+                            playerLayer.frame = videoCell.videoOutlet.bounds
+                            playerLayer.videoGravity = AVLayerVideoGravityResizeAspectFill
+                            videoCell.videoOutlet.layer.addSublayer(playerLayer)
+                            self.player2?.play()
+                            
+                        })
+                        
+                    } else {
+                        
+                        player3Key = key
+                        playerTitle = "player3"
+                        playerItem3 = AVPlayerItem(asset: asset)
+                        
+                        if let item = playerItem3 {
+                            
+                            player3 = Player3(playerItem: item)
+                            
+                        }
+                        
+                        if videoWithSound == key {
+                            
+                            player3?.muted = false
+                            
+                        } else {
+                            
+                            player3?.muted = true
+                            
+                        }
+                        
+                        player3?.addObserver(self, forKeyPath: "rate", options: NSKeyValueObservingOptions(), context: nil)
+                        
+                        dispatch_async(dispatch_get_main_queue(), {
+                            
+                            let playerLayer = AVPlayerLayer(player: self.player3)
+                            playerLayer.frame = videoCell.videoOutlet.bounds
+                            playerLayer.videoGravity = AVLayerVideoGravityResizeAspectFill
+                            videoCell.videoOutlet.layer.addSublayer(playerLayer)
+                            self.player3?.play()
+                            
+                        })
+                    }
+                }
+                
+                videoCell.playerTitle = playerTitle
                 
             }
         }
@@ -87,8 +237,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     
     
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        
-        
+
         if indexPath.row == 0 {
             
             if let isImage = newPosts[indexPath.section]["isImage"] as? Bool {
@@ -106,76 +255,24 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                     
                 } else {
                     
-                    
-                    if let videoURLString = newPosts[indexPath.section]["videoURL"] as? String, url = NSURL(string: videoURLString), imageUrlString = newPosts[indexPath.section]["imageURL"] as? String, imageUrl = NSURL(string: imageUrlString) {
+                    if let  imageUrlString = newPosts[indexPath.section]["imageURL"] as? String, imageUrl = NSURL(string: imageUrlString) {
                         
                         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("videoCell", forIndexPath: indexPath) as! VideoVibeCollectionCell
                         
-                        
+                        cell.vibesController = self
+                        cell.createIndicator()
                         cell.videoThumbnailOutlet.sd_setImageWithURL(imageUrl, completed: { (image, error, cache, url) in
                             
                             print("done loading video thumbnail")
                             
                         })
-                        
-                        
-                        if let key = newPosts[indexPath.section]["postChildKey"] as? String {
-                            
-                            cell.postKey = key
-                            
-                            if let player = videoPlayers[key] {
-                                
-                                dispatch_async(dispatch_get_main_queue(), {
-                                    
-                                    if let videoPlayerView = player.view {
-                                        
-                                        self.addChildViewController(player)
-                                        player.didMoveToParentViewController(self)
-                                        player.playFromCurrentTime()
-                                        videoPlayerView.removeFromSuperview()
-                                        cell.videoOutlet.addSubview(videoPlayerView)
-                                        cell.videoOutlet.alpha = 1
-                                        
-                                    }
-                                    
-                                })
-                                
-                            } else {
-                                
-                                cell.createIndicator()
-                                
-                                dispatch_async(dispatch_get_main_queue(), {
-                                    
-                                    let scopePlayer = Player()
-                                    scopePlayer.delegate = self
-                                    
-                                    self.addChildViewController(scopePlayer)
-                                    scopePlayer.view.frame = cell.videoOutlet.bounds
-                                    scopePlayer.didMoveToParentViewController(self)
-                                    scopePlayer.setUrl(url)
-                                    scopePlayer.fillMode = AVLayerVideoGravityResizeAspectFill
-                                    scopePlayer.playbackLoops = true
-                                    scopePlayer.playFromCurrentTime()
-                                    
-                                    if let videoPlayerView = scopePlayer.view {
-                                        
-                                        cell.videoOutlet.addSubview(videoPlayerView)
-                                        cell.videoOutlet.alpha = 1
-                                        
-                                    }
-                                    
-                                    self.videoPlayers[key] = scopePlayer
-                                    
-                                })
-                            }
-                        }
-                        
+      
                         return cell
                         
                     }
                 }
-            } 
-
+            }
+            
             
         } else if indexPath.row == 1 {
             
@@ -186,22 +283,22 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
             return cell
             
         }
-
+        
         return UICollectionViewCell()
-
+        
     }
     
     func collectionView(collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, atIndexPath indexPath: NSIndexPath) -> UICollectionReusableView {
         
         var reusableView = UICollectionReusableView()
-
+        
         if kind == UICollectionElementKindSectionHeader {
             
             let cell = collectionView.dequeueReusableSupplementaryViewOfKind(UICollectionElementKindSectionHeader, withReuseIdentifier: "headerCell", forIndexPath: indexPath) as! VibeHeaderCollectionCell
-
+            
             cell.vibesController = self
             cell.loadCell(newPosts[indexPath.section])
- 
+            
             reusableView = cell
             
         }
@@ -226,28 +323,28 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
         let width = self.view.bounds.width
         
         if indexPath.row == 0 {
-
+            
             return CGSize(width: width, height: width)
             
         } else if indexPath.row == 1 {
             
-            return CGSize(width: width, height: 55)
+            return CGSize(width: width, height: 65)
             
         }
         
         return CGSizeZero
         
     }
-
+    
     func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         
         let width = self.view.bounds.width
-
+        
         return CGSize(width: width, height: 50)
-
+        
     }
     
-
+    
     func collectionView(collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, atIndexPath indexPath: NSIndexPath) {
         
         print("began displaying index path: \(indexPath.section)")
@@ -271,7 +368,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
         
     }
     
-
+    
     func scrollViewDidScroll(scrollView: UIScrollView) {
         
         if scrollView.contentOffset.y < contentOffset {
@@ -292,15 +389,15 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                         self.showingNav = false
                         
                     })
-
+                    
                 }
-
+                
             } else if contentOffsetToShowNavAt >= scrollView.contentOffset.y + 120 && navHidden && beganDisplaying != 0 {
                 
                 if !showingNav {
                     
                     showingNav = true
-
+                    
                     rootController?.showNav(0.3, completion: { (bool) in
                         
                         print("nav shown")
@@ -327,18 +424,18 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
         
     }
     
-
+    
     
     func scrollViewWillEndDragging(scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
         
         if velocity.y > 0 {
             
             if !transitioning && !navHidden {
-     
+                
                 rootController?.hideAllNav({ (bool) in
                     
                     self.navHidden = true
- 
+                    
                     print("top nav hidded")
                     
                 })
@@ -350,7 +447,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     }
     
     
-
+    
     //Functions
     var observingCity: String = ""
     var currentCity: String = ""
@@ -364,7 +461,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
         
         self.newPosts.removeAll()
         self.addedPosts.removeAll()
-        self.videoPlayers.removeAll()
+        //self.videoPlayers.removeAll()
         
         if scopeCity != "" {
             
@@ -416,7 +513,6 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     }
     
     
-    
     func observePosts(){
         
         let scopeCity = observingCity
@@ -425,7 +521,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
         
         self.newPosts.removeAll()
         self.addedPosts.removeAll()
-        self.videoPlayers.removeAll()
+        //self.videoPlayers.removeAll()
         
         if scopeCity != "" {
             
@@ -434,7 +530,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
             let ref = FIRDatabase.database().reference().child("posts").child(scopeCity)
             
             ref.queryLimitedToLast(100).observeEventType(.Value, withBlock: { (snapshot) in
-
+                
                 var scopeData = [[NSObject : AnyObject]]()
                 
                 if let value = snapshot.value as? [NSObject : AnyObject] {
@@ -475,9 +571,9 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
             })
         }
     }
-
+    
     func addGestureRecognizers(){
-
+        
         let downSwipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(showNav))
         downSwipeGestureRecognizer.direction = UISwipeGestureRecognizerDirection.Down
         downSwipeGestureRecognizer.delegate = self
@@ -534,7 +630,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
         self.globCollectionView.scrollEnabled = false
         
         rootController?.toggleMessages({ (bool) in
-
+            
             self.globCollectionView.scrollEnabled = true
             
             self.navHidden = false
@@ -548,6 +644,62 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
         
         print("something printed!")
         
+    }
+    
+    
+    override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
+        
+        if keyPath == "rate" {
+            
+            if object is Player1 {
+                
+                if let player = player1, item = playerItem1 {
+                    
+                    if CMTimeGetSeconds(player.currentTime()) == CMTimeGetSeconds(item.duration) {
+                        
+                        player1?.seekToTime(kCMTimeZero)
+                        player1?.play()
+                        
+                    } else if player1?.rate == 0 {
+                        
+                        player1?.play()
+                        
+                    }
+                }
+                
+            } else if object is Player2 {
+                
+                if let player = player2, item = playerItem2 {
+                    
+                    if CMTimeGetSeconds(player.currentTime()) == CMTimeGetSeconds(item.duration) {
+                        
+                        player2?.seekToTime(kCMTimeZero)
+                        player2?.play()
+                        
+                    } else if player2?.rate == 0 {
+                        
+                        player2?.play()
+                        
+                    }
+                }
+
+            } else if object is Player3 {
+                
+                if let player = player3, item = playerItem3 {
+                    
+                    if CMTimeGetSeconds(player.currentTime()) == CMTimeGetSeconds(item.duration) {
+                        
+                        player3?.seekToTime(kCMTimeZero)
+                        player3?.play()
+                        
+                    } else if player3?.rate == 0 {
+                        
+                        player3?.play()
+                        
+                    }
+                }
+            }
+        }
     }
     
     
@@ -568,9 +720,9 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
         
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(observeCurrentCityPosts), name: UIApplicationDidBecomeActiveNotification, object: nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(showNav), name: UIApplicationDidBecomeActiveNotification, object: nil)
-
+        
         addGestureRecognizers()
-
+        
         // Do any additional setup after loading the view.
     }
     
@@ -583,7 +735,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
-
+        
     }
     
     

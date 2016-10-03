@@ -10,4 +10,9 @@ import UIKit
 
 class OutgoingCollectionCell: UICollectionViewCell {
     
+    @IBOutlet weak var profileOutlet: TopChatProfileView!
+    @IBOutlet weak var messageBubbleOutlet: UIView!
+    @IBOutlet weak var textOutlet: UILabel!
+    
+    
 }

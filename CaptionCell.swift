@@ -10,4 +10,8 @@ import UIKit
 
 class CaptionCell: UICollectionViewCell {
     
+    
+    @IBOutlet weak var captionOutlet: UILabel!
+    
+    
 }

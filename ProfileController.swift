@@ -453,8 +453,7 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                                         self.addChildViewController(player)
                                         player.didMoveToParentViewController(self)
                                         player.playFromCurrentTime()
-                                        videoPlayerView.removeFromSuperview()
-                                        cell.videoOutlet.addSubview(videoPlayerView)
+                                        cell.videoOutlet.layer.addSublayer(videoPlayerView.layer)
                                         cell.videoOutlet.alpha = 1
                                         
                                     }

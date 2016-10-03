@@ -14,7 +14,7 @@ class NavButtonsView: UIView {
         
         super.awakeFromNib()
         layer.cornerRadius = 18
-        layer.borderWidth = 2
+        layer.borderWidth = 1
         layer.borderColor = UIColor.whiteColor().CGColor
         self.clipsToBounds = true
     }

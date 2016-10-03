@@ -54,6 +54,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         FIRDatabase.database().persistenceEnabled = true
         
   
+        application.statusBarStyle = .LightContent
         //application.statusBarHidden = true
         
         // Override point for customization after application launch.

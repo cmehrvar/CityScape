@@ -22,13 +22,7 @@ class BottomNavController: UIViewController {
     @IBOutlet weak var vibesOutlet: UILabel!
     @IBOutlet weak var vibesButtonOutlet: UIButton!
     @IBOutlet weak var messagesButtonOutlet: UIButton!
-    
-    @IBOutlet weak var chatProfileOutlet: TopChatProfileView!
-    @IBOutlet weak var chatNameOutlet: UILabel!
-    
-    
-    @IBOutlet weak var topChatBoxView: UIView!
-    
+
     //Toggle Actions
     @IBAction func toggleNearby(sender: AnyObject) {
         

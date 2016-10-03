@@ -49,9 +49,21 @@ class TopNavBarController: UIViewController {
         })
     }
     
+    var imageView = UIImageView()
+    
+    override func viewDidAppear(animated: Bool) {
+        
+        imageView.frame = view.bounds
+        
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        imageView = UIImageView(image: UIImage(named: "topGradient"))
+        imageView.contentMode = .ScaleAspectFill
+        view.addSubview(imageView)
+        
         // Do any additional setup after loading the view.
     }
 

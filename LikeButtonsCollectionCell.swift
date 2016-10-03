@@ -58,8 +58,6 @@ class LikeButtonsCollectionCell: UICollectionViewCell {
                 
             }
         })
-
-        
     }
     
     
@@ -67,16 +65,13 @@ class LikeButtonsCollectionCell: UICollectionViewCell {
     @IBAction func one(sender: AnyObject) {
         
         add("one")
-        
-            }
+    }
     
     
     @IBAction func two(sender: AnyObject) {
         
         add("two")
-        
-        
-        
+
     }
     
     
