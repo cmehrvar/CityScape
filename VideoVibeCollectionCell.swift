@@ -10,14 +10,24 @@ import UIKit
 import NVActivityIndicatorView
 
 class VideoVibeCollectionCell: UICollectionViewCell {
-
+    
     weak var vibesController: NewVibesController?
     
     var postKey = ""
     var playerTitle = ""
-
+    
     @IBOutlet weak var videoThumbnailOutlet: UIImageView!
     @IBOutlet weak var videoOutlet: UIView!
+    
+    
+    
+    @IBAction func tapForSound(sender: AnyObject) {
+
+        vibesController?.videoWithSound = postKey
+        vibesController?.globCollectionView.reloadData()
+        
+    }
+    
     
     func createIndicator(){
         
@@ -26,7 +36,7 @@ class VideoVibeCollectionCell: UICollectionViewCell {
         
         
         let frame = CGRect(x: x, y: y, width: 200, height: 200)
-
+        
         let activityIndicator = NVActivityIndicatorView(frame: frame, type: .BallClipRotatePulse, color: UIColor.redColor(), padding: 0)
         self.videoThumbnailOutlet.addSubview(activityIndicator)
         activityIndicator.startAnimation()
@@ -41,107 +51,43 @@ class VideoVibeCollectionCell: UICollectionViewCell {
     }
     
     override func prepareForReuse() {
-        
-        if let subLayers = videoOutlet.layer.sublayers {
+
+        if let vibes = vibesController {
             
-            for layer in subLayers {
+            if playerTitle == "player1" {
+
+                if vibes.player1Observing {
+                    
+                    vibesController?.player1?.removeObserver(vibes, forKeyPath: "rate")
+                    vibesController?.player1Observing = false
+
+                }
+
+            } else if playerTitle == "player2" {
                 
-                layer.removeFromSuperlayer()
+                if vibes.player2Observing {
+                    
+                    vibesController?.player2?.removeObserver(vibes, forKeyPath: "rate")
+                    vibesController?.player2Observing = false
+                    
+                }
                 
+            } else if playerTitle == "player3" {
+                
+                if vibes.player3Observing {
+                    
+                    vibesController?.player3?.removeObserver(vibes, forKeyPath: "rate")
+                    vibesController?.player3Observing = false
+                    
+                }
             }
         }
 
+        print(playerTitle)
+ 
         for view in videoThumbnailOutlet.subviews {
             
             view.removeFromSuperview()
-            
-        }
-        
-        /*
-
-        if playerTitle == "player1" {
-            
-            if let vibes = vibesController {
-                
-                vibesController?.player1?.removeObserver(vibes, forKeyPath: "rate")
-
-            }
-            
-            vibesController?.player1Key = ""
-            vibesController?.player1?.pause()
-            vibesController?.player1 = nil
-            vibesController?.playerItem1 = nil
-            
-        } else if playerTitle == "player2" {
-            
-            if let vibes = vibesController {
-                
-                vibesController?.player2?.removeObserver(vibes, forKeyPath: "rate")
-                
-            }
-            
-            vibesController?.player2Key = ""
-            vibesController?.player2?.pause()
-            vibesController?.player2 = nil
-            vibesController?.playerItem2 = nil
-
-        } else if playerTitle == "player3" {
-            
-            if let vibes = vibesController {
-                
-                vibesController?.player3?.removeObserver(vibes, forKeyPath: "rate")
-                
-            }
-            
-            vibesController?.player3Key = ""
-            vibesController?.player3?.pause()
-            vibesController?.player3 = nil
-            vibesController?.playerItem3 = nil
-            
-        }
- */
-    }
-    
-    deinit {
-        
-        if playerTitle == "player1" {
-            
-            if let vibes = vibesController {
-                
-                vibesController?.player1?.removeObserver(vibes, forKeyPath: "rate")
-                
-            }
-            
-            vibesController?.player1Key = ""
-            vibesController?.player1?.pause()
-            vibesController?.player1 = nil
-            vibesController?.playerItem1 = nil
-            
-        } else if playerTitle == "player2" {
-            
-            if let vibes = vibesController {
-                
-                vibesController?.player2?.removeObserver(vibes, forKeyPath: "rate")
-                
-            }
-            
-            vibesController?.player2Key = ""
-            vibesController?.player2?.pause()
-            vibesController?.player2 = nil
-            vibesController?.playerItem2 = nil
-            
-        } else if playerTitle == "player3" {
-            
-            if let vibes = vibesController {
-                
-                vibesController?.player3?.removeObserver(vibes, forKeyPath: "rate")
-                
-            }
-            
-            vibesController?.player3Key = ""
-            vibesController?.player3?.pause()
-            vibesController?.player3 = nil
-            vibesController?.playerItem3 = nil
             
         }
     }
