@@ -18,12 +18,24 @@ class VideoVibeCollectionCell: UICollectionViewCell {
     
     @IBOutlet weak var videoThumbnailOutlet: UIImageView!
     @IBOutlet weak var videoOutlet: UIView!
+    @IBOutlet weak var soundOutlet: UIView!
+    @IBOutlet weak var soundImageOutlet: UIImageView!
+    @IBOutlet weak var soundLabelOutlet: UILabel!
     
     
     
     @IBAction func tapForSound(sender: AnyObject) {
 
-        vibesController?.videoWithSound = postKey
+        if vibesController?.videoWithSound == postKey {
+            
+            vibesController?.videoWithSound = ""
+            
+        } else {
+            
+            vibesController?.videoWithSound = postKey
+            
+        }
+
         vibesController?.globCollectionView.reloadData()
         
     }
@@ -83,8 +95,6 @@ class VideoVibeCollectionCell: UICollectionViewCell {
             }
         }
 
-        print(playerTitle)
- 
         for view in videoThumbnailOutlet.subviews {
             
             view.removeFromSuperview()
