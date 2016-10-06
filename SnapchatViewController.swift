@@ -15,7 +15,7 @@ import SDWebImage
 import Player
 import AVFoundation
 
-class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, PlayerDelegate {
+class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     
     weak var rootController: MainRootController?
     weak var snapchatChatController: SnapchatChatController?
@@ -54,9 +54,12 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
     
     var posts = [[NSObject : AnyObject]]()
     var addedPosts = [String : Bool]()
-    
-    var videoPlayers = [String : Player]()
-    
+
+    var asset: AVAsset?
+    var item: AVPlayerItem?
+    var player: AVPlayer?
+    var layer: AVPlayerLayer?
+
     var currentPostKey = ""
     var currentSquadInstance = ""
     var currentUID = ""
@@ -64,48 +67,38 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
     var firstName = ""
     var lastName = ""
     var profilePic = ""
-    
-    //Player Delegates
-    func playerReady(player: Player){
+
+    override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
         
-        
+        if keyPath == "rate" {
+            
+            if let player = object as? AVPlayer, item = player.currentItem {
+                
+                if CMTimeGetSeconds(player.currentTime()) == CMTimeGetSeconds(item.duration) {
+                    
+                    player.seekToTime(kCMTimeZero)
+                    player.play()
+                    
+                } else if player.rate == 0 {
+                    
+                    player.play()
+                    
+                }
+            }
+        }
     }
-    
-    func playerPlaybackStateDidChange(player: Player){
-        
-        
-        
-    }
-    
-    func playerBufferingStateDidChange(player: Player){
-        
-        
-        
-    }
-    
-    func playerPlaybackWillStartFromBeginning(player: Player){
-        
-        
-    }
-    
-    func playerPlaybackDidEnd(player: Player){
-        
-    }
-    
-    func playerCurrentTimeDidChange(player: Player) {
-        
-        
-    }
-    
-    
+
     //Actions
     @IBAction func toProfile(sender: AnyObject) {
         
         let screenHeight = self.view.bounds.height
         let scopeUID = currentUID
         
-        self.closeWithDirection(0, y: screenHeight, animationTime: 0.3)
+        //if let navRevealed = rootController.n
         
+        
+        self.closeWithDirection(0, y: screenHeight, animationTime: 0.3)
+
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
             var selfProfile = false
@@ -303,53 +296,6 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
     
     
     //Functions
-    func loadContent(index: Int){
-        
-        let post = posts[index]
-        
-        if let imageString = post["imageURL"] as? String, imageURL = NSURL(string: imageString){
-            
-            if let isImage = post["isImage"] as? Bool {
-                
-                if isImage {
-                    
-                    print("isImage")
-                    
-                } else if let postKey = post["postChildKey"] as? String {
-                    
-                    if self.videoPlayers[postKey] == nil {
-                        
-                        if let videoString = post["videoURL"] as? String, videoURL = NSURL(string: videoString), key = post["postChildKey"] as? String {
-                            
-                            dispatch_async(dispatch_get_main_queue(), {
-                                
-                                let player = Player()
-                                player.delegate = self
-                                self.addChildViewController(player)
-                                player.view.frame = self.videoOutlet.bounds
-                                player.didMoveToParentViewController(self)
-                                player.setUrl(videoURL)
-                                player.fillMode = AVLayerVideoGravityResizeAspectFill
-                                player.playbackLoops = true
-                                
-                                self.videoPlayers[key] = player
-                                
-                                print("video downloaded!")
-                                
-                            })
-                        }
-                    }
-                }
-                
-                SDWebImageManager.sharedManager().downloadImageWithURL(imageURL, options: .ContinueInBackground, progress: { (currentSize, expectedSize) in
-                    
-                    }, completed: { (image, error, cache, bool, url) in
-                        
-                })
-            }
-        }
-    }
-    
     func observePosts(lastNumber: UInt, completion: Bool -> ()){
         
         let ref = FIRDatabase.database().reference()
@@ -416,12 +362,6 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
                         print("primary loaded")
                         
                     })
-                }
-                
-                for i in 0..<self.posts.count {
-                    
-                    self.loadContent(i)
-                    
                 }
             }
         })
@@ -537,6 +477,50 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
     }
     
     func closeWithDirection(x: CGFloat, y: CGFloat, animationTime: NSTimeInterval){
+        
+        
+        if let profileRevealed = rootController?.profileRevealed {
+            
+            if profileRevealed {
+                
+                UIApplication.sharedApplication().statusBarHidden = true
+                
+            } else {
+                
+                if let topNavConst = rootController?.topNavConstOutlet.constant {
+                    
+                    if topNavConst == 0 {
+                        
+                        UIApplication.sharedApplication().statusBarHidden = false
+                        
+                    } else {
+                        
+                        UIApplication.sharedApplication().statusBarHidden = true
+                        
+                    }
+                }
+            }
+        }
+        
+        
+        
+        if let playerLayer = layer {
+            
+            playerLayer.removeFromSuperlayer()
+            
+        }
+        
+        if let playerPlayer = player {
+            
+            playerPlayer.removeObserver(self, forKeyPath: "rate")
+            playerPlayer.pause()
+            
+        }
+        
+        layer = nil
+        player = nil
+        item = nil
+        asset = nil
         
         UIView.animateWithDuration(animationTime, animations: {
             
@@ -919,6 +903,24 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
     
     func loadSecondaryContent(direction: String, i: Int, completion: Bool -> ()){
         
+        if let playerLayer = layer {
+            
+            playerLayer.removeFromSuperlayer()
+            
+        }
+        
+        if let playerPlayer = player {
+            
+            playerPlayer.removeObserver(self, forKeyPath: "rate")
+            playerPlayer.pause()
+            
+        }
+        
+        layer = nil
+        player = nil
+        item = nil
+        asset = nil
+        
         print("i: \(i)")
         print("posts.count: \(posts.count)")
         
@@ -936,14 +938,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
         } else {
             
             var post = [NSObject : AnyObject]()
-            
-            
-            if let key = post[i] as? String, player = videoPlayers[key] {
-                
-                player.view.removeFromSuperview()
-                
-            }
-            
+
             if direction == "left" {
                 
                 print("direction is left")
@@ -1280,45 +1275,47 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate, Pla
                         
                         print("load video")
                         
-                        if let key = post["postChildKey"] as? String {
+                        
                             
-                            if let player = videoPlayers[key] {
+                            if let urlString = post["videoURL"] as? String, url = NSURL(string: urlString) {
                                 
                                 dispatch_async(dispatch_get_main_queue(), {
                                     
-                                    if let videoPlayerView = player.view {
+                                    self.asset = AVAsset(URL: url)
+                                    
+                                    if let asset = self.asset {
                                         
-                                        self.addChildViewController(player)
-                                        player.didMoveToParentViewController(self)
-                                        player.playFromCurrentTime()
-                                        videoPlayerView.removeFromSuperview()
-                                        self.videoOutlet.addSubview(videoPlayerView)
-                                        self.videoOutlet.alpha = 1
+                                        self.item = AVPlayerItem(asset: asset)
                                         
+                                        if let item = self.item {
+                                            
+                                            self.player = AVPlayer(playerItem: item)
+                                            
+                                        }
+                                        
+                                        if let player = self.player {
+                                            
+                                            player.addObserver(self, forKeyPath: "rate", options: NSKeyValueObservingOptions(), context: nil)
+                                            
+                                            self.layer = AVPlayerLayer(player: player)
+                                            
+                                            if let layer = self.layer {
+                                                
+                                                layer.frame = self.videoOutlet.bounds
+                                                layer.videoGravity = AVLayerVideoGravityResizeAspectFill
+                                                
+                                                self.videoOutlet.layer.addSublayer(layer)
+                                                self.videoOutlet.alpha = 1
+                                                
+                                                player.play()
+                                            }
+                                        }
                                     }
-                                })
-                                
-                            } else if let videoString = post["videoURL"] as? String, videoURL = NSURL(string: videoString)  {
-                                
-                                dispatch_async(dispatch_get_main_queue(), {
-                                    
-                                    let player = Player()
-                                    player.delegate = self
-                                    self.addChildViewController(player)
-                                    player.view.frame = self.videoOutlet.bounds
-                                    player.didMoveToParentViewController(self)
-                                    player.setUrl(videoURL)
-                                    player.fillMode = AVLayerVideoGravityResizeAspectFill
-                                    player.playbackLoops = true
-                                    self.videoOutlet.addSubview(player.view)
-                                    player.playFromCurrentTime()
-                                    self.videoPlayers[key] = player
-                                    self.videoOutlet.alpha = 1
                                     
                                     print("video downloaded!")
                                     
                                 })
-                            }
+                            
                         }
                     }
                     

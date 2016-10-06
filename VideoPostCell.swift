@@ -13,7 +13,9 @@ import FirebaseDatabase
 import FirebaseAuth
 
 class UserVideoPostCell: UICollectionViewCell {
-    
+
+    var player = 0
+
     @IBOutlet weak var imageOutlet: UIImageView!
     @IBOutlet weak var videoOutlet: UIView!
     
@@ -33,8 +35,6 @@ class UserVideoPostCell: UICollectionViewCell {
         let scopeIndex = index
 
         alertController.addAction(UIAlertAction(title: "Enlarge", style: .Default, handler: { (action) in
-            
-            self.profileController?.rootController?.snapchatController?.videoOutlet.alpha = 0
             
             self.profileController?.rootController?.toggleSnapchat(scopePosts, startingi: scopeIndex, completion: { (bool) in
                 
@@ -106,9 +106,7 @@ class UserVideoPostCell: UICollectionViewCell {
         
         imageOutlet.layer.cornerRadius = 10
         videoOutlet.layer.cornerRadius = 10
-        
-        print(data)
-        
+
         if let userUID = data["userUID"] as? String {
             
             self.uid = userUID
@@ -135,19 +133,12 @@ class UserVideoPostCell: UICollectionViewCell {
     
     override func prepareForReuse() {
         
+        imageOutlet.image = nil
+        
         for view in imageOutlet.subviews {
             
             view.removeFromSuperview()
             
-        }
-        
-        if let subLayers = self.videoOutlet.layer.sublayers {
-            
-            for layer in subLayers {
-                
-                layer.removeFromSuperlayer()
-                
-            }
         }
     }
 

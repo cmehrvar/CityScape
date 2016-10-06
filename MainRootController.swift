@@ -19,6 +19,9 @@ class MainRootController: UIViewController {
     
     var locationFromFirebase = false
     
+    var homeIsVisible = true
+    
+    
     var menuIsRevealed = false
     var nearbyIsRevealed = false
     var vibesIsRevealed = false
@@ -87,6 +90,9 @@ class MainRootController: UIViewController {
     @IBOutlet weak var notificationContainer: UIView!
     @IBOutlet weak var topChatContainerOutlet: UIView!
     @IBOutlet weak var composeContainerOutlet: UIView!
+    @IBOutlet weak var requestContainerOutlet: UIView!
+    @IBOutlet weak var squadContainerOutlet: UIView!
+    @IBOutlet weak var addToChatContainerOutlet: UIView!
     
 
     //View Controllers
@@ -111,9 +117,24 @@ class MainRootController: UIViewController {
     weak var composeChatController: ComposeChatController?
     weak var addToChatController: AddToChatController?
 
+    @IBAction func composeMessage(sender: AnyObject) {
+        
+        toggleHome { (bool) in
+            
+            self.composeChat(true, completion: { (bool) in
+                
+                print("compose revealed")
+                
+            })
+        }
+    }
+    
+    
     //Toggle Functions
     func toggleHome(completion: Bool -> ()) {
 
+        homeIsVisible = true
+        
         let screenHeight = self.view.bounds.height
         
         self.squadCountController?.view.endEditing(true)
@@ -124,7 +145,7 @@ class MainRootController: UIViewController {
         
         self.vibesFeedController?.navHidden = false
         
-        if !self.profileRevealed {
+        if !self.profileRevealed && !chatRevealed {
             
             if self.currentTab == 1 {
                 self.nearbyController?.globCollectionView.setContentOffset(CGPointZero, animated: true)
@@ -135,7 +156,7 @@ class MainRootController: UIViewController {
         
         var searchAlpha: CGFloat = 0
         var scopeSearchRevealed = false
- 
+        
         if searchRevealed && profileRevealed {
             
             searchAlpha = 1
@@ -159,16 +180,18 @@ class MainRootController: UIViewController {
             
             if self.squadCountRevealed || self.requestsRevealed || (self.chatRevealed && self.profileRevealed) {
                 
+                self.profileContainer.alpha = 1
                 self.topProfileConstOutlet.constant = 0
                 self.bottomProfileConstOutlet.constant = 0
                 
             } else {
                 
+                self.profileContainer.alpha = 0
                 self.topProfileConstOutlet.constant = -screenHeight
                 self.bottomProfileConstOutlet.constant = screenHeight
                 
             }
-
+            
             self.searchContainerOutlet.alpha = searchAlpha
             
             self.view.layoutIfNeeded()
@@ -187,10 +210,14 @@ class MainRootController: UIViewController {
             
             if self.squadCountRevealed || self.requestsRevealed || (self.chatRevealed && self.profileRevealed) {
                 
+                UIApplication.sharedApplication().statusBarHidden = true
                 self.profileRevealed = true
                 
             } else {
+
+                UIApplication.sharedApplication().statusBarHidden = false
                 
+                self.clearProfilePlayers()
                 self.profileRevealed = false
                 self.profileController?.currentUID = ""
                 self.profileController?.userData.removeAll()
@@ -200,6 +227,8 @@ class MainRootController: UIViewController {
             self.squadCountRevealed = false
             self.requestsRevealed = false
             self.chatRevealed = false
+            
+            self.vibesFeedController?.globCollectionView.reloadData()
             
             completion(complete)
             
@@ -248,6 +277,8 @@ class MainRootController: UIViewController {
     
     func toggleMenu(completion: (Bool) -> ()) {
         
+        homeIsVisible = false
+        
         self.squadCountController?.view.endEditing(true)
         self.searchController?.view.endEditing(true)
         self.chatController?.view.endEditing(true)
@@ -289,6 +320,8 @@ class MainRootController: UIViewController {
     
     
     func toggleNotifications(completion: Bool -> ()){
+        
+        homeIsVisible = false
         
         self.squadCountController?.view.endEditing(true)
         self.searchController?.view.endEditing(true)
@@ -335,6 +368,12 @@ class MainRootController: UIViewController {
     
     func toggleProfile(uid: String, selfProfile: Bool, completion: Bool -> ()){
         
+        homeIsVisible = false
+        
+        UIApplication.sharedApplication().statusBarHidden = true
+        
+        clearVibesPlayers()
+        
         self.squadCountController?.view.endEditing(true)
         self.searchController?.view.endEditing(true)
         self.chatController?.view.endEditing(true)
@@ -343,7 +382,6 @@ class MainRootController: UIViewController {
         
         profileRevealed = true
 
-        profileController?.videoPlayers.removeAll()
         profileController?.userData.removeAll()
         
         profileController?.globCollectionCell.reloadData()
@@ -357,18 +395,31 @@ class MainRootController: UIViewController {
 
         profileController?.retrieveUserData(uid)
         
+        let screenHeight = self.view.bounds.height
+        
         UIView.animateWithDuration(0.3, animations: {
             
-            self.topNavConstOutlet.constant = 0
+            self.profileContainer.alpha = 1
             
+            self.requestsTopConstOutlet.constant = -screenHeight
+            self.requestsBottomConstOutlet.constant = screenHeight
+            
+            self.squadTopConstOutlet.constant = -screenHeight
+            self.squadBottomConstOutlet.constant = screenHeight
+            
+            self.topNavConstOutlet.constant = 0
             self.bottomProfileConstOutlet.constant = 0
             self.topProfileConstOutlet.constant = 0
+
             
             self.view.layoutIfNeeded()
             
         }) { (complete) in
             
             completion(complete)
+            
+            self.requestsRevealed = false
+            self.squadCountRevealed = false
         }
     }
     
@@ -376,6 +427,10 @@ class MainRootController: UIViewController {
     
     func openSquadCount(userData: [NSObject : AnyObject], completion: Bool -> ()){
 
+        UIApplication.sharedApplication().statusBarHidden = false
+        
+        homeIsVisible = false
+        
         if let squad = userData["squad"] as? [NSObject : AnyObject] {
             
             var sortedSquad = [[NSObject : AnyObject]]()
@@ -414,6 +469,8 @@ class MainRootController: UIViewController {
 
         if let userUID = userData["uid"] as? String, selfUID = FIRAuth.auth()?.currentUser?.uid {
             
+            squadCountController?.uid = userUID
+            
             squadCountRevealed = true
             
             if userUID == selfUID {
@@ -445,11 +502,13 @@ class MainRootController: UIViewController {
             }
         }
     }
-    
-    
-    
+
     
     func openRequests(completion: Bool -> ()){
+        
+        UIApplication.sharedApplication().statusBarHidden = false
+        
+        homeIsVisible = false
         
         requestsRevealed = true
         
@@ -622,16 +681,20 @@ class MainRootController: UIViewController {
     
     func toggleChat(type: String, key: String?, city: String?, firstName: String?, lastName: String?, profile: String?, completion: (Bool) -> ()) {
 
+        homeIsVisible = false
+        
+        clearVibesPlayers()
+        
+        UIApplication.sharedApplication().statusBarHidden = false
+        
         chatRevealed = true
-
+        
         var refToPass = ""
         
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
-            let selfRef = FIRDatabase.database().reference().child("users").child(selfUID)
-
             if type == "matches" {
-
+                
                 if let uid = key {
                     
                     chatController?.currentKey = uid
@@ -649,6 +712,7 @@ class MainRootController: UIViewController {
                 topChatHeightConstOutlet.constant = 100
                 topChatController?.singleTitleViewOutlet.alpha = 1
                 topChatController?.groupTopViewOutlet.alpha = 0
+                topChatController?.postTopViewOutlet.alpha = 0
                 
             } else if type == "squad" {
                 
@@ -657,7 +721,7 @@ class MainRootController: UIViewController {
                     chatController?.currentKey = uid
                     topChatController?.uid = uid
                     refToPass = "/users/\(selfUID)/squad/\(uid)"
-
+                    
                 }
                 
                 topChatController?.icon1Outlet.image = UIImage(named: "sentSquad")
@@ -668,45 +732,65 @@ class MainRootController: UIViewController {
                 topChatHeightConstOutlet.constant = 100
                 topChatController?.singleTitleViewOutlet.alpha = 1
                 topChatController?.groupTopViewOutlet.alpha = 0
-
+                topChatController?.postTopViewOutlet.alpha = 0
+                
             } else if type == "groupChats" {
-
+                
                 if let chatKey = key {
                     
                     chatController?.currentKey = chatKey
                     topChatController?.chatKey = chatKey
                     refToPass = "/groupChats/\(chatKey)"
-
+                    
                 }
-
+                
                 topChatController?.loadGroup()
                 topChatController?.globCollectionViewOutlet.setContentOffset(CGPointZero, animated: true)
-
+                
                 topChatHeightConstOutlet.constant = 216
                 topChatController?.singleTitleViewOutlet.alpha = 0
                 topChatController?.groupTopViewOutlet.alpha = 1
-
+                topChatController?.postTopViewOutlet.alpha = 0
+                
+            } else if type == "posts" {
+                
+                if let scopeCity = city, scopePostKey = key {
+                    
+                    chatController?.currentKey = scopePostKey
+                    topChatController?.postkey = scopePostKey
+                    topChatController?.postCity = scopeCity
+                    
+                    refToPass = "/posts/\(scopeCity)/\(scopePostKey)"
+                    
+                    topChatController?.loadPost()
+                    
+                    topChatHeightConstOutlet.constant = 138
+                    topChatController?.singleTitleViewOutlet.alpha = 0
+                    topChatController?.groupTopViewOutlet.alpha = 0
+                    topChatController?.postTopViewOutlet.alpha = 1
+                    
+                }
             }
         }
-
+        
         chatController?.passedRef = refToPass
         chatController?.typeOfChat = type
-
+        
         if let firstName = firstName, lastName = lastName {
             
             topChatController?.nameOutlet.text = firstName + " " + lastName
             
             topChatController?.firstName = firstName
             topChatController?.lastName = lastName
-
+            
         }
-
+        
         if let profileString = profile, url = NSURL(string: profileString) {
             
             topChatController?.profilePicOutlet.sd_setImageWithURL(url, placeholderImage: nil)
- 
+            
         }
-
+        
         if let uid = FIRAuth.auth()?.currentUser?.uid {
             
             self.chatController?.senderId = uid
@@ -719,7 +803,7 @@ class MainRootController: UIViewController {
         }
         
         UIView.animateWithDuration(0.3, animations: {
-
+            
             self.topNavConstOutlet.constant = 0
             self.topChatConstOutlet.constant = 0
             self.bottomChatConstOutlet.constant = 0
@@ -730,12 +814,15 @@ class MainRootController: UIViewController {
             
             self.chatController?.newObserveMessages()
             
+            self.vibesFeedController?.globCollectionView.reloadData()
+            
             completion(complete)
             
         }
     }
     
     func toggleHandlePost(image: UIImage?, videoURL: NSURL?, isImage: Bool, completion: Bool -> ()) {
+
         
         let rootHeight = self.view.bounds.height
         
@@ -765,6 +852,7 @@ class MainRootController: UIViewController {
             
             print("handle close")
             
+            homeIsVisible = true
             handlePostController?.image = nil
             handlePostController?.videoOutlet.alpha = 0
             
@@ -793,7 +881,6 @@ class MainRootController: UIViewController {
         //GET RID OF SNAPS
         snapchatController?.posts.removeAll()
         snapchatController?.addedPosts.removeAll()
-        snapchatController?.videoPlayers.removeAll()
 
         snapchatController?.videoOutlet.alpha = 0
         snapchatController?.imageOutlet.image = nil
@@ -810,8 +897,16 @@ class MainRootController: UIViewController {
         snapchatController?.currentIndex = 0
         snapchatController?.snapchatChatController?.currentPostKey = ""
         
+        if let i = startingi {
+            
+            snapchatController?.currentIndex = i - 1
+            
+        }
+        
+        
         if !snapchatRevealed {
             
+            homeIsVisible = false
             UIApplication.sharedApplication().statusBarHidden = true
             
             if let snapController = snapchatController, chatController = snapController.snapchatChatController {
@@ -826,9 +921,9 @@ class MainRootController: UIViewController {
             
         } else {
             
-            //GET RID OF SNAPS
-            UIApplication.sharedApplication().statusBarHidden = false
+            homeIsVisible = true
             
+            //GET RID OF SNAPS
             print("handle snaps on close")
             
             if let snapController = snapchatController, chatController = snapController.snapchatChatController {
@@ -843,6 +938,8 @@ class MainRootController: UIViewController {
             
         }
         
+        clearVibesPlayers()
+        
         snapchatRevealed = !snapchatRevealed
         
         let revealed = snapchatRevealed
@@ -852,12 +949,6 @@ class MainRootController: UIViewController {
             if let given = givenPosts, givenIndex = startingi {
                 
                 self.snapchatController?.posts = given
-                
-                for i in 0..<given.count {
-                    
-                    self.snapchatController?.loadContent(i)
-                    
-                }
                 
                 self.snapchatController?.loadPrimary("left", i: givenIndex - 1, completion: { (complete) in
                     
@@ -953,6 +1044,8 @@ class MainRootController: UIViewController {
 
     func toggleAddToChat(members: [String]?, chatKey: String?, completion: (Bool -> ())){
         
+        homeIsVisible = false
+        
         var topConstOutlet: CGFloat = 0
         var bottomConstOutlet: CGFloat = 0
         
@@ -996,6 +1089,10 @@ class MainRootController: UIViewController {
     
     func toggleSearch(completion: Bool -> ()){
         
+        homeIsVisible = false
+        
+        clearVibesPlayers()
+        
         self.showNav(0.3) { (bool) in
             
             print("nav shown")
@@ -1035,6 +1132,8 @@ class MainRootController: UIViewController {
     
     func composeChat(open: Bool, completion: Bool -> ()) {
 
+        homeIsVisible = false
+        
         self.composedRevealed = open
         
         var topConst: CGFloat = 0
@@ -1131,6 +1230,19 @@ class MainRootController: UIViewController {
     
     //Other Functions
     func toggleTabs(tab: Int) -> Bool {
+        
+        homeIsVisible = true
+        
+        if tab != 2 {
+            
+            clearVibesPlayers()
+            
+        } else {
+            
+            vibesFeedController?.globCollectionView.reloadData()
+            
+        }
+        
         
         let vibesConst = self.view.bounds.width
         
@@ -1548,6 +1660,97 @@ class MainRootController: UIViewController {
         
     }
     
+    
+    
+    func clearProfilePlayers(){
+        
+        if let profile = profileController {
+            
+            for i in 0..<20 {
+                
+                profile.videoKeys[i] = nil
+                
+                if profile.videoPlayersObserved[i] {
+                    
+                    profile.videoPlayers[i]?.removeObserver(profile, forKeyPath: "rate")
+                    
+                }
+                
+                profile.videoPlayersObserved[i] = false
+                
+                if let player = profile.videoPlayers[i] {
+                    
+                    player.pause()
+                    
+                    if profile.videoPlayersObserved[i] {
+                        
+                        player.removeObserver(profile, forKeyPath: "rate")
+                        
+                    }
+                }
+                
+                if let layer = profile.videoLayers[i] {
+                    
+                    layer.removeFromSuperlayer()
+                    
+                }
+                
+                profile.videoPlayers[i] = nil
+                profile.videoLayers[i] = nil
+                profile.videoAssets.removeAll()
+
+                
+            }
+        }
+    }
+    
+    
+    func clearVibesPlayers(){
+        
+        if let vibes = vibesFeedController {
+            
+            if let profile = profileController {
+                
+                for i in 0..<8 {
+                    
+                    vibes.videoKeys[i] = nil
+                    
+                    if vibes.videoPlayersObserved[i] {
+                        
+                        vibes.videoPlayers[i]?.removeObserver(vibes, forKeyPath: "rate")
+                        
+                    }
+                    
+                    vibes.videoPlayersObserved[i] = false
+                    
+                    if let player = vibes.videoPlayers[i] {
+                        
+                        player.pause()
+                        
+                        if vibes.videoPlayersObserved[i] {
+                            
+                            player.removeObserver(profile, forKeyPath: "rate")
+                            
+                        }
+                    }
+                    
+                    if let layer = vibes.videoLayers[i] {
+                        
+                        layer.removeFromSuperlayer()
+                        
+                    }
+                    
+                    vibes.videoPlayers[i] = nil
+                    vibes.videoLayers[i] = nil
+                    vibes.videoAssets.removeAll()
+
+                }
+            }
+        }
+    }
+    
+    
+    
     func setStage() {
         
         dispatch_async(dispatch_get_main_queue()) {
@@ -1599,7 +1802,9 @@ class MainRootController: UIViewController {
             self.profileContainer.alpha = 1
             self.menuContainerOutlet.alpha = 1
             self.notificationContainer.alpha = 1
-            
+            self.squadContainerOutlet.alpha = 1
+            self.requestContainerOutlet.alpha = 1
+            self.addToChatContainerOutlet.alpha = 1
             self.composeContainerOutlet.alpha = 1
             
             self.snapchatContainerOutlet.alpha = 0

@@ -112,6 +112,12 @@ class UserImagePostCell: UICollectionViewCell {
         }
         
     }
+    
+    override func prepareForReuse() {
+        
+        imageOutlet.image = nil
+        
+    }
 
     override var bounds: CGRect {
         didSet {

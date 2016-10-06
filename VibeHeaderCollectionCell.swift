@@ -14,8 +14,7 @@ import FirebaseDatabase
 class VibeHeaderCollectionCell: UICollectionViewCell {
     
     weak var vibesController: NewVibesController?
-    
-    
+
     var uid = ""
     var currentSquadInstance = ""
     var firstName = ""
@@ -291,9 +290,7 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
                             let ref = FIRDatabase.database().reference().child("users").child(uid)
                             
                             ref.child("squadRequests").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
-                                
-                                print(snapshot.value)
-                                
+
                                 if snapshot.exists() {
                                     
                                     if let yourSquadRequests = snapshot.value as? [NSObject : AnyObject] {
@@ -395,6 +392,16 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
             
         }
     }
+    
+    override func prepareForReuse() {
+        
+        profilePicOutlet.image = nil
+        cityRankOutlet.text = nil
+        nameOutlet.text = nil
+        squadIndicatorOutlet.image = nil
+ 
+    }
+    
     
     override var bounds: CGRect {
         didSet {

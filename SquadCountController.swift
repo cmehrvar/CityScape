@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import Firebase
+import FirebaseAuth
 
 class SquadCountController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate {
     
@@ -14,12 +16,36 @@ class SquadCountController: UIViewController, UITableViewDataSource, UITableView
     
     var searchBarActive:Bool = false
     
+    
+    var uid = ""
     var selfSquad = false
     
     @IBOutlet weak var nameOutlet: UILabel!
     @IBOutlet weak var globTableViewOutlet: UITableView!
     @IBOutlet weak var searchBarOutlet: UISearchBar!
     @IBOutlet weak var dismissKeyboardView: UIView!
+    
+    
+    @IBAction func back(sender: AnyObject) {
+        
+        if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+            
+            var selfProfile = false
+            
+            if selfUID == uid {
+                
+                selfProfile = true
+                
+            }
+            
+            rootController?.toggleProfile(uid, selfProfile: selfProfile, completion: { (bool) in
+                
+                print("profile toggled")
+                
+            })
+        } 
+    }
+    
     
     
     var squad = [[NSObject : AnyObject]]()

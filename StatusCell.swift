@@ -24,6 +24,12 @@ class StatusCell: UICollectionViewCell {
         }
     }
     
+    override func prepareForReuse() {
+        
+        statusOutlet.text = nil
+        
+    }
+    
     
     override var bounds: CGRect {
         didSet {

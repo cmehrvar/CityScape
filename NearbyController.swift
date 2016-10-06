@@ -67,17 +67,33 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
     
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
 
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("nearbyMatchCollectionCell", forIndexPath: indexPath) as! NearbyMatchCollectionCell
-        
-        cell.nearbyController = self
-        cell.index = indexPath.row
- 
-        cell.uid = nearbyUsers[indexPath.row]
- 
-        cell.loadUser(nearbyUsers[indexPath.row])
-        
-        return cell
-        
+        if indexPath.row % 2 == 0 {
+            
+            let cell = collectionView.dequeueReusableCellWithReuseIdentifier("leftMatchCollectionCell", forIndexPath: indexPath) as! NearbyMatchCollectionCell
+            
+            cell.nearbyController = self
+            cell.index = indexPath.row
+            
+            cell.uid = nearbyUsers[indexPath.row]
+            
+            cell.loadUser(nearbyUsers[indexPath.row])
+            
+            return cell
+
+        } else {
+            
+            let cell = collectionView.dequeueReusableCellWithReuseIdentifier("rightMatchCollectionCell", forIndexPath: indexPath) as! NearbyMatchCollectionCell
+            
+            cell.nearbyController = self
+            cell.index = indexPath.row
+            
+            cell.uid = nearbyUsers[indexPath.row]
+            
+            cell.loadUser(nearbyUsers[indexPath.row])
+            
+            return cell
+
+        }
     }
     
     //Location Manager Delegates

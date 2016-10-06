@@ -62,6 +62,14 @@ class ActiveDistanceCell: UICollectionViewCell {
         }
     }
     
+    override func prepareForReuse() {
+        
+        distanceOutlet.text = nil
+        activeOutlet.text = nil
+        
+    }
+    
+    
     override var bounds: CGRect {
         didSet {
             contentView.frame = bounds

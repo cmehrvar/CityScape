@@ -49,6 +49,13 @@ class NotSelfSquadRankCell: UICollectionViewCell {
         }
         
     }
+    
+    override func prepareForReuse() {
+        
+        squadCountOutlet.text = nil
+        rankOutlet.text = nil
+        
+    }
 
     
     override var bounds: CGRect {
@@ -56,4 +63,5 @@ class NotSelfSquadRankCell: UICollectionViewCell {
             contentView.frame = bounds
         }
     }
+    
 }

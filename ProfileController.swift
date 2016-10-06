@@ -11,18 +11,22 @@ import Firebase
 import FirebaseDatabase
 import FirebaseAuth
 import Fusuma
-import Player
 import AWSS3
 import AVFoundation
 import SDWebImage
 
-class ProfileController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, FusumaDelegate, PlayerDelegate {
+class ProfileController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, FusumaDelegate {
     
     //Variables
     weak var rootController: MainRootController?
     var userData = [NSObject:AnyObject]()
     var userPosts = [[NSObject : AnyObject]]()
-    var videoPlayers = [String : Player]()
+    
+    var videoAssets = [String : AVAsset]()
+    var videoPlayers = [AVPlayer?]()
+    var videoPlayersObserved = [Bool]()
+    var videoLayers = [AVPlayerLayer?]()
+    var videoKeys = [String?]()
     
     var selfProfile = false
     
@@ -43,29 +47,34 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
     @IBOutlet weak var globCollectionCell: UICollectionView!
     
     
-    
-    //Player Delegates
-    func playerReady(player: Player){
+    //Actions
+    @IBAction func close(sender: AnyObject) {
         
-    }
-    func playerPlaybackStateDidChange(player: Player){
-        
-    }
-    func playerBufferingStateDidChange(player: Player){
-        
+        rootController?.toggleHome({ (bool) in
+            
+            print("home toggled")
+            
+        })
     }
     
-    func playerPlaybackWillStartFromBeginning(player: Player){
+    override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
         
-    }
-    func playerPlaybackDidEnd(player: Player){
-        
-        
-        
-    }
-    
-    func playerCurrentTimeDidChange(player: Player) {
-        
+        if keyPath == "rate" {
+            
+            if let player = object as? AVPlayer, item = player.currentItem {
+                
+                if CMTimeGetSeconds(player.currentTime()) == CMTimeGetSeconds(item.duration) {
+                    
+                    player.seekToTime(kCMTimeZero)
+                    player.play()
+                    
+                } else if player.rate == 0 {
+                    
+                    player.play()
+                    
+                }
+            }
+        }
     }
     
     
@@ -160,9 +169,9 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
         print("camera unauthorized")
         
     }
+    
     func fusumaClosed() {
-        
-        UIApplication.sharedApplication().statusBarHidden = false
+
         rootController?.cameraTransitionOutlet.alpha = 0
         
     }
@@ -181,7 +190,6 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
             print("fusumaPresented")
             
         }
-        
     }
     
     func addUploadStuff(){
@@ -195,9 +203,6 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
             print("Creating upload directory failed. Error: \(error)")
         }
     }
-    
-    
-    
     
     //Functions
     func retrieveUserData(uid: String){
@@ -263,7 +268,6 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                                         
                                     }
                                 }
-                                
                             }
                             
                             scopePosts.sortInPlace({ (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
@@ -290,28 +294,168 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
         }
     }
     
-    //CollectionViewDelegates
-    func collectionView(collectionView: UICollectionView, didEndDisplayingCell cell: UICollectionViewCell, forItemAtIndexPath indexPath: NSIndexPath) {
+    
+    
+    func setPlayerTitle(postKey: String, cell: UserVideoPostCell) {
         
-        if let cell = collectionView.dequeueReusableCellWithReuseIdentifier("userVideoPostCell", forIndexPath: indexPath) as? UserVideoPostCell {
-
-            cell.videoOutlet.alpha = 0
-
-            if let player = videoPlayers[cell.postChildKey] {
+        var playerForCell = 0
+        
+        for i in 0..<20 {
+            
+            if videoKeys[i] == nil {
                 
-                player.stop()
-
+                playerForCell = i
+                
             }
         }
+        
+        for i in 0..<20 {
+            
+            if videoKeys[i] == postKey {
+                
+                playerForCell = i
+                
+            }
+        }
+        
+        videoKeys[playerForCell] = postKey
+        cell.player = playerForCell
+        
     }
     
-
-    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    
+    //CollectionViewDelegates
+    func collectionView(collectionView: UICollectionView, willDisplayCell cell: UICollectionViewCell, forItemAtIndexPath indexPath: NSIndexPath) {
         
-        if selfProfile {
-            return userPosts.count + 4
-        } else {
-            return userPosts.count + 5
+        if let videoCell = cell as? UserVideoPostCell {
+            
+            let index = videoCell.index
+            let postKey = videoCell.postChildKey
+            let playerNumber = videoCell.player
+            
+            if let player = videoPlayers[playerNumber] {
+                
+                if !videoPlayersObserved[playerNumber] {
+                    
+                    player.addObserver(self, forKeyPath: "rate", options: NSKeyValueObservingOptions(), context: nil)
+                    videoPlayersObserved[playerNumber] = true
+                    
+                }
+                
+                
+                
+                dispatch_async(dispatch_get_main_queue(), {
+                        
+                       self.videoLayers[playerNumber] = AVPlayerLayer(player: player)
+                       self.videoLayers[playerNumber]?.videoGravity = AVLayerVideoGravityResizeAspectFill
+                        self.videoLayers[playerNumber]?.frame = videoCell.bounds
+                        
+                        if let layer = self.videoLayers[playerNumber] {
+                            
+                            videoCell.videoOutlet.layer.addSublayer(layer)
+                            
+                        }
+                        
+                        player.muted = true
+                        player.play()
+                        
+                    
+                })
+                
+            } else {
+                
+                    var asset: AVAsset?
+                    
+                    if let loadedAsset = videoAssets[postKey] {
+                        
+                        asset = loadedAsset
+                        
+                    } else if let urlString = userPosts[index]["videoURL"] as? String, url = NSURL(string: urlString) {
+                        
+                        asset = AVAsset(URL: url)
+                        
+                    }
+                    
+                    if let actualAsset = asset {
+                        
+                        dispatch_async(dispatch_get_main_queue(), {
+                            
+                            let playerItem = AVPlayerItem(asset: actualAsset)
+                            self.videoKeys[playerNumber] = postKey
+                            self.videoPlayers[playerNumber] = AVPlayer(playerItem: playerItem)
+                            self.videoPlayers[playerNumber]?.addObserver(self, forKeyPath: "rate", options: NSKeyValueObservingOptions(), context: nil)
+                            self.videoPlayersObserved[playerNumber] = true
+                            
+                            self.videoLayers[playerNumber] = AVPlayerLayer(player: self.videoPlayers[playerNumber])
+                            self.videoLayers[playerNumber]?.videoGravity = AVLayerVideoGravityResizeAspectFill
+                            self.videoLayers[playerNumber]?.frame = videoCell.bounds
+                            
+                            if let layer = self.videoLayers[playerNumber] {
+                                
+                                videoCell.videoOutlet.layer.addSublayer(layer)
+                                
+                            }
+                            
+                            self.videoPlayers[playerNumber]?.muted = true
+                            self.videoPlayers[playerNumber]?.play()
+                            
+                        })
+                    }
+                }
+
+        }
+    }
+
+    func collectionView(collectionView: UICollectionView, didEndDisplayingCell cell: UICollectionViewCell, forItemAtIndexPath indexPath: NSIndexPath) {
+        
+        if !userPosts.isEmpty {
+            
+            if let videoCell = cell as? UserVideoPostCell {
+                
+                var isVisible = false
+                
+                for visibleCell in collectionView.visibleCells() {
+                    
+                    if let visibleVideo = visibleCell as? UserVideoPostCell {
+                        
+                        if visibleVideo.postChildKey == self.userPosts[videoCell.index]["postChildKey"] as? String {
+                            
+                            isVisible = true
+                            
+                        }
+                    }
+                }
+                
+                let playerNumber = videoCell.player
+                
+                if let player = videoPlayers[playerNumber] {
+                    
+                    if videoPlayersObserved[playerNumber] {
+                        
+                        player.removeObserver(self, forKeyPath: "rate")
+                        videoPlayersObserved[playerNumber] = false
+                        
+                    }
+                }
+                
+                if !isVisible {
+                    
+                    videoLayers[playerNumber]?.removeFromSuperlayer()
+                    videoLayers[playerNumber] = nil
+                    videoKeys[playerNumber] = nil
+                    videoPlayers[playerNumber]?.pause()
+                    videoPlayers[playerNumber] = nil
+                    
+                    if let subLayers = videoCell.videoOutlet.layer.sublayers {
+                        
+                        for layer in subLayers {
+                            
+                            layer.removeFromSuperlayer()
+                            
+                        }
+                    }
+                }
+            }
         }
     }
     
@@ -409,8 +553,6 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                     
                     cell.profileController = self
                     
-                    print("User post count : \(userPosts.count)")
-                    print("Index: \(index)")
                     cell.posts = userPosts
                     cell.index = index
                     cell.loadCell(userPosts[index])
@@ -423,6 +565,12 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                     
                     cell.profileController = self
                     
+                    if let key = userPosts[index]["postChildKey"] as? String {
+                        
+                        setPlayerTitle(key, cell: cell)
+                        
+                    }
+                    
                     cell.loadCell(userPosts[index])
                     
                     cell.posts = userPosts
@@ -433,63 +581,17 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                     cell.videoOutlet.layer.cornerRadius = 10
                     cell.videoOutlet.clipsToBounds = true
                     
-                    
-                    if let videoURLString = userPosts[index]["videoURL"] as? String, url = NSURL(string: videoURLString), imageUrlString = userPosts[index]["imageURL"] as? String, imageUrl = NSURL(string: imageUrlString) {
+                    if let imageUrlString = userPosts[index]["imageURL"] as? String, imageUrl = NSURL(string: imageUrlString) {
                         
                         cell.imageOutlet.sd_setImageWithURL(imageUrl, completed: { (image, error, cache, url) in
                             
                             print("done loading video thumbnail")
                             
                         })
-
-                        if let key = userPosts[index]["postChildKey"] as? String {
-                            
-                            if let player = videoPlayers[key] {
-                                
-                                dispatch_async(dispatch_get_main_queue(), {
-                                    
-                                    if let videoPlayerView = player.view {
-                                        
-                                        self.addChildViewController(player)
-                                        player.didMoveToParentViewController(self)
-                                        player.playFromCurrentTime()
-                                        cell.videoOutlet.layer.addSublayer(videoPlayerView.layer)
-                                        cell.videoOutlet.alpha = 1
-                                        
-                                    }
-                                })
-                                
-                            } else {
-                                
-                                cell.createIndicator()
-                                
-                                dispatch_async(dispatch_get_main_queue(), {
-                                    
-                                    let scopePlayer = Player()
-                                    scopePlayer.delegate = self
-                                    
-                                    self.addChildViewController(scopePlayer)
-                                    scopePlayer.view.frame = cell.videoOutlet.bounds
-                                    scopePlayer.didMoveToParentViewController(self)
-                                    scopePlayer.setUrl(url)
-                                    scopePlayer.fillMode = AVLayerVideoGravityResizeAspectFill
-                                    scopePlayer.playbackLoops = true
-                                    scopePlayer.playFromCurrentTime()
-                                    
-                                    if let videoPlayerView = scopePlayer.view {
-                                        
-                                        cell.videoOutlet.addSubview(videoPlayerView)
-                                        cell.videoOutlet.alpha = 1
-                                    }
-                                    
-                                    self.videoPlayers[key] = scopePlayer
-                                    
-                                })
-                            }
-                        }
+                        
                         
                         return cell
- 
+                        
                     }
                 }
             }
@@ -500,85 +602,102 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
         
     }
     
+    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
-        func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
+        if selfProfile {
+            return userPosts.count + 4
+        } else {
+            return userPosts.count + 5
+        }
+    }
+    
+    
+    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
+        
+        let width = self.view.bounds.width
+        
+        if indexPath.row == 0 {
             
-            let width = self.view.bounds.width
-            
-            if indexPath.row == 0 {
+            if let status = userData["currentStatus"] as? String {
                 
-                if let status = userData["currentStatus"] as? String {
+                if status != "" {
                     
-                    if status != "" {
-                        
-                        return CGSize(width: width, height: 30)
-                        
-                    }
-                }
-                
-                return CGSize(width: width, height: 0)
-                
-            } else if indexPath.row == 1 {
-                
-                return CGSize(width: width, height: width)
-                
-                
-            } else if indexPath.row == 2 {
-                
-                if let occupation = userData["occupation"] as? String {
+                    return CGSize(width: width, height: 44)
                     
-                    if occupation != "" {
-                        
-                        return CGSize(width: width, height: 85)
-                        
-                    }
                 }
-                
-                return CGSize(width: width, height: 67)
-                
-            } else if indexPath.row == 3  {
-                
-                return CGSize(width: width, height: 50)
-                
-            } else if indexPath.row == 4 && !selfProfile {
-                
-                return CGSize(width: width, height: 34)
-                
-            } else {
-                
-                let thirdWidth = width * 0.33
-                return CGSize(width: thirdWidth, height: thirdWidth)
-                
             }
+            
+            return CGSize(width: width, height: 0)
+            
+        } else if indexPath.row == 1 {
+            
+            return CGSize(width: width, height: width)
+            
+            
+        } else if indexPath.row == 2 {
+            
+            if let occupation = userData["occupation"] as? String {
+                
+                if occupation != "" {
+                    
+                    return CGSize(width: width, height: 85)
+                    
+                }
+            }
+            
+            return CGSize(width: width, height: 67)
+            
+        } else if indexPath.row == 3  {
+            
+            return CGSize(width: width, height: 50)
+            
+        } else if indexPath.row == 4 && !selfProfile {
+            
+            return CGSize(width: width, height: 34)
+            
+        } else {
+            
+            let thirdWidth = width * 0.33
+            return CGSize(width: thirdWidth, height: thirdWidth)
+            
+        }
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        addUploadStuff()
+        
+        for _ in 0..<20 {
+            
+            videoPlayersObserved.append(false)
+            videoLayers.append(nil)
+            videoPlayers.append(nil)
+            videoKeys.append(nil)
+            
         }
         
-        override func viewDidLoad() {
-            super.viewDidLoad()
-            
-            addUploadStuff()
-            // Do any additional setup after loading the view.
-        }
+        // Do any additional setup after loading the view.
+    }
+    
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
         
-        override func didReceiveMemoryWarning() {
-            super.didReceiveMemoryWarning()
-            
-            self.videoPlayers.removeAll()
-            
-            SDWebImageManager.sharedManager().imageCache.clearMemory()
-            
-            
-            // Dispose of any resources that can be recreated.
-        }
+        SDWebImageManager.sharedManager().imageCache.clearMemory()
         
         
-        /*
-         // MARK: - Navigation
-         
-         // In a storyboard-based application, you will often want to do a little preparation before navigation
-         override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-         // Get the new view controller using segue.destinationViewController.
-         // Pass the selected object to the new view controller.
-         }
-         */
-        
+        // Dispose of any resources that can be recreated.
+    }
+    
+    
+    /*
+     // MARK: - Navigation
+     
+     // In a storyboard-based application, you will often want to do a little preparation before navigation
+     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+     // Get the new view controller using segue.destinationViewController.
+     // Pass the selected object to the new view controller.
+     }
+     */
+    
 }

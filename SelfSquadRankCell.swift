@@ -81,6 +81,16 @@ class SelfSquadRankCell: UICollectionViewCell {
         }
 
     }
+    
+    
+    override func prepareForReuse() {
+        
+        squadCountOutlet.text = nil
+        rankOutlet.text = nil
+        requestsOutlet.text = nil
+        
+    }
+    
 
     override var bounds: CGRect {
         didSet {

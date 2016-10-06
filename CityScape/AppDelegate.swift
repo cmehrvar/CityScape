@@ -107,8 +107,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
             self.nearbyController?.timer = NSTimer.scheduledTimerWithTimeInterval(30, target: scopeController, selector: #selector(self.nearbyController?.updateLocationToFirebase), userInfo: nil, repeats: true)
             
-        } else {
-            mainRootController?.askInterestedIn()
         }
         
         print("active")
@@ -125,7 +123,5 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return FBSDKApplicationDelegate.sharedInstance().application(application, openURL: url, sourceApplication: sourceApplication, annotation: annotation)
         
     }
-
-
 }
 

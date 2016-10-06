@@ -72,6 +72,16 @@ class IncomingCollectionCell: UICollectionViewCell {
     }
     
     
+    override func prepareForReuse() {
+        
+        profileOutlet.image = nil
+        textOutlet.text = nil
+        nameOutlet.text = nil
+
+    }
+    
+    
+    
     override var bounds: CGRect {
         didSet {
             contentView.frame = bounds

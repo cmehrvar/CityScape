@@ -57,6 +57,8 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
     
     @IBAction func camera(sender: AnyObject) {
         
+        rootController?.clearVibesPlayers()
+        
         print("camera")
         
         presentFusumaCamera()
@@ -103,20 +105,14 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
         
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
         
-            if rootController?.profileController?.currentUID != selfUID  {
-
-                rootController?.toggleHome({ (bool) in
-
-                    self.rootController?.toggleProfile(selfUID, selfProfile: true, completion: { (bool) in
-                        
-                        self.rootController?.profileRevealed = true
-                        
-                        
-                    })
-                })
-            }
+            self.rootController?.toggleProfile(selfUID, selfProfile: true, completion: { (bool) in
+                
+                self.rootController?.profileRevealed = true
+                
+                
+            })
         }
-
+        
         print("profile")
         
     }

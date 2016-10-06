@@ -35,7 +35,7 @@ class NotificationController: UIViewController, UITableViewDelegate, UITableView
                         if let selfUid = FIRAuth.auth()?.currentUser?.uid, type = globNotifications[indexPath.row]["type"] as? String {
                             
                             let ref = FIRDatabase.database().reference().child("users").child(selfUid).child("notifications")
-   
+                            
                             if type == "groupChats" {
                                 
                                 if let chatKey = globNotifications[indexPath.row]["chatKey"] as? String {
@@ -44,7 +44,15 @@ class NotificationController: UIViewController, UITableViewDelegate, UITableView
                                     
                                 }
                                 
-                            } else {
+                            } else if type == "post" {
+                                
+                                if let postKey = globNotifications[indexPath.row]["postChildKey"] as? String {
+                                    
+                                    ref.child("posts").child(postKey).child("read").setValue(true)
+                                    
+                                }
+                                
+                            }else {
                                 
                                 if let userUID = globNotifications[indexPath.row]["uid"] as? String {
                                     
@@ -64,14 +72,14 @@ class NotificationController: UIViewController, UITableViewDelegate, UITableView
                 }
             }
         }
-
+        
         
         if let type = globNotifications[indexPath.row]["type"] as? String {
             
             if type == "squadRequest" || type == "addedYou" {
                 
                 let cell = tableView.dequeueReusableCellWithIdentifier("squadRequestCell", forIndexPath: indexPath) as! SquadRequestCell
-
+                
                 cell.notificationController = self
                 
                 cell.profilePictureOutlet.layer.cornerRadius = ((60 - (8*2)) / 2)
@@ -96,15 +104,22 @@ class NotificationController: UIViewController, UITableViewDelegate, UITableView
                 
                 
                 return cell
+            } else if type == "post" {
+                
+                let cell = tableView.dequeueReusableCellWithIdentifier("postUpdateCell", forIndexPath: indexPath) as! PostUpdateCell
+                cell.notificationController = self
+                cell.profileOutlet.layer.cornerRadius = ((60 - (8*2)) / 2)
+                cell.loadCell(globNotifications[indexPath.row])
+                return cell
             }
             
         }
         
         return UITableViewCell()
-   
+        
     }
     
-
+    
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         return globNotifications.count
@@ -122,17 +137,17 @@ class NotificationController: UIViewController, UITableViewDelegate, UITableView
         
         
     }
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         let swipeGesture = UISwipeGestureRecognizer(target: self, action: #selector(slideRight))
         swipeGesture.direction = .Right
         self.globTableViewOutlet.addGestureRecognizer(swipeGesture)
-
+        
         // Do any additional setup after loading the view.
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.

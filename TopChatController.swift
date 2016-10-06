@@ -14,29 +14,224 @@ import NYAlertViewController
 import SDWebImage
 import Fusuma
 import AWSS3
+import AVFoundation
 
 class TopChatController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UITextFieldDelegate, FusumaDelegate {
+    
+    var asset: AVAsset?
+    var item: AVPlayerItem?
+    var player: AVPlayer?
+    var playerLayer: AVPlayerLayer?
     
     weak var rootController: MainRootController?
     var type = ""
     
-    
+    //SingleChat
     @IBOutlet weak var icon1Outlet: UIImageView!
     @IBOutlet weak var profilePicOutlet: TopChatProfileView!
     @IBOutlet weak var icon2Outlet: UIImageView!
     @IBOutlet weak var nameOutlet: UILabel!
     @IBOutlet weak var singleTitleViewOutlet: UIView!
     
-    
+    //GroupChat
     @IBOutlet weak var globCollectionViewOutlet: UICollectionView!
     @IBOutlet weak var squadMembersTitleOutlet: UILabel!
     @IBOutlet weak var groupTopViewOutlet: UIView!
     @IBOutlet weak var chatTitleOutlet: UILabel!
     @IBOutlet weak var groupPhotoOutlet: TopChatProfileView!
     
+    //Posts
+    @IBOutlet weak var postProfileOutlet: TopChatProfileView!
+    @IBOutlet weak var postNameOutlet: UILabel!
+    @IBOutlet weak var postCityOutlet: UILabel!
+    @IBOutlet weak var postCaptionOutlet: UILabel!
+    @IBOutlet weak var postImageOutlet: UIImageView!
+    @IBOutlet weak var postVideoOutlet: UIView!
+    @IBOutlet weak var postTopViewOutlet: UIView!
+    
+    //Player Delegates
+    
+    //POSTS!!!!
+    var postkey = ""
+    var postCity = ""
+    
+    
+    override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
+        
+        if keyPath == "rate" {
+            
+            if let player = object as? AVPlayer, item = player.currentItem {
+                
+                if CMTimeGetSeconds(player.currentTime()) == CMTimeGetSeconds(item.duration) {
+                    
+                    player.seekToTime(kCMTimeZero)
+                    player.play()
+                    
+                } else if player.rate == 0 {
+                    
+                    player.play()
+                    
+                }
+            }
+        }
+    }
+
+    func loadPost(){
+        
+        self.postVideoOutlet.alpha = 0
+        self.type = "posts"
+        let scopeKey = postkey
+        let scopeCity = postCity
+        
+        postCaptionOutlet.adjustsFontSizeToFitWidth = true
+        postCaptionOutlet.baselineAdjustment = .AlignCenters
+        postNameOutlet.adjustsFontSizeToFitWidth = true
+        postNameOutlet.baselineAdjustment = .AlignCenters
+
+        let ref = FIRDatabase.database().reference().child("posts").child(scopeCity).child(scopeKey)
+        
+        ref.child("imageURL").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+            
+            if self.postkey == scopeKey {
+                
+                if let imageString = snapshot.value as? String, url = NSURL(string: imageString) {
+                    
+                    self.postImageOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                    
+                }
+            }
+        })
+        
+        ref.child("firstName").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+            
+            if let firstName = snapshot.value as? String {
+                
+                ref.child("lastName").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                    
+                    if let lastName = snapshot.value as? String {
+                        
+                        self.firstName = firstName
+                        self.lastName = lastName
+                        
+                        let name = firstName + " " + lastName
+                        self.postNameOutlet.text = name
+                        
+                    }
+                })
+            }
+        })
+        
+        ref.child("userUID").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+            
+            if let uid = snapshot.value as? String {
+                
+                let userRef = FIRDatabase.database().reference().child("users").child(uid)
+                
+                userRef.child("profilePicture").observeEventType(.Value, withBlock: { (snapshot) in
+                    
+                    if self.postkey == scopeKey {
+                        
+                        if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
+                            
+                            self.postProfileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                            
+                        }
+                        
+                    } else {
+                        
+                        userRef.removeAllObservers()
+                        
+                    }
+                })
+            }
+        })
+        
+        ref.child("caption").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+            
+            if self.postkey == scopeKey {
+                
+                if let caption = snapshot.value as? String {
+                    
+                    self.postCaptionOutlet.text = caption
+                    
+                }
+            }
+        })
+        
+        
+        ref.child("state").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+            
+            if self.postkey == scopeKey {
+                
+                if let state = snapshot.value as? String {
+                    
+                    self.postCityOutlet.text = scopeCity + ", " + state
+                    
+                }
+            }
+        })
+        
+        
+        ref.child("isImage").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+            
+            if let isImage = snapshot.value as? Bool {
+                
+                if self.postkey == scopeKey {
+                    
+                    if !isImage {
+                        
+                        ref.child("videoURL").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                            
+                            if let urlString = snapshot.value as? String, url = NSURL(string: urlString) {
+                                
+                                dispatch_async(dispatch_get_main_queue(), {
+
+                                    self.asset = AVAsset(URL: url)
+                                    
+                                    if let asset = self.asset {
+                                        
+                                        self.item = AVPlayerItem(asset: asset)
+ 
+                                        if let item = self.item {
+                                            
+                                            self.player = AVPlayer(playerItem: item)
+                                            
+                                        }
+                                        
+                                        if let player = self.player {
+                                            
+                                            player.addObserver(self, forKeyPath: "rate", options: NSKeyValueObservingOptions(), context: nil)
+                                            
+                                            self.playerLayer = AVPlayerLayer(player: player)
+                                            
+                                            if let layer = self.playerLayer {
+                                                
+                                                layer.frame = self.postVideoOutlet.bounds
+                                                layer.videoGravity = AVLayerVideoGravityResizeAspectFill
+
+                                                self.postVideoOutlet.layer.addSublayer(layer)
+                                                self.postVideoOutlet.alpha = 1
+                                                
+                                                player.play()
+                                            }
+                                        }
+                                    }
+   
+                                    print("video downloaded!")
+                                    
+                                })
+                            }
+                        })
+                    }
+                }
+            }
+        })
+    }
+    
+    
     //GROUP CHAT!!!!!!
     var globAlertController: NYAlertViewController?
-    var groupPicture: String? 
+    var groupPicture: String?
     var chatKey = ""
     var collectionViewMembers = [String]()
     var members = [String]()
@@ -100,7 +295,7 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
                     }
                     
                     self.collectionViewMembers = collectionScopeMembers
-
+                    
                     self.globCollectionViewOutlet.reloadData()
                     
                 }
@@ -118,7 +313,7 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
             if snapshot.exists() {
                 
                 if self.chatKey == scopeKey {
-
+                    
                     if let photoString = snapshot.value as? String, url = NSURL(string: photoString){
                         
                         self.groupPicture = photoString
@@ -144,7 +339,7 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
         let fusuma = FusumaViewController()
         fusuma.delegate = self
         fusuma.hasVideo = false
-
+        
         self.presentViewController(fusuma, animated: true) {
             
             print("fusumaPresented")
@@ -161,25 +356,25 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
         
         let scopeMembers = members
         let scopeKey = chatKey
-
+        
         print("fusuma dismissed with image")
         presentAlertController(image)
-
+        
         dispatch_async(dispatch_get_main_queue(), {
             
             let imageView = UIImageView(image: image)
             imageView.clipsToBounds = true
             imageView.addConstraint(NSLayoutConstraint(item: imageView, attribute: .Height, relatedBy: .Equal, toItem: imageView, attribute: .Width, multiplier: 0.75, constant: 0))
-
+            
             imageView.contentMode = .ScaleAspectFill
-
+            
             if let alertController = self.globAlertController {
                 
                 alertController.alertViewContentView = imageView
                 
             }
         })
-
+        
         
         
         self.imageUploadRequest(image) { (url, uploadRequest) in
@@ -199,13 +394,13 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
                         FIRDatabase.database().reference().child("users").child(selfUID).child("groupChats").child(scopeKey).child("groupPhoto").setValue(url)
                         
                     }
-
+                    
                     for member in scopeMembers {
                         
                         FIRDatabase.database().reference().child("users").child(member).child("groupChats").child(scopeKey).child("groupPhoto").setValue(url)
                         
                     }
-
+                    
                 } else {
                     print("error uploading: \(task.error)")
                     
@@ -279,8 +474,8 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
             completion(url: imageUrl, uploadRequest: uploadRequest)
         }
     }
-
-
+    
+    
     
     //CollectionView Delegates
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
@@ -316,13 +511,9 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
         }
     }
     
-    
-
     var uid = ""
     var firstName = ""
     var lastName = ""
-    
-    
     
     func presentAlertController(image: UIImage?){
         
@@ -331,7 +522,7 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
         
         let scopeMembers = members
         let scopeChatKey = chatKey
-
+        
         //GROUP CHATS!
         if type == "groupChats" {
             
@@ -367,16 +558,16 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
                     let imageView = UIImageView(image: photo)
                     imageView.clipsToBounds = true
                     imageView.addConstraint(NSLayoutConstraint(item: imageView, attribute: .Height, relatedBy: .Equal, toItem: imageView, attribute: .Width, multiplier: 0.75, constant: 0))
-
+                    
                     if scopePicture == nil {
                         
                         imageView.contentMode = .ScaleAspectFit
                         
                     } else {
                         
-                       imageView.contentMode = .ScaleAspectFill
+                        imageView.contentMode = .ScaleAspectFill
                     }
-
+                    
                     alertController.alertViewContentView = imageView
                     
                 })
@@ -447,12 +638,12 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
             
             
             alertController.addAction(NYAlertAction(title: "Leave Chat", style: .Destructive, handler: { (action) in
-
+                
                 //Leave Chat
                 if let selfUID = FIRAuth.auth()?.currentUser?.uid {
                     
                     FIRDatabase.database().reference().child("groupChats").child(scopeChatKey).child("members").child(selfUID).removeValue()
-
+                    
                     for member in scopeMembers {
                         
                         FIRDatabase.database().reference().child("users").child(member).child("groupChats").child(scopeChatKey).child("members").child(selfUID).removeValue()
@@ -493,7 +684,30 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
             })
             
             
-        } else {
+        } else if type == "posts" {
+            
+            let alertController = UIAlertController(title: nil, message: "Report \(firstName) \(lastName) for inappropriate behavior?", preferredStyle: .ActionSheet)
+            
+            alertController.addAction(UIAlertAction(title: "Report \(firstName)", style: .Destructive, handler: { (action) in
+                
+                print("report")
+                
+            }))
+            
+            alertController.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
+                
+                print("cancel")
+                
+            }))
+            
+            self.presentViewController(alertController, animated: true, completion: {
+                
+                print("controller presented")
+                
+            })
+            
+            
+        }else {
             
             
             //MATCH OR SQUAD
@@ -574,7 +788,24 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
     
     //Actions
     @IBAction func cancel(sender: AnyObject) {
-        
+
+        if let layer = playerLayer {
+            
+            layer.removeFromSuperlayer()
+            playerLayer = nil
+            
+        }
+
+        if let player = player {
+            
+            player.removeObserver(self, forKeyPath: "rate")
+            self.player = nil
+            
+        }
+
+        item = nil
+        asset = nil
+
         let scopeType = type
         let scopeUid = uid
         let scopeKey = chatKey
@@ -583,7 +814,11 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
             
             let selfRef = FIRDatabase.database().reference().child("users").child(selfUID)
             
-            if scopeType == "groupChats" {
+            if scopeType == "posts" {
+                
+                print("posts")
+                
+            } else if scopeType == "groupChats" {
                 
                 selfRef.child("notifications").child("groupChats").child(scopeKey).child("read").setValue(true)
                 selfRef.child(scopeType).child(scopeKey).child("read").setValue(true)
@@ -595,7 +830,7 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
                 
             }
         }
-
+        
         rootController?.toggleHome({ (bool) in
             
             print("home toggled")
@@ -607,7 +842,7 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
         
         presentAlertController(nil)
         
-            }
+    }
     
     @IBAction func toProfile(sender: AnyObject) {
         
@@ -653,13 +888,11 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
     func keyboardDidHide(){
         
         if let alertController = globAlertController {
-
+            
             alertController.view.center.y += 150
             
         }
     }
-    
-    
     
     
     override func viewDidLoad() {

@@ -50,6 +50,15 @@ class OutgoingCollectionCell: UICollectionViewCell {
     }
     
     
+    override func prepareForReuse() {
+        
+        profileOutlet.image = nil
+        textOutlet.text = nil
+        
+    }
+    
+    
+    
     override var bounds: CGRect {
         didSet {
             contentView.frame = bounds

@@ -403,6 +403,20 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
     }
     
     
+    
+    
+    override func prepareForReuse() {
+
+        nameOutlet.text = nil
+        cityOutlet.text = nil
+        occupationOutlet.text = nil
+        squadImageOutlet.image = nil
+        messageImageOutlet.image = nil
+
+    }
+    
+    
+    
     override var bounds: CGRect {
         didSet {
             contentView.frame = bounds

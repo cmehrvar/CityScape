@@ -14,7 +14,7 @@ class VideoVibeCollectionCell: UICollectionViewCell {
     weak var vibesController: NewVibesController?
     
     var postKey = ""
-    var playerTitle = ""
+    var player = 0
     
     @IBOutlet weak var videoThumbnailOutlet: UIImageView!
     @IBOutlet weak var videoOutlet: UIView!
@@ -64,37 +64,9 @@ class VideoVibeCollectionCell: UICollectionViewCell {
     
     override func prepareForReuse() {
 
-        if let vibes = vibesController {
-            
-            if playerTitle == "player1" {
-
-                if vibes.player1Observing {
-                    
-                    vibesController?.player1?.removeObserver(vibes, forKeyPath: "rate")
-                    vibesController?.player1Observing = false
-
-                }
-
-            } else if playerTitle == "player2" {
-                
-                if vibes.player2Observing {
-                    
-                    vibesController?.player2?.removeObserver(vibes, forKeyPath: "rate")
-                    vibesController?.player2Observing = false
-                    
-                }
-                
-            } else if playerTitle == "player3" {
-                
-                if vibes.player3Observing {
-                    
-                    vibesController?.player3?.removeObserver(vibes, forKeyPath: "rate")
-                    vibesController?.player3Observing = false
-                    
-                }
-            }
-        }
-
+        videoThumbnailOutlet.image = nil
+        
+        
         for view in videoThumbnailOutlet.subviews {
             
             view.removeFromSuperview()

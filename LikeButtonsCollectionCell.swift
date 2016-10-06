@@ -197,6 +197,17 @@ class LikeButtonsCollectionCell: UICollectionViewCell {
     }
     
     
+    override func prepareForReuse() {
+        
+        label1Outlet.text = nil
+        label2Outlet.text = nil
+        label3Outlet.text = nil
+        label4Outlet.text = nil
+        label5Outlet.text = nil
+        
+    }
+    
+    
     
     
     

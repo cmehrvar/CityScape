@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import Firebase
+import FirebaseAuth
 
 class RequestsController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
@@ -17,6 +19,21 @@ class RequestsController: UIViewController, UITableViewDataSource, UITableViewDe
 
     var requests = [[NSObject : AnyObject]]()
 
+    
+    @IBAction func back(sender: AnyObject) {
+        
+        if let uid = FIRAuth.auth()?.currentUser?.uid {
+            
+            rootController?.toggleProfile(uid, selfProfile: true, completion: { (bool) in
+                
+                print("self profile toggled")
+                
+            })
+        }
+    }
+    
+    
+    
     //TableView Delegates
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         

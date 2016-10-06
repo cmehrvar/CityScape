@@ -85,6 +85,13 @@ class ImageVibeCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegate
         
     }
     
+    override func prepareForReuse() {
+        
+        imageOutlet.image = nil
+        
+    }
+    
+    
     override var bounds: CGRect {
         didSet {
             contentView.frame = bounds

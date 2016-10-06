@@ -843,6 +843,19 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
         
         
     }
+    
+    
+    override func prepareForReuse() {
+        
+        profilePicOutlet.image = nil
+        profilePic2Outlet.image = nil
+        profilePic3Outlet.image = nil
+        profilePic4Outlet.image = nil
+        profilePic5Outlet.image = nil
+ 
+        
+    }
+    
 
     
     override var bounds: CGRect {

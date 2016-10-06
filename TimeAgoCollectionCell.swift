@@ -24,6 +24,12 @@ class TimeAgoCollectionCell: UICollectionViewCell {
         }
     }
     
+    override func prepareForReuse() {
+        
+        timeAgoOutlet.text = nil
+        
+    }
+    
     
     override var bounds: CGRect {
         didSet {

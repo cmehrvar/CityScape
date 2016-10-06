@@ -24,6 +24,13 @@ class CaptionCell: UICollectionViewCell {
         }
     }
     
+    override func prepareForReuse() {
+        
+        captionOutlet.text = nil
+        
+    }
+    
+    
     override var bounds: CGRect {
         didSet {
             contentView.frame = bounds
