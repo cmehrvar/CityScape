@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="10117" systemVersion="15F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="10117" systemVersion="15G1004" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
@@ -18,6 +19,20 @@
                         <constraint firstAttribute="width" secondItem="0hK-pW-0DW" secondAttribute="height" multiplier="1:1" id="EYm-IN-2Mh"/>
                     </constraints>
                 </view>
+                <view alpha="0.0" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2XH-Vy-QaZ" userLabel="TimerIndicator">
+                    <rect key="frame" x="372" y="58" width="20" height="20"/>
+                    <color key="backgroundColor" red="0.90196078430000004" green="0.20392156859999999" blue="0.16862745100000001" alpha="1" colorSpace="calibratedRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="20" id="anT-yE-cJ6"/>
+                        <constraint firstAttribute="width" constant="20" id="t9t-04-03f"/>
+                    </constraints>
+                </view>
+                <label opaque="NO" userInteractionEnabled="NO" alpha="0.0" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="15s" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FuG-eF-9yZ">
+                    <rect key="frame" x="340" y="58" width="27" height="21"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                    <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    <nil key="highlightedColor"/>
+                </label>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="6gh-EB-weA">
                     <rect key="frame" x="0.0" y="450" width="400" height="150"/>
                     <subviews>
@@ -72,19 +87,33 @@
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
             <constraints>
                 <constraint firstItem="6gh-EB-weA" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="8DC-7U-0Ht"/>
+                <constraint firstItem="2XH-Vy-QaZ" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="topMargin" id="CuK-kS-K4D"/>
+                <constraint firstItem="FuG-eF-9yZ" firstAttribute="centerY" secondItem="2XH-Vy-QaZ" secondAttribute="centerY" id="DZ3-GR-Dn5"/>
                 <constraint firstAttribute="bottom" secondItem="6gh-EB-weA" secondAttribute="bottom" id="IOQ-4M-Rye"/>
+                <constraint firstAttribute="trailingMargin" secondItem="2XH-Vy-QaZ" secondAttribute="trailing" id="Itz-86-YrC"/>
                 <constraint firstAttribute="trailing" secondItem="6gh-EB-weA" secondAttribute="trailing" id="Lge-9D-s38"/>
+                <constraint firstItem="2XH-Vy-QaZ" firstAttribute="top" secondItem="0hK-pW-0DW" secondAttribute="top" constant="8" id="Z02-iE-3kP"/>
                 <constraint firstItem="0hK-pW-0DW" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="50" id="ZtF-xP-XL4"/>
+                <constraint firstItem="2XH-Vy-QaZ" firstAttribute="leading" secondItem="FuG-eF-9yZ" secondAttribute="trailing" constant="5" id="hUu-TB-RK4"/>
+                <constraint firstItem="2XH-Vy-QaZ" firstAttribute="trailing" secondItem="0hK-pW-0DW" secondAttribute="trailing" constant="-8" id="kfF-Dz-uMJ"/>
                 <constraint firstItem="0hK-pW-0DW" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="snf-T0-XlH"/>
                 <constraint firstAttribute="trailing" secondItem="0hK-pW-0DW" secondAttribute="trailing" id="syg-FP-hcI"/>
                 <constraint firstItem="6gh-EB-weA" firstAttribute="top" secondItem="0hK-pW-0DW" secondAttribute="bottom" id="t3B-Bo-8p1"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <variation key="default">
+                <mask key="constraints">
+                    <exclude reference="CuK-kS-K4D"/>
+                    <exclude reference="Itz-86-YrC"/>
+                </mask>
+            </variation>
             <connections>
                 <outlet property="flashButton" destination="yHq-QZ-jPz" id="umV-Ve-W2b"/>
                 <outlet property="flipButton" destination="oPV-fC-75T" id="J96-fz-NnG"/>
                 <outlet property="previewViewContainer" destination="0hK-pW-0DW" id="8bh-3S-jSb"/>
                 <outlet property="shotButton" destination="cpy-ro-bt6" id="SbF-vE-c2o"/>
+                <outlet property="timeIndicatorOutlet" destination="2XH-Vy-QaZ" id="M4a-aA-Ypm"/>
+                <outlet property="timerLabelOutlet" destination="FuG-eF-9yZ" id="axI-nE-Ybq"/>
             </connections>
             <point key="canvasLocation" x="519" y="448"/>
         </view>
