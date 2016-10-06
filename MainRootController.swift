@@ -63,7 +63,6 @@ class MainRootController: UIViewController {
     @IBOutlet weak var snapHeightConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var snapYOutlet: NSLayoutConstraint!
     @IBOutlet weak var snapXOutlet: NSLayoutConstraint!
-    @IBOutlet weak var handlePostX: NSLayoutConstraint!
     @IBOutlet weak var notificationWidthConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var notificationTrailingConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var squadBottomConstOutlet: NSLayoutConstraint!
@@ -823,14 +822,13 @@ class MainRootController: UIViewController {
     
     func toggleHandlePost(image: UIImage?, videoURL: NSURL?, isImage: Bool, completion: Bool -> ()) {
 
-        
-        let rootHeight = self.view.bounds.height
-        
         print("handlePostIsRevealed: \(handlePostIsRevealed)")
         
         if !handlePostIsRevealed {
+
+            handlePostController?.loadTableView()
+            handlePostController?.setPostToYes()
             
-            self.handlePostX.constant = 0
             self.handlePostContainer.alpha = 1
             
             handlePostController?.isImage = isImage
@@ -857,14 +855,12 @@ class MainRootController: UIViewController {
             handlePostController?.videoOutlet.alpha = 0
             
             UIView.animateWithDuration(0.3, animations: {
-                
-                self.handlePostX.constant = rootHeight
+
                 self.view.layoutIfNeeded()
                 
             }) { (complete) in
                 
                 self.handlePostContainer.alpha = 0
-                self.handlePostX.constant = 0
                 
                 completion(complete)
                 

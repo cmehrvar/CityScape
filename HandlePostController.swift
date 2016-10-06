@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import Player
 import AVFoundation
 import AWSS3
 import AWSCore
@@ -16,64 +15,201 @@ import Firebase
 import FirebaseDatabase
 import FirebaseAuth
 
-class HandlePostController: UIViewController, PlayerDelegate, UITextFieldDelegate {
+class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate {
     
     weak var rootController: MainRootController?
+
+    var userSelected = [String : Int]()
     
+    var squad = [[NSObject : AnyObject]]()
+    var selectedSquad = [[NSObject : AnyObject]]()
+    var dataSourceForSearchResult = [[NSObject : AnyObject]]()
     
+    var searchBarActive = false
+
     //Global Variables
+    var postToFeedSelected = true
     var isImage = true
     var image: UIImage!
     var videoURL: NSURL!
     var exportedVideoURL: NSURL!
     var scale: CGFloat?
-    let player = Player()
+
+    var asset: AVAsset?
+    var item: AVPlayerItem?
+    var player: AVPlayer?
+    var playerLayer: AVPlayerLayer?
     
     
     //Outlets
     @IBOutlet weak var imageOutlet: UIImageView!
     @IBOutlet weak var videoOutlet: UIView!
-    @IBOutlet weak var caption: UITextField!
+    
+    @IBOutlet weak var captionTextView: UITextView!
     @IBOutlet weak var shareOutlet: UIButton!
     @IBOutlet weak var uploadingViewOutlet: UIView!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var charactersLeftOutlet: UILabel!
+    @IBOutlet weak var postToFeedLabelOutlet: UILabel!
+    @IBOutlet weak var postToFeedViewOutlet: UIView!
     
+    @IBOutlet weak var globTableViewOutlet: UITableView!
     
-    //Player Delegates
-    func playerReady(player: Player) {
+
+    
+    func setPostToYes(){
         
-        print("player ready")
-        
-    }
-    func playerPlaybackStateDidChange(player: Player) {
-        
-        print("playback state did change")
-        
-    }
-    func playerBufferingStateDidChange(player: Player) {
-        
-        print("buffer state did change")
-        
-    }
-    func playerPlaybackWillStartFromBeginning(player: Player) {
-        
-        print("playback will start from beginning")
-        
-    }
-    func playerPlaybackDidEnd(player: Player) {
-        
-        print("playback did end")
+        postToFeedLabelOutlet.text = "YES"
+        postToFeedLabelOutlet.textColor = UIColor.whiteColor()
+        postToFeedViewOutlet.backgroundColor = UIColor.redColor()
+        postToFeedSelected = true
         
     }
     
-    func playerCurrentTimeDidChange(player: Player) {
+    
+    func togglePostToFeed(){
         
-        //print("current time did change")
+        if postToFeedSelected {
+            
+            postToFeedLabelOutlet.text = "NO"
+            postToFeedLabelOutlet.textColor = UIColor.blackColor()
+            postToFeedViewOutlet.backgroundColor = UIColor.lightGrayColor()
+            
+        } else {
+            
+            postToFeedLabelOutlet.text = "YES"
+            postToFeedLabelOutlet.textColor = UIColor.whiteColor()
+            postToFeedViewOutlet.backgroundColor = UIColor.redColor()
+            
+        }
+        
+        postToFeedSelected = !postToFeedSelected
+        
+    }
+    
+    //Functions
+    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
+        
+        if searchText.characters.count > 0 {
+            
+            self.searchBarActive = true
+            
+            self.filterContentForSearchText(searchText)
+            
+            globTableViewOutlet.reloadData()
+            
+        } else {
+            
+            self.searchBarActive = false
+            
+            globTableViewOutlet.reloadData()
+            
+        }
+    }
+    
+    func filterContentForSearchText(searchText: String){
+        
+        dataSourceForSearchResult = squad.filter({ (user: [NSObject : AnyObject]) -> Bool in
+            
+            if let firstName = user["firstName"] as? String, lastName = user["lastName"] as? String {
+                
+                let name = firstName + " " + lastName
+                
+                return name.containsString(searchText)
+                
+            } else {
+                
+                return false
+            }
+        })
+    }
+    
+    func loadTableView(){
+        
+        var scopeSquad = [[NSObject : AnyObject]]()
+        
+        if let selfData = rootController?.selfData, mySquad = selfData["squad"] as? [NSObject : AnyObject] {
+            
+            for (_, value) in mySquad {
+                
+                if let valueToAdd = value as? [NSObject : AnyObject] {
+                    
+                    scopeSquad.append(valueToAdd)
+                    
+                }
+            }
+        }
+        
+        scopeSquad.sortInPlace { (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
+            
+            if a["lastName"] as? String > b["lastName"] as? String {
+                
+                return false
+                
+            } else {
+                
+                return true
+                
+            }
+        }
+        
+        self.squad = scopeSquad
+        self.globTableViewOutlet.reloadData()
         
     }
 
+    
+    
+    
+    //TableView Delegates
+    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        
+        if searchBarActive {
+            
+            return dataSourceForSearchResult.count
+            
+        } else {
+            
+            return squad.count
+            
+        }
+    }
+    
+    
+    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+        
+        let cell = tableView.dequeueReusableCellWithIdentifier("sendPostSquadCell", forIndexPath: indexPath) as! SendPostSquadCell
+        
+        cell.handleController = self
+        
+        if searchBarActive {
+            
+            cell.loadData(dataSourceForSearchResult[indexPath.row])
+            
+        } else {
+            
+            cell.loadData(squad[indexPath.row])
+            
+        }
+        
+        return cell
+    }
+    
+    
+    
+    
     //Actions
+    @IBAction func postToFeed(sender: AnyObject) {
+        
+        togglePostToFeed()
+        
+        
+    }
+
+    
     @IBAction func backButton(sender: AnyObject) {
+
+        clearPlayers()
 
         if isImage {
             
@@ -104,6 +240,8 @@ class HandlePostController: UIViewController, PlayerDelegate, UITextFieldDelegat
     
     @IBAction func shareAction(sender: AnyObject) {
         
+        clearPlayers()
+        
         shareOutlet.enabled = false
         
         if isImage {
@@ -118,6 +256,27 @@ class HandlePostController: UIViewController, PlayerDelegate, UITextFieldDelegat
     }
     
     
+    override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
+        
+        if keyPath == "rate" {
+            
+            if let player = object as? AVPlayer, item = player.currentItem {
+                
+                if CMTimeGetSeconds(player.currentTime()) == CMTimeGetSeconds(item.duration) {
+                    
+                    player.seekToTime(kCMTimeZero)
+                    player.play()
+                    
+                } else if player.rate == 0 {
+                    
+                    player.play()
+                    
+                }
+            }
+        }
+    }
+
+    //Functions
     func handleCall(){
         
         handleContent()
@@ -168,20 +327,41 @@ class HandlePostController: UIViewController, PlayerDelegate, UITextFieldDelegat
             }
 
         } else {
-
-            player.delegate = self
             
             dispatch_async(dispatch_get_main_queue(), {
                 
-                self.addChildViewController(self.player)
-                self.videoOutlet.addSubview(self.player.view)
-                self.player.view.frame = self.videoOutlet.bounds
-                self.player.didMoveToParentViewController(self)
-                self.player.setUrl(self.videoURL)
-                self.player.fillMode = AVLayerVideoGravityResizeAspectFill
-                self.player.playbackLoops = true
-                self.player.playFromBeginning()
+                self.asset = AVAsset(URL: self.videoURL)
                 
+                if let asset = self.asset {
+                    
+                    self.item = AVPlayerItem(asset: asset)
+                    
+                    if let item = self.item {
+                        
+                        self.player = AVPlayer(playerItem: item)
+                        
+                    }
+                    
+                    if let player = self.player {
+                        
+                        player.addObserver(self, forKeyPath: "rate", options: NSKeyValueObservingOptions(), context: nil)
+                        
+                        self.playerLayer = AVPlayerLayer(player: player)
+                        
+                        if let layer = self.playerLayer {
+                            
+                            layer.frame = self.videoOutlet.bounds
+                            layer.videoGravity = AVLayerVideoGravityResizeAspectFill
+                            
+                            self.videoOutlet.layer.addSublayer(layer)
+                            self.videoOutlet.alpha = 1
+                            
+                            player.play()
+                        }
+                    }
+                }
+                
+                print("video downloaded!")
                 
             })
         }
@@ -192,10 +372,15 @@ class HandlePostController: UIViewController, PlayerDelegate, UITextFieldDelegat
         var captionString = ""
         self.view.endEditing(true)
         
+        //HANDLE CAPTION
+        
+        
+        /*
+        
         if let text = caption.text {
             captionString = text
         }
-
+        */
         UIView.animateWithDuration(0.3) {
             self.uploadingViewOutlet.alpha = 1
         }
@@ -430,20 +615,68 @@ class HandlePostController: UIViewController, PlayerDelegate, UITextFieldDelegat
         view.endEditing(true)
         
     }
-    func textFieldShouldReturn(textField: UITextField) -> Bool {
+    
+    
+    func clearPlayers(){
         
-        view.endEditing(true)
-        return true
+        if let layer = playerLayer {
+            
+            layer.removeFromSuperlayer()
+            
+        }
+        
+        if let playerPlayer = player {
+            
+            playerPlayer.pause()
+            player?.removeObserver(self, forKeyPath: "rate")
+            
+        }
+        
+        playerLayer = nil
+        player = nil
+        item = nil
+        asset = nil
         
     }
+    
+    //TextView Delegates
+    func textViewDidChange(textView: UITextView) {
+        
+        let textCount = textView.text.characters.count
+        charactersLeftOutlet.text = "\(textCount)/30 Characters"
+        
+    }
+    
+    func textView(textView: UITextView, shouldChangeTextInRange range: NSRange, replacementText text: String) -> Bool {
+        
+        if text == "\n" {
+            
+            textView.resignFirstResponder()
+            return false
+            
+        }
+        
+        return textView.text.characters.count + (text.characters.count - range.length) <= 30
+    }
+
+    
+    
+    
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        postToFeedViewOutlet.layer.cornerRadius = 5
+        captionTextView.layer.cornerRadius = 10
+        captionTextView.text = nil
+        charactersLeftOutlet.text = "0/50 Characters"
+        
+        shareOutlet.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+        shareOutlet.setTitleColor(UIColor.lightGrayColor(), forState: .Disabled)
         
         addUploadStuff()
         addDismissKeyboard()
-        caption.delegate = self
         
         // Do any additional setup after loading the view.
     }

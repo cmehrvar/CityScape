@@ -19,6 +19,7 @@
 		A30874891D8DF46B005ECD3A /* ActiveDistanceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A30874881D8DF46B005ECD3A /* ActiveDistanceCell.swift */; };
 		A308748B1D8E23BD005ECD3A /* ImagePostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A308748A1D8E23BC005ECD3A /* ImagePostCell.swift */; };
 		A312C26B1D347AE600F272F0 /* MemoryLeak.swift in Sources */ = {isa = PBXBuildFile; fileRef = A312C26A1D347AE600F272F0 /* MemoryLeak.swift */; };
+		A318308D1DA6E87900D40C88 /* SendPostSquadCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A318308C1DA6E87900D40C88 /* SendPostSquadCell.swift */; };
 		A32C2C5D1D58E43C0064D707 /* AlertControllerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32C2C5C1D58E43C0064D707 /* AlertControllerView.swift */; };
 		A341522F1D94408E00C6DB3C /* TableViewOnlineIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A341522E1D94408E00C6DB3C /* TableViewOnlineIndicatorView.swift */; };
 		A34F266F1D977B90007ABFB9 /* TopChatController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A34F266E1D977B90007ABFB9 /* TopChatController.swift */; };
@@ -160,6 +161,7 @@
 		A30874881D8DF46B005ECD3A /* ActiveDistanceCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActiveDistanceCell.swift; sourceTree = "<group>"; };
 		A308748A1D8E23BC005ECD3A /* ImagePostCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImagePostCell.swift; sourceTree = "<group>"; };
 		A312C26A1D347AE600F272F0 /* MemoryLeak.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MemoryLeak.swift; sourceTree = "<group>"; };
+		A318308C1DA6E87900D40C88 /* SendPostSquadCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendPostSquadCell.swift; sourceTree = "<group>"; };
 		A32C2C5C1D58E43C0064D707 /* AlertControllerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertControllerView.swift; sourceTree = "<group>"; };
 		A341522E1D94408E00C6DB3C /* TableViewOnlineIndicatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TableViewOnlineIndicatorView.swift; sourceTree = "<group>"; };
 		A34F266E1D977B90007ABFB9 /* TopChatController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TopChatController.swift; sourceTree = "<group>"; };
@@ -523,6 +525,7 @@
 			isa = PBXGroup;
 			children = (
 				A3D119721D262290009D7EAB /* HandlePostController.swift */,
+				A318308C1DA6E87900D40C88 /* SendPostSquadCell.swift */,
 			);
 			name = CameraStuff;
 			sourceTree = "<group>";
@@ -1148,6 +1151,7 @@
 				A3C4977B1D561F0800D293A4 /* NearbyController.swift in Sources */,
 				A308748B1D8E23BD005ECD3A /* ImagePostCell.swift in Sources */,
 				A393BDAC1D9C715F002DD80E /* AddToChatCell.swift in Sources */,
+				A318308D1DA6E87900D40C88 /* SendPostSquadCell.swift in Sources */,
 				A34F26801D99A46A007ABFB9 /* ComposeChatCollectionCell.swift in Sources */,
 				A35DB73D1D7BB41100409D16 /* VideoVibeCollectionCell.swift in Sources */,
 				A37AC1C11D2A19FD00EBF813 /* LikeOrDislikeDisplay.swift in Sources */,
