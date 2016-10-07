@@ -29,15 +29,18 @@ class VideoVibeCollectionCell: UICollectionViewCell {
         if vibesController?.videoWithSound == postKey {
             
             vibesController?.videoWithSound = ""
+            vibesController?.videoPlayers[player]?.muted = true
+            soundImageOutlet.image = UIImage(named: "mute")
+            soundLabelOutlet.text = "Tap for sound"
             
         } else {
             
             vibesController?.videoWithSound = postKey
+            vibesController?.videoPlayers[player]?.muted = false
+            soundImageOutlet.image = UIImage(named: "unmute")
+            soundLabelOutlet.text = "Tap to mute"
             
         }
-
-        vibesController?.globCollectionView.reloadData()
-        
     }
     
     
@@ -66,7 +69,19 @@ class VideoVibeCollectionCell: UICollectionViewCell {
 
         videoThumbnailOutlet.image = nil
         
-        
+        if let vibes = vibesController {
+            
+            if vibes.videoPlayersObserved[player] {
+                
+                if let playerPlayer = vibes.videoPlayers[player] {
+                    
+                    vibes.videoPlayersObserved[player] = false
+                    playerPlayer.removeObserver(vibes, forKeyPath: "rate")
+                    
+                }
+            }
+        }
+
         for view in videoThumbnailOutlet.subviews {
             
             view.removeFromSuperview()

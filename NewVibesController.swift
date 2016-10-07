@@ -17,6 +17,8 @@ import SDWebImage
 
 class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
+    var refresher:UIRefreshControl!
+    
     var videoWithSound = ""
     
     //Variables
@@ -220,6 +222,12 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                 
                 if let videoCell = cell as? VideoVibeCollectionCell {
                     
+                    for view in videoCell.videoThumbnailOutlet.subviews  {
+                        
+                        view.removeFromSuperview()
+                        
+                    }
+                    
                     if let subLayers = videoCell.videoOutlet.layer.sublayers {
                         
                         for layer in subLayers {
@@ -277,6 +285,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
         
         if let postVideo = cell as? VideoVibeCollectionCell {
             
+            postVideo.createIndicator()
             shouldAdd = true
             key = postVideo.postKey
             playerNumber = postVideo.player
@@ -315,6 +324,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                 
                 dispatch_async(dispatch_get_main_queue(), {
                     
+                    
                     self.videoLayers[playerNumber] = AVPlayerLayer(player: player)
                     
                     if let layer = self.videoLayers[playerNumber] {
@@ -329,13 +339,13 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                             
                             if postVideo.postKey == self.videoWithSound {
                                 
-                                postVideo.soundImageOutlet.image = UIImage(named: "mute")
+                                postVideo.soundImageOutlet.image = UIImage(named: "unmute")
                                 postVideo.soundLabelOutlet.text = "Tap to mute"
                                 player.muted = false
                                 
                             } else {
                                 
-                                postVideo.soundImageOutlet.image = UIImage(named: "unmute")
+                                postVideo.soundImageOutlet.image = UIImage(named: "mute")
                                 postVideo.soundLabelOutlet.text = "Tap for sound"
                                 player.muted = true
                                 
@@ -439,13 +449,13 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                                     
                                     if postVideo.postKey == self.videoWithSound {
                                         
-                                        postVideo.soundImageOutlet.image = UIImage(named: "mute")
+                                        postVideo.soundImageOutlet.image = UIImage(named: "unmute")
                                         postVideo.soundLabelOutlet.text = "Tap to mute"
                                         player.muted = false
                                         
                                     } else {
                                         
-                                        postVideo.soundImageOutlet.image = UIImage(named: "unmute")
+                                        postVideo.soundImageOutlet.image = UIImage(named: "mute")
                                         postVideo.soundLabelOutlet.text = "Tap for sound"
                                         player.muted = true
                                         
@@ -486,7 +496,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     
     
     func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        
+
         if indexPath.row == 0 {
             
             if let isImage = newPosts[indexPath.section]["isImage"] as? Bool {
@@ -532,6 +542,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
             
             let cell = collectionView.dequeueReusableCellWithReuseIdentifier("buttonsCell", forIndexPath: indexPath) as! LikeButtonsCollectionCell
             
+            cell.vibesController = self
             cell.loadData(newPosts[indexPath.section])
             
             return cell
@@ -1308,7 +1319,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                         var firstMessages = [[NSObject : AnyObject]]()
                         var secondMessages = [[NSObject : AnyObject]]()
                         var thirdMessages = [[NSObject : AnyObject]]()
-
+                        
                         for message in messages {
                             
                             var messageArray = [[NSObject : AnyObject]]()
@@ -1369,14 +1380,21 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                                 
                             }
                         }
-    
+                        
                         self.globFirstMessages = firstMessages
                         self.globSecondMessages = secondMessages
                         self.globThirdMessages = thirdMessages
                         
                         self.newPosts = scopeData
-                        self.globCollectionView.reloadData()
                         
+                        self.rootController?.clearVibesPlayers()
+                        
+                        if self.globCollectionView.contentOffset == CGPointZero {
+                            
+                            self.globCollectionView.reloadData()
+                            self.globCollectionView.setContentOffset(CGPointZero, animated: true)
+                            
+                        }
                     }
                 }
             })
@@ -1453,9 +1471,9 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                         var secondMessages = [[NSObject : AnyObject]]()
                         var thirdMessages = [[NSObject : AnyObject]]()
                         
-                        var messageArray = [[NSObject : AnyObject]]()
-                        
                         for message in messages {
+                            
+                            var messageArray = [[NSObject : AnyObject]]()
                             
                             for singleMessage in message {
                                 
@@ -1466,61 +1484,69 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                                 }
                             }
                             
-                        }
-                        
-                        messageArray.sortInPlace({ (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
-                            
-                            if a["timeStamp"] as? NSTimeInterval > b["timeStamp"] as? NSTimeInterval {
+                            messageArray.sortInPlace({ (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
                                 
-                                return true
-                                
-                            } else {
-                                
-                                return false
-                                
-                            }
-                        })
-                        
-                        
-                        if messageArray.count > 0 {
-                            
-                            firstMessages.insert(messageArray[0], atIndex: 0)
-                            
-                            if messageArray.count > 1 {
-                                
-                                secondMessages.insert(messageArray[1], atIndex: 0)
-                                
-                                if messageArray.count > 2 {
+                                if a["timeStamp"] as? NSTimeInterval > b["timeStamp"] as? NSTimeInterval {
                                     
-                                    thirdMessages.insert(messageArray[2], atIndex: 0)
+                                    return true
                                     
                                 } else {
                                     
+                                    return false
+                                    
+                                }
+                            })
+                            
+                            
+                            if messageArray.count > 0 {
+                                
+                                firstMessages.insert(messageArray[0], atIndex: 0)
+                                
+                                if messageArray.count > 1 {
+                                    
+                                    secondMessages.insert(messageArray[1], atIndex: 0)
+                                    
+                                    if messageArray.count > 2 {
+                                        
+                                        thirdMessages.insert(messageArray[2], atIndex: 0)
+                                        
+                                    } else {
+                                        
+                                        thirdMessages.insert([NSObject : AnyObject](), atIndex: 0)
+                                        
+                                    }
+                                    
+                                } else {
+                                    
+                                    secondMessages.insert([NSObject : AnyObject](), atIndex: 0)
                                     thirdMessages.insert([NSObject : AnyObject](), atIndex: 0)
                                     
                                 }
                                 
                             } else {
                                 
+                                firstMessages.insert([NSObject : AnyObject](), atIndex: 0)
                                 secondMessages.insert([NSObject : AnyObject](), atIndex: 0)
                                 thirdMessages.insert([NSObject : AnyObject](), atIndex: 0)
                                 
                             }
-                            
-                        } else {
-                            
-                            firstMessages.insert([NSObject : AnyObject](), atIndex: 0)
-                            secondMessages.insert([NSObject : AnyObject](), atIndex: 0)
-                            thirdMessages.insert([NSObject : AnyObject](), atIndex: 0)
-                            
                         }
+                        
                         
                         self.globFirstMessages = firstMessages
                         self.globSecondMessages = secondMessages
                         self.globThirdMessages = thirdMessages
                         
                         self.newPosts = scopeData
-                        self.globCollectionView.reloadData()
+                        
+                        self.rootController?.clearVibesPlayers()
+                        
+                        if self.globCollectionView.contentOffset == CGPointZero {
+                            
+                            self.globCollectionView.reloadData()
+                            self.globCollectionView.setContentOffset(CGPointZero, animated: true)
+                            
+                        }
                         
                     }
                 }
@@ -1623,15 +1649,36 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
         }
     }
     
+    func loadData(){
+        
+        self.rootController?.showNav(0.3, completion: { (bool) in
+            
+            print("nav shown")
+            
+            self.globCollectionView.reloadData()
+            self.globCollectionView.setContentOffset(CGPointZero, animated: true)
+            self.refresher.endRefreshing()
+            
+        })
+    }
+    
     
     override func viewDidAppear(animated: Bool) {
         
+        super.viewDidAppear(true)
+        
+        refresher = UIRefreshControl()
+        refresher.attributedTitle = NSAttributedString(string: "Pull for more posts")
+        refresher.tintColor = UIColor.redColor()
+        refresher.addTarget(self, action: #selector(loadData), forControlEvents: .ValueChanged)
+        globCollectionView.addSubview(refresher)
+        globCollectionView.alwaysBounceVertical = true
         
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         for _ in 0..<8 {
             
             videoPlayersObserved.append(false)
@@ -1642,8 +1689,6 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
         }
         
         vibeFlowLayout.sectionHeadersPinToVisibleBounds = true
-        globCollectionView.alwaysBounceVertical = false
-        globCollectionView.bounces = false
         
         let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
         appDelegate.vibeController = self

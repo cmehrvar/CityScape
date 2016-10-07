@@ -41,6 +41,8 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     
     var mostRecentTimeInterval: NSTimeInterval?
     
+    var singlePost = false
+    
     var longPressEnabled = false
     var isPanning = false
     var chatIsRevealed = false
@@ -93,10 +95,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
         
         let screenHeight = self.view.bounds.height
         let scopeUID = currentUID
-        
-        //if let navRevealed = rootController.n
-        
-        
+
         self.closeWithDirection(0, y: screenHeight, animationTime: 0.3)
 
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
@@ -478,6 +477,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     
     func closeWithDirection(x: CGFloat, y: CGFloat, animationTime: NSTimeInterval){
         
+        singlePost = false
         
         if let profileRevealed = rootController?.profileRevealed {
             
@@ -496,13 +496,10 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                     } else {
                         
                         UIApplication.sharedApplication().statusBarHidden = true
-                        
                     }
                 }
             }
         }
-        
-        
         
         if let playerLayer = layer {
             
@@ -744,7 +741,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                     
                     print("direction is left only")
                     
-                    if screenIsCircle {
+                    if screenIsCircle || singlePost {
                         
                         closeWithDirection(-rootWidth, y: 0, animationTime: 0.45)
                         
@@ -770,7 +767,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                     
                     print("direction is right only")
                     
-                    if screenIsCircle {
+                    if screenIsCircle || singlePost {
                         
                         closeWithDirection(rootWidth, y: 0, animationTime: 0.45)
                         
@@ -1038,6 +1035,8 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     
     
     func tapHandler(){
+
+        print(singlePost)
         
         if let chatEnlarged = snapchatChatController?.chatEnlarged {
             
@@ -1045,7 +1044,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                 
                 snapchatChatController?.shrinkChat()
                 
-            } else if nextEnabled && !longPressEnabled {
+            } else if nextEnabled && !longPressEnabled && !singlePost {
                 
                 let scopeIndex = currentIndex
                 
@@ -1057,6 +1056,10 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                         
                     })
                 })
+            } else if singlePost {
+
+                closeWithDirection(0, y: self.view.bounds.height, animationTime: 0.3)
+                
             }
         }
     }
@@ -1318,15 +1321,16 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                             
                         }
                     }
-                    
                 }
+                
+                /*
                 
                 if let caption = post["caption"] as? String {
                     
                     captionOutlet.text = caption
                     
                 }
-                
+                */
                 if let firstName = post["firstName"] as? String, lastName = post["lastName"] as? String {
                     
                     self.firstName = firstName

@@ -135,6 +135,19 @@ class UserVideoPostCell: UICollectionViewCell {
         
         imageOutlet.image = nil
         
+        if let profile = profileController {
+            
+            if profile.videoPlayersObserved[player] {
+                
+                if let playerPlayer = profile.videoPlayers[player] {
+                    
+                    profile.videoPlayersObserved[player] = false
+                    playerPlayer.removeObserver(profile, forKeyPath: "rate")
+                    
+                }
+            }
+        }
+        
         for view in imageOutlet.subviews {
             
             view.removeFromSuperview()

@@ -144,14 +144,23 @@ class MainRootController: UIViewController {
         
         self.vibesFeedController?.navHidden = false
         
-        if !self.profileRevealed && !chatRevealed {
+        if !chatRevealed {
             
             if self.currentTab == 1 {
                 self.nearbyController?.globCollectionView.setContentOffset(CGPointZero, animated: true)
             } else if self.currentTab == 2 {
+                self.vibesFeedController?.globCollectionView.reloadData()
                 self.vibesFeedController?.globCollectionView.setContentOffset(CGPointZero, animated: true)
+            } else if self.currentTab == 3 {
+                
+                self.messagesController?.globTableView.setContentOffset(CGPointZero, animated: true)
+                
             }
-        }
+
+            
+        } 
+        
+        
         
         var searchAlpha: CGFloat = 0
         var scopeSearchRevealed = false
@@ -226,8 +235,6 @@ class MainRootController: UIViewController {
             self.squadCountRevealed = false
             self.requestsRevealed = false
             self.chatRevealed = false
-            
-            self.vibesFeedController?.globCollectionView.reloadData()
             
             completion(complete)
             
@@ -829,6 +836,8 @@ class MainRootController: UIViewController {
             handlePostController?.loadTableView()
             handlePostController?.setPostToYes()
             
+            handlePostController?.uploadingViewOutlet.alpha = 0
+            
             self.handlePostContainer.alpha = 1
             
             handlePostController?.isImage = isImage
@@ -854,30 +863,25 @@ class MainRootController: UIViewController {
             handlePostController?.image = nil
             handlePostController?.videoOutlet.alpha = 0
             
-            UIView.animateWithDuration(0.3, animations: {
-
-                self.view.layoutIfNeeded()
-                
-            }) { (complete) in
-                
-                self.handlePostContainer.alpha = 0
-                
-                completion(complete)
-                
-            }
+            self.handlePostContainer.alpha = 0
             
+                        
         }
         
         handlePostIsRevealed = !handlePostIsRevealed
         
     }
     
+    
     func toggleSnapchat(givenPosts: [[NSObject : AnyObject]]?, startingi: Int?, completion: Bool -> ()){
+        
+        vibesFeedController?.videoWithSound = ""
+        vibesFeedController?.globCollectionView.reloadData()
         
         //GET RID OF SNAPS
         snapchatController?.posts.removeAll()
         snapchatController?.addedPosts.removeAll()
-
+        
         snapchatController?.videoOutlet.alpha = 0
         snapchatController?.imageOutlet.image = nil
         snapchatController?.profilePicOutlet.image = nil
@@ -893,16 +897,8 @@ class MainRootController: UIViewController {
         snapchatController?.currentIndex = 0
         snapchatController?.snapchatChatController?.currentPostKey = ""
         
-        if let i = startingi {
-            
-            snapchatController?.currentIndex = i - 1
-            
-        }
-        
-        
         if !snapchatRevealed {
             
-            homeIsVisible = false
             UIApplication.sharedApplication().statusBarHidden = true
             
             if let snapController = snapchatController, chatController = snapController.snapchatChatController {
@@ -917,9 +913,8 @@ class MainRootController: UIViewController {
             
         } else {
             
-            homeIsVisible = true
-            
             //GET RID OF SNAPS
+            
             print("handle snaps on close")
             
             if let snapController = snapchatController, chatController = snapController.snapchatChatController {
@@ -934,8 +929,6 @@ class MainRootController: UIViewController {
             
         }
         
-        clearVibesPlayers()
-        
         snapchatRevealed = !snapchatRevealed
         
         let revealed = snapchatRevealed
@@ -945,7 +938,7 @@ class MainRootController: UIViewController {
             if let given = givenPosts, givenIndex = startingi {
                 
                 self.snapchatController?.posts = given
-                
+  
                 self.snapchatController?.loadPrimary("left", i: givenIndex - 1, completion: { (complete) in
                     
                     print("start content loaded")
@@ -1023,7 +1016,7 @@ class MainRootController: UIViewController {
                     self.snapchatController?.longPressEnabled = false
                     
                     self.snapchatController?.hideChat()
-
+                    
                     self.snapXOutlet.constant = 0
                     self.snapYOutlet.constant = 0
                     
@@ -1229,17 +1222,14 @@ class MainRootController: UIViewController {
         
         homeIsVisible = true
         
-        if tab != 2 {
-            
-            clearVibesPlayers()
-            
-        } else {
+        clearVibesPlayers()
+        
+        if tab == 2 {
             
             vibesFeedController?.globCollectionView.reloadData()
             
         }
-        
-        
+
         let vibesConst = self.view.bounds.width
         
         self.showNav(0.6, completion: { (bool) in
@@ -1505,7 +1495,6 @@ class MainRootController: UIViewController {
                         
                     }
 
-                    self.vibesFeedController?.globCollectionView.reloadData()
                     self.nearbyController?.globCollectionView.reloadData()
                     self.profileController?.globCollectionCell.reloadData()
                     self.squadCountController?.globTableViewOutlet.reloadData()
@@ -1704,6 +1693,8 @@ class MainRootController: UIViewController {
     func clearVibesPlayers(){
         
         if let vibes = vibesFeedController {
+            
+            vibes.videoWithSound = ""
             
             if let profile = profileController {
                 

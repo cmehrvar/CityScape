@@ -18,7 +18,7 @@ import FirebaseAuth
 class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate {
     
     weak var rootController: MainRootController?
-
+    
     var userSelected = [String : Int]()
     
     var squad = [[NSObject : AnyObject]]()
@@ -26,7 +26,9 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
     var dataSourceForSearchResult = [[NSObject : AnyObject]]()
     
     var searchBarActive = false
-
+    
+    var shouldUpload = false
+    
     //Global Variables
     var postToFeedSelected = true
     var isImage = true
@@ -34,7 +36,7 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
     var videoURL: NSURL!
     var exportedVideoURL: NSURL!
     var scale: CGFloat?
-
+    
     var asset: AVAsset?
     var item: AVPlayerItem?
     var player: AVPlayer?
@@ -52,13 +54,32 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
     @IBOutlet weak var charactersLeftOutlet: UILabel!
     @IBOutlet weak var postToFeedLabelOutlet: UILabel!
     @IBOutlet weak var postToFeedViewOutlet: UIView!
+    @IBOutlet weak var dismissKeyboardView: UIView!
     
     @IBOutlet weak var globTableViewOutlet: UITableView!
     
-
+    @IBOutlet weak var contentHeightOutlet: NSLayoutConstraint!
+    
+    func keyboardShown(){
+        
+        dismissKeyboardView.alpha = 1
+        
+    }
+    
+    
+    func keyboardHid(){
+        
+        dismissKeyboardView.alpha = 0
+        
+    }
+    
     
     func setPostToYes(){
         
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardShown), name: UIKeyboardWillShowNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardHid), name: UIKeyboardWillHideNotification, object: nil)
+        
+        shareOutlet.enabled = true
         postToFeedLabelOutlet.text = "YES"
         postToFeedLabelOutlet.textColor = UIColor.whiteColor()
         postToFeedViewOutlet.backgroundColor = UIColor.redColor()
@@ -75,13 +96,27 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
             postToFeedLabelOutlet.textColor = UIColor.blackColor()
             postToFeedViewOutlet.backgroundColor = UIColor.lightGrayColor()
             
+            if selectedSquad.count == 0 {
+                
+                shareOutlet.enabled = false
+                
+            } else {
+                
+                shareOutlet.enabled = true
+                
+            }
+            
         } else {
             
+            shareOutlet.enabled = true
             postToFeedLabelOutlet.text = "YES"
             postToFeedLabelOutlet.textColor = UIColor.whiteColor()
             postToFeedViewOutlet.backgroundColor = UIColor.redColor()
             
         }
+        
+        
+        
         
         postToFeedSelected = !postToFeedSelected
         
@@ -157,7 +192,7 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
         self.globTableViewOutlet.reloadData()
         
     }
-
+    
     
     
     
@@ -205,12 +240,15 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
         
         
     }
-
+    
     
     @IBAction func backButton(sender: AnyObject) {
-
+        
+        shouldUpload = false
+        uploadingViewOutlet.alpha = 0
+        
         clearPlayers()
-
+        
         if isImage {
             
             let editor = AdobeUXImageEditorViewController(image: image)
@@ -240,7 +278,7 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
     
     @IBAction func shareAction(sender: AnyObject) {
         
-        clearPlayers()
+        
         
         shareOutlet.enabled = false
         
@@ -275,7 +313,7 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
             }
         }
     }
-
+    
     //Functions
     func handleCall(){
         
@@ -312,12 +350,12 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
     override func viewWillAppear(animated: Bool) {
         
         super.viewDidAppear(true)
-
+        
     }
     
     //Functions
     func handleContent() {
-
+        
         if isImage {
             
             if let actualImage = image {
@@ -325,7 +363,7 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
             } else {
                 imageOutlet.image = nil
             }
-
+            
         } else {
             
             dispatch_async(dispatch_get_main_queue(), {
@@ -366,21 +404,175 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
             })
         }
     }
+    
+    
+    func setToFirebase(imageUrl: String?, caption: String?, FIRVideoURL: String?){
 
+        self.clearPlayers()
+        
+        if let userData = self.rootController?.selfData, selfUID = FIRAuth.auth()?.currentUser?.uid {
+            
+            let currentDate = NSDate().timeIntervalSince1970
+            
+            if let firstName = userData["firstName"] as? String, lastName = userData["lastName"] as? String, city = userData["city"] as? String, longitude = userData["longitude"] as? CLLocationDegrees, latitude = userData["latitude"] as? CLLocationDegrees, state = userData["state"] as? String {
+                
+                if shouldUpload {
+                    
+                    let ref = FIRDatabase.database().reference()
+                    
+                    let postChildKey = ref.child("posts").child(city).childByAutoId().key
+                    
+                    var postData: [NSObject:AnyObject] = ["userUID":selfUID, "firstName":firstName, "lastName":lastName, "city":city, "timeStamp":currentDate, "isImage":isImage, "postChildKey":postChildKey]
+                    
+                    if let url = imageUrl {
+                        
+                        postData["imageURL"] = url
+                        
+                    }
+                    
+                    if let url = FIRVideoURL {
+                        
+                        postData["videoURL"] = url
+                        
+                    }
+                    
+                    if let cap = caption {
+                        
+                        postData["caption"] = cap
+                        
+                    }
+                    
+                    if let score = userData["userScore"] as? Int {
+                        
+                        ref.child("users").child(selfUID).child("userScore").setValue(score+5)
+                        ref.child("userScores").child(selfUID).setValue(score+5)
+                        
+                    }
+                    
+                    if postToFeedSelected {
+                        
+                        ref.child("posts").child(city).child(postChildKey).updateChildValues(postData)
+                        ref.child("allPosts").child(postChildKey).updateChildValues(postData)
+                        ref.child("users").child(selfUID).child("posts").child(postChildKey).updateChildValues(postData)
+                        
+                        ref.child("cityLocations").child(city).updateChildValues(["mostRecentPost" : postData, "latitude" : latitude, "longitude" : longitude, "city" : city, "state" : state])
+                        
+                    }
+                    
+                    if selectedSquad.count > 0 {
+                        
+                        for member in selectedSquad {
+                            
+                            if let uid = member["uid"] as? String {
+                                
+                                var messageItem: [NSObject : AnyObject] = [
+                                    
+                                    "senderId" : selfUID,
+                                    "timeStamp" : currentDate,
+                                    "senderDisplayName" : firstName + " " + lastName,
+                                    
+                                    "isMedia" : true,
+                                    
+                                    "userUID" : uid
+                                    
+                                ]
+                                
+                                var notificationItem = [NSObject : AnyObject]()
+                                
+                                if let url = FIRVideoURL {
+                                    
+                                    notificationItem["text"] = "Sent Video!"
+                                    
+                                    let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".mov")
+                                    
+                                    messageItem["media"] = url
+                                    messageItem["key"] = fileName
+                                    messageItem["text"] = "Sent a video!"
+                                    messageItem["isImage"] = false
+                                    
+                                } else if let url = imageUrl {
+                                    
+                                    notificationItem["text"] = "Sent Photo!"
+                                    
+                                    let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".jpeg")
+                                    
+                                    messageItem["media"] = url
+                                    messageItem["key"] = fileName
+                                    messageItem["text"] = "Sent a photo!"
+                                    messageItem["isImage"] = true
+                                    
+                                }
+                                
+                                if let firstName = self.rootController?.selfData["firstName"] as? String, lastName = self.rootController?.selfData["lastName"] as? String {
+                                    
+                                    notificationItem["firstName"] = firstName
+                                    notificationItem["lastName"] = lastName
+                                    
+                                    messageItem["firstName"] = firstName
+                                    messageItem["lastName"] = lastName
+                                    
+                                }
+                                
+                                notificationItem["read"] = false
+                                notificationItem["timeStamp"] = currentDate
+                                notificationItem["type"] = "squad"
+                                notificationItem["uid"]  = selfUID
+                                
+                                let ref = FIRDatabase.database().reference()
+                                
+                                ref.child("users").child(selfUID).child("squad").child(uid).child("messages").childByAutoId().setValue(messageItem)
+                                ref.child("users").child(selfUID).child("squad").child(uid).child("read").setValue(false)
+                                ref.child("users").child(selfUID).child("squad").child(uid).child("lastActivity").setValue(currentDate)
+                                
+                                ref.child("users").child(uid).child("squad").child(selfUID).child("lastActivity").setValue(currentDate)
+                                ref.child("users").child(uid).child("squad").child(selfUID).child("messages").childByAutoId().setValue(messageItem)
+                                ref.child("users").child(uid).child("squad").child(selfUID).child("read").setValue(false)
+                                
+                                ref.child("users").child(uid).child("notifications").child(selfUID).child("squad").setValue(notificationItem)
+                                
+                            }
+                        }
+                    }
+                }
+                
+                rootController?.vibesFeedController?.globCollectionView.contentOffset = CGPointZero
+                
+                dispatch_async(dispatch_get_main_queue(), {
+                    
+                    self.rootController?.toggleHandlePost(nil, videoURL: nil, isImage: false, completion: { (bool) in
+                        
+                        self.uploadingViewOutlet.alpha = 0
+                        self.shareOutlet.enabled = true
+                        print("handle closed")
+                        
+                    })
+                    
+                    self.rootController?.toggleVibes({ (bool) in
+    
+                        self.rootController?.vibesFeedController?.currentCity = city
+                        self.rootController?.vibesFeedController?.observeCurrentCityPosts()
+                        
+                        print("vibes toggled")
+                        
+                    })
+                })
+            }
+        }
+    }
+    
+    
     func uploadPost(image: UIImage!, videoURL: NSURL!, isImage: Bool) {
         
         var captionString = ""
         self.view.endEditing(true)
+        shouldUpload = true
         
         //HANDLE CAPTION
-        
-        
-        /*
-        
-        if let text = caption.text {
+        if let text = captionTextView.text {
             captionString = text
         }
-        */
+        
+        
         UIView.animateWithDuration(0.3) {
             self.uploadingViewOutlet.alpha = 1
         }
@@ -388,133 +580,52 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
         self.imageUploadRequest(image) { (imageUrl, imageUploadRequest) in
             
             let imageTransferManager = AWSS3TransferManager.defaultS3TransferManager()
-
+            
             imageTransferManager.upload(imageUploadRequest).continueWithBlock { (task) -> AnyObject? in
                 
                 if task.error == nil {
                     
                     print("successful image upload")
                     
-                    if !isImage {
+                    if self.shouldUpload {
                         
-                        self.videoUploadRequest(videoURL, completion: { (FIRVideoURL, videoUploadRequest) in
+                        if !isImage {
                             
-                            let videoTransferManager = AWSS3TransferManager.defaultS3TransferManager()
-                            
-                            videoTransferManager.upload(videoUploadRequest).continueWithBlock({ (task) -> AnyObject? in
+                            self.videoUploadRequest(videoURL, completion: { (FIRVideoURL, videoUploadRequest) in
                                 
-                                print("save thumbnail & video to firebase")
-   
-                                if let userData = self.rootController?.selfData, selfUID = FIRAuth.auth()?.currentUser?.uid {
+                                let videoTransferManager = AWSS3TransferManager.defaultS3TransferManager()
+                                
+                                videoTransferManager.upload(videoUploadRequest).continueWithBlock({ (task) -> AnyObject? in
                                     
-                                    let currentDate = NSDate().timeIntervalSince1970
+                                    print("save thumbnail & video to firebase")
                                     
-                                    if let firstName = userData["firstName"] as? String, lastName = userData["lastName"] as? String, city = userData["city"] as? String {
-                                        
-                                        let ref = FIRDatabase.database().reference()
-                                        
-                                        let postChildKey = ref.child("posts").child(city).childByAutoId().key
-                                        
-                                        let postData: [NSObject:AnyObject] = ["views":0, "userUID":selfUID, "firstName":firstName, "lastName":lastName, "city":city, "timeStamp":currentDate, "imageURL":imageUrl, "caption":captionString, "isImage":isImage, "like" : 0, "dislike" : 0, "postChildKey":postChildKey, "videoURL" : FIRVideoURL]
-                                        
-                                        
-                                        if let score = userData["userScore"] as? Int {
-                                            
-                                            ref.child("users").child(selfUID).child("userScore").setValue(score+5)
-                                            ref.child("userScores").child(selfUID).setValue(score+5)
-                                            
-                                        }
-                                        
-                                        ref.child("posts").child(city).child(postChildKey).updateChildValues(postData)
-                                        ref.child("users").child(selfUID).child("posts").child(postChildKey).updateChildValues(postData)
-                                        ref.child("allPosts").child(postChildKey).updateChildValues(postData)
-
-                                        dispatch_async(dispatch_get_main_queue(), {
-                                            
-                                            self.rootController?.toggleHandlePost(nil, videoURL: nil, isImage: false, completion: { (bool) in
-                                                
-                                                self.uploadingViewOutlet.alpha = 0
-                                                self.shareOutlet.enabled = true
-                                                print("handle closed")
-                                                
-                                            })
-
-                                            self.rootController?.toggleVibes({ (bool) in
-                                                
-                                                print("vibes toggled")
-                                                
-                                            })
-                                        })
-                                    }
-                                }
-
-                                return nil
-                            })
-                        })
-
-                    } else {
-                        
-                        print("save image only to firebase")
-                        
-                        if let userData = self.rootController?.selfData, selfUID = FIRAuth.auth()?.currentUser?.uid {
-                            
-                            let currentDate = NSDate().timeIntervalSince1970
-                            
-                            if let firstName = userData["firstName"] as? String, lastName = userData["lastName"] as? String, city = userData["city"] as? String, longitude = userData["longitude"] as? CLLocationDegrees, latitude = userData["latitude"] as? CLLocationDegrees, state = userData["state"] as? String {
-                                
-                                let ref = FIRDatabase.database().reference()
-                                
-                                let postChildKey = ref.child("posts").child(city).childByAutoId().key
-                                
-                                let postData: [NSObject:AnyObject] = ["views":0, "userUID":selfUID, "firstName":firstName, "lastName":lastName, "city": city, "timeStamp":currentDate, "imageURL":imageUrl, "caption":captionString, "isImage":isImage, "like" : 0, "dislike" : 0, "postChildKey":postChildKey, "videoURL" : "none"]
-                                
-                                
-                                if let score = userData["userScore"] as? Int {
+                                    self.setToFirebase(imageUrl, caption: captionString, FIRVideoURL: FIRVideoURL)
                                     
-                                    ref.child("users").child(selfUID).child("userScore").setValue(score+5)
-                                    ref.child("userScores").child(selfUID).setValue(score+5)
-                                    
-                                }
-                                
-                                ref.child("posts").child(city).child(postChildKey).updateChildValues(postData)
-                                ref.child("users").child(selfUID).child("posts").child(postChildKey).updateChildValues(postData)
-                                ref.child("allPosts").child(postChildKey).updateChildValues(postData)
-
-                                ref.child("cityLocations").child(city).updateChildValues(["mostRecentPost" : postData, "latitude" : latitude, "longitude" : longitude, "city" : city, "state" : state])
-                                
-                                print("successfuly set city")
-
-                                dispatch_async(dispatch_get_main_queue(), {
-                                    
-                                    self.rootController?.toggleHandlePost(nil, videoURL: nil, isImage: false, completion: { (bool) in
-                                        
-                                        self.uploadingViewOutlet.alpha = 0
-                                        self.shareOutlet.enabled = true
-                                        print("handle closed")
-                                        
-                                    })
-                                    
-                                    self.rootController?.toggleVibes({ (bool) in
-                                        
-                                        self.rootController?.vibesFeedController?.currentCity = city
-                                        self.rootController?.vibesFeedController?.observeCurrentCityPosts()
-
-                                        print("vibes toggled")
-                                        
-                                    })
+                                    return nil
                                 })
-                            }
+                            })
+                            
+                        } else {
+                            
+                            print("save image only to firebase")
+                            
+                            self.setToFirebase(imageUrl, caption: captionString, FIRVideoURL: nil)
+                            
                         }
+                        
+                    } else {
+                        print("error uploading: \(task.error)")
+                        
+                        let alertController = UIAlertController(title: "Sorry", message: "Error uploading profile picture, please try again later", preferredStyle:  UIAlertControllerStyle.Alert)
+                        alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Cancel, handler: nil))
+                        self.presentViewController(alertController, animated: true, completion: nil)
+                        
                     }
- 
-                } else {
-                    print("error uploading: \(task.error)")
                     
-                    let alertController = UIAlertController(title: "Sorry", message: "Error uploading profile picture, please try again later", preferredStyle:  UIAlertControllerStyle.Alert)
-                    alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Cancel, handler: nil))
-                    self.presentViewController(alertController, animated: true, completion: nil)
                     
                 }
+                
+                
                 return nil
             }
         }
@@ -578,7 +689,7 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
         let newAsset: AVURLAsset = AVURLAsset(URL: tempURL)
         
         if let exportSession: AVAssetExportSession = AVAssetExportSession(asset: newAsset, presetName: AVAssetExportPresetMediumQuality) {
- 
+            
             let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".mov")
             let fileURL = NSURL(fileURLWithPath: NSTemporaryDirectory()).URLByAppendingPathComponent("upload").URLByAppendingPathComponent(fileName)
             
@@ -607,9 +718,10 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
     func addDismissKeyboard() {
         
         let dismissKeyboardGesture: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        view.addGestureRecognizer(dismissKeyboardGesture)
+        dismissKeyboardView.addGestureRecognizer(dismissKeyboardGesture)
         
     }
+    
     func dismissKeyboard() {
         
         view.endEditing(true)
@@ -618,6 +730,20 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
     
     
     func clearPlayers(){
+        
+        view.endEditing(true)
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillHideNotification, object: nil)
+        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillShowNotification, object: nil)
+        
+        userSelected.removeAll()
+        selectedSquad.removeAll()
+        squad.removeAll()
+        dataSourceForSearchResult.removeAll()
+        
+        self.globTableViewOutlet.reloadData()
+        
+        captionTextView.text = nil
+        charactersLeftOutlet.text = "0/30 Characters"
         
         if let layer = playerLayer {
             
@@ -628,7 +754,7 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
         if let playerPlayer = player {
             
             playerPlayer.pause()
-            player?.removeObserver(self, forKeyPath: "rate")
+            playerPlayer.removeObserver(self, forKeyPath: "rate")
             
         }
         
@@ -640,6 +766,35 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
     }
     
     //TextView Delegates
+    func scrollViewWillEndDragging(scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+        
+        if velocity.y > 1 {
+            
+            print("up")
+            
+            UIView.animateWithDuration(0.3, animations: {
+                
+                self.contentHeightOutlet.constant = 0
+                self.view.layoutIfNeeded()
+                
+            })
+            
+            
+        } else if velocity.y < -1 {
+            
+            print("down")
+            
+            UIView.animateWithDuration(0.3, animations: {
+                
+                self.contentHeightOutlet.constant = 132
+                self.view.layoutIfNeeded()
+                
+            })
+            
+        }
+    }
+    
+    
     func textViewDidChange(textView: UITextView) {
         
         let textCount = textView.text.characters.count
@@ -658,7 +813,7 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
         
         return textView.text.characters.count + (text.characters.count - range.length) <= 30
     }
-
+    
     
     
     
@@ -666,11 +821,11 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         postToFeedViewOutlet.layer.cornerRadius = 5
         captionTextView.layer.cornerRadius = 10
         captionTextView.text = nil
-        charactersLeftOutlet.text = "0/50 Characters"
+        charactersLeftOutlet.text = "0/30 Characters"
         
         shareOutlet.setTitleColor(UIColor.whiteColor(), forState: .Normal)
         shareOutlet.setTitleColor(UIColor.lightGrayColor(), forState: .Disabled)

@@ -331,6 +331,15 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        let view = UIView()
+        
+        view.frame = CGRect(origin: CGPointZero, size: CGSize(width: self.view.bounds.width
+            , height: 50))
+        
+        view.backgroundColor = UIColor.whiteColor()
+        
+        globTableView.tableFooterView = view
+        
         addGestureRecognizers()
         
         // Do any additional setup after loading the view.

@@ -28,8 +28,11 @@ class PostUpdateCell: UITableViewCell {
         if let selfData = notificationController?.rootController?.selfData, myPosts = selfData["posts"] as? [NSObject : AnyObject] {
             
             if let post = myPosts[postKey] as? [NSObject : AnyObject] {
-                
+
                 let postArray = [post]
+                
+                self.notificationController?.rootController?.snapchatController?.singlePost = true
+                
                 notificationController?.rootController?.toggleSnapchat(postArray, startingi: 0, completion: { (bool) in
                     
                     print("snapchat toggled")

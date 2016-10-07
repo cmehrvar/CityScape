@@ -219,6 +219,8 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
     
     func fusumaDismissedWithImage(image: UIImage) {
         
+        UIApplication.sharedApplication().statusBarHidden = false
+        
         let scopeCurrentKey = currentKey
         let scopePassedRef = self.passedRef
         let scopeType = typeOfChat
@@ -300,7 +302,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                         
                         if scopeType == "matches" || scopeType == "squad" {
                             
-                            ref.child(scopeType).child("lastActivity").setValue(timeStamp)
+                            ref.child(self.passedRef).child("lastActivity").setValue(timeStamp)
                             
                             if let selfUID = FIRAuth.auth()?.currentUser?.uid {
                                 
@@ -376,6 +378,8 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
     }
     
     func fusumaVideoCompleted(withFileURL fileURL: NSURL) {
+        
+        UIApplication.sharedApplication().statusBarHidden = false
         
         let scopePassedRef = self.passedRef
         let scopeCurrentKey = currentKey
@@ -544,6 +548,8 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
     }
     
     func presentFusumaCamera(){
+        
+        UIApplication.sharedApplication().statusBarHidden = true
         
         let fusuma = FusumaViewController()
         fusuma.delegate = self

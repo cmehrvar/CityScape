@@ -76,6 +76,29 @@ class SendPostSquadCell: UITableViewCell {
             handleController?.globTableViewOutlet.reloadData()
 
         }
+        
+        
+        if let vc = handleController {
+            
+            if vc.selectedSquad.count == 0 {
+                
+                if vc.postToFeedSelected {
+
+                    vc.shareOutlet.enabled = true
+                    
+                } else {
+                    
+                    vc.shareOutlet.enabled = false
+                    
+                }
+                
+            } else {
+                
+                vc.shareOutlet.enabled = true
+                
+                
+            }
+        }
     }
     
     func loadData(data: [NSObject : AnyObject]) {
