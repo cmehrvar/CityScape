@@ -32,7 +32,7 @@ class LikeCell: UITableViewCell {
             self.firstName = firstName
             self.lastName = lastName
             
-            let name = firstName + " " + lastName
+            let name = firstName 
             
             nameOutlet.text = name
         }
@@ -57,7 +57,7 @@ class LikeCell: UITableViewCell {
             
             if !read {
                 
-                self.backgroundColor = UIColor.yellowColor()
+                self.backgroundColor = UIColor(red: 255, green: 71, blue: 34, alpha: 0.2)
                 
             } else {
                 

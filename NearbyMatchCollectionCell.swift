@@ -28,7 +28,7 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
     var iSentYou = false
     
     //Outlets
-    @IBOutlet weak var nameOutlet: THLabel!
+    @IBOutlet weak var nameOutlet: UILabel!
     @IBOutlet weak var occupationOutlet: UILabel!
     @IBOutlet weak var profileImage: UIImageView!
     @IBOutlet weak var onlineOutlet: NearbyOnline!
@@ -357,8 +357,6 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                                 
                                 
                                 self.nameOutlet.text = displayName
-                                self.nameOutlet.strokeSize = 0.25
-                                self.nameOutlet.strokeColor = UIColor.blackColor()
                                 self.nameOutlet.lineBreakMode = .ByWordWrapping
                                 
                             }

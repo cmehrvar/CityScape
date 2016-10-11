@@ -96,26 +96,25 @@ class MatchCollectionViewCell: UICollectionViewCell {
         
         
         if let read = data["read"] as? Bool {
-            
+
             if read {
                 
-                nameOutlet.font = UIFont.systemFontOfSize(14)
-                nameOutlet.textColor = UIColor.darkGrayColor()
+                nameOutlet.font = UIFont(name: "ProximaNovaSoft-Regular", size: 14)
+                nameOutlet.textColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.6)
+                
                 
             } else {
                 
-                nameOutlet.font = UIFont.boldSystemFontOfSize(14)
-                nameOutlet.textColor = UIColor.blackColor()
+                nameOutlet.font = UIFont(name: "ProximaNovaSoftW03-Semibold", size: 14)
+                nameOutlet.textColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.8)
                 
             }
 
         } else {
-            
-            
-            nameOutlet.font = UIFont.systemFontOfSize(14)
-            nameOutlet.textColor = UIColor.darkGrayColor()
-            
-            
+
+            nameOutlet.font = UIFont(name: "ProximaNovaSoft-Regular", size: 14)
+            nameOutlet.textColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.6)
+
         }
         
         

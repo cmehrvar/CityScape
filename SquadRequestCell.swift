@@ -153,11 +153,11 @@ class SquadRequestCell: UITableViewCell {
             
             if !read {
                 
-                self.backgroundColor = UIColor.yellowColor()
+                self.backgroundColor = UIColor(red: 255, green: 71, blue: 34, alpha: 0.2)
                 
             } else {
                 
-                self.backgroundColor = UIColor.whiteColor()
+                self.backgroundColor = UIColor.clearColor()
                 
             }
         }
@@ -179,8 +179,8 @@ class SquadRequestCell: UITableViewCell {
             
             inSquad = false
             
-            denyImageOutlet.image = UIImage(named: "RedX")
-            respondImageOutlet.image = UIImage(named: "Checkmark")
+            denyImageOutlet.image = UIImage(named: "deny")
+            respondImageOutlet.image = UIImage(named: "approve")
             
         }
 
@@ -206,7 +206,7 @@ class SquadRequestCell: UITableViewCell {
             self.firstName = firstName
             self.lastName = lastName
             
-            let name = firstName + " " + lastName
+            let name = firstName
             nameOutlet.text = name
             
         }

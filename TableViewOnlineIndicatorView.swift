@@ -14,7 +14,7 @@ class TableViewOnlineIndicatorView: UIView {
         
         super.awakeFromNib()
         layer.cornerRadius = 8
-        layer.borderWidth = 2
+        layer.borderWidth = 1
         layer.borderColor = UIColor.whiteColor().CGColor
         self.clipsToBounds = true
         

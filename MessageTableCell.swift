@@ -48,17 +48,21 @@ class MessageTableCell: UITableViewCell {
             
             if read {
                 
-                nameOutlet.font = UIFont.systemFontOfSize(25)
-                nameOutlet.textColor = UIColor.darkGrayColor()
+                nameOutlet.font = UIFont(name: "ProximaNovaSoft-Regular", size: 25)
+                nameOutlet.textColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.6)
                 
-                textOutlet.textColor = UIColor.darkGrayColor()
+                textOutlet.font = UIFont(name: "ProximaNovaSoft-Regular", size: 17)
+                textOutlet.textColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.6)
+                
+                
                 
             } else {
                 
-                nameOutlet.font = UIFont.systemFontOfSize(25, weight: UIFontWeightSemibold)
-                nameOutlet.textColor = UIColor.blackColor()
+                nameOutlet.font = UIFont(name: "ProximaNovaSoftW03-Semibold", size: 25)
+                nameOutlet.textColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.8)
                 
-                textOutlet.textColor = UIColor.blackColor()
+                textOutlet.font = UIFont(name: "ProximaNovaSoftW03-Semibold", size: 17)
+                textOutlet.textColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.7)
             }
         }
         

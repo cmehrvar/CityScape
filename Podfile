@@ -18,11 +18,11 @@ pod ‘Firebase’
 pod ‘Firebase/Database’
 pod ‘Firebase/Auth’
 pod ‘Fusuma’
-pod ‘Player’
 pod 'JSQMessagesViewController'
 pod ‘THLabel’
 pod ‘NVActivityIndicatorView’
 pod 'NYAlertViewController'
+pod ‘NWPusher’
 
 end
 

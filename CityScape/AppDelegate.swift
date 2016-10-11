@@ -9,9 +9,11 @@
 import UIKit
 import Firebase
 import FirebaseDatabase
+import FirebaseAuth
 import FBSDKCoreKit
 import AWSCognito
 import AVFoundation
+import NWPusher
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -53,6 +55,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         FIRDatabase.database().persistenceEnabled = true
         
+        if application.respondsToSelector(#selector(application.registerUserNotificationSettings)) {
+            
+            let settings = UIUserNotificationSettings(forTypes: [.Alert, .Badge, .Sound], categories: nil)
+            UIApplication.sharedApplication().registerUserNotificationSettings(settings)
+        
+        }
+        
+        if let url = NSBundle.mainBundle().URLForResource("pusher", withExtension: ".p12") {
+            
+            print("good url")
+            
+        }
+
   
         application.statusBarStyle = .LightContent
         //application.statusBarHidden = true
@@ -121,6 +136,40 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(application: UIApplication, openURL url: NSURL, sourceApplication: String?, annotation: AnyObject) -> Bool {
         
         return FBSDKApplicationDelegate.sharedInstance().application(application, openURL: url, sourceApplication: sourceApplication, annotation: annotation)
+        
+    }
+    
+    func application(application: UIApplication, didRegisterUserNotificationSettings notificationSettings: UIUserNotificationSettings) {
+        
+        application.registerForRemoteNotifications()
+        
+    }
+    
+    func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken token: NSData) {
+        
+        var pushToken = token.description
+        pushToken = pushToken.stringByReplacingOccurrencesOfString("<", withString: "")
+        pushToken = pushToken.stringByReplacingOccurrencesOfString(">", withString: "")
+        pushToken = pushToken.stringByReplacingOccurrencesOfString(" ", withString: "")
+        
+        if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+            
+            FIRDatabase.database().reference().child("users").child(selfUID).child("pushToken").setValue(pushToken)
+            
+            
+        }
+    }
+    
+    func application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError) {
+
+        print(error)
+        
+    }
+    
+    func application(application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [NSObject : AnyObject], completionHandler: () -> Void) {
+        
+        print("Received push notification: \(userInfo), identifier: \(identifier)")
+        completionHandler()
         
     }
 }

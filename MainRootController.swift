@@ -20,8 +20,7 @@ class MainRootController: UIViewController {
     var locationFromFirebase = false
     
     var homeIsVisible = true
-    
-    
+
     var menuIsRevealed = false
     var nearbyIsRevealed = false
     var vibesIsRevealed = false
@@ -37,6 +36,7 @@ class MainRootController: UIViewController {
     var chatRevealed = false
     var composedRevealed = false
     var addToChatRevealed = false
+    var leaderboardIsRevealed = false
     
     var vibesLoadedFromSelf = false
     
@@ -75,6 +75,8 @@ class MainRootController: UIViewController {
     @IBOutlet weak var topChatHeightConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var addToChatBottomConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var addToChatTopConstOutlet: NSLayoutConstraint!
+    @IBOutlet weak var leaderboardTopOutlet: NSLayoutConstraint!
+    @IBOutlet weak var leaderboardBottomOutlet: NSLayoutConstraint!
 
     //views
     @IBOutlet weak var closeMenuContainer: UIView!
@@ -115,6 +117,7 @@ class MainRootController: UIViewController {
     weak var topChatController: TopChatController?
     weak var composeChatController: ComposeChatController?
     weak var addToChatController: AddToChatController?
+    weak var leaderBoardController: LeaderboardController?
 
     @IBAction func composeMessage(sender: AnyObject) {
         
@@ -130,6 +133,39 @@ class MainRootController: UIViewController {
     
     
     //Toggle Functions
+    func toggleLeaderboard(completion: Bool -> ()) {
+        
+        var offset: CGFloat = 0
+        
+        if leaderboardIsRevealed {
+            
+            offset = self.view.bounds.height
+            leaderBoardController?.leaders.removeAll()
+            leaderBoardController?.globTableView.reloadData()
+            
+        } else {
+            
+            leaderBoardController?.loadLeaderboard()
+            
+        }
+        
+        leaderboardIsRevealed = !leaderboardIsRevealed
+        
+        UIView.animateWithDuration(0.3, animations: {
+            
+            self.leaderboardTopOutlet.constant = offset
+            self.leaderboardBottomOutlet.constant = -offset
+            
+            self.view.layoutIfNeeded()
+            
+            }) { (bool) in
+                
+                completion(bool)
+                
+        }
+    }
+    
+    
     func toggleHome(completion: Bool -> ()) {
 
         homeIsVisible = true
@@ -1772,6 +1808,9 @@ class MainRootController: UIViewController {
             
             self.composeContainerTopConstOutlet.constant = screenHeight
             self.composeContainerBottomConstOutlet.constant = -screenHeight
+            
+            self.leaderboardTopOutlet.constant = screenHeight
+            self.leaderboardBottomOutlet.constant = -screenHeight
 
             self.menuWidthConstOutlet.constant = screenWidth * 0.8
             self.leadingMenu.constant = -(screenWidth * 0.8)
@@ -1949,6 +1988,12 @@ class MainRootController: UIViewController {
             let addToChat = segue.destinationViewController as? AddToChatController
             addToChatController = addToChat
             addToChatController?.rootController = self
+            
+        } else if segue.identifier == "leaderSegue" {
+            
+            let leader = segue.destinationViewController as? LeaderboardController
+            leaderBoardController = leader
+            leaderBoardController?.rootController = self
             
         }
         

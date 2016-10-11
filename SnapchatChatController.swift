@@ -16,16 +16,16 @@ import Fusuma
 import AWSS3
 import AWSCore
 import AWSCognito
-import Player
+//import Player
 
-class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerDelegate, UIGestureRecognizerDelegate {
+class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, UIGestureRecognizerDelegate {
     
     weak var snapchatController: SnapchatViewController?
     
     var maxContentOffset = CGFloat()
     
     //JSQData
-    var videoPlayers = [String : Player]()
+    //var videoPlayers = [String : Player]()
     var passedRef = ""
     var typeOfChat = "snapchat"
     var currentPostKey = ""
@@ -44,31 +44,7 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
     
     var contentOffset: CGFloat = 0
     var scrollingUp = true
-    
-    //Player Delegates
-    func playerReady(player: Player){
-        
-    }
-    func playerPlaybackStateDidChange(player: Player){
-        
-    }
-    func playerBufferingStateDidChange(player: Player){
-        
-    }
-    
-    func playerPlaybackWillStartFromBeginning(player: Player){
-        
-    }
-    func playerPlaybackDidEnd(player: Player){
-        
-        player.playFromBeginning()
-        
-    }
-    
-    func playerCurrentTimeDidChange(player: Player) {
-        print("current time did change")
-    }
-    
+
     
     
     //Did press send button
@@ -408,11 +384,11 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
                 
                 if id == senderId {
                     
-                    cell.textView.textColor = UIColor.whiteColor()
+                    cell.textView.textColor = UIColor.blackColor()
                     
                 } else {
                     
-                    cell.textView.textColor = UIColor.blackColor()
+                    cell.textView.textColor = UIColor.whiteColor()
                 }
             }
         } else {
@@ -421,41 +397,53 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
                 
                 if let media = message.media!() as? JSQVideoMediaItem {
                     
-                    if let player = videoPlayers[key], view = player.view {
+                    /*
+                     if let /*player = videoPlayers[key], view = player.view */{
+                     
+                     /*
+                     
+                     dispatch_async(dispatch_get_main_queue(), {
+                     
+                     self.addChildViewController(player)
+                     player.didMoveToParentViewController(self)
+                     player.muted = true
+                     player.playFromCurrentTime()
+                     cell.mediaView.addSubview(view)
+                     
+                     })
+                     */
+                     
+                     } else { */
+                    
+                    if let url = media.fileURL {
                         
-                        dispatch_async(dispatch_get_main_queue(), {
-                            
-                            self.addChildViewController(player)
-                            player.didMoveToParentViewController(self)
-                            player.playFromCurrentTime()
-                            view.removeFromSuperview()
-                            cell.mediaView.addSubview(view)
-                            
-                        })
                         
-                    } else {
+                        /*
+                         
+                         dispatch_async(dispatch_get_main_queue(), {
+                         
+                         let player = Player()
+                         player.delegate = self
+                         
+                         if let videoPlayerView = player.view {
+                         
+                         self.addChildViewController(player)
+                         player.view.frame = cell.mediaView.bounds
+                         player.didMoveToParentViewController(self)
+                         player.setUrl(url)
+                         player.fillMode = AVLayerVideoGravityResizeAspectFill
+                         player.playbackLoops = true
+                         player.muted = true
+                         player.playFromCurrentTime()
+                         cell.mediaView.addSubview(videoPlayerView)
+                         self.videoPlayers[key] = player
+                         }
+                         
+                         })
+                         
+                         */
                         
-                        if let url = media.fileURL {
-                            
-                            dispatch_async(dispatch_get_main_queue(), {
-                                
-                                let player = Player()
-                                player.delegate = self
-                                
-                                if let videoPlayerView = player.view {
-                                    
-                                    self.addChildViewController(player)
-                                    player.view.frame = cell.mediaView.bounds
-                                    player.didMoveToParentViewController(self)
-                                    player.setUrl(url)
-                                    player.fillMode = AVLayerVideoGravityResizeAspectFill
-                                    player.playbackLoops = true
-                                    player.playFromCurrentTime()
-                                    cell.mediaView.addSubview(videoPlayerView)
-                                    self.videoPlayers[key] = player
-                                }
-                            })
-                        }
+                        
                     }
                     
                 } else if message.media!() is JSQPhotoMediaItem {
@@ -494,6 +482,7 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
             
             if let jsqCell = cell as? JSQMessagesCollectionViewCell, key = messageData[indexPath.item]["key"] as? String {
                 
+                /*
                 if let player = self.videoPlayers[key] {
                     
                     if let videoPlayerView = player.view {
@@ -509,6 +498,7 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
                         })
                     }
                 }
+ */
             }
         }
     }
@@ -692,8 +682,8 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, PlayerD
     private func setUpBubbles() {
         
         let factory = JSQMessagesBubbleImageFactory()
-        outgoingBubbleImageView = factory.outgoingMessagesBubbleImageWithColor(UIColor.jsq_messageBubbleBlueColor())
-        incomingBubbleImageView = factory.incomingMessagesBubbleImageWithColor(UIColor.jsq_messageBubbleLightGrayColor())
+        outgoingBubbleImageView = factory.outgoingMessagesBubbleImageWithColor(UIColor.jsq_messageBubbleLightGrayColor())
+        incomingBubbleImageView = factory.incomingMessagesBubbleImageWithColor(UIColor.jsq_messageBubbleRedColor())
         
     }
     

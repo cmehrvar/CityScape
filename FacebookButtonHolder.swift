@@ -13,8 +13,8 @@ class FacebookButtonHolder: UIView {
     override func awakeFromNib() {
         
         super.awakeFromNib()
-        layer.cornerRadius = 20
-        layer.borderWidth = 5
+        layer.cornerRadius = 8
+        layer.borderWidth = 2
         layer.borderColor = UIColor.whiteColor().CGColor
         self.clipsToBounds = true
     }

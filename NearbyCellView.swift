@@ -13,7 +13,7 @@ class NearbyCellView: UIView {
     override func awakeFromNib() {
         
         super.awakeFromNib()
-        layer.cornerRadius = 25
+        layer.cornerRadius = 8
         self.clipsToBounds = true
     }
 

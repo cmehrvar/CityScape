@@ -58,8 +58,8 @@ PODS:
     - JSQSystemSoundPlayer (~> 2.0.1)
   - JSQSystemSoundPlayer (2.0.1)
   - NVActivityIndicatorView (2.10)
+  - NWPusher (0.7.3)
   - NYAlertViewController (1.3.0)
-  - Player (0.1.2)
   - SDWebImage (3.8.1):
     - SDWebImage/Core (= 3.8.1)
   - SDWebImage/Core (3.8.1)
@@ -80,8 +80,8 @@ DEPENDENCIES:
   - Fusuma
   - JSQMessagesViewController
   - NVActivityIndicatorView
+  - NWPusher
   - NYAlertViewController
-  - Player
   - SDWebImage
   - THLabel
 
@@ -109,8 +109,8 @@ SPEC CHECKSUMS:
   JSQMessagesViewController: 39fed975e3c9f8eba7292071e29eeb541d105e66
   JSQSystemSoundPlayer: c5850e77a4363ffd374cd851154b9af93264ed8d
   NVActivityIndicatorView: 5568608c3511690a42c4dd02f7a1de4361d670ae
+  NWPusher: bc8e588dd64d572196567777080567094d354edd
   NYAlertViewController: b93f82e2c1fc6d5e9485512ddbe7b481f463a074
-  Player: c9500a91177ddbe501d076e584a01aaae2a0269a
   SDWebImage: 35f9627a3e44b4f292a8a8ce6a531fa488239b91
   THLabel: 1a23e71d7738abfeacaf22ab409b981209b105ae
 

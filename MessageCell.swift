@@ -65,12 +65,14 @@ class MessageCell: UITableViewCell {
         if let read = data["read"] as? Bool {
             
             if !read {
-                
-                self.backgroundColor = UIColor.yellowColor()
+
+                self.backgroundColor = UIColor.redColor()
+                self.backgroundView?.alpha = 0.2
                 
             } else {
                 
-                self.backgroundColor = UIColor.whiteColor()
+                self.backgroundColor = UIColor.clearColor()
+                self.backgroundView?.alpha = 1
                 
             }
         }
@@ -131,7 +133,7 @@ class MessageCell: UITableViewCell {
 
             } else if type == "matches" {
  
-                chatTypeImageOutlet.image = UIImage(named: "sendMatch")
+                chatTypeImageOutlet.image = UIImage(named: "heart")
 
             }
         }
@@ -141,7 +143,7 @@ class MessageCell: UITableViewCell {
             self.firstName = firstName
             self.lastName = lastName
             
-            let name = firstName + " " + lastName
+            let name = firstName
             nameOutlet.text = name
             
         }

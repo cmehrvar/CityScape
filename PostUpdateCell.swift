@@ -59,19 +59,8 @@ class PostUpdateCell: UITableViewCell {
                 
                 if let firstName = snapshot.value as? String {
                     
-                    userRef.child("lastName").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
-                        
-                        if let lastName = snapshot.value as? String {
-                            
-                            let name = firstName + " " + lastName
-                            
-                            if self.uid == uid {
-                                
-                                self.nameOutlet.text = name
-                                
-                            }
-                        }
-                    })
+                    self.nameOutlet.text = firstName
+                    
                 }
             })
             
@@ -110,7 +99,7 @@ class PostUpdateCell: UITableViewCell {
                 
                 if !read {
                     
-                    self.backgroundColor = UIColor.yellowColor()
+                    self.backgroundColor = UIColor(red: 255, green: 71, blue: 34, alpha: 0.2)
                     
                 } else {
                     

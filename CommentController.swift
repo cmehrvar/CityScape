@@ -16,16 +16,16 @@ import Fusuma
 import AWSS3
 import AWSCore
 import AWSCognito
-import Player
+//import Player
 
-class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelegate, UIGestureRecognizerDelegate {
+class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRecognizerDelegate {
     
     weak var rootController: MainRootController?
     
     var maxContentOffset = CGFloat()
     
     //JSQData
-    var videoPlayers = [String : Player]()
+    //var videoPlayers = [String : Player]()
     var passedRef = ""
     var typeOfChat = ""
     var currentKey = ""
@@ -44,31 +44,6 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
     
     var contentOffset: CGFloat = 0
     var scrollingUp = true
-    
-    //Player Delegates
-    func playerReady(player: Player){
-        
-    }
-    func playerPlaybackStateDidChange(player: Player){
-        
-    }
-    func playerBufferingStateDidChange(player: Player){
-        
-    }
-    
-    func playerPlaybackWillStartFromBeginning(player: Player){
-        
-    }
-    func playerPlaybackDidEnd(player: Player){
-        
-        player.playFromBeginning()
-        
-    }
-    
-    func playerCurrentTimeDidChange(player: Player) {
-        print("current time did change")
-    }
-    
     
     
     //Did press send button
@@ -139,6 +114,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
         
         if typeOfChat == "matches" || typeOfChat == "squad" {
             
+            ref.child(passedRef).child("messages").childByAutoId().setValue(messageItem)
             ref.child(passedRef).child("lastActivity").setValue(timeStamp)
             
             if let selfUID = FIRAuth.auth()?.currentUser?.uid {
@@ -728,11 +704,11 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                 
                 if id == senderId {
                     
-                    cell.textView.textColor = UIColor.whiteColor()
+                    cell.textView.textColor = UIColor.blackColor()
                     
                 } else {
                     
-                    cell.textView.textColor = UIColor.blackColor()
+                    cell.textView.textColor = UIColor.whiteColor()
                 }
             }
         } else {
@@ -741,8 +717,11 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                 
                 if let media = message.media!() as? JSQVideoMediaItem {
                     
-                    if let player = videoPlayers[key], view = player.view {
+/*
+                    if let /*player = videoPlayers[key], view = player.view */{
                         
+                     /*
+                     
                         dispatch_async(dispatch_get_main_queue(), {
                             
                             self.addChildViewController(player)
@@ -752,11 +731,14 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                             cell.mediaView.addSubview(view)
                             
                         })
+                        */
                         
-                        
-                    } else {
+                    } else { */
                         
                         if let url = media.fileURL {
+                            
+                            
+                            /*
                             
                             dispatch_async(dispatch_get_main_queue(), {
                                 
@@ -778,7 +760,10 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
                                 }
                                 
                             })
-                        }
+ 
+ */
+                    
+                        
                     }
                     
                 } else if let _ = message.media!() as? JSQPhotoMediaItem, urlString = messageData[indexPath.item]["media"] as? String, url = NSURL(string: urlString) {
@@ -993,8 +978,8 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, PlayerDelega
     private func setUpBubbles() {
         
         let factory = JSQMessagesBubbleImageFactory()
-        outgoingBubbleImageView = factory.outgoingMessagesBubbleImageWithColor(UIColor.jsq_messageBubbleBlueColor())
-        incomingBubbleImageView = factory.incomingMessagesBubbleImageWithColor(UIColor.jsq_messageBubbleLightGrayColor())
+        outgoingBubbleImageView = factory.outgoingMessagesBubbleImageWithColor(UIColor.jsq_messageBubbleLightGrayColor())
+        incomingBubbleImageView = factory.incomingMessagesBubbleImageWithColor(UIColor.jsq_messageBubbleRedColor())
         
     }
     

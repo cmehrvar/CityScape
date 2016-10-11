@@ -14,7 +14,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = 'primary'
-               BlueprintIdentifier = '9E487559AABC2059BBEB2F79'
+               BlueprintIdentifier = 'F4A9E392481137224288DC9E'
                BlueprintName = 'DownPicker'
                ReferencedContainer = 'container:Pods.xcodeproj'
                BuildableName = 'DownPicker.framework'>

@@ -119,11 +119,11 @@ class ComposeTableViewCell: UITableViewCell {
 
             if (composeController?.userSelected[uid]) != nil {
                 
-                self.selectedIndicator.image = UIImage(named: "Checkmark")
+                self.selectedIndicator.backgroundColor = UIColor.redColor()
                 
             } else {
                 
-                self.selectedIndicator.image = nil
+                self.selectedIndicator.backgroundColor = UIColor.clearColor()
                 
             }
 

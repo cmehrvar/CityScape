@@ -74,12 +74,12 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>NYAlertViewController.xcscheme</key>
+		<key>NWPusher.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>Player.xcscheme</key>
+		<key>NYAlertViewController.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
@@ -112,12 +112,12 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>255D4DFA566C4C862B98A45F609B150C</key>
+		<key>3B41A9B1D49827D58E203AF61D34F608</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>3B41A9B1D49827D58E203AF61D34F608</key>
+		<key>493FE433DEB128BBE5F64489B889D18E</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -137,11 +137,6 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>716CDAAB8105121C2A8130C0F878A013</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
 		<key>7380ABD049E12DCFEC9B9E1D2D52C627</key>
 		<dict>
 			<key>primary</key>
@@ -153,6 +148,11 @@
 			<true/>
 		</dict>
 		<key>8698C4558AE758AD92477EC134E714F7</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>99951036087DA0C5FE3306F5B480C63D</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -172,12 +172,12 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>C1E63A1BF93FD336FEC6B7950AA018F2</key>
+		<key>CFF7D2E886B0E696113A679CB8EFC1AF</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>F00BAB49B6C505AE434E289C3A386735</key>
+		<key>E15476058E9AB60474A23B03CF9BB509</key>
 		<dict>
 			<key>primary</key>
 			<true/>

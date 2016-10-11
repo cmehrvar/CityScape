@@ -36,8 +36,38 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
     @IBOutlet weak var dismissKeyboardViewOutlet: UIView!
     
     
+    @IBAction func leaderboard(sender: AnyObject) {
+        
+        rootController?.toggleMenu({ (bool) in
+            
+            self.rootController?.toggleLeaderboard({ (bool) in
+                
+                print("leaderboard toggled")
+                
+            })
+            
+        })
+        
+        
+        
+    }
+    
+    
     //Functions
     func setMenu(){
+        
+        if let status = rootController?.selfData["currentStatus"] as? String {
+            
+            currentStatusTextViewOutlet.text = status
+            charactersOutlet.text = "\(status.characters.count)/30 Characters"
+
+        } else {
+            
+            currentStatusTextViewOutlet.text = nil
+            charactersOutlet.text = "0/30 Characters"
+            
+        }
+        
         
         if let profilePicture = rootController?.selfData["profilePicture"] as? String, profileURL = NSURL(string: profilePicture) {
             
