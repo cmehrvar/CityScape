@@ -326,7 +326,7 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
                 
                 if self.chatKey == scopeKey {
                     
-                    self.groupPhotoOutlet.image = UIImage(named: "sendSquad")
+                    self.groupPhotoOutlet.image = UIImage(named: "icon")
                     
                 }
             }

@@ -49,12 +49,6 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
     @IBOutlet weak var indicator4Outlet: ProfileCurrentPictureIndicatorVIew!
     @IBOutlet weak var indicator5Outlet: ProfileCurrentPictureIndicatorVIew!
     
-    @IBOutlet weak var plus2Outlet: UIImageView!
-    @IBOutlet weak var plus3Outlet: UIImageView!
-    @IBOutlet weak var plus4Outlet: UIImageView!
-    @IBOutlet weak var plus5Outlet: UIImageView!
-    
-    
     @IBOutlet weak var editButtonOutlet: UIButton!
     @IBOutlet weak var editImageOutlet: UIImageView!
     
@@ -386,16 +380,11 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                 if pictures == 1 {
                     
                     indicator1Outlet.alpha = 1
-                    indicator2Outlet.alpha = 0
+                    indicator2Outlet.alpha = 1
                     indicator3Outlet.alpha = 0
                     indicator4Outlet.alpha = 0
                     indicator5Outlet.alpha = 0
-                    
-                    plus2Outlet.alpha = 1
-                    plus3Outlet.alpha = 0
-                    plus4Outlet.alpha = 0
-                    plus5Outlet.alpha = 0
-                    
+
                     profilePic2Outlet.image = nil
                     
                     indicator2WidthConstOutlet.constant = 24
@@ -407,15 +396,10 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                     
                     indicator1Outlet.alpha = 1
                     indicator2Outlet.alpha = 1
-                    indicator3Outlet.alpha = 0
+                    indicator3Outlet.alpha = 1
                     indicator4Outlet.alpha = 0
                     indicator5Outlet.alpha = 0
-                    
-                    plus2Outlet.alpha = 0
-                    plus3Outlet.alpha = 1
-                    plus4Outlet.alpha = 0
-                    plus5Outlet.alpha = 0
-                    
+
                     profilePic3Outlet.image = nil
                     
                     indicator2WidthConstOutlet.constant = 24
@@ -428,14 +412,9 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                     indicator1Outlet.alpha = 1
                     indicator2Outlet.alpha = 1
                     indicator3Outlet.alpha = 1
-                    indicator4Outlet.alpha = 0
+                    indicator4Outlet.alpha = 1
                     indicator5Outlet.alpha = 0
-                    
-                    plus2Outlet.alpha = 0
-                    plus3Outlet.alpha = 0
-                    plus4Outlet.alpha = 1
-                    plus5Outlet.alpha = 0
-                    
+
                     profilePic4Outlet.image = nil
                     
                     indicator2WidthConstOutlet.constant = 24
@@ -449,13 +428,8 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                     indicator2Outlet.alpha = 1
                     indicator3Outlet.alpha = 1
                     indicator4Outlet.alpha = 1
-                    indicator5Outlet.alpha = 0
-                    
-                    plus2Outlet.alpha = 0
-                    plus3Outlet.alpha = 0
-                    plus4Outlet.alpha = 0
-                    plus5Outlet.alpha = 1
-                    
+                    indicator5Outlet.alpha = 1
+
                     profilePic5Outlet.image = nil
                     
                     indicator2WidthConstOutlet.constant = 24
@@ -470,12 +444,7 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                     indicator3Outlet.alpha = 1
                     indicator4Outlet.alpha = 1
                     indicator5Outlet.alpha = 1
-                    
-                    plus2Outlet.alpha = 0
-                    plus3Outlet.alpha = 0
-                    plus4Outlet.alpha = 0
-                    plus5Outlet.alpha = 0
-                    
+
                     indicator2WidthConstOutlet.constant = 24
                     indicator3WidthConstOutlet.constant = 24
                     indicator4WidthConstOutlet.constant = 24
@@ -497,12 +466,7 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                     indicator3Outlet.alpha = 0
                     indicator4Outlet.alpha = 0
                     indicator5Outlet.alpha = 0
-                    
-                    plus2Outlet.alpha = 0
-                    plus3Outlet.alpha = 0
-                    plus4Outlet.alpha = 0
-                    plus5Outlet.alpha = 0
-                    
+
                     indicator2WidthConstOutlet.constant = 0
                     indicator3WidthConstOutlet.constant = 0
                     indicator4WidthConstOutlet.constant = 0
@@ -515,12 +479,7 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                     indicator3Outlet.alpha = 0
                     indicator4Outlet.alpha = 0
                     indicator5Outlet.alpha = 0
-                    
-                    plus2Outlet.alpha = 0
-                    plus3Outlet.alpha = 0
-                    plus4Outlet.alpha = 0
-                    plus5Outlet.alpha = 0
-                    
+
                     indicator2WidthConstOutlet.constant = 24
                     indicator3WidthConstOutlet.constant = 0
                     indicator4WidthConstOutlet.constant = 0
@@ -533,12 +492,7 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                     indicator3Outlet.alpha = 1
                     indicator4Outlet.alpha = 0
                     indicator5Outlet.alpha = 0
-                    
-                    plus2Outlet.alpha = 0
-                    plus3Outlet.alpha = 0
-                    plus4Outlet.alpha = 0
-                    plus5Outlet.alpha = 0
-                    
+
                     indicator2WidthConstOutlet.constant = 24
                     indicator3WidthConstOutlet.constant = 24
                     indicator4WidthConstOutlet.constant = 0
@@ -551,12 +505,7 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                     indicator3Outlet.alpha = 1
                     indicator4Outlet.alpha = 1
                     indicator5Outlet.alpha = 0
-                    
-                    plus2Outlet.alpha = 0
-                    plus3Outlet.alpha = 0
-                    plus4Outlet.alpha = 0
-                    plus5Outlet.alpha = 0
-                    
+
                     indicator2WidthConstOutlet.constant = 24
                     indicator3WidthConstOutlet.constant = 24
                     indicator4WidthConstOutlet.constant = 24
@@ -569,12 +518,7 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                     indicator3Outlet.alpha = 1
                     indicator4Outlet.alpha = 1
                     indicator5Outlet.alpha = 1
-                    
-                    plus2Outlet.alpha = 0
-                    plus3Outlet.alpha = 0
-                    plus4Outlet.alpha = 0
-                    plus5Outlet.alpha = 0
-                    
+
                     indicator2WidthConstOutlet.constant = 24
                     indicator3WidthConstOutlet.constant = 24
                     indicator4WidthConstOutlet.constant = 24

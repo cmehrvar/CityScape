@@ -636,16 +636,25 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
             
         } else if indexPath.row == 2 {
             
-            if let occupation = userData["occupation"] as? String {
+            if self.selfProfile {
                 
-                if occupation != "" {
+                return CGSize(width: width, height: 85)
+                
+            } else {
+                
+                if let occupation = userData["occupation"] as? String {
                     
-                    return CGSize(width: width, height: 85)
+                    if occupation != "" {
+                        
+                        return CGSize(width: width, height: 85)
+                        
+                    }
                     
                 }
+                
+                return CGSize(width: width, height: 67)
+                
             }
-            
-            return CGSize(width: width, height: 67)
             
         } else if indexPath.row == 3  {
             

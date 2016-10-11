@@ -79,7 +79,7 @@ class PostUpdateCell: UITableViewCell {
             
             if let buttonType = data["button"] as? String {
                 
-                likeIconOutlet.image = UIImage(named: buttonType)
+                likeIconOutlet.image = UIImage(named: "grey" + buttonType)
                 
             }
             

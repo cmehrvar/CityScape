@@ -113,7 +113,7 @@ class MessageTableCell: UITableViewCell {
  
             } else {
                 
-                self.profileOutlet.image = UIImage(named: "sendSquad")
+                self.profileOutlet.image = UIImage(named: "icon")
                 
             }
   
