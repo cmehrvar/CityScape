@@ -390,6 +390,13 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                     self.chatIsRevealed = true
                     self.snapchatChatController?.finishReceivingMessage()
                     
+                    if let playerLayer = self.layer {
+                        
+                        playerLayer.frame = self.videoOutlet.bounds
+                        
+                        
+                    }
+                    
             })
         }
     }
@@ -416,6 +423,11 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                     self.isPanning = false
                     self.longPressEnabled = false
                     
+                    if let playerLayer = self.layer {
+                        
+                        playerLayer.frame = self.videoOutlet.bounds
+                        
+                    }
                     
             })
         }

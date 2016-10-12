@@ -23,6 +23,32 @@ class LeaderboardCell: UITableViewCell {
     @IBOutlet weak var nameOutlet: UILabel!
     @IBOutlet weak var cityOutlet: UILabel!
     
+    
+    
+    @IBAction func toProfile(sender: AnyObject) {
+        
+        var selfProfile = false
+        
+        if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+            
+            if uid == selfUID {
+                
+                selfProfile = true
+                
+            }
+        }
+        
+        leaderController?.rootController?.toggleProfile(uid, selfProfile: selfProfile, completion: { (bool) in
+            
+            
+            
+        })
+        
+        
+    }
+    
+    
+    
     func loadCell(uid: String) {
         
         self.uid = uid

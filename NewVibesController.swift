@@ -50,6 +50,10 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     //Outlets
     @IBOutlet weak var globCollectionView: UICollectionView!
     @IBOutlet weak var vibeFlowLayout: UICollectionViewFlowLayout!
+    @IBOutlet weak var noPostsOutlet: UIImageView!
+    
+    
+    
     
     func setPlayerTitle(postKey: String, cell: UICollectionViewCell) {
         
@@ -854,6 +858,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
             let cell = collectionView.dequeueReusableCellWithReuseIdentifier("goToChatCell", forIndexPath: indexPath) as! GoToChatCell
             cell.vibesController = self
             cell.loadData(newPosts[indexPath.section])
+           
             return cell
             
         }
@@ -896,8 +901,9 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     }
     
     func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
+ 
         let width = self.view.bounds.width
-        
+
         if indexPath.row == 0 {
             
             return CGSize(width: width, height: width)
@@ -1169,6 +1175,19 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     
     func scrollViewDidScroll(scrollView: UIScrollView) {
         
+        if scrollingUp && (scrollView.contentOffset.y < 75) {
+            
+            rootController?.showNav(0.3, completion: { (bool) in
+                
+                print("nav shown")
+                
+                self.navHidden = false
+                self.showingNav = false
+                
+            })
+        }
+        
+        
         if scrollView.contentOffset.y < contentOffset {
             
             scrollingUp = true
@@ -1269,6 +1288,16 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
             
             ref.queryLimitedToLast(100).observeEventType(.Value, withBlock: { (snapshot) in
                 
+                if !snapshot.exists() {
+                    
+                    self.noPostsOutlet.alpha = 1
+                    
+                } else {
+                    
+                    self.noPostsOutlet.alpha = 0
+                    
+                }
+
                 var scopeData = [[NSObject : AnyObject]]()
                 
                 if let value = snapshot.value as? [NSObject : AnyObject] {
@@ -1283,8 +1312,19 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                             
                             if let valueToAdd = snapValue as? [NSObject : AnyObject] {
                                 
-                                scopeData.append(valueToAdd)
-                                
+                                if let uid = valueToAdd["userUID"] as? String, myReported = self.rootController?.selfData["reportedUsers"] as? [String : Bool] {
+                                    
+                                    if myReported[uid] == nil {
+                                        
+                                        scopeData.append(valueToAdd)
+                                        
+                                    }
+                                    
+                                } else {
+                                    
+                                    scopeData.append(valueToAdd)
+ 
+                                }
                             }
                         }
                         
@@ -1420,71 +1460,46 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
             
             ref.queryLimitedToLast(100).observeEventType(.Value, withBlock: { (snapshot) in
                 
-                var scopeData = [[NSObject : AnyObject]]()
-                
-                if let value = snapshot.value as? [NSObject : AnyObject] {
+                if !snapshot.exists() {
                     
-                    if self.observingCity != scopeCity {
+                    self.noPostsOutlet.alpha = 1
+                    
+                } else {
+                    
+                    self.noPostsOutlet.alpha = 0
+                    
+                    var scopeData = [[NSObject : AnyObject]]()
+                    
+                    if let value = snapshot.value as? [NSObject : AnyObject] {
                         
-                        ref.removeAllObservers()
-                        
-                    } else {
-                        
-                        for (_, snapValue) in value {
+                        if self.observingCity != scopeCity {
                             
-                            if let valueToAdd = snapValue as? [NSObject : AnyObject] {
-                                
-                                scopeData.append(valueToAdd)
-                                
-                            }
-                        }
-                        
-                        scopeData.sortInPlace({ (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
+                            ref.removeAllObservers()
                             
-                            if a["timeStamp"] as? NSTimeInterval > b["timeStamp"] as? NSTimeInterval {
-                                
-                                return true
-                                
-                            } else {
-                                
-                                return false
-                                
-                            }
-                        })
-                        
-                        var messages = [[NSObject : AnyObject]]()
-                        
-                        for post in scopeData {
+                        } else {
                             
-                            if let message = post["messages"] as? [NSObject : AnyObject] {
+                            for (_, snapValue) in value {
                                 
-                                messages.append(message)
-                                
-                            } else {
-                                
-                                messages.append([NSObject : AnyObject]())
-                                
-                            }
-                        }
-                        
-                        var firstMessages = [[NSObject : AnyObject]]()
-                        var secondMessages = [[NSObject : AnyObject]]()
-                        var thirdMessages = [[NSObject : AnyObject]]()
-                        
-                        for message in messages {
-                            
-                            var messageArray = [[NSObject : AnyObject]]()
-                            
-                            for singleMessage in message {
-                                
-                                if let messageToAdd = singleMessage.1 as? [NSObject : AnyObject] {
+                                if let valueToAdd = snapValue as? [NSObject : AnyObject] {
                                     
-                                    messageArray.append(messageToAdd)
-                                    
+                                    if let uid = valueToAdd["userUID"] as? String, myReported = self.rootController?.selfData["reportedUsers"] as? [String : Bool] {
+                                        
+                                        if myReported[uid] == nil {
+                                            
+                                            scopeData.append(valueToAdd)
+                                            
+                                        }
+                                        
+                                    } else {
+                                        
+                                        scopeData.append(valueToAdd)
+                                        
+                                    }
                                 }
+                                
                             }
                             
-                            messageArray.sortInPlace({ (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
+                            scopeData.sortInPlace({ (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
                                 
                                 if a["timeStamp"] as? NSTimeInterval > b["timeStamp"] as? NSTimeInterval {
                                     
@@ -1497,57 +1512,102 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                                 }
                             })
                             
+                            var messages = [[NSObject : AnyObject]]()
                             
-                            if messageArray.count > 0 {
+                            for post in scopeData {
                                 
-                                firstMessages.insert(messageArray[0], atIndex: 0)
+                                if let message = post["messages"] as? [NSObject : AnyObject] {
+                                    
+                                    messages.append(message)
+                                    
+                                } else {
+                                    
+                                    messages.append([NSObject : AnyObject]())
+                                    
+                                }
+                            }
+                            
+                            var firstMessages = [[NSObject : AnyObject]]()
+                            var secondMessages = [[NSObject : AnyObject]]()
+                            var thirdMessages = [[NSObject : AnyObject]]()
+                            
+                            for message in messages {
                                 
-                                if messageArray.count > 1 {
+                                var messageArray = [[NSObject : AnyObject]]()
+                                
+                                for singleMessage in message {
                                     
-                                    secondMessages.insert(messageArray[1], atIndex: 0)
-                                    
-                                    if messageArray.count > 2 {
+                                    if let messageToAdd = singleMessage.1 as? [NSObject : AnyObject] {
                                         
-                                        thirdMessages.insert(messageArray[2], atIndex: 0)
+                                        messageArray.append(messageToAdd)
+                                        
+                                    }
+                                }
+                                
+                                messageArray.sortInPlace({ (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
+                                    
+                                    if a["timeStamp"] as? NSTimeInterval > b["timeStamp"] as? NSTimeInterval {
+                                        
+                                        return true
                                         
                                     } else {
                                         
+                                        return false
+                                        
+                                    }
+                                })
+                                
+                                
+                                if messageArray.count > 0 {
+                                    
+                                    firstMessages.insert(messageArray[0], atIndex: 0)
+                                    
+                                    if messageArray.count > 1 {
+                                        
+                                        secondMessages.insert(messageArray[1], atIndex: 0)
+                                        
+                                        if messageArray.count > 2 {
+                                            
+                                            thirdMessages.insert(messageArray[2], atIndex: 0)
+                                            
+                                        } else {
+                                            
+                                            thirdMessages.insert([NSObject : AnyObject](), atIndex: 0)
+                                            
+                                        }
+                                        
+                                    } else {
+                                        
+                                        secondMessages.insert([NSObject : AnyObject](), atIndex: 0)
                                         thirdMessages.insert([NSObject : AnyObject](), atIndex: 0)
                                         
                                     }
                                     
                                 } else {
                                     
+                                    firstMessages.insert([NSObject : AnyObject](), atIndex: 0)
                                     secondMessages.insert([NSObject : AnyObject](), atIndex: 0)
                                     thirdMessages.insert([NSObject : AnyObject](), atIndex: 0)
                                     
                                 }
+                            }
+                            
+                            
+                            self.globFirstMessages = firstMessages
+                            self.globSecondMessages = secondMessages
+                            self.globThirdMessages = thirdMessages
+                            
+                            self.newPosts = scopeData
+                            
+                            self.rootController?.clearVibesPlayers()
+                            
+                            if self.globCollectionView.contentOffset == CGPointZero {
                                 
-                            } else {
-                                
-                                firstMessages.insert([NSObject : AnyObject](), atIndex: 0)
-                                secondMessages.insert([NSObject : AnyObject](), atIndex: 0)
-                                thirdMessages.insert([NSObject : AnyObject](), atIndex: 0)
+                                self.globCollectionView.reloadData()
+                                self.globCollectionView.setContentOffset(CGPointZero, animated: true)
                                 
                             }
                         }
-                        
-                        
-                        self.globFirstMessages = firstMessages
-                        self.globSecondMessages = secondMessages
-                        self.globThirdMessages = thirdMessages
-                        
-                        self.newPosts = scopeData
-                        
-                        self.rootController?.clearVibesPlayers()
-                        
-                        if self.globCollectionView.contentOffset == CGPointZero {
-                            
-                            self.globCollectionView.reloadData()
-                            self.globCollectionView.setContentOffset(CGPointZero, animated: true)
-                            
-                        }
-                        
                     }
                 }
             })
@@ -1586,6 +1646,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
             self.showingNav = false
             
         })
+        
     }
     
     func showNearby(){
@@ -1651,15 +1712,10 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     
     func loadData(){
         
-        self.rootController?.showNav(0.3, completion: { (bool) in
-            
-            print("nav shown")
-            
-            self.globCollectionView.reloadData()
-            self.globCollectionView.setContentOffset(CGPointZero, animated: true)
-            self.refresher.endRefreshing()
-            
-        })
+        self.globCollectionView.reloadData()
+        self.globCollectionView.setContentOffset(CGPointZero, animated: true)
+        self.refresher.endRefreshing()
+
     }
     
     
@@ -1694,7 +1750,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
         appDelegate.vibeController = self
         
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(observeCurrentCityPosts), name: UIApplicationDidBecomeActiveNotification, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(showNav), name: UIApplicationDidBecomeActiveNotification, object: nil)
+        
         
         addGestureRecognizers()
         

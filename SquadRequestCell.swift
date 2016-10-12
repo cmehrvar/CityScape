@@ -29,6 +29,8 @@ class SquadRequestCell: UITableViewCell {
     @IBOutlet weak var respondImageOutlet: UIImageView!
     @IBOutlet weak var denyButtonOutlet: UIButton!
     @IBOutlet weak var approveButtonOutlet: UIButton!
+    @IBOutlet weak var unreadViewOutlet: UIView!
+    
 
     @IBAction func toProfile(sender: AnyObject) {
         
@@ -36,13 +38,10 @@ class SquadRequestCell: UITableViewCell {
         
         notificationController?.rootController?.toggleNotifications({ (bool) in
 
-            self.notificationController?.rootController?.toggleHome({ (bool) in
+            self.notificationController?.rootController?.toggleProfile(scopeUID, selfProfile: false, completion: { (bool) in
                 
-                self.notificationController?.rootController?.toggleProfile(scopeUID, selfProfile: false, completion: { (bool) in
-                    
-                    print("profile toggled")
-                    
-                })
+                print("profile toggled")
+                
             })
         })
     }
@@ -51,6 +50,8 @@ class SquadRequestCell: UITableViewCell {
     
     @IBAction func deny(sender: AnyObject) {
 
+        self.unreadViewOutlet.alpha = 0
+        
         let scopeUID = uid
         
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
@@ -84,6 +85,8 @@ class SquadRequestCell: UITableViewCell {
     
     @IBAction func approve(sender: AnyObject) {
 
+        self.unreadViewOutlet.alpha = 0
+        
         if inSquad {
             
             print("toggle messages")
@@ -153,11 +156,11 @@ class SquadRequestCell: UITableViewCell {
             
             if !read {
                 
-                self.backgroundColor = UIColor(red: 255, green: 71, blue: 34, alpha: 0.2)
+                self.unreadViewOutlet.alpha = 1
                 
             } else {
                 
-                self.backgroundColor = UIColor.clearColor()
+                self.unreadViewOutlet.alpha = 0
                 
             }
         }

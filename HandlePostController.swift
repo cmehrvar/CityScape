@@ -278,19 +278,18 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
     
     @IBAction func shareAction(sender: AnyObject) {
         
+        self.shareOutlet.enabled = false
         
-        
-        shareOutlet.enabled = false
-        
-        if isImage {
+        if self.isImage {
             
-            uploadPost(image, videoURL: nil, isImage: isImage)
+            self.uploadPost(self.image, videoURL: nil, isImage: self.isImage)
             
         } else {
             
-            uploadPost(image, videoURL: exportedVideoURL, isImage: isImage)
+            self.uploadPost(self.image, videoURL: self.exportedVideoURL, isImage: self.isImage)
             
         }
+
     }
     
     
@@ -582,7 +581,7 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
             let imageTransferManager = AWSS3TransferManager.defaultS3TransferManager()
             
             imageTransferManager.upload(imageUploadRequest).continueWithBlock { (task) -> AnyObject? in
-                
+
                 if task.error == nil {
                     
                     print("successful image upload")
@@ -599,7 +598,13 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
                                     
                                     print("save thumbnail & video to firebase")
                                     
-                                    self.setToFirebase(imageUrl, caption: captionString, FIRVideoURL: FIRVideoURL)
+                                    dispatch_async(dispatch_get_main_queue(), {
+                                        
+                                        self.setToFirebase(imageUrl, caption: captionString, FIRVideoURL: FIRVideoURL)
+                                        
+                                    })
+                                    
+                                    
                                     
                                     return nil
                                 })
@@ -609,8 +614,11 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
                             
                             print("save image only to firebase")
                             
-                            self.setToFirebase(imageUrl, caption: captionString, FIRVideoURL: nil)
-                            
+                            dispatch_async(dispatch_get_main_queue(), {
+                                
+                                self.setToFirebase(imageUrl, caption: captionString, FIRVideoURL: nil)
+                                
+                            })
                         }
                         
                     } else {

@@ -158,7 +158,7 @@ class RequestTableViewCell: UITableViewCell {
             self.firstName = firstName
             self.lastName = lastName
             
-            nameOutlet.text = firstName + " " + lastName
+            nameOutlet.text = firstName 
             
         }
     }

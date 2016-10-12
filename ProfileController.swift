@@ -638,7 +638,7 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
             
             if self.selfProfile {
                 
-                return CGSize(width: width, height: 85)
+                return CGSize(width: width, height: 90)
                 
             } else {
                 
@@ -646,11 +646,15 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                     
                     if occupation != "" {
                         
-                        return CGSize(width: width, height: 85)
+                        return CGSize(width: width, height: 90)
                         
                     }
                     
                 }
+                
+                
+                //THIS WILL NEED TO BE CHANGED
+                
                 
                 return CGSize(width: width, height: 67)
                 
@@ -658,7 +662,7 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
             
         } else if indexPath.row == 3  {
             
-            return CGSize(width: width, height: 50)
+            return CGSize(width: width, height: 60)
             
         } else if indexPath.row == 4 && !selfProfile {
             

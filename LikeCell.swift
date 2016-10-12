@@ -13,6 +13,8 @@ import FirebaseAuth
 
 class LikeCell: UITableViewCell {
 
+    weak var notificationController: NotificationController?
+    
     var uid = ""
     var firstName = ""
     var lastName = ""
@@ -20,6 +22,25 @@ class LikeCell: UITableViewCell {
     
     @IBOutlet weak var profileOutlet: UIImageView!
     @IBOutlet weak var nameOutlet: UILabel!
+    @IBOutlet weak var unreadViewOutlet: UIView!
+    
+    
+    @IBAction func goToChat(sender: AnyObject) {
+        
+        let scopeUID = uid
+        let scopeFirstName = firstName
+        let scopeLastName = lastName
+        let scopeProfile = profile
+        
+        notificationController?.rootController?.toggleNotifications({ (bool) in
+            
+            self.notificationController?.rootController?.toggleChat("matches", key: scopeUID, city: nil, firstName: scopeFirstName, lastName: scopeLastName, profile: scopeProfile, completion: { (bool) in
+                
+                print("chat toggled")
+                
+            })
+        })
+    }
     
     
     func loadData(data: [NSObject : AnyObject]){
@@ -39,6 +60,8 @@ class LikeCell: UITableViewCell {
 
         if let uid = data["uid"] as? String {
             
+            self.uid = uid
+            
             let ref = FIRDatabase.database().reference().child("users").child(uid)
             
             ref.child("profilePicture").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
@@ -57,19 +80,14 @@ class LikeCell: UITableViewCell {
             
             if !read {
                 
-                self.backgroundColor = UIColor(red: 255, green: 71, blue: 34, alpha: 0.2)
+                self.unreadViewOutlet.alpha = 1
                 
             } else {
                 
-                self.backgroundColor = UIColor.whiteColor()
+                self.unreadViewOutlet.alpha = 0
                 
             }
-            
-            
-            
         }
-        
-        
     }
     
     

@@ -94,6 +94,8 @@ class MainRootController: UIViewController {
     @IBOutlet weak var requestContainerOutlet: UIView!
     @IBOutlet weak var squadContainerOutlet: UIView!
     @IBOutlet weak var addToChatContainerOutlet: UIView!
+    @IBOutlet weak var leaderboardContainerOutlet: UIView!
+    @IBOutlet weak var composeChatOutlet: UIButton!
     
 
     //View Controllers
@@ -192,8 +194,6 @@ class MainRootController: UIViewController {
                 self.messagesController?.globTableView.setContentOffset(CGPointZero, animated: true)
                 
             }
-
-            
         } 
         
         
@@ -203,8 +203,13 @@ class MainRootController: UIViewController {
         
         if searchRevealed && profileRevealed {
             
+            self.composeChatOutlet.alpha = 0
             searchAlpha = 1
             scopeSearchRevealed = true
+            
+        } else {
+            
+            self.composeChatOutlet.alpha = 1
             
         }
         
@@ -216,11 +221,36 @@ class MainRootController: UIViewController {
             self.topChatConstOutlet.constant = -screenHeight
             self.bottomChatConstOutlet.constant = screenHeight
             
-            self.requestsTopConstOutlet.constant = -screenHeight
-            self.requestsBottomConstOutlet.constant = screenHeight
-            
-            self.squadTopConstOutlet.constant = -screenHeight
-            self.squadBottomConstOutlet.constant = screenHeight
+            if !self.chatRevealed {
+                
+                self.requestsTopConstOutlet.constant = -screenHeight
+                self.requestsBottomConstOutlet.constant = screenHeight
+                
+                self.squadTopConstOutlet.constant = -screenHeight
+                self.squadBottomConstOutlet.constant = screenHeight
+                
+            } else {
+                
+                if self.requestsRevealed {
+                    
+                    self.requestsTopConstOutlet.constant = 0
+                    self.requestsBottomConstOutlet.constant = 0
+                    
+                    self.squadTopConstOutlet.constant = -screenHeight
+                    self.squadBottomConstOutlet.constant = screenHeight
+
+                    
+                } else if self.squadCountRevealed {
+                    
+                    self.requestsTopConstOutlet.constant = -screenHeight
+                    self.requestsBottomConstOutlet.constant = screenHeight
+                    
+                    self.squadTopConstOutlet.constant = 0
+                    self.squadBottomConstOutlet.constant = 0
+                    
+                }
+            }
+
             
             if self.squadCountRevealed || self.requestsRevealed || (self.chatRevealed && self.profileRevealed) {
                 
@@ -252,24 +282,52 @@ class MainRootController: UIViewController {
             
             self.searchRevealed = scopeSearchRevealed
             
+            
             if self.squadCountRevealed || self.requestsRevealed || (self.chatRevealed && self.profileRevealed) {
                 
-                UIApplication.sharedApplication().statusBarHidden = true
+                if !self.chatRevealed {
+                    
+                    UIApplication.sharedApplication().statusBarHidden = true
+                    
+                } else {
+                    
+                    UIApplication.sharedApplication().statusBarHidden = false
+                    
+                }
+
                 self.profileRevealed = true
                 
             } else {
-
+                
                 UIApplication.sharedApplication().statusBarHidden = false
                 
-                self.clearProfilePlayers()
                 self.profileRevealed = false
+                self.clearProfilePlayers()
                 self.profileController?.currentUID = ""
                 self.profileController?.userData.removeAll()
                 self.profileController?.globCollectionCell.reloadData()
             }
             
-            self.squadCountRevealed = false
-            self.requestsRevealed = false
+            if !self.chatRevealed {
+                
+                self.squadCountRevealed = false
+                self.requestsRevealed = false
+                
+            } else {
+                
+                if self.requestsRevealed {
+                    
+                    self.squadCountRevealed = false
+                    self.requestsRevealed = true
+                    
+                } else if self.squadCountRevealed {
+                    
+                    self.squadCountRevealed = true
+                    self.requestsRevealed = false
+                    
+                }
+            }
+
             self.chatRevealed = false
             
             completion(complete)
@@ -733,6 +791,19 @@ class MainRootController: UIViewController {
         
         var refToPass = ""
         
+        
+        if type == "posts" {
+            
+            topChatController?.settingIconOutlet.image = nil
+            topChatController?.settingsButtonOutlet.enabled = false
+            
+        } else {
+            
+            topChatController?.settingIconOutlet.image = UIImage(named: "settingsIcon")
+            topChatController?.settingsButtonOutlet.enabled = true
+            
+        }
+
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
             if type == "matches" {
@@ -745,9 +816,8 @@ class MainRootController: UIViewController {
                     refToPass = "/users/\(selfUID)/matches/\(uid)"
                     
                 }
-                
-                topChatController?.icon1Outlet.image = UIImage(named: "sentMatch")
-                topChatController?.icon2Outlet.image = UIImage(named: "sentMatch")
+
+                topChatController?.iconOutlet.image = UIImage(named: "sentMatch")
                 
                 topChatController?.type = "matches"
                 
@@ -765,9 +835,8 @@ class MainRootController: UIViewController {
                     refToPass = "/users/\(selfUID)/squad/\(uid)"
                     
                 }
-                
-                topChatController?.icon1Outlet.image = UIImage(named: "sentSquad")
-                topChatController?.icon2Outlet.image = UIImage(named: "sentSquad")
+
+                topChatController?.iconOutlet.image = UIImage(named: "sendSquad")
                 
                 topChatController?.type = "squad"
                 
@@ -912,7 +981,7 @@ class MainRootController: UIViewController {
     func toggleSnapchat(givenPosts: [[NSObject : AnyObject]]?, startingi: Int?, completion: Bool -> ()){
         
         vibesFeedController?.videoWithSound = ""
-        vibesFeedController?.globCollectionView.reloadData()
+        //vibesFeedController?.globCollectionView.reloadData()
         
         //GET RID OF SNAPS
         snapchatController?.posts.removeAll()
@@ -930,7 +999,25 @@ class MainRootController: UIViewController {
         snapchatController?.nextEnabled = true
         snapchatController?.mostRecentTimeInterval = nil
         snapchatController?.firstImageLoaded = false
-        snapchatController?.currentIndex = 0
+        
+        if let start = startingi {
+            
+            if start == 0 {
+                
+                snapchatController?.currentIndex = 0
+                
+            } else {
+                
+                snapchatController?.currentIndex = start - 1
+                
+            }
+
+        } else {
+            
+            snapchatController?.currentIndex = 0
+            
+        }
+
         snapchatController?.snapchatChatController?.currentPostKey = ""
         
         if !snapchatRevealed {
@@ -1138,6 +1225,7 @@ class MainRootController: UIViewController {
                 self.requestsBottomConstOutlet.constant = screenHeight
                 
                 self.searchContainerOutlet.alpha = 1
+                self.composeChatOutlet.alpha = 0
                 self.view.layoutIfNeeded()
                 
             }) { (bool) in
@@ -1230,8 +1318,16 @@ class MainRootController: UIViewController {
     
     func showNav(animatingTime: NSTimeInterval, completion: (Bool) -> ()){
         
-        UIApplication.sharedApplication().statusBarHidden = false
-        
+        if !self.profileRevealed {
+            
+            UIApplication.sharedApplication().statusBarHidden = false
+            
+        } else {
+            
+            UIApplication.sharedApplication().statusBarHidden = true
+            
+        }
+ 
         UIView.animateWithDuration(animatingTime, animations: {
             
             self.topNavConstOutlet.constant = 0
@@ -1382,9 +1478,11 @@ class MainRootController: UIViewController {
                     if let matches = value["matches"] as? [NSObject : AnyObject] {
                         
                         self.messagesController?.loadMatches(matches)
+                        self.messagesController?.noMatchesOutlet.alpha = 0
                         
                     } else {
                         
+                        self.messagesController?.noMatchesOutlet.alpha = 1
                         self.messagesController?.globMatches.removeAll()
                         self.messagesController?.globCollectionViewOutlet.reloadData()
                         
@@ -1832,6 +1930,7 @@ class MainRootController: UIViewController {
             self.requestContainerOutlet.alpha = 1
             self.addToChatContainerOutlet.alpha = 1
             self.composeContainerOutlet.alpha = 1
+            self.leaderboardContainerOutlet.alpha = 1
             
             self.snapchatContainerOutlet.alpha = 0
             self.searchContainerOutlet.alpha = 0

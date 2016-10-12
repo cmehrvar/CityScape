@@ -35,14 +35,18 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
             
             if !searchRevealed {
                 
-                rootController?.toggleHome({ (bool) in
+                self.rootController?.toggleSearch({ (bool) in
                     
-                    self.rootController?.toggleSearch({ (bool) in
+                    print("search revealed")
+                    
+                    /*
+                    self.rootController?.toggleHome({ (bool) in
                         
-                        print("search revealed")
                         
                     })
+                    */
                 })
+
             } else {
                 
                 rootController?.toggleHome({ (bool) in
@@ -57,15 +61,17 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
     
     @IBAction func camera(sender: AnyObject) {
         
-        rootController?.clearVibesPlayers()
-        
-        print("camera")
-        
-        presentFusumaCamera()
-        
+        rootController?.showNav(0.3, completion: { (bool) in
+            
+            self.rootController?.clearVibesPlayers()
+            
+            print("camera")
+            
+            self.presentFusumaCamera()
+            
+        })
     }
-    
-    
+
     
     @IBAction func globe(sender: AnyObject) {
 

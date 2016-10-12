@@ -26,10 +26,13 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
     weak var rootController: MainRootController?
     var type = ""
     
+    @IBOutlet weak var settingIconOutlet: UIImageView!
+    @IBOutlet weak var settingsButtonOutlet: UIButton!
+    
+    
     //SingleChat
-    @IBOutlet weak var icon1Outlet: UIImageView!
     @IBOutlet weak var profilePicOutlet: TopChatProfileView!
-    @IBOutlet weak var icon2Outlet: UIImageView!
+    @IBOutlet weak var iconOutlet: UIImageView!
     @IBOutlet weak var nameOutlet: UILabel!
     @IBOutlet weak var singleTitleViewOutlet: UIView!
     

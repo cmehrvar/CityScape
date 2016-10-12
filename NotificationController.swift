@@ -100,6 +100,7 @@ class NotificationController: UIViewController, UITableViewDelegate, UITableView
                 let cell = tableView.dequeueReusableCellWithIdentifier("likeCell", forIndexPath: indexPath) as! LikeCell
                 cell.profileOutlet.layer.cornerRadius = ((60 - (8*2)) / 2)
                 
+                cell.notificationController = self
                 cell.loadData(globNotifications[indexPath.row])
                 
                 

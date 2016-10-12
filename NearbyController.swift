@@ -37,6 +37,8 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
     @IBOutlet weak var settingsView: UIView!
     @IBOutlet weak var horizontalSettingsButtonConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var globCollectionView: UICollectionView!
+    @IBOutlet weak var noNearbyOutlet: UIImageView!
+    
     
     //Actions
     @IBAction func goToLocationServices(sender: AnyObject) {
@@ -58,9 +60,21 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
         let size = CGSize(width: width, height: height)
         
         return size
+        
     }
     
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        
+        if nearbyUsers.count == 0 {
+            
+            self.noNearbyOutlet.alpha = 1
+            
+        } else {
+            
+            self.noNearbyOutlet.alpha = 0
+            
+        }
+        
         return nearbyUsers.count
     }
     

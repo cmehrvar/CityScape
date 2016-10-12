@@ -1058,6 +1058,14 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, UIGestu
                     self.snapchatController?.isPanning = false
                     self.snapchatController?.longPressEnabled = false
                     
+                    if let playerLayer = self.snapchatController?.layer {
+                        
+                        if let bounds = self.snapchatController?.videoOutlet.bounds {
+                            
+                            playerLayer.frame = bounds
+                            
+                        }
+                    }
                     
             })
         }
@@ -1079,8 +1087,15 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, UIGestu
                 
                 }, completion: { (bool) in
                     
-                    
-                    
+                    if let playerLayer = self.snapchatController?.layer {
+                        
+                        if let bounds = self.snapchatController?.videoOutlet.bounds {
+                            
+                            playerLayer.frame = bounds
+                            
+                        }
+                    }
+   
             })
         }
     }

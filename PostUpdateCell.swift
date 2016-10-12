@@ -21,6 +21,8 @@ class PostUpdateCell: UITableViewCell {
     @IBOutlet weak var nameOutlet: UILabel!
     @IBOutlet weak var likeIconOutlet: UIImageView!
     @IBOutlet weak var postOutlet: UIImageView!
+    @IBOutlet weak var unreadViewOutlet: UIView!
+    
     
 
     @IBAction func goToPost(sender: AnyObject) {
@@ -99,11 +101,11 @@ class PostUpdateCell: UITableViewCell {
                 
                 if !read {
                     
-                    self.backgroundColor = UIColor(red: 255, green: 71, blue: 34, alpha: 0.2)
+                    self.unreadViewOutlet.alpha = 1
                     
                 } else {
                     
-                    self.backgroundColor = UIColor.whiteColor()
+                    self.unreadViewOutlet.alpha = 0
                     
                 }
             }

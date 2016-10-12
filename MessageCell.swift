@@ -27,6 +27,7 @@ class MessageCell: UITableViewCell {
     @IBOutlet weak var nameOutlet: UILabel!
     @IBOutlet weak var messageOutlet: UILabel!
     @IBOutlet weak var chatTypeImageOutlet: UIImageView!
+    @IBOutlet weak var unreadViewOutlet: UIView!
 
     
     @IBAction func goToMessage(sender: AnyObject) {
@@ -66,13 +67,11 @@ class MessageCell: UITableViewCell {
             
             if !read {
 
-                self.backgroundColor = UIColor.redColor()
-                self.backgroundView?.alpha = 0.2
+                self.unreadViewOutlet.alpha = 1
                 
             } else {
                 
-                self.backgroundColor = UIColor.clearColor()
-                self.backgroundView?.alpha = 1
+                self.unreadViewOutlet.alpha = 0
                 
             }
         }
@@ -107,7 +106,7 @@ class MessageCell: UITableViewCell {
             
             if type == "squad" || type == "groupChats" {
                 
-                chatTypeImageOutlet.image = UIImage(named: "sendSquad")
+                chatTypeImageOutlet.image = UIImage(named: "enabledMessage")
 
                 if type == "groupChats" {
                     
@@ -119,13 +118,21 @@ class MessageCell: UITableViewCell {
                         
                         ref.child("groupPhoto").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
                             
-                            if self.chatKey == key {
+                            if snapshot.exists() {
                                 
-                                if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
+                                if self.chatKey == key {
                                     
-                                    self.profileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
-                                    
+                                    if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
+                                        
+                                        self.profileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                                        
+                                    }
                                 }
+                                
+                            } else {
+                                
+                                self.profileOutlet.image = UIImage(named: "icon")
+                                
                             }
                         })
                     }
@@ -133,7 +140,7 @@ class MessageCell: UITableViewCell {
 
             } else if type == "matches" {
  
-                chatTypeImageOutlet.image = UIImage(named: "heart")
+                chatTypeImageOutlet.image = UIImage(named: "enabledMessage")
 
             }
         }

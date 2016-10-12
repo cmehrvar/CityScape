@@ -11,7 +11,7 @@ import Firebase
 import FirebaseDatabase
 import FirebaseAuth
 
-class CityController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UIGestureRecognizerDelegate {
+class CityController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UIGestureRecognizerDelegate {
     
     @IBOutlet weak var globCollectionView: UICollectionView!
     
@@ -138,7 +138,6 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
             reusableView = cell
             
         }
-        
         return reusableView
         
     }
@@ -150,6 +149,10 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
         return CGSize(width: width, height: 100)
         
     }
+    
+    
+    
+    
 
     
     func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
@@ -167,11 +170,16 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
         
         if velocity.y > 0 {
             
-            searchController?.rootController?.hideAllNav({ (bool) in
+            if globCities.count > 6 {
                 
-                print("all nav hided")
-                
-            })
+                searchController?.rootController?.hideAllNav({ (bool) in
+                    
+                    print("all nav hided")
+                    
+                })
+            }
+            
+            
             
         } else if velocity.y < 0 {
             

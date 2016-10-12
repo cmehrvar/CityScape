@@ -70,7 +70,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   
         application.statusBarStyle = .LightContent
-        //application.statusBarHidden = true
         
         // Override point for customization after application launch.
         return true
@@ -81,6 +80,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         nearbyController?.invalidateTimer()
         nearbyController?.currentCityLoaded = false
         mainRootController?.updateOffline()
+        mainRootController?.clearVibesPlayers()
+        mainRootController?.clearProfilePlayers()
 
  
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
@@ -100,10 +101,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationDidBecomeActive(application: UIApplication) {
         FBSDKAppEvents.activateApp()
-        
-        nearbyController?.viewDidLoad()
-        mainRootController?.viewDidLoad()
-        vibeController?.viewDidLoad()
         
         nearbyController?.checkStatus()
 

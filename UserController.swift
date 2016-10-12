@@ -11,7 +11,7 @@ import Firebase
 import FirebaseDatabase
 import FirebaseAuth
 
-class UserController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UIGestureRecognizerDelegate {
+class UserController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UIGestureRecognizerDelegate, UICollectionViewDelegateFlowLayout {
 
     weak var searchController: SearchController?
     var globUsers = [[NSObject : AnyObject]]()
@@ -126,6 +126,8 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
         
     }
     
+        
+    
     func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
         
         let width = self.view.bounds.width
@@ -140,12 +142,15 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
 
         if velocity.y > 0 {
             
-            searchController?.rootController?.hideAllNav({ (bool) in
+            if globUsers.count > 6 {
                 
-                print("all nav hided")
-                
-            })
-            
+                searchController?.rootController?.hideAllNav({ (bool) in
+                    
+                    print("all nav hided")
+                    
+                })
+            }
+
         } else if velocity.y < 0 {
             
             searchController?.rootController?.showNav(0.3, completion: { (bool) in

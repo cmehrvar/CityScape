@@ -66,6 +66,8 @@ class SearchController: UIViewController, UISearchBarDelegate, UIGestureRecogniz
         
         if button == 1 {
             
+            searchBarOutlet.placeholder = "Search for cities worldwide"
+            
             cityViewOutlet.backgroundColor = UIColor.whiteColor()
             cityButtonOutlet.setTitleColor(UIColor(netHex: 0xDF412E), forState: .Normal)
             
@@ -85,6 +87,8 @@ class SearchController: UIViewController, UISearchBarDelegate, UIGestureRecogniz
             })
 
         } else if button == 2 {
+            
+            searchBarOutlet.placeholder = "Search for users worldwide"
             
             userViewOutlet.backgroundColor = UIColor.whiteColor()
             userButtonOutlet.setTitleColor(UIColor(netHex: 0xDF412E), forState: .Normal)

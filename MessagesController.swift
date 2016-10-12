@@ -23,6 +23,8 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
     @IBOutlet weak var globCollectionViewOutlet: UICollectionView!
     @IBOutlet weak var matchesHeightConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var globTableView: UITableView!
+    @IBOutlet weak var noMatchesOutlet: UILabel!
+    @IBOutlet weak var noMessagesOutlet: UILabel!
 
     //Actions
     @IBAction func composeMessage(sender: AnyObject) {
@@ -60,6 +62,9 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
                 
             }
         }
+        
+        
+        
         
         globMatches = matches
         globCollectionViewOutlet.reloadData()
@@ -180,6 +185,16 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
         
         self.tableViewMessages = allMessages
         self.globTableView.reloadData()
+        
+        if allMessages.count == 0 {
+            
+            self.noMessagesOutlet.alpha = 1
+            
+        } else {
+            
+            self.noMessagesOutlet.alpha = 0
+            
+        }
 
     }
     

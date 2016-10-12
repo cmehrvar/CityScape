@@ -295,11 +295,6 @@ class SquadTableViewCell: UITableViewCell {
             
             print("profile toggled")
             
-            self.squadCountController?.rootController?.toggleHome({ (bool) in
-                
-                print("home toggled")
-                
-            })
         })
     }
     
@@ -315,7 +310,7 @@ class SquadTableViewCell: UITableViewCell {
             self.firstName = firstName
             self.lastName = lastName
 
-            nameOutlet.text = firstName + " " + lastName
+            nameOutlet.text = firstName 
             
         }
         
@@ -328,11 +323,13 @@ class SquadTableViewCell: UITableViewCell {
                 
                 if uid == selfUID {
                     
+                    inSquadButton.enabled = false
+                    inSquadIconOutlet.image = nil
                     buttonIconOutlet.image = nil
                     buttonOutlet.enabled = false
                     
                 } else {
-                    
+
                     buttonOutlet.enabled = true
                     
                     if let selfData = squadCountController?.rootController?.selfData {
