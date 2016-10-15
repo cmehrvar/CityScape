@@ -46,7 +46,7 @@ class MessageCell: UITableViewCell {
                 
                 self.notificationController?.rootController?.toggleChat("groupChats", key: scopeChatKey, city: nil, firstName: nil, lastName: nil, profile: nil, completion: { (bool) in
                     
-                    print("chat toggled")
+                    print("chat toggled", terminator: "")
                     
                 })
                 
@@ -54,7 +54,7 @@ class MessageCell: UITableViewCell {
                 
                 self.notificationController?.rootController?.toggleChat(scopeType, key: scopeUID, city: nil, firstName: scopeFirstName, lastName: scopeLastName, profile: scopeProfile, completion: { (bool) in
                     
-                    print("chat toggled")
+                    print("chat toggled", terminator: "")
                     
                 })
             }

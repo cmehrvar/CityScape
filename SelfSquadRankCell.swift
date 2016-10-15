@@ -23,7 +23,7 @@ class SelfSquadRankCell: UICollectionViewCell {
 
         profileController?.rootController?.openSquadCount(userData, completion: { (bool) in
             
-            print("squad count revealed")
+            print("squad count revealed", terminator: "")
             
         })
     }
@@ -32,7 +32,7 @@ class SelfSquadRankCell: UICollectionViewCell {
         
         profileController?.rootController?.openRequests({ (bool) in
             
-            print("requests revealed")
+            print("requests revealed", terminator: "")
             
         })
     }

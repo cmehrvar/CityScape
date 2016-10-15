@@ -24,7 +24,7 @@ class NotSelfSquadRankCell: UICollectionViewCell {
         
         profileController?.rootController?.openSquadCount(userData, completion: { (bool) in
             
-            print("squad count revealed")
+            print("squad count revealed", terminator: "")
             
         })
     }

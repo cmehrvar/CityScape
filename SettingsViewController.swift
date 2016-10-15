@@ -22,7 +22,7 @@ class SettingsViewController: UIViewController {
     @IBOutlet weak var maleButtonOutlet: UIButton!
     @IBOutlet weak var femaleButtonView: NavButtonView!
     @IBOutlet weak var femaleButtonOutlet: UIButton!
-
+    
     @IBOutlet weak var intoMenView: NavButtonView!
     @IBOutlet weak var intoMenOutlet: UIButton!
     @IBOutlet weak var intoWomenView: NavButtonView!
@@ -32,6 +32,73 @@ class SettingsViewController: UIViewController {
     
     
     @IBOutlet weak var logOutViewOutlet: UIView!
+    
+    
+    
+    @IBAction func imMale(sender: AnyObject) {
+        
+        if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+            
+            FIRDatabase.database().reference().child("users").child(selfUID).child("gender").setValue("male")
+            toggleGenderColour(1)
+            
+        }
+        
+        
+        
+    }
+    
+    
+    @IBAction func imFemale(sender: AnyObject) {
+        
+        if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+            
+            FIRDatabase.database().reference().child("users").child(selfUID).child("gender").setValue("female")
+            toggleGenderColour(2)
+            
+        }
+        
+    }
+    
+    
+    
+    
+    @IBAction func intoMen(sender: AnyObject) {
+        
+        if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+            
+            FIRDatabase.database().reference().child("users").child(selfUID).child("interestedIn").setValue(["male"])
+            toggleInterestedInColor(1)
+            
+        }
+        
+    }
+    
+    
+    @IBAction func intoWomen(sender: AnyObject) {
+        
+        if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+            
+            FIRDatabase.database().reference().child("users").child(selfUID).child("interestedIn").setValue(["female"])
+            toggleInterestedInColor(2)
+            
+        }
+        
+    }
+    
+    
+    @IBAction func intoBoth(sender: AnyObject) {
+        
+        if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+            
+            FIRDatabase.database().reference().child("users").child(selfUID).child("interestedIn").setValue(["male", "female"])
+            toggleInterestedInColor(3)
+            
+        }
+        
+    }
+    
+    
     
     @IBAction func deleteAccount(sender: AnyObject) {
         
@@ -54,34 +121,103 @@ class SettingsViewController: UIViewController {
         
         alertController.addAction(NYAlertAction(title: "Delete", style: .Default, handler: { (action) in
             
-            self.dismissViewControllerAnimated(true, completion: {
+            if let currentUser = FIRAuth.auth()?.currentUser {
                 
-                if let currentUser = FIRAuth.auth()?.currentUser {
-                    
-                    let myUID = currentUser.uid
-                    
+                let myUID = currentUser.uid
+                
+                self.dismissViewControllerAnimated(true, completion: {
+
                     let myRef = FIRDatabase.database().reference().child("users").child(myUID)
                     
-                    myRef.child("")
-                    
-                    
-                    currentUser.deleteWithCompletion({ (error) in
+                    myRef.observeSingleEventOfType(.Value, withBlock: { (snapshot) in
                         
-                        if error == nil {
+                        
+                        if let myData = snapshot.value as? [NSObject : AnyObject] {
+                            
+                            if let mySquad = myData["squad"] as? [NSObject : AnyObject] {
+                                
+                                for (_, value) in mySquad {
+                                    
+                                    if let uid = value["uid"] as? String {
+                                        
+                                        FIRDatabase.database().reference().child("users").child(uid).child("squad").child(myUID)
+                                            .removeValue()
+                                    }
+                                }
+                            }
+                            
+                            if let myMatches = myData["matches"] as? [NSObject : AnyObject] {
+                                
+                                for (_, value) in myMatches {
+                                    
+                                    if let uid = value ["uid"] as? String {
+                                        
+                                        FIRDatabase.database().reference().child("users").child(uid).child("matches").child(myUID).removeValue()
+                                        
+                                    }
+                                }
+                            }
+                            
+                            if let myGroupChats = myData["groupChats"] as? [NSObject : AnyObject] {
+                                
+                                for (_, chat) in myGroupChats {
+                                    
+                                    if let key = chat["key"] as? String, members = chat["members"] as? [String : Bool] {
+                                        
+                                        var newMembers = members
+                                        newMembers.removeValueForKey(myUID)
+                                        
+                                        FIRDatabase.database().reference().child("groupChats").child(key).child("members").setValue(newMembers)
+                                        
+                                        for (member, _) in members {
+                                            FIRDatabase.database().reference().child("users").child(member).child("groupChats").child(key).child("members").setValue(newMembers)
+                                            
+                                        }
+                                    }
+                                }
+                            }
                             
                             
+                            FIRDatabase.database().reference().child("users").child(myUID).removeValue()
+                            FIRDatabase.database().reference().child("userLocations").child(myUID).removeValue()
+                            FIRDatabase.database().reference().child("userScores").child(myUID).removeValue()
+                            FIRDatabase.database().reference().child("userUIDs").child(myUID).removeValue()
                             
-                        } else {
+                            FIRDatabase.database().reference().child("lastCityRank").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                                
+                                if let rank = snapshot.value as? Int {
+                                    
+                                    FIRDatabase.database().reference().child("lastCityRank").setValue(rank - 1)
+                                    
+                                }
+                            })
                             
-                            print(error)
-                            
+                            currentUser.deleteWithCompletion({ (error) in
+                                
+                                if error == nil {
+                                    
+                                    FBSDKLoginManager().logOut()
+                                    
+                                    do {
+                                        try FIRAuth.auth()?.signOut()
+                                    } catch let signOutError {
+                                        print(signOutError)
+                                    }
+                                    
+                                    let vc = self.storyboard?.instantiateViewControllerWithIdentifier("initial") as! LogInController
+                                    
+                                    self.presentViewController(vc, animated: true) {
+                                        
+                                    }
+                                }
+                            })
                         }
                     })
-                }
-            })
+                })
+            }
         }))
         
-        self.presentViewController(alertController, animated: true) { 
+        self.presentViewController(alertController, animated: true) {
             
             print("alert controller presented")
             
@@ -89,7 +225,7 @@ class SettingsViewController: UIViewController {
     }
     
     @IBAction func logOut(sender: AnyObject) {
-
+        
         if let uid = FIRAuth.auth()?.currentUser?.uid {
             
             FBSDKLoginManager().logOut()
@@ -137,29 +273,110 @@ class SettingsViewController: UIViewController {
             
         })
     }
-
+    
+    func toggleGenderColour(button: Int) {
+        
+        if button == 1 {
+            
+            maleButtonView.backgroundColor = UIColor.whiteColor()
+            maleButtonOutlet.setTitleColor(UIColor(netHex: 0xDF412E), forState: .Normal)
+            
+            femaleButtonView.backgroundColor = UIColor.clearColor()
+            femaleButtonOutlet.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+            
+            
+        } else if button == 2 {
+            
+            femaleButtonView.backgroundColor = UIColor.whiteColor()
+            femaleButtonOutlet.setTitleColor(UIColor(netHex: 0xDF412E), forState: .Normal)
+            
+            maleButtonView.backgroundColor = UIColor.clearColor()
+            maleButtonOutlet.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+            
+            
+        }
+    }
+    
+    func toggleInterestedInColor(button: Int) {
+        
+        self.rootController?.nearbyController?.addedCells.removeAll()
+        self.rootController?.nearbyController?.dismissedCells.removeAll()
+        self.rootController?.nearbyController?.nearbyUsers.removeAll()
+        self.rootController?.nearbyController?.users.removeAll()
+        
+        if let myLatitude = self.rootController?.selfData["latitude"] as? CLLocationDegrees, myLongitude = self.rootController?.selfData["longitude"] as? CLLocationDegrees {
+            
+            let myLocation = CLLocation(latitude: myLatitude, longitude: myLongitude)
+            
+            self.rootController?.nearbyController?.queryNearby(myLocation)
+            
+            
+        }
+        
+        
+        if button == 1 {
+            
+            intoMenView.backgroundColor = UIColor.whiteColor()
+            intoMenOutlet.setTitleColor(UIColor(netHex: 0xDF412E), forState: .Normal)
+            
+            intoWomenView.backgroundColor = UIColor.clearColor()
+            intoWomenOutlet.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+            
+            intoBothView.backgroundColor = UIColor.clearColor()
+            intoBothOutlet.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+            
+            
+        } else if button == 2 {
+            
+            intoMenView.backgroundColor = UIColor.clearColor()
+            intoMenOutlet.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+            
+            intoWomenView.backgroundColor = UIColor.whiteColor()
+            intoWomenOutlet.setTitleColor(UIColor(netHex: 0xDF412E), forState: .Normal)
+            
+            intoBothView.backgroundColor = UIColor.clearColor()
+            intoBothOutlet.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+            
+            
+        } else if button == 3 {
+            
+            intoMenView.backgroundColor = UIColor.clearColor()
+            intoMenOutlet.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+            
+            intoWomenView.backgroundColor = UIColor.clearColor()
+            intoWomenOutlet.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+            
+            intoBothView.backgroundColor = UIColor.whiteColor()
+            intoBothOutlet.setTitleColor(UIColor(netHex: 0xDF412E), forState: .Normal)
+            
+            
+        }
+    }
+    
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         self.logOutViewOutlet.layer.cornerRadius = 12
-
+        
         // Do any additional setup after loading the view.
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     
-
+    
     /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
+     // MARK: - Navigation
+     
+     // In a storyboard-based application, you will often want to do a little preparation before navigation
+     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+     // Get the new view controller using segue.destinationViewController.
+     // Pass the selected object to the new view controller.
+     }
+     */
+    
 }

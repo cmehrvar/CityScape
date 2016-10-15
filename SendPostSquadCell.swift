@@ -37,7 +37,7 @@ class SendPostSquadCell: UITableViewCell {
 
             } else {
                 
-                print(uid)
+                print(uid, terminator: "")
                 self.handleController?.selectedSquad.updateValue(self.userData, forKey: self.uid)
                 self.handleController?.globTableViewOutlet.reloadData()
 

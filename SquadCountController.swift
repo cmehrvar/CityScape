@@ -125,7 +125,7 @@ class SquadCountController: UIViewController, UITableViewDataSource, UITableView
     
     func keyboardDidShow(){
         
-        print("keyboard shown")
+        print("keyboard shown", terminator: "")
         dismissKeyboardView.alpha = 1
         
     }
@@ -133,7 +133,7 @@ class SquadCountController: UIViewController, UITableViewDataSource, UITableView
     
     func keyboardDidHide(){
         
-        print("keyboard hid")
+        print("keyboard hid", terminator: "")
         dismissKeyboardView.alpha = 0
         
     }

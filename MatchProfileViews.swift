@@ -14,8 +14,8 @@ class MatchProfileViews: UIImageView {
         
         super.awakeFromNib()
         
-        print("profile width: \(self.frame.width)")
-        print("profile height: \(self.frame.height)")
+        print("profile width: \(self.frame.width)", terminator: "")
+        print("profile height: \(self.frame.height)", terminator: "")
         
         self.clipsToBounds = true
         

@@ -23,7 +23,7 @@ class TopNavBarController: UIViewController {
         
         rootController?.toggleMenu({ (bool) in
             
-            print("menu toggled")
+            print("menu toggled", terminator: "")
             
         })
     }
@@ -34,7 +34,7 @@ class TopNavBarController: UIViewController {
                 
         rootController?.toggleNotifications({ (bool) in
             
-            print("notification toggled")
+            print("notification toggled", terminator: "")
             
         })
     }
@@ -44,7 +44,7 @@ class TopNavBarController: UIViewController {
         
         rootController?.toggleHome({ (bool) in
             
-            print("home toggled")
+            print("home toggled", terminator: "")
             
         })
     }

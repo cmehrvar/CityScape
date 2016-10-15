@@ -59,7 +59,7 @@ class SearchController: UIViewController, UISearchBarDelegate, UIGestureRecogniz
         
         rootController?.showNav(0.3, completion: { (bool) in
             
-            print("nav shown")
+            print("nav shown", terminator: "")
             
         })
         
@@ -172,7 +172,7 @@ class SearchController: UIViewController, UISearchBarDelegate, UIGestureRecogniz
             
         }
         
-        print("search bar active: \(searchBarActive)")
+        print("search bar active: \(searchBarActive)", terminator: "")
         
     }
     

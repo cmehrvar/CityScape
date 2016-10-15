@@ -35,7 +35,7 @@ class UserImagePostCell: UICollectionViewCell {
             
             self.profileController?.rootController?.toggleSnapchat(scopePosts, startingi: scopeIndex, completion: { (bool) in
                 
-                print("snapchat toggled")
+                print("snapchat toggled", terminator: "")
                 
             })
         }))
@@ -72,14 +72,14 @@ class UserImagePostCell: UICollectionViewCell {
         
         alertController.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
             
-            print("cancel post")
+            print("cancel post", terminator: "")
             
         }))
         
         
         profileController?.presentViewController(alertController, animated: true, completion: {
             
-            print("alert controller presented")
+            print("alert controller presented", terminator: "")
             
         })
     }

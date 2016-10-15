@@ -36,7 +36,7 @@ class LikeCell: UITableViewCell {
             
             self.notificationController?.rootController?.toggleChat("matches", key: scopeUID, city: nil, firstName: scopeFirstName, lastName: scopeLastName, profile: scopeProfile, completion: { (bool) in
                 
-                print("chat toggled")
+                print("chat toggled", terminator: "")
                 
             })
         })

@@ -132,7 +132,7 @@ class NotificationController: UIViewController, UITableViewDelegate, UITableView
         
         rootController?.toggleNotifications({ (bool) in
             
-            print("notifications toggled")
+            print("notifications toggled", terminator: "")
             
         })
         

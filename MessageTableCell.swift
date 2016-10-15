@@ -31,7 +31,7 @@ class MessageTableCell: UITableViewCell {
  
         messagesController?.rootController?.toggleChat(type, key: uid, city: nil, firstName: firstName, lastName: lastName, profile: profile, completion: { (bool) in
             
-            print("chat toggled")
+            print("chat toggled", terminator: "")
             
         })
     }

@@ -30,8 +30,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 
                 if let badgeNumber = snapshot.value as? Int {
                     
-                    
-                    
                     let payload: String = "{\"aps\":{\"alert\":\"\(message)\",\"badge\":\(badgeNumber + 1),\"sound\":\"default\"}}"
                     
                     ref.child("badgeNumber").setValue(badgeNumber + 1)

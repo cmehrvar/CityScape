@@ -112,9 +112,9 @@
             <string>ProximaNovaSoftW03-Semibold</string>
             <string>ProximaNovaSoftW03-Semibold</string>
             <string>ProximaNovaSoftW03-Semibold</string>
+            <string>ProximaNovaSoftW03-Semibold</string>
         </mutableArray>
         <mutableArray key="PROXIMANOVASOFT-REGULAR.OTF">
-            <string>ProximaNovaSoft-Regular</string>
             <string>ProximaNovaSoft-Regular</string>
             <string>ProximaNovaSoft-Regular</string>
             <string>ProximaNovaSoft-Regular</string>
@@ -2499,80 +2499,6 @@
                                 <exclude reference="SW3-F3-EzP"/>
                             </mask>
                             <mask key="constraints">
-                                <exclude reference="76P-84-gsN"/>
-                                <exclude reference="FYy-Rv-AM3"/>
-                                <exclude reference="7Yf-G8-hPr"/>
-                                <exclude reference="AfD-a3-zzm"/>
-                                <exclude reference="QMu-5x-8GS"/>
-                                <exclude reference="3NC-0G-wwh"/>
-                                <exclude reference="4DA-80-V9Z"/>
-                                <exclude reference="uSU-ox-55d"/>
-                                <exclude reference="IKh-MD-WAg"/>
-                                <exclude reference="XDd-m6-TBi"/>
-                                <exclude reference="qgN-1w-ZJK"/>
-                                <exclude reference="71P-K1-lwl"/>
-                                <exclude reference="T5B-e7-SMd"/>
-                                <exclude reference="WZP-Af-5jp"/>
-                                <exclude reference="CTU-ej-rzg"/>
-                                <exclude reference="oCC-tN-Vvv"/>
-                                <exclude reference="3ok-qP-QQL"/>
-                                <exclude reference="Imo-pr-1tx"/>
-                                <exclude reference="MrX-wJ-99d"/>
-                                <exclude reference="cbA-qc-7gb"/>
-                                <exclude reference="l4p-ug-Bdh"/>
-                                <exclude reference="rih-oW-1Tu"/>
-                                <exclude reference="Axk-yf-fzQ"/>
-                                <exclude reference="OUx-HZ-8ZF"/>
-                                <exclude reference="kit-2N-3zk"/>
-                                <exclude reference="Pcg-O7-1x3"/>
-                                <exclude reference="Qdh-cw-zcp"/>
-                                <exclude reference="tLb-aV-n70"/>
-                                <exclude reference="WIF-Eh-hQn"/>
-                                <exclude reference="f56-3O-cvp"/>
-                                <exclude reference="fec-cD-Lvh"/>
-                                <exclude reference="sfP-0j-dcc"/>
-                                <exclude reference="vab-Xj-txb"/>
-                                <exclude reference="yt1-j6-vdz"/>
-                                <exclude reference="1Dc-jY-LxK"/>
-                                <exclude reference="Jl9-hh-yR4"/>
-                                <exclude reference="pyX-Nk-Kic"/>
-                                <exclude reference="qX1-4i-9a6"/>
-                                <exclude reference="ulK-sd-teJ"/>
-                                <exclude reference="zec-4F-zcy"/>
-                                <exclude reference="K3O-2u-tRz"/>
-                                <exclude reference="bSc-dC-W6e"/>
-                                <exclude reference="rgq-Fg-FOD"/>
-                                <exclude reference="05T-1y-unM"/>
-                                <exclude reference="t9Q-Id-Dmj"/>
-                                <exclude reference="xau-nP-S8M"/>
-                                <exclude reference="6c2-kJ-4tq"/>
-                                <exclude reference="83d-VS-QBO"/>
-                                <exclude reference="CmE-IY-Q0h"/>
-                                <exclude reference="sSL-7n-88y"/>
-                                <exclude reference="4lR-ff-An0"/>
-                                <exclude reference="MOS-v9-e7E"/>
-                                <exclude reference="QxP-T1-e7Q"/>
-                                <exclude reference="0du-2J-4wu"/>
-                                <exclude reference="MMD-4t-BbS"/>
-                                <exclude reference="WCk-m6-2Te"/>
-                                <exclude reference="bvX-cJ-mVc"/>
-                                <exclude reference="qED-3l-RDV"/>
-                                <exclude reference="M3U-kg-cAy"/>
-                                <exclude reference="mTv-R9-hvk"/>
-                                <exclude reference="xrt-D7-nxD"/>
-                                <exclude reference="SXn-dc-dC1"/>
-                                <exclude reference="mdr-wz-YZa"/>
-                                <exclude reference="924-3w-wmR"/>
-                                <exclude reference="X98-s1-dkD"/>
-                                <exclude reference="4SB-aq-j89"/>
-                                <exclude reference="p8X-qJ-ene"/>
-                                <exclude reference="uDO-1d-eKP"/>
-                                <exclude reference="F88-ZI-xGt"/>
-                                <exclude reference="Kq4-56-BS7"/>
-                                <exclude reference="aP5-8c-Txb"/>
-                                <exclude reference="eET-xv-Rzw"/>
-                                <exclude reference="ihb-i0-ftS"/>
-                                <exclude reference="ii7-FX-gop"/>
                                 <exclude reference="5or-ct-AUu"/>
                                 <exclude reference="CuD-hL-Eaf"/>
                                 <exclude reference="INB-t8-70d"/>
@@ -2591,6 +2517,80 @@
                                 <exclude reference="x4J-08-Hzj"/>
                                 <exclude reference="J77-KQ-ONi"/>
                                 <exclude reference="jKk-QO-2jn"/>
+                                <exclude reference="6c2-kJ-4tq"/>
+                                <exclude reference="83d-VS-QBO"/>
+                                <exclude reference="CmE-IY-Q0h"/>
+                                <exclude reference="sSL-7n-88y"/>
+                                <exclude reference="3ok-qP-QQL"/>
+                                <exclude reference="Imo-pr-1tx"/>
+                                <exclude reference="MrX-wJ-99d"/>
+                                <exclude reference="0du-2J-4wu"/>
+                                <exclude reference="MMD-4t-BbS"/>
+                                <exclude reference="WCk-m6-2Te"/>
+                                <exclude reference="bvX-cJ-mVc"/>
+                                <exclude reference="qED-3l-RDV"/>
+                                <exclude reference="924-3w-wmR"/>
+                                <exclude reference="X98-s1-dkD"/>
+                                <exclude reference="F88-ZI-xGt"/>
+                                <exclude reference="Kq4-56-BS7"/>
+                                <exclude reference="aP5-8c-Txb"/>
+                                <exclude reference="eET-xv-Rzw"/>
+                                <exclude reference="ihb-i0-ftS"/>
+                                <exclude reference="ii7-FX-gop"/>
+                                <exclude reference="cbA-qc-7gb"/>
+                                <exclude reference="l4p-ug-Bdh"/>
+                                <exclude reference="rih-oW-1Tu"/>
+                                <exclude reference="Axk-yf-fzQ"/>
+                                <exclude reference="OUx-HZ-8ZF"/>
+                                <exclude reference="kit-2N-3zk"/>
+                                <exclude reference="Pcg-O7-1x3"/>
+                                <exclude reference="Qdh-cw-zcp"/>
+                                <exclude reference="tLb-aV-n70"/>
+                                <exclude reference="76P-84-gsN"/>
+                                <exclude reference="FYy-Rv-AM3"/>
+                                <exclude reference="4lR-ff-An0"/>
+                                <exclude reference="MOS-v9-e7E"/>
+                                <exclude reference="QxP-T1-e7Q"/>
+                                <exclude reference="WIF-Eh-hQn"/>
+                                <exclude reference="f56-3O-cvp"/>
+                                <exclude reference="fec-cD-Lvh"/>
+                                <exclude reference="SXn-dc-dC1"/>
+                                <exclude reference="mdr-wz-YZa"/>
+                                <exclude reference="7Yf-G8-hPr"/>
+                                <exclude reference="AfD-a3-zzm"/>
+                                <exclude reference="QMu-5x-8GS"/>
+                                <exclude reference="3NC-0G-wwh"/>
+                                <exclude reference="4DA-80-V9Z"/>
+                                <exclude reference="uSU-ox-55d"/>
+                                <exclude reference="sfP-0j-dcc"/>
+                                <exclude reference="vab-Xj-txb"/>
+                                <exclude reference="yt1-j6-vdz"/>
+                                <exclude reference="1Dc-jY-LxK"/>
+                                <exclude reference="Jl9-hh-yR4"/>
+                                <exclude reference="pyX-Nk-Kic"/>
+                                <exclude reference="4SB-aq-j89"/>
+                                <exclude reference="p8X-qJ-ene"/>
+                                <exclude reference="uDO-1d-eKP"/>
+                                <exclude reference="IKh-MD-WAg"/>
+                                <exclude reference="XDd-m6-TBi"/>
+                                <exclude reference="qgN-1w-ZJK"/>
+                                <exclude reference="qX1-4i-9a6"/>
+                                <exclude reference="ulK-sd-teJ"/>
+                                <exclude reference="zec-4F-zcy"/>
+                                <exclude reference="M3U-kg-cAy"/>
+                                <exclude reference="mTv-R9-hvk"/>
+                                <exclude reference="xrt-D7-nxD"/>
+                                <exclude reference="71P-K1-lwl"/>
+                                <exclude reference="T5B-e7-SMd"/>
+                                <exclude reference="WZP-Af-5jp"/>
+                                <exclude reference="K3O-2u-tRz"/>
+                                <exclude reference="bSc-dC-W6e"/>
+                                <exclude reference="rgq-Fg-FOD"/>
+                                <exclude reference="05T-1y-unM"/>
+                                <exclude reference="t9Q-Id-Dmj"/>
+                                <exclude reference="xau-nP-S8M"/>
+                                <exclude reference="CTU-ej-rzg"/>
+                                <exclude reference="oCC-tN-Vvv"/>
                             </mask>
                         </variation>
                         <variation key="heightClass=regular">
@@ -2622,80 +2622,6 @@
                                 <include reference="SW3-F3-EzP"/>
                             </mask>
                             <mask key="constraints">
-                                <include reference="76P-84-gsN"/>
-                                <include reference="FYy-Rv-AM3"/>
-                                <include reference="7Yf-G8-hPr"/>
-                                <include reference="AfD-a3-zzm"/>
-                                <include reference="QMu-5x-8GS"/>
-                                <include reference="3NC-0G-wwh"/>
-                                <include reference="4DA-80-V9Z"/>
-                                <include reference="uSU-ox-55d"/>
-                                <include reference="IKh-MD-WAg"/>
-                                <include reference="XDd-m6-TBi"/>
-                                <include reference="qgN-1w-ZJK"/>
-                                <include reference="71P-K1-lwl"/>
-                                <include reference="T5B-e7-SMd"/>
-                                <include reference="WZP-Af-5jp"/>
-                                <include reference="CTU-ej-rzg"/>
-                                <include reference="oCC-tN-Vvv"/>
-                                <include reference="3ok-qP-QQL"/>
-                                <include reference="Imo-pr-1tx"/>
-                                <include reference="MrX-wJ-99d"/>
-                                <include reference="cbA-qc-7gb"/>
-                                <include reference="l4p-ug-Bdh"/>
-                                <include reference="rih-oW-1Tu"/>
-                                <include reference="Axk-yf-fzQ"/>
-                                <include reference="OUx-HZ-8ZF"/>
-                                <include reference="kit-2N-3zk"/>
-                                <include reference="Pcg-O7-1x3"/>
-                                <include reference="Qdh-cw-zcp"/>
-                                <include reference="tLb-aV-n70"/>
-                                <include reference="WIF-Eh-hQn"/>
-                                <include reference="f56-3O-cvp"/>
-                                <include reference="fec-cD-Lvh"/>
-                                <include reference="sfP-0j-dcc"/>
-                                <include reference="vab-Xj-txb"/>
-                                <include reference="yt1-j6-vdz"/>
-                                <include reference="1Dc-jY-LxK"/>
-                                <include reference="Jl9-hh-yR4"/>
-                                <include reference="pyX-Nk-Kic"/>
-                                <include reference="qX1-4i-9a6"/>
-                                <include reference="ulK-sd-teJ"/>
-                                <include reference="zec-4F-zcy"/>
-                                <include reference="K3O-2u-tRz"/>
-                                <include reference="bSc-dC-W6e"/>
-                                <include reference="rgq-Fg-FOD"/>
-                                <include reference="05T-1y-unM"/>
-                                <include reference="t9Q-Id-Dmj"/>
-                                <include reference="xau-nP-S8M"/>
-                                <include reference="6c2-kJ-4tq"/>
-                                <include reference="83d-VS-QBO"/>
-                                <include reference="CmE-IY-Q0h"/>
-                                <include reference="sSL-7n-88y"/>
-                                <include reference="4lR-ff-An0"/>
-                                <include reference="MOS-v9-e7E"/>
-                                <include reference="QxP-T1-e7Q"/>
-                                <include reference="0du-2J-4wu"/>
-                                <include reference="MMD-4t-BbS"/>
-                                <include reference="WCk-m6-2Te"/>
-                                <include reference="bvX-cJ-mVc"/>
-                                <include reference="qED-3l-RDV"/>
-                                <include reference="M3U-kg-cAy"/>
-                                <include reference="mTv-R9-hvk"/>
-                                <include reference="xrt-D7-nxD"/>
-                                <include reference="SXn-dc-dC1"/>
-                                <include reference="mdr-wz-YZa"/>
-                                <include reference="924-3w-wmR"/>
-                                <include reference="X98-s1-dkD"/>
-                                <include reference="4SB-aq-j89"/>
-                                <include reference="p8X-qJ-ene"/>
-                                <include reference="uDO-1d-eKP"/>
-                                <include reference="F88-ZI-xGt"/>
-                                <include reference="Kq4-56-BS7"/>
-                                <include reference="aP5-8c-Txb"/>
-                                <include reference="eET-xv-Rzw"/>
-                                <include reference="ihb-i0-ftS"/>
-                                <include reference="ii7-FX-gop"/>
                                 <include reference="5or-ct-AUu"/>
                                 <include reference="CuD-hL-Eaf"/>
                                 <include reference="INB-t8-70d"/>
@@ -2714,6 +2640,80 @@
                                 <include reference="x4J-08-Hzj"/>
                                 <include reference="J77-KQ-ONi"/>
                                 <include reference="jKk-QO-2jn"/>
+                                <include reference="6c2-kJ-4tq"/>
+                                <include reference="83d-VS-QBO"/>
+                                <include reference="CmE-IY-Q0h"/>
+                                <include reference="sSL-7n-88y"/>
+                                <include reference="3ok-qP-QQL"/>
+                                <include reference="Imo-pr-1tx"/>
+                                <include reference="MrX-wJ-99d"/>
+                                <include reference="0du-2J-4wu"/>
+                                <include reference="MMD-4t-BbS"/>
+                                <include reference="WCk-m6-2Te"/>
+                                <include reference="bvX-cJ-mVc"/>
+                                <include reference="qED-3l-RDV"/>
+                                <include reference="924-3w-wmR"/>
+                                <include reference="X98-s1-dkD"/>
+                                <include reference="F88-ZI-xGt"/>
+                                <include reference="Kq4-56-BS7"/>
+                                <include reference="aP5-8c-Txb"/>
+                                <include reference="eET-xv-Rzw"/>
+                                <include reference="ihb-i0-ftS"/>
+                                <include reference="ii7-FX-gop"/>
+                                <include reference="cbA-qc-7gb"/>
+                                <include reference="l4p-ug-Bdh"/>
+                                <include reference="rih-oW-1Tu"/>
+                                <include reference="Axk-yf-fzQ"/>
+                                <include reference="OUx-HZ-8ZF"/>
+                                <include reference="kit-2N-3zk"/>
+                                <include reference="Pcg-O7-1x3"/>
+                                <include reference="Qdh-cw-zcp"/>
+                                <include reference="tLb-aV-n70"/>
+                                <include reference="76P-84-gsN"/>
+                                <include reference="FYy-Rv-AM3"/>
+                                <include reference="4lR-ff-An0"/>
+                                <include reference="MOS-v9-e7E"/>
+                                <include reference="QxP-T1-e7Q"/>
+                                <include reference="WIF-Eh-hQn"/>
+                                <include reference="f56-3O-cvp"/>
+                                <include reference="fec-cD-Lvh"/>
+                                <include reference="SXn-dc-dC1"/>
+                                <include reference="mdr-wz-YZa"/>
+                                <include reference="7Yf-G8-hPr"/>
+                                <include reference="AfD-a3-zzm"/>
+                                <include reference="QMu-5x-8GS"/>
+                                <include reference="3NC-0G-wwh"/>
+                                <include reference="4DA-80-V9Z"/>
+                                <include reference="uSU-ox-55d"/>
+                                <include reference="sfP-0j-dcc"/>
+                                <include reference="vab-Xj-txb"/>
+                                <include reference="yt1-j6-vdz"/>
+                                <include reference="1Dc-jY-LxK"/>
+                                <include reference="Jl9-hh-yR4"/>
+                                <include reference="pyX-Nk-Kic"/>
+                                <include reference="4SB-aq-j89"/>
+                                <include reference="p8X-qJ-ene"/>
+                                <include reference="uDO-1d-eKP"/>
+                                <include reference="IKh-MD-WAg"/>
+                                <include reference="XDd-m6-TBi"/>
+                                <include reference="qgN-1w-ZJK"/>
+                                <include reference="qX1-4i-9a6"/>
+                                <include reference="ulK-sd-teJ"/>
+                                <include reference="zec-4F-zcy"/>
+                                <include reference="M3U-kg-cAy"/>
+                                <include reference="mTv-R9-hvk"/>
+                                <include reference="xrt-D7-nxD"/>
+                                <include reference="71P-K1-lwl"/>
+                                <include reference="T5B-e7-SMd"/>
+                                <include reference="WZP-Af-5jp"/>
+                                <include reference="K3O-2u-tRz"/>
+                                <include reference="bSc-dC-W6e"/>
+                                <include reference="rgq-Fg-FOD"/>
+                                <include reference="05T-1y-unM"/>
+                                <include reference="t9Q-Id-Dmj"/>
+                                <include reference="xau-nP-S8M"/>
+                                <include reference="CTU-ej-rzg"/>
+                                <include reference="oCC-tN-Vvv"/>
                             </mask>
                         </variation>
                     </view>
@@ -3801,7 +3801,8 @@
                                                 <exclude reference="Sjv-16-PAo"/>
                                             </mask>
                                         </variation>
-                                        <variation key="heightClass=regular">
+                                        <variation key="heightClass=regular" misplaced="YES">
+                                            <rect key="frame" x="110" y="20" width="20" height="20"/>
                                             <mask key="constraints">
                                                 <include reference="0xf-0H-pFT"/>
                                                 <exclude reference="2f8-yN-jGG"/>
@@ -3814,15 +3815,24 @@
                                         <fontDescription key="fontDescription" name="ProximaNovaSoftW03-Semibold" family="ProximaNovaSoftW03-Semibold" pointSize="30"/>
                                         <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                         <nil key="highlightedColor"/>
+                                        <variation key="heightClass=regular" misplaced="YES">
+                                            <rect key="frame" x="40" y="48" width="200" height="35"/>
+                                        </variation>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Of2-hy-vyP" userLabel="City">
                                         <rect key="frame" x="-42" y="-21" width="42" height="21"/>
                                         <fontDescription key="fontDescription" name="ProximaNovaSoft-Regular" family="Proxima Nova Soft" pointSize="18"/>
                                         <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                         <nil key="highlightedColor"/>
+                                        <variation key="heightClass=regular" misplaced="YES">
+                                            <rect key="frame" x="40" y="83" width="200" height="21"/>
+                                        </variation>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="joM-W3-isB" userLabel="GoToProfile">
                                         <rect key="frame" x="-23" y="-15" width="46" height="30"/>
+                                        <variation key="heightClass=regular" misplaced="YES">
+                                            <rect key="frame" x="0.0" y="0.0" width="280" height="36"/>
+                                        </variation>
                                         <connections>
                                             <action selector="goToProfile:" destination="pTZ-DF-Gg6" eventType="touchUpInside" id="0Pr-Zv-2LU"/>
                                         </connections>
@@ -3844,7 +3854,8 @@
                                                 <exclude reference="hby-UD-Q3H"/>
                                             </mask>
                                         </variation>
-                                        <variation key="heightClass=regular">
+                                        <variation key="heightClass=regular" misplaced="YES">
+                                            <rect key="frame" x="100" y="10" width="30" height="30"/>
                                             <mask key="constraints">
                                                 <include reference="KId-Vk-VJd"/>
                                                 <include reference="hby-UD-Q3H"/>
@@ -3925,7 +3936,8 @@
                                         <exclude reference="z6r-kR-7jY"/>
                                     </mask>
                                 </variation>
-                                <variation key="heightClass=regular">
+                                <variation key="heightClass=regular" misplaced="YES">
+                                    <rect key="frame" x="0.0" y="0.0" width="280" height="36"/>
                                     <mask key="subviews">
                                         <include reference="q7s-uU-dg3"/>
                                         <include reference="SsS-H0-Eid"/>
@@ -3967,6 +3979,9 @@
                                         <color key="backgroundColor" red="0.9115584935897435" green="0.9115584935897435" blue="0.9115584935897435" alpha="1" colorSpace="calibratedRGB"/>
                                         <fontDescription key="fontDescription" name="ProximaNovaSoft-Regular" family="Proxima Nova Soft" pointSize="14"/>
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences" autocorrectionType="no" returnKeyType="done" enablesReturnKeyAutomatically="YES"/>
+                                        <variation key="heightClass=regular" misplaced="YES">
+                                            <rect key="frame" x="16" y="33" width="248" height="0.0"/>
+                                        </variation>
                                         <connections>
                                             <outlet property="delegate" destination="pTZ-DF-Gg6" id="QNz-Be-0vn"/>
                                         </connections>
@@ -3976,6 +3991,9 @@
                                         <fontDescription key="fontDescription" name="ProximaNovaSoft-Regular" family="Proxima Nova Soft" pointSize="10"/>
                                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
+                                        <variation key="heightClass=regular" misplaced="YES">
+                                            <rect key="frame" x="186" y="37" width="78" height="12"/>
+                                        </variation>
                                     </label>
                                 </subviews>
                                 <constraints>
@@ -4019,7 +4037,8 @@
                                         <exclude reference="qSm-e6-KoR"/>
                                     </mask>
                                 </variation>
-                                <variation key="heightClass=regular">
+                                <variation key="heightClass=regular" misplaced="YES">
+                                    <rect key="frame" x="0.0" y="36" width="280" height="57"/>
                                     <mask key="subviews">
                                         <include reference="uP9-wP-RRD"/>
                                         <include reference="elP-bN-aGL"/>
@@ -4052,6 +4071,9 @@
                                                         <fontDescription key="fontDescription" name="ProximaNovaSoftW03-Semibold" family="ProximaNovaSoftW03-Semibold" pointSize="24"/>
                                                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                         <nil key="highlightedColor"/>
+                                                        <variation key="heightClass=regular" misplaced="YES">
+                                                            <rect key="frame" x="0.0" y="0.0" width="70" height="28"/>
+                                                        </variation>
                                                     </label>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Worldwide" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qVB-BX-EwS" userLabel="WorldWide">
                                                         <rect key="frame" x="-42" y="-21" width="42" height="21"/>
@@ -4068,7 +4090,8 @@
                                                                 <exclude reference="6QF-wh-UAp"/>
                                                             </mask>
                                                         </variation>
-                                                        <variation key="heightClass=regular">
+                                                        <variation key="heightClass=regular" misplaced="YES">
+                                                            <rect key="frame" x="73" y="0.0" width="113" height="28"/>
                                                             <mask key="constraints">
                                                                 <exclude reference="6QF-wh-UAp"/>
                                                             </mask>
@@ -4101,7 +4124,8 @@
                                                         <exclude reference="wQB-X9-OQs"/>
                                                     </mask>
                                                 </variation>
-                                                <variation key="heightClass=regular">
+                                                <variation key="heightClass=regular" misplaced="YES">
+                                                    <rect key="frame" x="31" y="16" width="186" height="28"/>
                                                     <mask key="subviews">
                                                         <include reference="fcZ-CY-FfI"/>
                                                         <include reference="qVB-BX-EwS"/>
@@ -4147,7 +4171,8 @@
                                                 <exclude reference="ijk-7h-nMK"/>
                                             </mask>
                                         </variation>
-                                        <variation key="heightClass=regular">
+                                        <variation key="heightClass=regular" misplaced="YES">
+                                            <rect key="frame" x="16" y="-144" width="248" height="60"/>
                                             <mask key="subviews">
                                                 <include reference="g3P-mq-J5p"/>
                                                 <include reference="pVm-zd-Ecp"/>
@@ -4170,6 +4195,9 @@
                                                 <fontDescription key="fontDescription" name="ProximaNovaSoftW03-Semibold" family="ProximaNovaSoftW03-Semibold" pointSize="24"/>
                                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                 <nil key="highlightedColor"/>
+                                                <variation key="heightClass=regular" misplaced="YES">
+                                                    <rect key="frame" x="80" y="16" width="89" height="28"/>
+                                                </variation>
                                             </label>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VWI-ib-SKz" userLabel="LogOut(Temp)">
                                                 <rect key="frame" x="-23" y="-15" width="46" height="30"/>
@@ -4205,7 +4233,8 @@
                                                 <exclude reference="wDr-3b-B2a"/>
                                             </mask>
                                         </variation>
-                                        <variation key="heightClass=regular">
+                                        <variation key="heightClass=regular" misplaced="YES">
+                                            <rect key="frame" x="16" y="-76" width="248" height="60"/>
                                             <mask key="subviews">
                                                 <include reference="BVu-I0-Fmb"/>
                                                 <include reference="VWI-ib-SKz"/>
@@ -4262,7 +4291,8 @@
                                         <exclude reference="yNn-NH-qpa"/>
                                     </mask>
                                 </variation>
-                                <variation key="heightClass=regular">
+                                <variation key="heightClass=regular" misplaced="YES">
+                                    <rect key="frame" x="0.0" y="765" width="280" height="0.0"/>
                                     <mask key="subviews">
                                         <include reference="Tf0-Pr-Qta"/>
                                         <include reference="XA1-cl-BNa"/>
@@ -19419,15 +19449,18 @@
                                             </mask>
                                         </variation>
                                     </imageView>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GxU-HI-6jk">
+                                        <rect key="frame" x="-23" y="-15" width="46" height="30"/>
+                                        <connections>
+                                            <action selector="back:" destination="PwC-kI-Djl" eventType="touchUpInside" id="8VH-E8-gLd"/>
+                                        </connections>
+                                    </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="STm-kY-nIl">
                                         <rect key="frame" x="-23" y="-15" width="46" height="30"/>
                                         <fontDescription key="fontDescription" name="ProximaNovaSoftW03-Semibold" family="ProximaNovaSoftW03-Semibold" pointSize="17"/>
                                         <state key="normal" title="Back">
                                             <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         </state>
-                                        <variation key="heightClass=regular" misplaced="YES">
-                                            <rect key="frame" x="16" y="27" width="39" height="32"/>
-                                        </variation>
                                         <connections>
                                             <action selector="back:" destination="PwC-kI-Djl" eventType="touchUpInside" id="LZe-br-088"/>
                                         </connections>
@@ -19436,6 +19469,9 @@
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstItem="STm-kY-nIl" firstAttribute="leading" secondItem="Q8T-Ea-aVS" secondAttribute="leading" constant="16" id="4br-A5-1kI"/>
+                                    <constraint firstItem="GxU-HI-6jk" firstAttribute="centerX" secondItem="Q8T-Ea-aVS" secondAttribute="centerX" id="7o3-CP-kcw"/>
+                                    <constraint firstAttribute="bottom" secondItem="GxU-HI-6jk" secondAttribute="bottom" id="DTq-bh-Ozy"/>
+                                    <constraint firstItem="GxU-HI-6jk" firstAttribute="width" secondItem="WPj-co-Gc4" secondAttribute="width" id="EhK-OR-oVO"/>
                                     <constraint firstItem="4sJ-9V-Vtk" firstAttribute="top" secondItem="Q8T-Ea-aVS" secondAttribute="top" id="LtI-Jn-PCK"/>
                                     <constraint firstItem="WPj-co-Gc4" firstAttribute="centerX" secondItem="Q8T-Ea-aVS" secondAttribute="centerX" id="MaU-Rx-jGb"/>
                                     <constraint firstItem="4sJ-9V-Vtk" firstAttribute="leading" secondItem="Q8T-Ea-aVS" secondAttribute="leading" id="ON4-YL-s9z"/>
@@ -19448,6 +19484,7 @@
                                     <constraint firstItem="STm-kY-nIl" firstAttribute="centerY" secondItem="Q8T-Ea-aVS" secondAttribute="centerY" id="pI2-OX-2wg">
                                         <variation key="heightClass=regular" constant="10"/>
                                     </constraint>
+                                    <constraint firstItem="GxU-HI-6jk" firstAttribute="top" secondItem="Q8T-Ea-aVS" secondAttribute="top" id="u0l-Wf-57S"/>
                                     <constraint firstAttribute="height" constant="50" id="xbe-fD-BDb">
                                         <variation key="heightClass=regular" constant="65"/>
                                     </constraint>
@@ -19456,38 +19493,48 @@
                                     <mask key="subviews">
                                         <exclude reference="4sJ-9V-Vtk"/>
                                         <exclude reference="WPj-co-Gc4"/>
+                                        <exclude reference="GxU-HI-6jk"/>
                                         <exclude reference="STm-kY-nIl"/>
                                     </mask>
                                     <mask key="constraints">
                                         <exclude reference="xbe-fD-BDb"/>
-                                        <exclude reference="4br-A5-1kI"/>
-                                        <exclude reference="ivm-UE-kjf"/>
-                                        <exclude reference="pI2-OX-2wg"/>
                                         <exclude reference="LtI-Jn-PCK"/>
                                         <exclude reference="ON4-YL-s9z"/>
                                         <exclude reference="PbZ-N2-TR0"/>
                                         <exclude reference="ZwR-PH-bEz"/>
+                                        <exclude reference="4br-A5-1kI"/>
+                                        <exclude reference="ivm-UE-kjf"/>
+                                        <exclude reference="pI2-OX-2wg"/>
                                         <exclude reference="MaU-Rx-jGb"/>
                                         <exclude reference="mWV-Lg-hFe"/>
+                                        <exclude reference="7o3-CP-kcw"/>
+                                        <exclude reference="DTq-bh-Ozy"/>
+                                        <exclude reference="EhK-OR-oVO"/>
+                                        <exclude reference="u0l-Wf-57S"/>
                                     </mask>
                                 </variation>
                                 <variation key="heightClass=regular">
                                     <mask key="subviews">
                                         <include reference="4sJ-9V-Vtk"/>
                                         <include reference="WPj-co-Gc4"/>
+                                        <include reference="GxU-HI-6jk"/>
                                         <include reference="STm-kY-nIl"/>
                                     </mask>
                                     <mask key="constraints">
                                         <include reference="xbe-fD-BDb"/>
-                                        <include reference="4br-A5-1kI"/>
-                                        <include reference="ivm-UE-kjf"/>
-                                        <exclude reference="pI2-OX-2wg"/>
                                         <include reference="LtI-Jn-PCK"/>
                                         <include reference="ON4-YL-s9z"/>
                                         <include reference="PbZ-N2-TR0"/>
                                         <include reference="ZwR-PH-bEz"/>
+                                        <include reference="4br-A5-1kI"/>
+                                        <include reference="ivm-UE-kjf"/>
+                                        <exclude reference="pI2-OX-2wg"/>
                                         <include reference="MaU-Rx-jGb"/>
                                         <include reference="mWV-Lg-hFe"/>
+                                        <include reference="7o3-CP-kcw"/>
+                                        <include reference="DTq-bh-Ozy"/>
+                                        <include reference="EhK-OR-oVO"/>
+                                        <include reference="u0l-Wf-57S"/>
                                     </mask>
                                 </variation>
                             </view>
@@ -19679,6 +19726,9 @@ These Terms of Use were most recently updated on June 2, 2014
                                         <state key="normal" title="Back">
                                             <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         </state>
+                                        <variation key="heightClass=regular" misplaced="YES">
+                                            <rect key="frame" x="16" y="9" width="39" height="32"/>
+                                        </variation>
                                         <connections>
                                             <action selector="back:" destination="NmJ-Hh-30P" eventType="touchUpInside" id="X0C-vE-eQn"/>
                                         </connections>
@@ -19779,6 +19829,9 @@ These Terms of Use were most recently updated on June 2, 2014
                                         <fontDescription key="fontDescription" name="ProximaNovaSoftW03-Semibold" family="ProximaNovaSoftW03-Semibold" pointSize="30"/>
                                         <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="0.69886853448275865" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
+                                        <variation key="heightClass=regular" misplaced="YES">
+                                            <rect key="frame" x="224" y="-17" width="152" height="35"/>
+                                        </variation>
                                     </label>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -19797,7 +19850,8 @@ These Terms of Use were most recently updated on June 2, 2014
                                         <exclude reference="LDS-bj-n9v"/>
                                     </mask>
                                 </variation>
-                                <variation key="heightClass=regular">
+                                <variation key="heightClass=regular" misplaced="YES">
+                                    <rect key="frame" x="0.0" y="50" width="600" height="0.0"/>
                                     <mask key="subviews">
                                         <include reference="VRm-TO-oX4"/>
                                     </mask>
@@ -19818,7 +19872,8 @@ These Terms of Use were most recently updated on June 2, 2014
                                         <exclude reference="F1T-Pl-qw0"/>
                                     </mask>
                                 </variation>
-                                <variation key="heightClass=regular">
+                                <variation key="heightClass=regular" misplaced="YES">
+                                    <rect key="frame" x="0.0" y="125" width="600" height="150"/>
                                     <mask key="constraints">
                                         <include reference="F1T-Pl-qw0"/>
                                     </mask>
@@ -19827,6 +19882,9 @@ These Terms of Use were most recently updated on June 2, 2014
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="uPi-KM-vJh">
                                 <rect key="frame" x="0.0" y="0.0" width="240" height="128"/>
                                 <color key="backgroundColor" red="0.93725490196078431" green="0.27450980392156865" blue="0.33725490196078434" alpha="1" colorSpace="calibratedRGB"/>
+                                <variation key="heightClass=regular" misplaced="YES">
+                                    <rect key="frame" x="0.0" y="275" width="600" height="505"/>
+                                </variation>
                             </view>
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Stephen" translatesAutoresizingMaskIntoConstraints="NO" id="vlg-j7-zwB" userLabel="Stephen">
                                 <rect key="frame" x="0.0" y="0.0" width="240" height="128"/>
@@ -19840,7 +19898,8 @@ These Terms of Use were most recently updated on June 2, 2014
                                         <exclude reference="Sps-EY-neK"/>
                                     </mask>
                                 </variation>
-                                <variation key="heightClass=regular">
+                                <variation key="heightClass=regular" misplaced="YES">
+                                    <rect key="frame" x="0.0" y="50" width="300" height="150"/>
                                     <mask key="constraints">
                                         <include reference="Sps-EY-neK"/>
                                     </mask>
@@ -19851,15 +19910,24 @@ These Terms of Use were most recently updated on June 2, 2014
                                 <fontDescription key="fontDescription" name="ProximaNovaSoftW03-Semibold" family="ProximaNovaSoftW03-Semibold" pointSize="20"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
+                                <variation key="heightClass=regular" misplaced="YES">
+                                    <rect key="frame" x="81" y="220" width="138" height="24"/>
+                                </variation>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="CEO" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Sd1-D7-DCL">
                                 <rect key="frame" x="-42" y="-21" width="42" height="21"/>
                                 <fontDescription key="fontDescription" name="ProximaNovaSoft-Regular" family="Proxima Nova Soft" pointSize="20"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
+                                <variation key="heightClass=regular" misplaced="YES">
+                                    <rect key="frame" x="129" y="249" width="42" height="24"/>
+                                </variation>
                             </label>
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Cina" translatesAutoresizingMaskIntoConstraints="NO" id="uRQ-Fa-2PY" userLabel="Cina">
                                 <rect key="frame" x="0.0" y="0.0" width="240" height="128"/>
+                                <variation key="heightClass=regular" misplaced="YES">
+                                    <rect key="frame" x="300" y="50" width="300" height="150"/>
+                                </variation>
                             </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Cina Mehrvar" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gjZ-ph-cIP" userLabel="Cina Mehrvar">
                                 <rect key="frame" x="-42" y="-21" width="42" height="21"/>
@@ -19884,12 +19952,18 @@ These Terms of Use were most recently updated on June 2, 2014
                                                 <fontDescription key="fontDescription" name="ProximaNovaSoftW03-Semibold" family="ProximaNovaSoftW03-Semibold" pointSize="17"/>
                                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                 <nil key="highlightedColor"/>
+                                                <variation key="heightClass=regular" misplaced="YES">
+                                                    <rect key="frame" x="0.0" y="0.0" width="74" height="20"/>
+                                                </variation>
                                             </label>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="atlas.app.inquiries@gmail.com" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RXK-gR-0cV">
                                                 <rect key="frame" x="-42" y="-21" width="42" height="21"/>
                                                 <fontDescription key="fontDescription" name="ProximaNovaSoft-Regular" family="Proxima Nova Soft" pointSize="17"/>
                                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                 <nil key="highlightedColor"/>
+                                                <variation key="heightClass=regular" misplaced="YES">
+                                                    <rect key="frame" x="74" y="0.0" width="231" height="20"/>
+                                                </variation>
                                             </label>
                                         </subviews>
                                         <constraints>
@@ -19918,7 +19992,8 @@ These Terms of Use were most recently updated on June 2, 2014
                                                 <exclude reference="trQ-cs-2Zh"/>
                                             </mask>
                                         </variation>
-                                        <variation key="heightClass=regular">
+                                        <variation key="heightClass=regular" misplaced="YES">
+                                            <rect key="frame" x="148" y="-10" width="305" height="20"/>
                                             <mask key="subviews">
                                                 <include reference="hoc-NK-6Ek"/>
                                                 <include reference="RXK-gR-0cV"/>
@@ -19948,7 +20023,8 @@ These Terms of Use were most recently updated on June 2, 2014
                                         <exclude reference="dlI-wb-JbK"/>
                                     </mask>
                                 </variation>
-                                <variation key="heightClass=regular">
+                                <variation key="heightClass=regular" misplaced="YES">
+                                    <rect key="frame" x="0.0" y="273" width="600" height="0.0"/>
                                     <mask key="subviews">
                                         <include reference="NFt-9b-bPM"/>
                                     </mask>
@@ -19987,6 +20063,9 @@ These Terms of Use were most recently updated on June 2, 2014
                                         <fontDescription key="fontDescription" name="ProximaNovaSoft-Regular" family="Proxima Nova Soft" pointSize="30"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <nil key="highlightedColor"/>
+                                        <variation key="heightClass=regular" misplaced="YES">
+                                            <rect key="frame" x="2" y="72" width="255" height="35"/>
+                                        </variation>
                                     </label>
                                 </subviews>
                                 <constraints>
@@ -20019,7 +20098,8 @@ These Terms of Use were most recently updated on June 2, 2014
                                         <exclude reference="myK-7P-IBv"/>
                                     </mask>
                                 </variation>
-                                <variation key="heightClass=regular">
+                                <variation key="heightClass=regular" misplaced="YES">
+                                    <rect key="frame" x="171" y="273" width="258" height="472"/>
                                     <mask key="subviews">
                                         <include reference="XAh-od-6Uo"/>
                                         <include reference="GE1-ga-blh"/>
@@ -20204,7 +20284,12 @@ These Terms of Use were most recently updated on June 2, 2014
         <scene sceneID="0lU-yO-hm5">
             <objects>
                 <viewController id="d8g-kz-9E5" customClass="SettingsViewController" customModule="CityScape" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="wPx-g9-nse"/>
+                        <viewControllerLayoutGuide type="bottom" id="qud-Ph-HGl"/>
+                    </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="pkw-wG-awL">
+                        <rect key="frame" x="0.0" y="0.0" width="240" height="128"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="225-Yk-wVv" userLabel="Header">
@@ -20219,6 +20304,9 @@ These Terms of Use were most recently updated on June 2, 2014
                                         <state key="normal" title="Back">
                                             <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         </state>
+                                        <variation key="heightClass=regular" misplaced="YES">
+                                            <rect key="frame" x="16" y="7" width="39" height="32"/>
+                                        </variation>
                                         <connections>
                                             <action selector="back:" destination="d8g-kz-9E5" eventType="touchUpInside" id="4iK-FD-rJf"/>
                                         </connections>
@@ -20241,9 +20329,6 @@ These Terms of Use were most recently updated on June 2, 2014
                                     </imageView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wpr-PE-t7u">
                                         <rect key="frame" x="-23" y="-15" width="46" height="30"/>
-                                        <variation key="heightClass=regular" misplaced="YES">
-                                            <rect key="frame" x="277" y="8" width="46" height="30"/>
-                                        </variation>
                                         <connections>
                                             <action selector="back:" destination="d8g-kz-9E5" eventType="touchUpInside" id="8n7-HD-Fjl"/>
                                         </connections>
@@ -20276,16 +20361,16 @@ These Terms of Use were most recently updated on June 2, 2014
                                         <exclude reference="ndK-tS-dcw"/>
                                         <exclude reference="4tm-li-Z0e"/>
                                         <exclude reference="Erf-2O-jxl"/>
+                                        <exclude reference="71q-r3-4M6"/>
+                                        <exclude reference="NyF-sZ-psT"/>
+                                        <exclude reference="OEa-fs-PTl"/>
+                                        <exclude reference="WHf-0O-9se"/>
                                         <exclude reference="5UV-xU-Sdf"/>
                                         <exclude reference="Baa-aE-m5Q"/>
                                         <exclude reference="Ghz-cO-QaG"/>
                                         <exclude reference="uC2-b5-nhZ"/>
                                         <exclude reference="Laf-EO-C8S"/>
                                         <exclude reference="PNL-qu-Sam"/>
-                                        <exclude reference="71q-r3-4M6"/>
-                                        <exclude reference="NyF-sZ-psT"/>
-                                        <exclude reference="OEa-fs-PTl"/>
-                                        <exclude reference="WHf-0O-9se"/>
                                     </mask>
                                 </variation>
                                 <variation key="heightClass=regular">
@@ -20299,16 +20384,16 @@ These Terms of Use were most recently updated on June 2, 2014
                                         <include reference="ndK-tS-dcw"/>
                                         <include reference="4tm-li-Z0e"/>
                                         <include reference="Erf-2O-jxl"/>
+                                        <include reference="71q-r3-4M6"/>
+                                        <include reference="NyF-sZ-psT"/>
+                                        <include reference="OEa-fs-PTl"/>
+                                        <include reference="WHf-0O-9se"/>
                                         <include reference="5UV-xU-Sdf"/>
                                         <include reference="Baa-aE-m5Q"/>
                                         <exclude reference="Ghz-cO-QaG"/>
                                         <include reference="uC2-b5-nhZ"/>
                                         <include reference="Laf-EO-C8S"/>
                                         <include reference="PNL-qu-Sam"/>
-                                        <include reference="71q-r3-4M6"/>
-                                        <include reference="NyF-sZ-psT"/>
-                                        <include reference="OEa-fs-PTl"/>
-                                        <include reference="WHf-0O-9se"/>
                                     </mask>
                                 </variation>
                             </view>
@@ -20337,6 +20422,9 @@ These Terms of Use were most recently updated on June 2, 2014
                                 <fontDescription key="fontDescription" name="ProximaNovaSoftW03-Semibold" family="ProximaNovaSoftW03-Semibold" pointSize="25"/>
                                 <color key="textColor" red="0.90196078430000004" green="0.20392156859999999" blue="0.16862745100000001" alpha="0.85331357760000004" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
+                                <variation key="heightClass=regular" misplaced="YES">
+                                    <rect key="frame" x="16" y="132" width="132" height="30"/>
+                                </variation>
                             </label>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fMJ-2u-Fgh" userLabel="GenderSelection">
                                 <rect key="frame" x="0.0" y="0.0" width="240" height="128"/>
@@ -20353,6 +20441,7 @@ These Terms of Use were most recently updated on June 2, 2014
                                                         <state key="normal" title="Male"/>
                                                         <connections>
                                                             <action selector="cityAction:" destination="hsN-nz-g3W" eventType="touchUpInside" id="4BL-zn-BW2"/>
+                                                            <action selector="imMale:" destination="d8g-kz-9E5" eventType="touchUpInside" id="vc6-og-dkE"/>
                                                         </connections>
                                                     </button>
                                                 </subviews>
@@ -20368,10 +20457,10 @@ These Terms of Use were most recently updated on June 2, 2014
                                                         <exclude reference="sjK-qQ-yPb"/>
                                                     </mask>
                                                     <mask key="constraints">
-                                                        <exclude reference="Cm3-bs-KZx"/>
                                                         <exclude reference="8md-q7-HmH"/>
-                                                        <exclude reference="T5X-79-7Uz"/>
                                                         <exclude reference="9ot-0s-jpZ"/>
+                                                        <exclude reference="Cm3-bs-KZx"/>
+                                                        <exclude reference="T5X-79-7Uz"/>
                                                     </mask>
                                                 </variation>
                                                 <variation key="heightClass=regular">
@@ -20379,10 +20468,10 @@ These Terms of Use were most recently updated on June 2, 2014
                                                         <include reference="sjK-qQ-yPb"/>
                                                     </mask>
                                                     <mask key="constraints">
-                                                        <include reference="Cm3-bs-KZx"/>
                                                         <include reference="8md-q7-HmH"/>
-                                                        <include reference="T5X-79-7Uz"/>
                                                         <include reference="9ot-0s-jpZ"/>
+                                                        <include reference="Cm3-bs-KZx"/>
+                                                        <include reference="T5X-79-7Uz"/>
                                                     </mask>
                                                 </variation>
                                             </view>
@@ -20396,6 +20485,7 @@ These Terms of Use were most recently updated on June 2, 2014
                                                             <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                         </state>
                                                         <connections>
+                                                            <action selector="imFemale:" destination="d8g-kz-9E5" eventType="touchUpInside" id="mxV-UZ-Edh"/>
                                                             <action selector="userAction:" destination="hsN-nz-g3W" eventType="touchUpInside" id="9pm-N2-dsd"/>
                                                         </connections>
                                                     </button>
@@ -20413,8 +20503,8 @@ These Terms of Use were most recently updated on June 2, 2014
                                                     <mask key="constraints">
                                                         <exclude reference="2Ab-Vs-Pq5"/>
                                                         <exclude reference="Bbp-ap-WA1"/>
-                                                        <exclude reference="vYg-1J-HEb"/>
                                                         <exclude reference="Z5V-f8-NdC"/>
+                                                        <exclude reference="vYg-1J-HEb"/>
                                                     </mask>
                                                 </variation>
                                                 <variation key="heightClass=regular">
@@ -20424,8 +20514,8 @@ These Terms of Use were most recently updated on June 2, 2014
                                                     <mask key="constraints">
                                                         <include reference="2Ab-Vs-Pq5"/>
                                                         <include reference="Bbp-ap-WA1"/>
-                                                        <include reference="vYg-1J-HEb"/>
                                                         <include reference="Z5V-f8-NdC"/>
+                                                        <include reference="vYg-1J-HEb"/>
                                                     </mask>
                                                 </variation>
                                             </view>
@@ -20457,14 +20547,14 @@ These Terms of Use were most recently updated on June 2, 2014
                                                 <exclude reference="olF-mm-ZJF"/>
                                             </mask>
                                             <mask key="constraints">
-                                                <exclude reference="9kJ-dv-VLx"/>
-                                                <exclude reference="Wmg-xL-lKW"/>
-                                                <exclude reference="gYd-cc-8yb"/>
-                                                <exclude reference="NWr-rd-ItO"/>
-                                                <exclude reference="pze-Gs-mMB"/>
                                                 <exclude reference="2w2-Ud-Rbz"/>
                                                 <exclude reference="6b3-Uy-W36"/>
                                                 <exclude reference="djl-Ci-roP"/>
+                                                <exclude reference="pze-Gs-mMB"/>
+                                                <exclude reference="9kJ-dv-VLx"/>
+                                                <exclude reference="NWr-rd-ItO"/>
+                                                <exclude reference="Wmg-xL-lKW"/>
+                                                <exclude reference="gYd-cc-8yb"/>
                                             </mask>
                                         </variation>
                                         <variation key="heightClass=regular">
@@ -20473,14 +20563,14 @@ These Terms of Use were most recently updated on June 2, 2014
                                                 <include reference="olF-mm-ZJF"/>
                                             </mask>
                                             <mask key="constraints">
-                                                <include reference="9kJ-dv-VLx"/>
-                                                <include reference="Wmg-xL-lKW"/>
-                                                <include reference="gYd-cc-8yb"/>
-                                                <include reference="NWr-rd-ItO"/>
-                                                <include reference="pze-Gs-mMB"/>
                                                 <include reference="2w2-Ud-Rbz"/>
                                                 <include reference="6b3-Uy-W36"/>
                                                 <include reference="djl-Ci-roP"/>
+                                                <include reference="pze-Gs-mMB"/>
+                                                <include reference="9kJ-dv-VLx"/>
+                                                <include reference="NWr-rd-ItO"/>
+                                                <include reference="Wmg-xL-lKW"/>
+                                                <include reference="gYd-cc-8yb"/>
                                             </mask>
                                         </variation>
                                     </view>
@@ -20503,8 +20593,8 @@ These Terms of Use were most recently updated on June 2, 2014
                                     <mask key="constraints">
                                         <exclude reference="cy7-EB-VBz"/>
                                         <exclude reference="GYd-PS-Qze"/>
-                                        <exclude reference="mAd-Ug-aHa"/>
                                         <exclude reference="fgM-yI-o8M"/>
+                                        <exclude reference="mAd-Ug-aHa"/>
                                         <exclude reference="oCd-4k-ew3"/>
                                     </mask>
                                 </variation>
@@ -20515,8 +20605,8 @@ These Terms of Use were most recently updated on June 2, 2014
                                     <mask key="constraints">
                                         <include reference="cy7-EB-VBz"/>
                                         <include reference="GYd-PS-Qze"/>
-                                        <include reference="mAd-Ug-aHa"/>
                                         <include reference="fgM-yI-o8M"/>
+                                        <include reference="mAd-Ug-aHa"/>
                                         <include reference="oCd-4k-ew3"/>
                                     </mask>
                                 </variation>
@@ -20526,6 +20616,9 @@ These Terms of Use were most recently updated on June 2, 2014
                                 <fontDescription key="fontDescription" name="ProximaNovaSoftW03-Semibold" family="ProximaNovaSoftW03-Semibold" pointSize="25"/>
                                 <color key="textColor" red="0.90196078430000004" green="0.20392156859999999" blue="0.16862745100000001" alpha="0.85331357760000004" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
+                                <variation key="heightClass=regular" misplaced="YES">
+                                    <rect key="frame" x="16" y="229" width="146" height="30"/>
+                                </variation>
                             </label>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="paz-cr-DvB" userLabel="GenderPreference">
                                 <rect key="frame" x="0.0" y="0.0" width="240" height="128"/>
@@ -20542,6 +20635,7 @@ These Terms of Use were most recently updated on June 2, 2014
                                                         <state key="normal" title="Male"/>
                                                         <connections>
                                                             <action selector="cityAction:" destination="hsN-nz-g3W" eventType="touchUpInside" id="MgF-Wq-fIw"/>
+                                                            <action selector="intoMen:" destination="d8g-kz-9E5" eventType="touchUpInside" id="MGC-kw-jBH"/>
                                                         </connections>
                                                     </button>
                                                 </subviews>
@@ -20558,8 +20652,8 @@ These Terms of Use were most recently updated on June 2, 2014
                                                     </mask>
                                                     <mask key="constraints">
                                                         <exclude reference="Eb8-QV-Nhn"/>
-                                                        <exclude reference="W2g-ta-6ub"/>
                                                         <exclude reference="S7K-IU-qhd"/>
+                                                        <exclude reference="W2g-ta-6ub"/>
                                                         <exclude reference="dKJ-UR-JuL"/>
                                                     </mask>
                                                 </variation>
@@ -20569,8 +20663,8 @@ These Terms of Use were most recently updated on June 2, 2014
                                                     </mask>
                                                     <mask key="constraints">
                                                         <include reference="Eb8-QV-Nhn"/>
-                                                        <include reference="W2g-ta-6ub"/>
                                                         <include reference="S7K-IU-qhd"/>
+                                                        <include reference="W2g-ta-6ub"/>
                                                         <include reference="dKJ-UR-JuL"/>
                                                     </mask>
                                                 </variation>
@@ -20585,6 +20679,7 @@ These Terms of Use were most recently updated on June 2, 2014
                                                             <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                         </state>
                                                         <connections>
+                                                            <action selector="intoWomen:" destination="d8g-kz-9E5" eventType="touchUpInside" id="gOO-c1-hLi"/>
                                                             <action selector="userAction:" destination="hsN-nz-g3W" eventType="touchUpInside" id="09s-L9-awf"/>
                                                         </connections>
                                                     </button>
@@ -20600,10 +20695,10 @@ These Terms of Use were most recently updated on June 2, 2014
                                                         <exclude reference="iEY-6A-DRJ"/>
                                                     </mask>
                                                     <mask key="constraints">
-                                                        <exclude reference="ZoO-EF-Rkh"/>
                                                         <exclude reference="2SW-6G-hYJ"/>
-                                                        <exclude reference="Rs7-Kw-iiR"/>
                                                         <exclude reference="7Bg-Uz-XtA"/>
+                                                        <exclude reference="Rs7-Kw-iiR"/>
+                                                        <exclude reference="ZoO-EF-Rkh"/>
                                                     </mask>
                                                 </variation>
                                                 <variation key="heightClass=regular">
@@ -20611,10 +20706,10 @@ These Terms of Use were most recently updated on June 2, 2014
                                                         <include reference="iEY-6A-DRJ"/>
                                                     </mask>
                                                     <mask key="constraints">
-                                                        <include reference="ZoO-EF-Rkh"/>
                                                         <include reference="2SW-6G-hYJ"/>
-                                                        <include reference="Rs7-Kw-iiR"/>
                                                         <include reference="7Bg-Uz-XtA"/>
+                                                        <include reference="Rs7-Kw-iiR"/>
+                                                        <include reference="ZoO-EF-Rkh"/>
                                                     </mask>
                                                 </variation>
                                             </view>
@@ -20628,6 +20723,7 @@ These Terms of Use were most recently updated on June 2, 2014
                                                             <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                         </state>
                                                         <connections>
+                                                            <action selector="intoBoth:" destination="d8g-kz-9E5" eventType="touchUpInside" id="mgy-su-qMl"/>
                                                             <action selector="userAction:" destination="hsN-nz-g3W" eventType="touchUpInside" id="W1t-3T-apZ"/>
                                                         </connections>
                                                     </button>
@@ -20643,10 +20739,10 @@ These Terms of Use were most recently updated on June 2, 2014
                                                         <exclude reference="peV-Y6-Ctp"/>
                                                     </mask>
                                                     <mask key="constraints">
-                                                        <exclude reference="jfJ-Nz-pUj"/>
-                                                        <exclude reference="LR7-qU-kW1"/>
-                                                        <exclude reference="6Kh-4h-Guf"/>
                                                         <exclude reference="5mn-OJ-dHv"/>
+                                                        <exclude reference="6Kh-4h-Guf"/>
+                                                        <exclude reference="LR7-qU-kW1"/>
+                                                        <exclude reference="jfJ-Nz-pUj"/>
                                                     </mask>
                                                 </variation>
                                                 <variation key="heightClass=regular">
@@ -20654,10 +20750,10 @@ These Terms of Use were most recently updated on June 2, 2014
                                                         <include reference="peV-Y6-Ctp"/>
                                                     </mask>
                                                     <mask key="constraints">
-                                                        <include reference="jfJ-Nz-pUj"/>
-                                                        <include reference="LR7-qU-kW1"/>
-                                                        <include reference="6Kh-4h-Guf"/>
                                                         <include reference="5mn-OJ-dHv"/>
+                                                        <include reference="6Kh-4h-Guf"/>
+                                                        <include reference="LR7-qU-kW1"/>
+                                                        <include reference="jfJ-Nz-pUj"/>
                                                     </mask>
                                                 </variation>
                                             </view>
@@ -20697,10 +20793,6 @@ These Terms of Use were most recently updated on June 2, 2014
                                                 <exclude reference="UCD-Fz-9Bi"/>
                                             </mask>
                                             <mask key="constraints">
-                                                <exclude reference="Hdi-qN-NYV"/>
-                                                <exclude reference="bPj-Az-6wc"/>
-                                                <exclude reference="ehH-Dm-qOc"/>
-                                                <exclude reference="iBI-20-6DX"/>
                                                 <exclude reference="43K-bA-0df"/>
                                                 <exclude reference="Qfx-EF-k8F"/>
                                                 <exclude reference="eFB-QM-UtQ"/>
@@ -20710,6 +20802,10 @@ These Terms of Use were most recently updated on June 2, 2014
                                                 <exclude reference="Sbf-uI-CPB"/>
                                                 <exclude reference="aZm-Yk-WWz"/>
                                                 <exclude reference="u7Q-2L-l2C"/>
+                                                <exclude reference="Hdi-qN-NYV"/>
+                                                <exclude reference="bPj-Az-6wc"/>
+                                                <exclude reference="ehH-Dm-qOc"/>
+                                                <exclude reference="iBI-20-6DX"/>
                                             </mask>
                                         </variation>
                                         <variation key="heightClass=regular">
@@ -20719,10 +20815,6 @@ These Terms of Use were most recently updated on June 2, 2014
                                                 <include reference="UCD-Fz-9Bi"/>
                                             </mask>
                                             <mask key="constraints">
-                                                <include reference="Hdi-qN-NYV"/>
-                                                <include reference="bPj-Az-6wc"/>
-                                                <include reference="ehH-Dm-qOc"/>
-                                                <include reference="iBI-20-6DX"/>
                                                 <include reference="43K-bA-0df"/>
                                                 <include reference="Qfx-EF-k8F"/>
                                                 <exclude reference="eFB-QM-UtQ"/>
@@ -20732,6 +20824,10 @@ These Terms of Use were most recently updated on June 2, 2014
                                                 <include reference="Sbf-uI-CPB"/>
                                                 <include reference="aZm-Yk-WWz"/>
                                                 <include reference="u7Q-2L-l2C"/>
+                                                <include reference="Hdi-qN-NYV"/>
+                                                <include reference="bPj-Az-6wc"/>
+                                                <include reference="ehH-Dm-qOc"/>
+                                                <include reference="iBI-20-6DX"/>
                                             </mask>
                                         </variation>
                                     </view>
@@ -20755,8 +20851,8 @@ These Terms of Use were most recently updated on June 2, 2014
                                         <exclude reference="2Ci-Yn-5bs"/>
                                         <exclude reference="4ui-SL-4UI"/>
                                         <exclude reference="ZQa-aR-oFJ"/>
-                                        <exclude reference="j4I-ZZ-C45"/>
                                         <exclude reference="cEl-rC-3Ta"/>
+                                        <exclude reference="j4I-ZZ-C45"/>
                                     </mask>
                                 </variation>
                                 <variation key="heightClass=regular">
@@ -20767,8 +20863,8 @@ These Terms of Use were most recently updated on June 2, 2014
                                         <include reference="2Ci-Yn-5bs"/>
                                         <include reference="4ui-SL-4UI"/>
                                         <include reference="ZQa-aR-oFJ"/>
-                                        <include reference="j4I-ZZ-C45"/>
                                         <include reference="cEl-rC-3Ta"/>
+                                        <include reference="j4I-ZZ-C45"/>
                                     </mask>
                                 </variation>
                             </view>
@@ -20778,6 +20874,9 @@ These Terms of Use were most recently updated on June 2, 2014
                                 <state key="normal" title="Delete Account">
                                     <color key="titleColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 </state>
+                                <variation key="heightClass=regular" misplaced="YES">
+                                    <rect key="frame" x="249" y="334" width="103" height="30"/>
+                                </variation>
                                 <connections>
                                     <action selector="deleteAccount:" destination="d8g-kz-9E5" eventType="touchUpInside" id="2T0-yY-gwQ"/>
                                 </connections>
@@ -20787,9 +20886,12 @@ These Terms of Use were most recently updated on June 2, 2014
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Log Out" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kBq-dW-gkG">
                                         <rect key="frame" x="-42" y="-21" width="42" height="21"/>
-                                        <fontDescription key="fontDescription" name="ProximaNovaSoft-Regular" family="Proxima Nova Soft" pointSize="24"/>
+                                        <fontDescription key="fontDescription" name="ProximaNovaSoftW03-Semibold" family="ProximaNovaSoftW03-Semibold" pointSize="24"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <nil key="highlightedColor"/>
+                                        <variation key="heightClass=regular" misplaced="YES">
+                                            <rect key="frame" x="241" y="16" width="87" height="28"/>
+                                        </variation>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mic-T7-wy3" userLabel="LogOut(Temp)">
                                         <rect key="frame" x="-23" y="-15" width="46" height="30"/>
@@ -20799,7 +20901,7 @@ These Terms of Use were most recently updated on June 2, 2014
                                         </connections>
                                     </button>
                                 </subviews>
-                                <color key="backgroundColor" red="1" green="0.2784313725" blue="0.22352941179999999" alpha="0.9048760776" colorSpace="calibratedRGB"/>
+                                <color key="backgroundColor" red="0.90196078430000004" green="0.20392156859999999" blue="0.16862745100000001" alpha="0.85331357760000004" colorSpace="calibratedRGB"/>
                                 <constraints>
                                     <constraint firstItem="mic-T7-wy3" firstAttribute="top" secondItem="qUz-PH-5fX" secondAttribute="top" id="57L-ek-vX0"/>
                                     <constraint firstItem="kBq-dW-gkG" firstAttribute="centerX" secondItem="qUz-PH-5fX" secondAttribute="centerX" id="H1M-w6-OKc"/>
@@ -20818,10 +20920,10 @@ These Terms of Use were most recently updated on June 2, 2014
                                     </mask>
                                     <mask key="constraints">
                                         <exclude reference="jb2-xd-MYb"/>
-                                        <exclude reference="ayR-cg-7Rg"/>
-                                        <exclude reference="hfh-04-HcD"/>
                                         <exclude reference="57L-ek-vX0"/>
+                                        <exclude reference="ayR-cg-7Rg"/>
                                         <exclude reference="eNX-h1-67U"/>
+                                        <exclude reference="hfh-04-HcD"/>
                                         <exclude reference="H1M-w6-OKc"/>
                                         <exclude reference="ox4-ly-xId"/>
                                     </mask>
@@ -20833,10 +20935,10 @@ These Terms of Use were most recently updated on June 2, 2014
                                     </mask>
                                     <mask key="constraints">
                                         <include reference="jb2-xd-MYb"/>
-                                        <include reference="ayR-cg-7Rg"/>
-                                        <include reference="hfh-04-HcD"/>
                                         <include reference="57L-ek-vX0"/>
+                                        <include reference="ayR-cg-7Rg"/>
                                         <include reference="eNX-h1-67U"/>
+                                        <include reference="hfh-04-HcD"/>
                                         <include reference="H1M-w6-OKc"/>
                                         <include reference="ox4-ly-xId"/>
                                     </mask>
@@ -20907,30 +21009,30 @@ These Terms of Use were most recently updated on June 2, 2014
                                 <exclude reference="Mdn-N3-Y4N"/>
                             </mask>
                             <mask key="constraints">
-                                <exclude reference="22t-yb-ge2"/>
-                                <exclude reference="ZT8-9n-CFm"/>
-                                <exclude reference="gSY-h2-eN2"/>
+                                <exclude reference="2Fa-Eg-7JT"/>
+                                <exclude reference="URB-eL-obf"/>
+                                <exclude reference="9D4-Rf-FST"/>
+                                <exclude reference="c3E-kn-WCh"/>
+                                <exclude reference="fZx-pb-RtE"/>
+                                <exclude reference="HwE-sv-3R5"/>
+                                <exclude reference="yuX-2Y-3U8"/>
                                 <exclude reference="7J2-mR-g9Z"/>
                                 <exclude reference="eBm-lL-rAJ"/>
                                 <exclude reference="eth-Lc-PmH"/>
                                 <exclude reference="EE3-vT-fBI"/>
                                 <exclude reference="ki5-cN-as1"/>
+                                <exclude reference="22t-yb-ge2"/>
+                                <exclude reference="ZT8-9n-CFm"/>
+                                <exclude reference="gSY-h2-eN2"/>
                                 <exclude reference="u7c-OH-0tO"/>
                                 <exclude reference="uq7-r5-Qz1"/>
                                 <exclude reference="zA4-rj-WQF"/>
-                                <exclude reference="HwE-sv-3R5"/>
-                                <exclude reference="yuX-2Y-3U8"/>
                                 <exclude reference="4JP-Pv-FtP"/>
                                 <exclude reference="6pV-k8-1B8"/>
                                 <exclude reference="QQS-bm-6uZ"/>
                                 <exclude reference="Zk4-PE-6Zt"/>
                                 <exclude reference="eCx-7f-313"/>
                                 <exclude reference="qVI-4Z-bSR"/>
-                                <exclude reference="2Fa-Eg-7JT"/>
-                                <exclude reference="URB-eL-obf"/>
-                                <exclude reference="9D4-Rf-FST"/>
-                                <exclude reference="c3E-kn-WCh"/>
-                                <exclude reference="fZx-pb-RtE"/>
                             </mask>
                         </variation>
                         <variation key="heightClass=regular">
@@ -20946,30 +21048,30 @@ These Terms of Use were most recently updated on June 2, 2014
                                 <include reference="Mdn-N3-Y4N"/>
                             </mask>
                             <mask key="constraints">
-                                <include reference="22t-yb-ge2"/>
-                                <include reference="ZT8-9n-CFm"/>
-                                <include reference="gSY-h2-eN2"/>
+                                <include reference="2Fa-Eg-7JT"/>
+                                <include reference="URB-eL-obf"/>
+                                <include reference="9D4-Rf-FST"/>
+                                <include reference="c3E-kn-WCh"/>
+                                <include reference="fZx-pb-RtE"/>
+                                <include reference="HwE-sv-3R5"/>
+                                <include reference="yuX-2Y-3U8"/>
                                 <include reference="7J2-mR-g9Z"/>
                                 <include reference="eBm-lL-rAJ"/>
                                 <include reference="eth-Lc-PmH"/>
                                 <include reference="EE3-vT-fBI"/>
                                 <include reference="ki5-cN-as1"/>
+                                <include reference="22t-yb-ge2"/>
+                                <include reference="ZT8-9n-CFm"/>
+                                <include reference="gSY-h2-eN2"/>
                                 <include reference="u7c-OH-0tO"/>
                                 <include reference="uq7-r5-Qz1"/>
                                 <include reference="zA4-rj-WQF"/>
-                                <include reference="HwE-sv-3R5"/>
-                                <include reference="yuX-2Y-3U8"/>
                                 <include reference="4JP-Pv-FtP"/>
                                 <include reference="6pV-k8-1B8"/>
                                 <include reference="QQS-bm-6uZ"/>
                                 <exclude reference="Zk4-PE-6Zt"/>
                                 <include reference="eCx-7f-313"/>
                                 <include reference="qVI-4Z-bSR"/>
-                                <include reference="2Fa-Eg-7JT"/>
-                                <include reference="URB-eL-obf"/>
-                                <include reference="9D4-Rf-FST"/>
-                                <include reference="c3E-kn-WCh"/>
-                                <include reference="fZx-pb-RtE"/>
                             </mask>
                         </variation>
                     </view>

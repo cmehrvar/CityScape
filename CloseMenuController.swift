@@ -28,7 +28,7 @@ class CloseMenuController: UIViewController {
                         
                         rootController?.toggleMenu({ (bool) in
                             
-                            print("menu closed")
+                            print("menu closed", terminator: "")
                             
                         })
                     }
@@ -38,7 +38,7 @@ class CloseMenuController: UIViewController {
                 
                 rootController?.toggleNotifications({ (bool) in
                     
-                    print("notifications toggled")
+                    print("notifications toggled", terminator: "")
                     
                 })
             }

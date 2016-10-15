@@ -249,22 +249,6 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "NearbyController.swift"
-            timestampString = "498150011.772934"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "182"
-            endingLineNumber = "182"
-            landmarkName = "queryNearby(_:)"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
             filePath = "ProfileCoverCollectionCell.swift"
             timestampString = "498254993.719578"
             startingColumnNumber = "9223372036854775807"
@@ -273,70 +257,6 @@
             endingLineNumber = "114"
             landmarkName = "report(_:)"
             landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "NearbyController.swift"
-            timestampString = "498150104.748693"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "187"
-            endingLineNumber = "187"
-            landmarkName = "queryNearby(_:)"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "NearbyController.swift"
-            timestampString = "498150108.492812"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "191"
-            endingLineNumber = "191"
-            landmarkName = "queryNearby(_:)"
-            landmarkType = "5">
-            <Locations>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "CityScape.NearbyController.(queryNearby (__ObjC.CLLocation) -&gt; ()).(closure #1)"
-                  moduleName = "CityScape"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/cmehrvar/Desktop/CityScape/NearbyController.swift"
-                  timestampString = "498257141.585294"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "191"
-                  endingLineNumber = "191"
-                  offsetFromSymbolStart = "57">
-               </Location>
-               <Location
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "CityScape.NearbyController.(queryNearby (__ObjC.CLLocation) -&gt; ()).(closure #1)"
-                  moduleName = "CityScape"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/cmehrvar/Desktop/CityScape/NearbyController.swift"
-                  timestampString = "498257141.585422"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "191"
-                  endingLineNumber = "191"
-                  offsetFromSymbolStart = "505">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -361,44 +281,188 @@
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "InitialController.swift"
-            timestampString = "498257103.246342"
+            filePath = "LogInController.swift"
+            timestampString = "498264158.696415"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "21"
-            endingLineNumber = "21"
-            landmarkName = "viewDidLoad()"
+            startingLineNumber = "69"
+            endingLineNumber = "69"
+            landmarkName = "facebookSignIn(_:)"
             landmarkType = "5">
             <Locations>
                <Location
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "CityScape.InitialController.viewDidLoad () -&gt; ()"
+                  symbolName = "CityScape.LogInController.(facebookSignIn (Swift.AnyObject) -&gt; ()).(closure #2).(closure #1)"
                   moduleName = "CityScape"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/cmehrvar/Desktop/CityScape/InitialController.swift"
-                  timestampString = "498257141.586622"
+                  urlString = "file:///Users/cmehrvar/Desktop/CityScape/LogInController.swift"
+                  timestampString = "498264601.704063"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "21"
-                  endingLineNumber = "21"
-                  offsetFromSymbolStart = "78">
+                  startingLineNumber = "69"
+                  endingLineNumber = "69"
+                  offsetFromSymbolStart = "36">
                </Location>
                <Location
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "CityScape.InitialController.(viewDidLoad () -&gt; ()).(closure #1)"
+                  symbolName = "CityScape.LogInController.(facebookSignIn (Swift.AnyObject) -&gt; ()).(closure #2).(closure #1).(closure #1)"
                   moduleName = "CityScape"
                   usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/cmehrvar/Desktop/CityScape/InitialController.swift"
-                  timestampString = "498257141.586745"
+                  urlString = "file:///Users/cmehrvar/Desktop/CityScape/LogInController.swift"
+                  timestampString = "498264601.704189"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "23"
-                  endingLineNumber = "23"
-                  offsetFromSymbolStart = "23">
+                  startingLineNumber = "71"
+                  endingLineNumber = "71"
+                  offsetFromSymbolStart = "28">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "LogInController.swift"
+            timestampString = "498264165.531378"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "71"
+            endingLineNumber = "71"
+            landmarkName = "facebookSignIn(_:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "LogInController.swift"
+            timestampString = "498264177.050322"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "82"
+            endingLineNumber = "82"
+            landmarkName = "facebookSignIn(_:)"
+            landmarkType = "5">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "CityScape.LogInController.(facebookSignIn (Swift.AnyObject) -&gt; ()).(closure #2).(closure #1).(closure #1)"
+                  moduleName = "CityScape"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cmehrvar/Desktop/CityScape/LogInController.swift"
+                  timestampString = "498264601.705942"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "82"
+                  endingLineNumber = "82"
+                  offsetFromSymbolStart = "1292">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "CityScape.LogInController.(facebookSignIn (Swift.AnyObject) -&gt; ()).(closure #2).(closure #1).(closure #1).(closure #2)"
+                  moduleName = "CityScape"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cmehrvar/Desktop/CityScape/LogInController.swift"
+                  timestampString = "498264601.706115"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "84"
+                  endingLineNumber = "84"
+                  offsetFromSymbolStart = "32">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "LogInController.swift"
+            timestampString = "498264182.654573"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "84"
+            endingLineNumber = "84"
+            landmarkName = "facebookSignIn(_:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "LogInController.swift"
+            timestampString = "498264199.484304"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "90"
+            endingLineNumber = "90"
+            landmarkName = "facebookSignIn(_:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "LogInController.swift"
+            timestampString = "498264284.154516"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "88"
+            endingLineNumber = "88"
+            landmarkName = "facebookSignIn(_:)"
+            landmarkType = "5">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "CityScape.LogInController.(facebookSignIn (Swift.AnyObject) -&gt; ()).(closure #2).(closure #1).(closure #1).(closure #2)"
+                  moduleName = "CityScape"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cmehrvar/Desktop/CityScape/LogInController.swift"
+                  timestampString = "498264601.708533"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "88"
+                  endingLineNumber = "88"
+                  offsetFromSymbolStart = "380">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "CityScape.LogInController.(facebookSignIn (Swift.AnyObject) -&gt; ()).(closure #2).(closure #1).(closure #1).(closure #2).(closure #1)"
+                  moduleName = "CityScape"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cmehrvar/Desktop/CityScape/LogInController.swift"
+                  timestampString = "498264601.708675"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "90"
+                  endingLineNumber = "90"
+                  offsetFromSymbolStart = "44">
                </Location>
             </Locations>
          </BreakpointContent>

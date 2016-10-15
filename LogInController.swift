@@ -306,6 +306,32 @@ class LogInController: UIViewController {
         
         ref.child(key).child(credential).observeSingleEventOfType(.Value, withBlock:  { (snapshot) in
             
+            if snapshot.exists() {
+                
+                if let value = snapshot.value as? [NSObject : AnyObject] {
+                    
+                    if value["uid"] == nil {
+                        
+                        completion(taken: false)
+                        
+                    } else {
+                        
+                        completion(taken: true)
+                        
+                    }
+                    
+                } else {
+                    
+                    completion(taken: false)
+ 
+                }
+
+            } else {
+                
+                completion(taken: false)
+                
+            }
+            
             completion(taken: snapshot.exists())
             
         })

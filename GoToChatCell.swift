@@ -31,7 +31,7 @@ class GoToChatCell: UICollectionViewCell {
         
         vibesController?.rootController?.toggleChat("posts", key: postKey, city: city, firstName: nil, lastName: nil, profile: nil, completion: { (bool) in
             
-            print("chat toggled")
+            print("chat toggled", terminator: "")
             
         })
     }
@@ -60,7 +60,7 @@ class GoToChatCell: UICollectionViewCell {
         
         alertController.addAction(NYAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
             
-            print("cancel")
+            print("cancel", terminator: "")
             
             self.vibesController?.dismissViewControllerAnimated(true, completion: nil)
             
@@ -69,7 +69,7 @@ class GoToChatCell: UICollectionViewCell {
         
         alertController.addAction(NYAlertAction(title: "Report", style: .Default, handler: { (action) in
             
-            print("report user")
+            print("report user", terminator: "")
 
             self.vibesController?.dismissViewControllerAnimated(true, completion: {
                 
@@ -121,7 +121,7 @@ class GoToChatCell: UICollectionViewCell {
         
         vibesController?.presentViewController(alertController, animated: true, completion: {
             
-            print("presented")
+            print("presented", terminator: "")
             
         })
     }

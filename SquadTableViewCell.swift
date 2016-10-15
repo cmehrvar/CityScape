@@ -101,18 +101,18 @@ class SquadTableViewCell: UITableViewCell {
         if currentSquadInstance == "inSquad" {
             
             //Delete Squad?
-            print("toggle messages")
+            print("toggle messages", terminator: "")
             
             self.squadCountController?.rootController?.toggleChat("squad", key: scopeUID, city: nil, firstName: scopeFirstName, lastName: scopeLastName, profile: profile, completion: { (bool) in
                 
-                print("chat toggled")
+                print("chat toggled", terminator: "")
                 
             })
 
         } else if currentSquadInstance == "sentSquad" {
             
             //Cancel send?
-            print("cancel send?")
+            print("cancel send?", terminator: "")
             
             let alertController = UIAlertController(title: "Unsend squad request to \(firstName + " " + lastName)", message: nil, preferredStyle: .ActionSheet)
             
@@ -158,7 +158,7 @@ class SquadTableViewCell: UITableViewCell {
         } else if currentSquadInstance == "confirmSquad" {
             
             //Confrim or Deny
-            print("confirm or deny")
+            print("confirm or deny", terminator: "")
             
             let alertController = UIAlertController(title: "Confirm \(firstName + " " + lastName) to your squad?", message: nil, preferredStyle: .ActionSheet)
             
@@ -242,8 +242,8 @@ class SquadTableViewCell: UITableViewCell {
         } else {
             
             //Send a request
-            print(currentSquadInstance)
-            print("send a request")
+            print(currentSquadInstance, terminator: "")
+            print("send a request", terminator: "")
             
             let alertController = UIAlertController(title: "Add \(firstName + " " + lastName) to your squad!", message: nil, preferredStyle: .ActionSheet)
             
@@ -317,7 +317,7 @@ class SquadTableViewCell: UITableViewCell {
         
         squadCountController?.rootController?.toggleProfile(uid, selfProfile: selfProfile, completion: { (bool) in
             
-            print("profile toggled")
+            print("profile toggled", terminator: "")
             
         })
     }

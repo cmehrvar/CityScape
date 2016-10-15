@@ -64,7 +64,7 @@ class CityCollectionCell: UICollectionViewCell {
                 
                 imageOutlet.sd_setImageWithURL(imageUrl, completed: { (image, error, cache, url) in
                     
-                    print("image loaded")
+                    print("image loaded", terminator: "")
                     
                 })
             }

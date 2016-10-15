@@ -37,7 +37,7 @@ class PostUpdateCell: UITableViewCell {
                 
                 notificationController?.rootController?.toggleSnapchat(postArray, startingi: 0, completion: { (bool) in
                     
-                    print("snapchat toggled")
+                    print("snapchat toggled", terminator: "")
                     
                 })
             }

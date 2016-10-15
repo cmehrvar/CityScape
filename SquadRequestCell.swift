@@ -40,7 +40,7 @@ class SquadRequestCell: UITableViewCell {
 
             self.notificationController?.rootController?.toggleProfile(scopeUID, selfProfile: false, completion: { (bool) in
                 
-                print("profile toggled")
+                print("profile toggled", terminator: "")
                 
             })
         })
@@ -89,7 +89,7 @@ class SquadRequestCell: UITableViewCell {
         
         if inSquad {
             
-            print("toggle messages")
+            print("toggle messages", terminator: "")
             
             let scopeFirstname = firstName
             let scopeLastname = lastName
@@ -100,7 +100,7 @@ class SquadRequestCell: UITableViewCell {
                 
                 self.notificationController?.rootController?.toggleChat("squad", key: scopeUID, city: nil, firstName: scopeFirstname, lastName: scopeLastname, profile: scopeProfile, completion: { (bool) in
                     
-                    print("chat toggled")
+                    print("chat toggled", terminator: "")
                     
                 })
             })

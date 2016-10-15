@@ -101,7 +101,7 @@ class TopGroupChatCollectionCell: UICollectionViewCell {
                 
                 self.topChatController?.rootController?.toggleProfile(scopeUID, selfProfile: false, completion: { (bool) in
                     
-                    print("profile toggled")
+                    print("profile toggled", terminator: "")
                     
                 })
             })
@@ -109,13 +109,13 @@ class TopGroupChatCollectionCell: UICollectionViewCell {
 
         alertController.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
             
-            print("canceled")
+            print("canceled", terminator: "")
             
         }))
         
         topChatController?.presentViewController(alertController, animated: true, completion: {
             
-            print("controller presented")
+            print("controller presented", terminator: "")
             
         })
     }

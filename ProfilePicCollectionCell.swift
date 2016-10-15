@@ -56,7 +56,7 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
     //Actions
     @IBAction func edit(sender: AnyObject) {
         
-        print("currentPicture: \(currentPicture)")
+        print("currentPicture: \(currentPicture)", terminator: "")
         
         if currentPicture == 1 {
             
@@ -87,9 +87,9 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
     //Functions
     func swipeLeft(){
         
-        print("current picture: \(currentPicture)")
-        print("total pictures: \(pictures)")
-        print("swipe left")
+        print("current picture: \(currentPicture)", terminator: "")
+        print("total pictures: \(pictures)", terminator: "")
+        print("swipe left", terminator: "")
         
         var scopePictures = pictures
         
@@ -201,9 +201,9 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
     
     func swipeRight(){
         
-        print("current picture: \(currentPicture)")
-        print("total pictures: \(pictures)")
-        print("swipe right")
+        print("current picture: \(currentPicture)", terminator: "")
+        print("total pictures: \(pictures)", terminator: "")
+        print("swipe right", terminator: "")
         
         var scopePictures = pictures
         
@@ -312,7 +312,7 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
             }
         }
         
-        print("right swipe")
+        print("right swipe", terminator: "")
         
     }
     

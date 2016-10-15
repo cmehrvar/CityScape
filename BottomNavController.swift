@@ -28,7 +28,7 @@ class BottomNavController: UIViewController {
         
        rootController?.toggleNearby({ (bool) in
         
-            print("nearby toggled")
+            print("nearby toggled", terminator: "")
         
        })
     }
@@ -37,7 +37,7 @@ class BottomNavController: UIViewController {
         
         rootController?.toggleVibes({ (bool) in
             
-            print("vibes toggled")
+            print("vibes toggled", terminator: "")
             
         })
     }
@@ -46,7 +46,7 @@ class BottomNavController: UIViewController {
     
         rootController?.toggleMessages({ (bool) in
             
-            print("messages toggled")
+            print("messages toggled", terminator: "")
             
         })
     }
@@ -71,7 +71,7 @@ class BottomNavController: UIViewController {
         
         rootController?.toggleNearby({ (bool) in
             
-            print("nearby toggled")
+            print("nearby toggled", terminator: "")
             
         })
 
@@ -81,7 +81,7 @@ class BottomNavController: UIViewController {
         
         rootController?.toggleVibes({ (bool) in
         
-            print("vibes toggled")
+            print("vibes toggled", terminator: "")
             
         })
         
@@ -91,7 +91,7 @@ class BottomNavController: UIViewController {
         
         rootController?.toggleMessages({ (bool) in
             
-            print("messages toggled")
+            print("messages toggled", terminator: "")
             
         })
         

@@ -21,7 +21,7 @@ class HeaderCollectionCell: UICollectionViewCell {
             
             user.searchController?.rootController?.toggleSnapchat(nil, startingi: nil, completion: { (bool) in
                 
-                print("snapchat toggled")
+                print("snapchat toggled", terminator: "")
                 
             })
 
@@ -29,7 +29,7 @@ class HeaderCollectionCell: UICollectionViewCell {
             
             city.searchController?.rootController?.toggleSnapchat(nil, startingi: nil, completion: { (bool) in
                 
-                print("snapchat toggled")
+                print("snapchat toggled", terminator: "")
                 
             })
         }

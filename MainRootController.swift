@@ -1669,7 +1669,7 @@ class MainRootController: UIViewController {
                         self.searchController?.cityController?.observeCities()
                         
                         if value["interestedIn"] != nil {
-                            
+
                             self.nearbyController?.requestWhenInUseAuthorization()
                             self.nearbyController?.updateLocation()
                             
@@ -1689,6 +1689,45 @@ class MainRootController: UIViewController {
                         self.updateOnline()
                         
                     }
+                    
+                    if let interestedIn = value["interestedIn"] as? [String] {
+                        
+                        if interestedIn.count > 1 {
+                            
+                            self.settingsController?.toggleInterestedInColor(3)
+                            
+                        } else {
+                            
+                            for gender in interestedIn {
+
+                                if gender == "male" {
+                                    
+                                    self.settingsController?.toggleInterestedInColor(1)
+
+                                    
+                                } else if gender == "female" {
+                                    
+                                    self.settingsController?.toggleInterestedInColor(2)
+
+                                    
+                                }
+                            }
+                        }
+                    }
+                    
+                    if let gender = value["gender"] as? String {
+                        
+                        if gender == "male" {
+                            
+                            self.settingsController?.toggleGenderColour(1)
+                            
+                        } else if gender == "female" {
+                            
+                            self.settingsController?.toggleGenderColour(2)
+                            
+                        }
+                    }
+                    
 
                     if let squad = value["squad"] as? [NSObject : AnyObject] {
                         
@@ -1798,9 +1837,12 @@ class MainRootController: UIViewController {
                 ref.child("users").child(uid).updateChildValues(["interestedIn" : ["male"]])
                 self.selfData["interestedIn"] = ["male"]
       
+                self.nearbyController?.checkStatus()
                 self.nearbyController?.requestWhenInUseAuthorization()
                 self.nearbyController?.updateLocation()
-                self.nearbyController?.timer = NSTimer.scheduledTimerWithTimeInterval(30, target: self, selector: #selector(self.nearbyController?.updateLocationToFirebase), userInfo: nil, repeats: true)
+                
+                self.vibesFeedController?.observeCurrentCityPosts()
+                
                 
             }
         }))
@@ -1816,9 +1858,11 @@ class MainRootController: UIViewController {
                 ref.child("users").child(uid).updateChildValues(["interestedIn" : ["female"]])
                 self.selfData["interestedIn"] = ["female"]
                 
+                self.nearbyController?.checkStatus()
                 self.nearbyController?.requestWhenInUseAuthorization()
                 self.nearbyController?.updateLocation()
-                self.nearbyController?.timer = NSTimer.scheduledTimerWithTimeInterval(30, target: self, selector: #selector(self.nearbyController?.updateLocationToFirebase), userInfo: nil, repeats: true)
+                
+                self.vibesFeedController?.observeCurrentCityPosts()
                 
             }
         }))
@@ -1835,9 +1879,11 @@ class MainRootController: UIViewController {
                 ref.child("users").child(uid).updateChildValues(["interestedIn" : ["male", "female"]])
                 self.selfData["interestedIn"] = ["male", "female"]
                 
+                self.nearbyController?.checkStatus()
                 self.nearbyController?.requestWhenInUseAuthorization()
                 self.nearbyController?.updateLocation()
-                self.nearbyController?.timer = NSTimer.scheduledTimerWithTimeInterval(30, target: self, selector: #selector(self.nearbyController?.updateLocationToFirebase), userInfo: nil, repeats: true)
+                
+                self.vibesFeedController?.observeCurrentCityPosts()
                 
             }
         }))

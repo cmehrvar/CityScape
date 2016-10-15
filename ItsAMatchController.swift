@@ -36,7 +36,7 @@ class ItsAMatchController: UIViewController {
         rootController?.closeMatch(uid, profile: profileString, firstName: firstName, lastName: lastName, keepPlaying: false, completion: { (bool) in
 
             
-            print("go to send message")
+            print("go to send message", terminator: "")
             
         })
     }
@@ -46,7 +46,7 @@ class ItsAMatchController: UIViewController {
         
         rootController?.closeMatch(uid, profile: profileString, firstName: firstName, lastName: lastName, keepPlaying: true, completion: { (bool) in
             
-            print("keep playing")
+            print("keep playing", terminator: "")
             
         })
     }

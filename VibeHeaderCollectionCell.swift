@@ -40,11 +40,11 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
         if currentSquadInstance == "inSquad" {
             
             //Delete Squad?
-            print("toggle messages")
+            print("toggle messages", terminator: "")
 
             self.vibesController?.rootController?.toggleChat("squad", key: uid, city: nil, firstName: firstName, lastName: lastName, profile: profilePic, completion: { (bool) in
                 
-                print("chat toggled")
+                print("chat toggled", terminator: "")
                 
                 
             })
@@ -52,7 +52,7 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
         } else if currentSquadInstance == "sentSquad" {
             
             //Cancel send?
-            print("cancel send?")
+            print("cancel send?", terminator: "")
             
             let alertController = UIAlertController(title: "Unsend squad request to \(firstName + " " + lastName)", message: nil, preferredStyle: .ActionSheet)
             
@@ -89,7 +89,7 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
         } else if currentSquadInstance == "confirmSquad" {
             
             //Confrim or Deny
-            print("confirm or deny")
+            print("confirm or deny", terminator: "")
             
             let alertController = UIAlertController(title: "Confirm \(firstName + " " + lastName) to your squad?", message: nil, preferredStyle: .ActionSheet)
             
@@ -167,7 +167,7 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
         } else {
             
             //Send a request
-            print("send a request")
+            print("send a request", terminator: "")
             
             let alertController = UIAlertController(title: "Add \(firstName + " " + lastName) to your squad!", message: nil, preferredStyle: .ActionSheet)
             

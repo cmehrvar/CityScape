@@ -16,7 +16,7 @@ class ContactUsController: UIViewController {
         
         rootController?.toggleContactUs({ (bool) in
             
-            print("contact us toggled")
+            print("contact us toggled", terminator: "")
             
         })
         

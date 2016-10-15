@@ -70,7 +70,7 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
         
         alertController.addAction(NYAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
             
-            print("cancel")
+            print("cancel", terminator: "")
             
             self.profileController?.dismissViewControllerAnimated(true, completion: nil)
             
@@ -79,7 +79,7 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
         
         alertController.addAction(NYAlertAction(title: "Report", style: .Default, handler: { (action) in
             
-            print("report user")
+            print("report user", terminator: "")
 
             self.profileController?.dismissViewControllerAnimated(true, completion: {
                 
@@ -135,7 +135,7 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
         
         profileController?.presentViewController(alertController, animated: true, completion: {
             
-            print("presented")
+            print("presented", terminator: "")
             
         })
     }
@@ -187,7 +187,7 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
         
         self.profileController?.presentViewController(alertController, animated: true, completion: {
             
-            print("alert controller presented")
+            print("alert controller presented", terminator: "")
             
         })
     }
@@ -379,7 +379,7 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
     
     //Actions
     @IBAction func squadRequest(sender: AnyObject) {
-        print("squad request")
+        print("squad request", terminator: "")
         
         let scopeUserData = data
         let scopeFirstName = firstName
@@ -389,7 +389,7 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
         if currentInstance == "inSquad" {
             
             //Delete Squad?
-            print("delete squad?")
+            print("delete squad?", terminator: "")
   
             let alertController = UIAlertController(title: "Delete \(firstName + " " + lastName) from your squad?", message: nil, preferredStyle: .ActionSheet)
             
@@ -432,7 +432,7 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
         } else if currentInstance == "sentSquad" {
                 
                 //Cancel send?
-                print("cancel send?")
+                print("cancel send?", terminator: "")
                 
                 let alertController = UIAlertController(title: "Unsend squad request to \(firstName + " " + lastName)", message: nil, preferredStyle: .ActionSheet)
                 
@@ -464,7 +464,7 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
             } else if currentInstance == "confirmSquad" {
                 
                 //Confrim or Deny
-                print("confirm or deny")
+                print("confirm or deny", terminator: "")
 
                 let alertController = UIAlertController(title: "Confirm \(firstName + " " + lastName) to your squad?", message: nil, preferredStyle: .ActionSheet)
                 
@@ -535,7 +535,7 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
             } else {
                 
                 //Send a request
-                print("send a request")
+                print("send a request", terminator: "")
                 
                 let alertController = UIAlertController(title: "Add \(firstName + " " + lastName) to your squad!", message: nil, preferredStyle: .ActionSheet)
                 
@@ -593,13 +593,13 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
     
     
     @IBAction func message(sender: AnyObject) {
-        print("send message")
+        print("send message", terminator: "")
         
         let profile = profileController?.profile1
         
         self.profileController?.rootController?.toggleChat("squad", key: uid, city: nil, firstName: firstName, lastName: lastName, profile: profile, completion: { (bool) in
             
-            print("chat toggled")
+            print("chat toggled", terminator: "")
 
         })
     }

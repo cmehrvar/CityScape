@@ -174,7 +174,7 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
                 
                 searchController?.rootController?.hideAllNav({ (bool) in
                     
-                    print("all nav hided")
+                    print("all nav hided", terminator: "")
                     
                 })
             }
@@ -185,7 +185,7 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
             
             searchController?.rootController?.showNav(0.3, completion: { (bool) in
                 
-                print("nav shown")
+                print("nav shown", terminator: "")
                 
             })
         }

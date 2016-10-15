@@ -27,11 +27,11 @@ class RequestTableViewCell: UITableViewCell {
         
         requestController?.rootController?.toggleProfile(uid, selfProfile: false, completion: { (bool) in
             
-            print("profile toggled")
+            print("profile toggled", terminator: "")
             
             self.requestController?.rootController?.toggleHome({ (bool) in
                 
-                print("home toggled")
+                print("home toggled", terminator: "")
                 
             })
         })

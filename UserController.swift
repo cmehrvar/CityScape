@@ -174,7 +174,7 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
                 
                 searchController?.rootController?.hideAllNav({ (bool) in
                     
-                    print("all nav hided")
+                    print("all nav hided", terminator: "")
                     
                 })
             }
@@ -183,7 +183,7 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
             
             searchController?.rootController?.showNav(0.3, completion: { (bool) in
                 
-                print("nav shown")
+                print("nav shown", terminator: "")
                 
             })
         }

@@ -1014,6 +1014,7 @@
 		A353F0C01D1224BC009A2182 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftMigration = 0730;
 				LastSwiftUpdateCheck = 0730;
 				LastUpgradeCheck = 0720;
 				ORGANIZATIONNAME = "Cina Mehrvar";

@@ -141,6 +141,14 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
                             
                             userRef.updateChildValues(["city" : city])
                             
+                            if self.rootController?.bottomNavController?.vibesOutlet.text == nil || self.rootController?.bottomNavController?.vibesOutlet.text == "" {
+                                
+                                self.rootController?.vibesFeedController?.currentCity = city
+                                self.rootController?.vibesFeedController?.observeCurrentCityPosts()
+                                
+                            }
+                            
+                            
                         }
                         
                         if let state = place.administrativeArea {
@@ -307,14 +315,13 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
         if status == CLAuthorizationStatus.Denied || status == CLAuthorizationStatus.NotDetermined {
             print("denied or not determined")
 
-        } else if status == CLAuthorizationStatus.AuthorizedWhenInUse{
+        } else if status == CLAuthorizationStatus.AuthorizedWhenInUse {
             print("enabled")
             
             updateLocation()
     
             self.timer = NSTimer.scheduledTimerWithTimeInterval(60, target: self, selector: #selector(updateLocationToFirebase), userInfo: nil, repeats: true)
-            
-                    }
+        }
     }
     
     

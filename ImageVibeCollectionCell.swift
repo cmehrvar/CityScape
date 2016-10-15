@@ -47,16 +47,16 @@ class ImageVibeCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegate
             
         case .Began:
             
-            print("began")
+            print("began", terminator: "")
             
         case .Changed:
             
-            print("scale: \(sender.scale)")
-            print("velocity: \(sender.velocity)")
+            print("scale: \(sender.scale)", terminator: "")
+            print("velocity: \(sender.velocity)", terminator: "")
    
         case .Ended:
             
-            print("ended")
+            print("ended", terminator: "")
             
         default:
             break

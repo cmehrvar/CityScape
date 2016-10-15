@@ -40,15 +40,15 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
     //Actions
     @IBAction func matchRequest(sender: AnyObject) {
         
-        print("match request sent")
+        print("match request sent", terminator: "")
         
         if yourAMatch {
             
-            print("toggle messaged")
+            print("toggle messaged", terminator: "")
             
             nearbyController?.rootController?.toggleChat("matches", key: uid, city: nil, firstName: firstName, lastName: lastName, profile: profilePic, completion: { (bool) in
                 
-                print("chat toggled")
+                print("chat toggled", terminator: "")
                 
             })
             
@@ -109,7 +109,7 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
         
         nearbyController?.rootController?.toggleProfile(uid, selfProfile: false, completion: { (bool) in
             
-            print("profile toggled")
+            print("profile toggled", terminator: "")
             
         })
         
@@ -127,7 +127,7 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
             
         }
         
-        print("cell dismissed")
+        print("cell dismissed", terminator: "")
     }
     
     
