@@ -33,24 +33,10 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
     var transitioning = false
     var currentCityLoaded = false
     
-    //Outlets
-    @IBOutlet weak var settingsView: UIView!
-    @IBOutlet weak var horizontalSettingsButtonConstOutlet: NSLayoutConstraint!
+    //Outlets 
     @IBOutlet weak var globCollectionView: UICollectionView!
     @IBOutlet weak var noNearbyOutlet: UIImageView!
-    
-    
-    //Actions
-    @IBAction func goToLocationServices(sender: AnyObject) {
-        
-        if let actualSettingsURL = NSURL(string: UIApplicationOpenSettingsURLString){
-            
-            UIApplication.sharedApplication().openURL(actualSettingsURL)
-            
-        }
-    }
-    
-    
+
     //Collection View Delegates
     func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
         
@@ -203,50 +189,102 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
             circleQuery.observeEventType(.KeyEntered) { (key, location) in
    
                 if let selfUID = FIRAuth.auth()?.currentUser?.uid {
-                    
+
                     if key != selfUID {
-      
-                        var add = true
                         
-                        if self.dismissedCells[key] != nil {
-                            
-                            add = false
-                            
-                        } else if self.addedCells[key] != nil {
-                            
-                            add = false
-                            
-                        }
-                        
-                        if add {
-                            
-                            self.addedCells[key] = true
-   
-                            let userRef = FIRDatabase.database().reference().child("users").child(key)
-                            
-                            userRef.child("gender").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                        if let myReported = self.rootController?.selfData["reportedUsers"] as? [String : Bool] {
+
+                            if myReported[key] == nil {
                                 
-                                var isInterested = false
+                                var add = true
                                 
-                                if let interestedIn = self.rootController?.selfData["interestedIn"] as? [String], userGender = snapshot.value as? String {
+                                if self.dismissedCells[key] != nil {
                                     
-                                    for interest in interestedIn {
+                                    add = false
+                                    
+                                } else if self.addedCells[key] != nil {
+                                    
+                                    add = false
+                                    
+                                }
+                                
+                                if add {
+                                    
+                                    self.addedCells[key] = true
+                                    
+                                    let userRef = FIRDatabase.database().reference().child("users").child(key)
+                                    
+                                    userRef.child("gender").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
                                         
-                                        if interest == userGender {
+                                        var isInterested = false
+                                        
+                                        if let interestedIn = self.rootController?.selfData["interestedIn"] as? [String], userGender = snapshot.value as? String {
                                             
-                                            isInterested = true
+                                            for interest in interestedIn {
+                                                
+                                                if interest == userGender {
+                                                    
+                                                    isInterested = true
+                                                    
+                                                }
+                                            }
+                                            
+                                            if isInterested {
+                                                
+                                                self.nearbyUsers.append(key)
+                                                self.globCollectionView.reloadData()
+                                                
+                                            }
+                                        }
+                                    })
+                                }
+                            }
+                            
+                        } else {
+                            
+                            var add = true
+                            
+                            if self.dismissedCells[key] != nil {
+                                
+                                add = false
+                                
+                            } else if self.addedCells[key] != nil {
+                                
+                                add = false
+                                
+                            }
+                            
+                            if add {
+                                
+                                self.addedCells[key] = true
+                                
+                                let userRef = FIRDatabase.database().reference().child("users").child(key)
+                                
+                                userRef.child("gender").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                                    
+                                    var isInterested = false
+                                    
+                                    if let interestedIn = self.rootController?.selfData["interestedIn"] as? [String], userGender = snapshot.value as? String {
+                                        
+                                        for interest in interestedIn {
+                                            
+                                            if interest == userGender {
+                                                
+                                                isInterested = true
+                                                
+                                            }
+                                        }
+                                        
+                                        if isInterested {
+                                            
+                                            self.nearbyUsers.append(key)
+                                            self.globCollectionView.reloadData()
                                             
                                         }
                                     }
-                                    
-                                    if isInterested {
+                                })
+                            }
 
-                                        self.nearbyUsers.append(key)
-                                        self.globCollectionView.reloadData()
-                                        
-                                    }
-                                }
-                            })
                         }
                     }
                 }
@@ -268,26 +306,15 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
         
         if status == CLAuthorizationStatus.Denied || status == CLAuthorizationStatus.NotDetermined {
             print("denied or not determined")
-            
-            UIView.animateWithDuration(0.3, animations: {
-                self.settingsView.alpha = 1
-                self.view.layoutIfNeeded()
-            })
-            
+
         } else if status == CLAuthorizationStatus.AuthorizedWhenInUse{
             print("enabled")
             
             updateLocation()
-            
-            
+    
             self.timer = NSTimer.scheduledTimerWithTimeInterval(60, target: self, selector: #selector(updateLocationToFirebase), userInfo: nil, repeats: true)
             
-            
-            UIView.animateWithDuration(0.3, animations: {
-                self.settingsView.alpha = 0
-                self.view.layoutIfNeeded()
-            })
-        }
+                    }
     }
     
     
@@ -303,10 +330,6 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
             let alertController = UIAlertController(title: title, message: message, preferredStyle: .Alert)
             alertController.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (alert) in
                 
-                UIView.animateWithDuration(0.3, animations: {
-                    self.settingsView.alpha = 1
-                    self.view.layoutIfNeeded()
-                })
                 
             }))
             
@@ -327,14 +350,6 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
         }
     }
     
-    
-    func settingsConstraint(){
-        
-        guard let windowHeight = UIApplication.sharedApplication().keyWindow?.bounds.height else {return}
-        let selfHeight = self.view.bounds.height
-        
-        horizontalSettingsButtonConstOutlet.constant = -((windowHeight - selfHeight)/2)
-    }
     
     func invalidateTimer(){
         
@@ -409,7 +424,7 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
     
     override func viewDidAppear(animated: Bool) {
         
-        settingsConstraint()
+       
         
     }
     

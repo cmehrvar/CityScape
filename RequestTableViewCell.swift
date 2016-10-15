@@ -89,6 +89,17 @@ class RequestTableViewCell: UITableViewCell {
             
             
             let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
+
+            yourRef.child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                
+                if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                    
+                    appDelegate.pushMessage(scopeUID, token: token, message: "\(myFirstName) has sent you a squad request")
+                    
+                    
+                }
+            })
+
             
             let timeInterval = NSDate().timeIntervalSince1970
             

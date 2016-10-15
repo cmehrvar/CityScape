@@ -99,7 +99,6 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
                     
                     let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
 
-
                         dispatch_async(dispatch_get_main_queue(), {
                             
                             ref.child("notifications").child(scopeUID).child("squadRequest").updateChildValues(["status" : "approved"])
@@ -108,10 +107,20 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
                             ref.child("squad").child(scopeUID).setValue(["firstName" : scopeFirstName, "lastName" : scopeLastName, "uid" : scopeUID])
                             
                             let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
-                            
-                            let timeInterval = NSDate().timeIntervalSince1970
+     
+                            yourRef.child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                                
+                                if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                                    
+                                    appDelegate.pushMessage(scopeUID, token: token, message: "\(myFirstName) is now in your squad!")
+                                    
+                                    
+                                }
+                            })
 
                             
+                            
+                            let timeInterval = NSDate().timeIntervalSince1970
                             yourRef.child("notifications").child(selfUID).child("squadRequest").setValue(["firstName" : myFirstName, "lastName" : myLastName, "type" : "addedYou", "timeStamp" : timeInterval, "uid" : selfUID, "read" : false])
                             
                             yourRef.child("squad").child(selfUID).setValue(["firstName" : myFirstName, "lastName" : myLastName, "uid" : selfUID])
@@ -165,7 +174,19 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
             alertController.addAction(UIAlertAction(title: "Send Request", style: .Default, handler: { (action) in
 
                 if let userUID = scopeUserData["userUID"] as? String, selfUID = FIRAuth.auth()?.currentUser?.uid, selfData = self.vibesController?.rootController?.selfData, firstName = selfData["firstName"] as? String, lastName = selfData["lastName"] as? String {
+
+                    let yourRef = FIRDatabase.database().reference().child("users").child(userUID)
                     
+                    yourRef.child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                        
+                        if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                            
+                            appDelegate.pushMessage(userUID, token: token, message: "\(firstName) has sent you a squad request")
+                            
+                            
+                        }
+                    })
+
                     let timeInterval = NSDate().timeIntervalSince1970
                     
                     //0 -> Hasn't responded yet, 1 -> Approved, 2 -> Denied

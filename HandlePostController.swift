@@ -18,11 +18,9 @@ import FirebaseAuth
 class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate {
     
     weak var rootController: MainRootController?
-    
-    var userSelected = [String : Int]()
-    
+
     var squad = [[NSObject : AnyObject]]()
-    var selectedSquad = [[NSObject : AnyObject]]()
+    var selectedSquad = [NSObject : AnyObject]()
     var dataSourceForSearchResult = [[NSObject : AnyObject]]()
     
     var searchBarActive = false
@@ -405,10 +403,8 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
     }
     
     
-    func setToFirebase(imageUrl: String?, caption: String?, FIRVideoURL: String?){
+    func setToFirebase(imageUrl: String?, caption: String?, FIRVideoURL: String?, scopeSelectedSquad: [NSObject:AnyObject]){
 
-        self.clearPlayers()
-        
         if let userData = self.rootController?.selfData, selfUID = FIRAuth.auth()?.currentUser?.uid {
             
             let currentDate = NSDate().timeIntervalSince1970
@@ -458,77 +454,96 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
                         
                     }
                     
-                    if selectedSquad.count > 0 {
+                    if scopeSelectedSquad.count > 0 {
                         
-                        for member in selectedSquad {
+                        for (_, value) in scopeSelectedSquad {
                             
-                            if let uid = member["uid"] as? String {
+                            if let member = value as? [NSObject : AnyObject] {
                                 
-                                var messageItem: [NSObject : AnyObject] = [
+                                if let uid = member["uid"] as? String {
+                                    ref.child("users").child(uid).child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                                        
+                                        if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                                            
+                                            if FIRVideoURL != nil {
+                                                
+                                                appDelegate.pushMessage(uid, token: token, message: "\(firstName) \(lastName): Sent a video!")
+                                                
+                                            } else if imageUrl != nil {
+                                                
+                                                appDelegate.pushMessage(uid, token: token, message: "\(firstName) \(lastName): Sent a photo!")
+                                                
+                                                
+                                            }
+                                        }
+                                    })
                                     
-                                    "senderId" : selfUID,
-                                    "timeStamp" : currentDate,
-                                    "senderDisplayName" : firstName + " " + lastName,
+                                    var messageItem: [NSObject : AnyObject] = [
+                                        
+                                        "senderId" : selfUID,
+                                        "timeStamp" : currentDate,
+                                        "senderDisplayName" : firstName + " " + lastName,
+                                        
+                                        "isMedia" : true,
+                                        
+                                        "userUID" : uid
+                                        
+                                    ]
                                     
-                                    "isMedia" : true,
+                                    var notificationItem = [NSObject : AnyObject]()
                                     
-                                    "userUID" : uid
+                                    if let url = FIRVideoURL {
+                                        
+                                        notificationItem["text"] = "Sent Video!"
+                                        
+                                        let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".mov")
+                                        
+                                        messageItem["media"] = url
+                                        messageItem["key"] = fileName
+                                        messageItem["text"] = "Sent a video!"
+                                        messageItem["isImage"] = false
+                                        
+                                    } else if let url = imageUrl {
+                                        
+                                        notificationItem["text"] = "Sent Photo!"
+                                        
+                                        let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".jpeg")
+                                        
+                                        messageItem["media"] = url
+                                        messageItem["key"] = fileName
+                                        messageItem["text"] = "Sent a photo!"
+                                        messageItem["isImage"] = true
+                                        
+                                    }
                                     
-                                ]
-                                
-                                var notificationItem = [NSObject : AnyObject]()
-                                
-                                if let url = FIRVideoURL {
+                                    if let firstName = self.rootController?.selfData["firstName"] as? String, lastName = self.rootController?.selfData["lastName"] as? String {
+                                        
+                                        notificationItem["firstName"] = firstName
+                                        notificationItem["lastName"] = lastName
+                                        
+                                        messageItem["firstName"] = firstName
+                                        messageItem["lastName"] = lastName
+                                        
+                                    }
                                     
-                                    notificationItem["text"] = "Sent Video!"
+                                    notificationItem["read"] = false
+                                    notificationItem["timeStamp"] = currentDate
+                                    notificationItem["type"] = "squad"
+                                    notificationItem["uid"]  = selfUID
                                     
-                                    let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".mov")
+                                    let ref = FIRDatabase.database().reference()
                                     
-                                    messageItem["media"] = url
-                                    messageItem["key"] = fileName
-                                    messageItem["text"] = "Sent a video!"
-                                    messageItem["isImage"] = false
+                                    ref.child("users").child(selfUID).child("squad").child(uid).child("messages").childByAutoId().setValue(messageItem)
+                                    ref.child("users").child(selfUID).child("squad").child(uid).child("read").setValue(false)
+                                    ref.child("users").child(selfUID).child("squad").child(uid).child("lastActivity").setValue(currentDate)
                                     
-                                } else if let url = imageUrl {
+                                    ref.child("users").child(uid).child("squad").child(selfUID).child("lastActivity").setValue(currentDate)
+                                    ref.child("users").child(uid).child("squad").child(selfUID).child("messages").childByAutoId().setValue(messageItem)
+                                    ref.child("users").child(uid).child("squad").child(selfUID).child("read").setValue(false)
                                     
-                                    notificationItem["text"] = "Sent Photo!"
+                                    ref.child("users").child(uid).child("notifications").child(selfUID).child("squad").setValue(notificationItem)
                                     
-                                    let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".jpeg")
-                                    
-                                    messageItem["media"] = url
-                                    messageItem["key"] = fileName
-                                    messageItem["text"] = "Sent a photo!"
-                                    messageItem["isImage"] = true
-                                    
-                                }
-                                
-                                if let firstName = self.rootController?.selfData["firstName"] as? String, lastName = self.rootController?.selfData["lastName"] as? String {
-                                    
-                                    notificationItem["firstName"] = firstName
-                                    notificationItem["lastName"] = lastName
-                                    
-                                    messageItem["firstName"] = firstName
-                                    messageItem["lastName"] = lastName
-                                    
-                                }
-                                
-                                notificationItem["read"] = false
-                                notificationItem["timeStamp"] = currentDate
-                                notificationItem["type"] = "squad"
-                                notificationItem["uid"]  = selfUID
-                                
-                                let ref = FIRDatabase.database().reference()
-                                
-                                ref.child("users").child(selfUID).child("squad").child(uid).child("messages").childByAutoId().setValue(messageItem)
-                                ref.child("users").child(selfUID).child("squad").child(uid).child("read").setValue(false)
-                                ref.child("users").child(selfUID).child("squad").child(uid).child("lastActivity").setValue(currentDate)
-                                
-                                ref.child("users").child(uid).child("squad").child(selfUID).child("lastActivity").setValue(currentDate)
-                                ref.child("users").child(uid).child("squad").child(selfUID).child("messages").childByAutoId().setValue(messageItem)
-                                ref.child("users").child(uid).child("squad").child(selfUID).child("read").setValue(false)
-                                
-                                ref.child("users").child(uid).child("notifications").child(selfUID).child("squad").setValue(notificationItem)
-                                
+                                }  
                             }
                         }
                     }
@@ -550,6 +565,7 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
     
                         self.rootController?.vibesFeedController?.currentCity = city
                         self.rootController?.vibesFeedController?.observeCurrentCityPosts()
+                        self.clearPlayers()
                         
                         print("vibes toggled")
                         
@@ -561,6 +577,8 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
     
     
     func uploadPost(image: UIImage!, videoURL: NSURL!, isImage: Bool) {
+        
+        let scopeSelectedSquad = selectedSquad
         
         var captionString = ""
         self.view.endEditing(true)
@@ -600,7 +618,7 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
                                     
                                     dispatch_async(dispatch_get_main_queue(), {
                                         
-                                        self.setToFirebase(imageUrl, caption: captionString, FIRVideoURL: FIRVideoURL)
+                                        self.setToFirebase(imageUrl, caption: captionString, FIRVideoURL: FIRVideoURL, scopeSelectedSquad: scopeSelectedSquad)
                                         
                                     })
                                     
@@ -616,7 +634,7 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
                             
                             dispatch_async(dispatch_get_main_queue(), {
                                 
-                                self.setToFirebase(imageUrl, caption: captionString, FIRVideoURL: nil)
+                                self.setToFirebase(imageUrl, caption: captionString, FIRVideoURL: nil, scopeSelectedSquad: scopeSelectedSquad)
                                 
                             })
                         }
@@ -742,8 +760,7 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
         view.endEditing(true)
         NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillHideNotification, object: nil)
         NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillShowNotification, object: nil)
-        
-        userSelected.removeAll()
+
         selectedSquad.removeAll()
         squad.removeAll()
         dataSourceForSearchResult.removeAll()

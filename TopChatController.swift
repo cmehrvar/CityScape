@@ -792,6 +792,9 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
     //Actions
     @IBAction func cancel(sender: AnyObject) {
 
+        //rootController?.chatController.cl
+        rootController?.chatController?.clearPlayers()
+        
         if let layer = playerLayer {
             
             layer.removeFromSuperlayer()

@@ -37,6 +37,8 @@ class MainRootController: UIViewController {
     var composedRevealed = false
     var addToChatRevealed = false
     var leaderboardIsRevealed = false
+    var contactUsRevealed = false
+    var settingsIsRevealed = false
     
     var vibesLoadedFromSelf = false
     
@@ -77,6 +79,12 @@ class MainRootController: UIViewController {
     @IBOutlet weak var addToChatTopConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var leaderboardTopOutlet: NSLayoutConstraint!
     @IBOutlet weak var leaderboardBottomOutlet: NSLayoutConstraint!
+    @IBOutlet weak var contactTopOutlet: NSLayoutConstraint!
+    @IBOutlet weak var contactBottomOutlet: NSLayoutConstraint!
+    
+    @IBOutlet weak var settingsTopConstOutlet: NSLayoutConstraint!
+    @IBOutlet weak var settingsBottomConstOutlet: NSLayoutConstraint!
+    
 
     //views
     @IBOutlet weak var closeMenuContainer: UIView!
@@ -95,7 +103,9 @@ class MainRootController: UIViewController {
     @IBOutlet weak var squadContainerOutlet: UIView!
     @IBOutlet weak var addToChatContainerOutlet: UIView!
     @IBOutlet weak var leaderboardContainerOutlet: UIView!
+    @IBOutlet weak var contactUsContainer: UIView!
     @IBOutlet weak var composeChatOutlet: UIButton!
+    @IBOutlet weak var settingsContainer: UIView!
     
 
     //View Controllers
@@ -120,6 +130,8 @@ class MainRootController: UIViewController {
     weak var composeChatController: ComposeChatController?
     weak var addToChatController: AddToChatController?
     weak var leaderBoardController: LeaderboardController?
+    weak var contactController: ContactUsController?
+    weak var settingsController: SettingsViewController?
 
     @IBAction func composeMessage(sender: AnyObject) {
         
@@ -135,6 +147,61 @@ class MainRootController: UIViewController {
     
     
     //Toggle Functions
+    func toggleSettings(completion: Bool -> ()) {
+        
+        var offset: CGFloat = 0
+        
+        if settingsIsRevealed {
+            
+            offset = self.view.bounds.height
+            
+        }
+        
+        settingsIsRevealed = !settingsIsRevealed
+        
+        UIView.animateWithDuration(0.3, animations: {
+            
+            self.settingsTopConstOutlet.constant = offset
+            self.settingsBottomConstOutlet.constant = -offset
+            
+            self.view.layoutIfNeeded()
+            
+            }) { (bool) in
+                
+                completion(bool)
+                
+        }
+    }
+    
+    
+    
+    func toggleContactUs(completion: Bool -> ()) {
+        
+        var offset: CGFloat = 0
+        
+        if contactUsRevealed {
+            
+            offset = self.view.bounds.height
+            
+        }
+        
+        contactUsRevealed = !contactUsRevealed
+        
+        UIView.animateWithDuration(0.3, animations: {
+            
+            self.contactTopOutlet.constant = offset
+            self.contactBottomOutlet.constant = -offset
+            
+            self.view.layoutIfNeeded()
+            
+            }) { (bool) in
+                
+                completion(bool)
+                
+        }
+    }
+    
+    
     func toggleLeaderboard(completion: Bool -> ()) {
         
         var offset: CGFloat = 0
@@ -817,7 +884,7 @@ class MainRootController: UIViewController {
                     
                 }
 
-                topChatController?.iconOutlet.image = UIImage(named: "sentMatch")
+                topChatController?.iconOutlet.image = UIImage(named: "chatHeartIcon")
                 
                 topChatController?.type = "matches"
                 
@@ -858,7 +925,7 @@ class MainRootController: UIViewController {
                 topChatController?.loadGroup()
                 topChatController?.globCollectionViewOutlet.setContentOffset(CGPointZero, animated: true)
                 
-                topChatHeightConstOutlet.constant = 216
+                topChatHeightConstOutlet.constant = 236
                 topChatController?.singleTitleViewOutlet.alpha = 0
                 topChatController?.groupTopViewOutlet.alpha = 1
                 topChatController?.postTopViewOutlet.alpha = 0
@@ -1730,7 +1797,7 @@ class MainRootController: UIViewController {
                 
                 ref.child("users").child(uid).updateChildValues(["interestedIn" : ["male"]])
                 self.selfData["interestedIn"] = ["male"]
-                
+      
                 self.nearbyController?.requestWhenInUseAuthorization()
                 self.nearbyController?.updateLocation()
                 self.nearbyController?.timer = NSTimer.scheduledTimerWithTimeInterval(30, target: self, selector: #selector(self.nearbyController?.updateLocationToFirebase), userInfo: nil, repeats: true)
@@ -1909,6 +1976,12 @@ class MainRootController: UIViewController {
             
             self.leaderboardTopOutlet.constant = screenHeight
             self.leaderboardBottomOutlet.constant = -screenHeight
+            
+            self.contactTopOutlet.constant = screenHeight
+            self.contactBottomOutlet.constant = -screenHeight
+            
+            self.settingsTopConstOutlet.constant = screenHeight
+            self.settingsBottomConstOutlet.constant = -screenHeight
 
             self.menuWidthConstOutlet.constant = screenWidth * 0.8
             self.leadingMenu.constant = -(screenWidth * 0.8)
@@ -1918,6 +1991,8 @@ class MainRootController: UIViewController {
             
             self.vibesLeading.constant = screenWidth
             self.vibesTrailing.constant = -screenWidth
+            
+            
             
             self.bottomNavController?.toggleColour(1)
             
@@ -1931,6 +2006,8 @@ class MainRootController: UIViewController {
             self.addToChatContainerOutlet.alpha = 1
             self.composeContainerOutlet.alpha = 1
             self.leaderboardContainerOutlet.alpha = 1
+            self.contactUsContainer.alpha = 1
+            self.settingsContainer.alpha = 1
             
             self.snapchatContainerOutlet.alpha = 0
             self.searchContainerOutlet.alpha = 0
@@ -2093,6 +2170,18 @@ class MainRootController: UIViewController {
             let leader = segue.destinationViewController as? LeaderboardController
             leaderBoardController = leader
             leaderBoardController?.rootController = self
+            
+        } else if segue.identifier == "contactSegue" {
+            
+            let contact = segue.destinationViewController as? ContactUsController
+            contactController = contact
+            contactController?.rootController = self
+            
+        } else if segue.identifier == "settingsSegue" {
+            
+            let settings = segue.destinationViewController as? SettingsViewController
+            settingsController = settings
+            settingsController?.rootController = self
             
         }
         

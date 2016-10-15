@@ -71,6 +71,9 @@
 		A393BDAC1D9C715F002DD80E /* AddToChatCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A393BDAB1D9C715F002DD80E /* AddToChatCell.swift */; };
 		A397371E1D57024300E406D7 /* NearbyMatchCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A397371D1D57024300E406D7 /* NearbyMatchCollectionCell.swift */; };
 		A3A31D1B1D9C760000BB0509 /* AddToChatCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3A31D1A1D9C760000BB0509 /* AddToChatCollectionCell.swift */; };
+		A3A5D2411DAEE7A30030E95F /* ContactUsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3A5D2401DAEE7A30030E95F /* ContactUsController.swift */; };
+		A3A5D2431DAEF49E0030E95F /* background.gif in Resources */ = {isa = PBXBuildFile; fileRef = A3A5D2421DAEF49E0030E95F /* background.gif */; };
+		A3A5D2451DAEF9BE0030E95F /* AtlasProduction.p12 in Resources */ = {isa = PBXBuildFile; fileRef = A3A5D2441DAEF9BE0030E95F /* AtlasProduction.p12 */; };
 		A3B7BF7D1DADF62D002C2AAF /* TermsOfServiceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B7BF7C1DADF62D002C2AAF /* TermsOfServiceController.swift */; };
 		A3BB98191D12E67E00BD384F /* TextFields.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BB98181D12E67E00BD384F /* TextFields.swift */; };
 		A3BB981B1D12E89E00BD384F /* ExploreButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BB981A1D12E89E00BD384F /* ExploreButton.swift */; };
@@ -119,14 +122,13 @@
 		A3DA530B1D93384B00FCC91B /* RequestTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3DA530A1D93384A00FCC91B /* RequestTableViewCell.swift */; };
 		A3DA530D1D933F9100FCC91B /* NotificationNumberIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3DA530C1D933F9100FCC91B /* NotificationNumberIndicatorView.swift */; };
 		A3DAAB601D68652600F0A64E /* MenuProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3DAAB5F1D68652600F0A64E /* MenuProfileView.swift */; };
-		A3DB261C1DAC38680088063B /* pusher.p12 in Resources */ = {isa = PBXBuildFile; fileRef = A3DB261B1DAC38680088063B /* pusher.p12 */; };
-		A3DB261E1DAC3A860088063B /* background.gif in Resources */ = {isa = PBXBuildFile; fileRef = A3DB261D1DAC3A860088063B /* background.gif */; };
 		A3DB26201DAC3E040088063B /* PROXIMA NOVA SOFT W03 SEMIBOLD.TTF in Resources */ = {isa = PBXBuildFile; fileRef = A3DB261F1DAC3E040088063B /* PROXIMA NOVA SOFT W03 SEMIBOLD.TTF */; };
 		A3DB26221DAC3E1B0088063B /* PROXIMANOVASOFT-REGULAR.OTF in Resources */ = {isa = PBXBuildFile; fileRef = A3DB26211DAC3E1B0088063B /* PROXIMANOVASOFT-REGULAR.OTF */; };
 		A3DB26251DAC45640088063B /* LeaderboardController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3DB26241DAC45640088063B /* LeaderboardController.swift */; };
 		A3E1388E1D25B57E002A5031 /* MainRootController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E1388D1D25B57E002A5031 /* MainRootController.swift */; };
 		A3E138921D25B5A0002A5031 /* MenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E138911D25B5A0002A5031 /* MenuController.swift */; };
 		A3E138961D25C937002A5031 /* InitialController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E138951D25C937002A5031 /* InitialController.swift */; };
+		A3E5DF491DB2BBA400C72D16 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E5DF481DB2BBA400C72D16 /* SettingsViewController.swift */; };
 		A3E8AF471D8A11ED00C60A08 /* TopChatProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E8AF461D8A11ED00C60A08 /* TopChatProfileView.swift */; };
 		A3E8AF491D8A29C400C60A08 /* CityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E8AF481D8A29C400C60A08 /* CityController.swift */; };
 		A3E8AF4B1D8A29DF00C60A08 /* UserController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E8AF4A1D8A29DF00C60A08 /* UserController.swift */; };
@@ -224,6 +226,9 @@
 		A393BDAB1D9C715F002DD80E /* AddToChatCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddToChatCell.swift; sourceTree = "<group>"; };
 		A397371D1D57024300E406D7 /* NearbyMatchCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NearbyMatchCollectionCell.swift; sourceTree = "<group>"; };
 		A3A31D1A1D9C760000BB0509 /* AddToChatCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddToChatCollectionCell.swift; sourceTree = "<group>"; };
+		A3A5D2401DAEE7A30030E95F /* ContactUsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContactUsController.swift; sourceTree = "<group>"; };
+		A3A5D2421DAEF49E0030E95F /* background.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = background.gif; sourceTree = "<group>"; };
+		A3A5D2441DAEF9BE0030E95F /* AtlasProduction.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; path = AtlasProduction.p12; sourceTree = "<group>"; };
 		A3B7BF7C1DADF62D002C2AAF /* TermsOfServiceController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TermsOfServiceController.swift; sourceTree = "<group>"; };
 		A3BB98181D12E67E00BD384F /* TextFields.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextFields.swift; sourceTree = "<group>"; };
 		A3BB981A1D12E89E00BD384F /* ExploreButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExploreButton.swift; sourceTree = "<group>"; };
@@ -282,14 +287,13 @@
 		A3DA530A1D93384A00FCC91B /* RequestTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RequestTableViewCell.swift; sourceTree = "<group>"; };
 		A3DA530C1D933F9100FCC91B /* NotificationNumberIndicatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationNumberIndicatorView.swift; sourceTree = "<group>"; };
 		A3DAAB5F1D68652600F0A64E /* MenuProfileView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MenuProfileView.swift; sourceTree = "<group>"; };
-		A3DB261B1DAC38680088063B /* pusher.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; path = pusher.p12; sourceTree = "<group>"; };
-		A3DB261D1DAC3A860088063B /* background.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = background.gif; sourceTree = "<group>"; };
 		A3DB261F1DAC3E040088063B /* PROXIMA NOVA SOFT W03 SEMIBOLD.TTF */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PROXIMA NOVA SOFT W03 SEMIBOLD.TTF"; sourceTree = "<group>"; };
 		A3DB26211DAC3E1B0088063B /* PROXIMANOVASOFT-REGULAR.OTF */ = {isa = PBXFileReference; lastKnownFileType = file; path = "PROXIMANOVASOFT-REGULAR.OTF"; sourceTree = "<group>"; };
 		A3DB26241DAC45640088063B /* LeaderboardController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LeaderboardController.swift; sourceTree = "<group>"; };
 		A3E1388D1D25B57E002A5031 /* MainRootController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainRootController.swift; sourceTree = "<group>"; };
 		A3E138911D25B5A0002A5031 /* MenuController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MenuController.swift; sourceTree = "<group>"; };
 		A3E138951D25C937002A5031 /* InitialController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InitialController.swift; sourceTree = "<group>"; };
+		A3E5DF481DB2BBA400C72D16 /* SettingsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		A3E8AF461D8A11ED00C60A08 /* TopChatProfileView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TopChatProfileView.swift; sourceTree = "<group>"; };
 		A3E8AF481D8A29C400C60A08 /* CityController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CityController.swift; sourceTree = "<group>"; };
 		A3E8AF4A1D8A29DF00C60A08 /* UserController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserController.swift; sourceTree = "<group>"; };
@@ -433,7 +437,7 @@
 		A353F0BF1D1224BC009A2182 = {
 			isa = PBXGroup;
 			children = (
-				A3DB261B1DAC38680088063B /* pusher.p12 */,
+				A3A5D2441DAEF9BE0030E95F /* AtlasProduction.p12 */,
 				A3DB261F1DAC3E040088063B /* PROXIMA NOVA SOFT W03 SEMIBOLD.TTF */,
 				A3DB26211DAC3E1B0088063B /* PROXIMANOVASOFT-REGULAR.OTF */,
 				A3FC18931D3412AB0031D165 /* Extensions */,
@@ -495,7 +499,7 @@
 		A353F0FD1D122B52009A2182 /* gifs */ = {
 			isa = PBXGroup;
 			children = (
-				A3DB261D1DAC3A860088063B /* background.gif */,
+				A3A5D2421DAEF49E0030E95F /* background.gif */,
 			);
 			name = gifs;
 			sourceTree = "<group>";
@@ -503,10 +507,12 @@
 		A35DB7391D7B954000409D16 /* Other */ = {
 			isa = PBXGroup;
 			children = (
+				A3A5D2401DAEE7A30030E95F /* ContactUsController.swift */,
 				A366B8101D59F3190079F686 /* CloseMenuController.swift */,
 				A36BDF701D71DED2005E0806 /* ItsAMatchController.swift */,
 				A35DB7351D79EE8E00409D16 /* ActionsViewController.swift */,
 				A35644F11D7F9F1F00D005A9 /* SnapchatViewController.swift */,
+				A3E5DF481DB2BBA400C72D16 /* SettingsViewController.swift */,
 			);
 			name = Other;
 			sourceTree = "<group>";
@@ -1015,6 +1021,11 @@
 					A353F0C71D1224BC009A2182 = {
 						CreatedOnToolsVersion = 7.2;
 						DevelopmentTeam = 8YKL2VACPX;
+						SystemCapabilities = {
+							com.apple.Push = {
+								enabled = 1;
+							};
+						};
 					};
 					A353F0DB1D1224BC009A2182 = {
 						CreatedOnToolsVersion = 7.2;
@@ -1052,15 +1063,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				A3D119891D26F5E6009D7EAB /* AdobeCreativeSDKCoreResources.bundle in Resources */,
+				A3A5D2431DAEF49E0030E95F /* background.gif in Resources */,
 				A3D119871D26F5BA009D7EAB /* AdobeCreativeSDKImageResources.bundle in Resources */,
-				A3DB261C1DAC38680088063B /* pusher.p12 in Resources */,
 				A3DB26221DAC3E1B0088063B /* PROXIMANOVASOFT-REGULAR.OTF in Resources */,
 				A3DB26201DAC3E040088063B /* PROXIMA NOVA SOFT W03 SEMIBOLD.TTF in Resources */,
 				A353F0D61D1224BC009A2182 /* LaunchScreen.storyboard in Resources */,
+				A3A5D2451DAEF9BE0030E95F /* AtlasProduction.p12 in Resources */,
 				A353F0FA1D1226D3009A2182 /* GoogleService-Info.plist in Resources */,
 				A353F0D31D1224BC009A2182 /* Assets.xcassets in Resources */,
 				A353F0D11D1224BC009A2182 /* Main.storyboard in Resources */,
-				A3DB261E1DAC3A860088063B /* background.gif in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1140,6 +1151,7 @@
 				A30874791D8C3C2E005ECD3A /* NotificationController.swift in Sources */,
 				A34F26711D98BD69007ABFB9 /* MessageTableCell.swift in Sources */,
 				A30874891D8DF46B005ECD3A /* ActiveDistanceCell.swift in Sources */,
+				A3A5D2411DAEE7A30030E95F /* ContactUsController.swift in Sources */,
 				A360088C1DA3F1F700E21DCB /* InMediaCollectionCell.swift in Sources */,
 				A3D879511D3CD44800FB7358 /* homeCommentProfile.swift in Sources */,
 				A341522F1D94408E00C6DB3C /* TableViewOnlineIndicatorView.swift in Sources */,
@@ -1147,6 +1159,7 @@
 				A3DA530D1D933F9100FCC91B /* NotificationNumberIndicatorView.swift in Sources */,
 				A3DA52FF1D93021000FCC91B /* RequestsController.swift in Sources */,
 				A36A427E1D62046C0062E9AD /* ProfilePictureView.swift in Sources */,
+				A3E5DF491DB2BBA400C72D16 /* SettingsViewController.swift in Sources */,
 				A3A31D1B1D9C760000BB0509 /* AddToChatCollectionCell.swift in Sources */,
 				A3C8C24A1D55E64500F703AA /* TopNavBarController.swift in Sources */,
 				A3DA530B1D93384B00FCC91B /* RequestTableViewCell.swift in Sources */,
@@ -1316,6 +1329,7 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
@@ -1361,6 +1375,7 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -1420,6 +1435,7 @@
 				PROVISIONING_PROFILE = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "CityScape-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -1460,6 +1476,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "CityScape-Bridging-Header.h";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

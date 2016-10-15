@@ -114,13 +114,23 @@ class SquadRequestCell: UITableViewCell {
             if let selfUID = FIRAuth.auth()?.currentUser?.uid, selfData = self.notificationController?.rootController?.selfData, myFirstName = selfData["firstName"] as? String, myLastName = selfData["lastName"] as? String {
                 
                 let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
-                
-                ref.child("notifications").child(scopeUID).child("squadRequest").updateChildValues(["status" : "approved"])
+ref.child("notifications").child(scopeUID).child("squadRequest").updateChildValues(["status" : "approved"])
                 ref.child("squadRequests").child(scopeUID).updateChildValues(["status" : 1])
                 
                 ref.child("squad").child(scopeUID).setValue(["firstName" : scopeFirstName, "lastName" : scopeLastName, "uid" : scopeUID])
 
                 let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
+
+                yourRef.child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                    
+                    if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                        
+                        appDelegate.pushMessage(scopeUID, token: token, message: "\(myFirstName) is now in your squad!")
+                        
+                        
+                    }
+                })
+
                 
                 let timeInterval = NSDate().timeIntervalSince1970
 

@@ -1271,6 +1271,8 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     
     func observeCurrentCityPosts(){
         
+        self.refresher.endRefreshing()
+        
         observingCity = currentCity
         let scopeCity = currentCity
         
@@ -1443,6 +1445,8 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     
     
     func observePosts(){
+        
+        self.refresher.endRefreshing()
         
         let scopeCity = observingCity
         
@@ -1712,9 +1716,10 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     
     func loadData(){
         
+        self.refresher.endRefreshing()
         self.globCollectionView.reloadData()
         self.globCollectionView.setContentOffset(CGPointZero, animated: true)
-        self.refresher.endRefreshing()
+        
 
     }
     
@@ -1723,12 +1728,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
         
         super.viewDidAppear(true)
         
-        refresher = UIRefreshControl()
-        refresher.attributedTitle = NSAttributedString(string: "Pull for more posts")
-        refresher.tintColor = UIColor.redColor()
-        refresher.addTarget(self, action: #selector(loadData), forControlEvents: .ValueChanged)
-        globCollectionView.addSubview(refresher)
-        globCollectionView.alwaysBounceVertical = true
+        
         
     }
     
@@ -1753,6 +1753,13 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
         
         
         addGestureRecognizers()
+        
+        refresher = UIRefreshControl()
+        refresher.attributedTitle = NSAttributedString(string: "Pull for more posts")
+        refresher.tintColor = UIColor.redColor()
+        refresher.addTarget(self, action: #selector(loadData), forControlEvents: .ValueChanged)
+        globCollectionView.addSubview(refresher)
+        globCollectionView.alwaysBounceVertical = true
         
         // Do any additional setup after loading the view.
     }

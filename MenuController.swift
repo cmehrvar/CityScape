@@ -47,10 +47,8 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
             })
             
         })
-        
-        
-        
     }
+    
     
     
     //Functions
@@ -318,6 +316,18 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     @IBAction func logOut(sender: AnyObject) {
         
+        
+        rootController?.toggleMenu({ (bool) in
+            
+            self.rootController?.toggleSettings({ (bool) in
+                
+                print("settings toggled")
+                
+            })
+        })
+        
+        
+        /*
         var selfUID = ""
         
         if let uid = FIRAuth.auth()?.currentUser?.uid {
@@ -342,6 +352,7 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
             ref.updateChildValues(["online" : false])
             
         }
+ */
     }
     
     func keyboardDidShow(){

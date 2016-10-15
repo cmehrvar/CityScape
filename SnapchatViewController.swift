@@ -12,7 +12,6 @@ import Firebase
 import FirebaseDatabase
 import FirebaseAuth
 import SDWebImage
-import Player
 import AVFoundation
 
 class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
@@ -201,6 +200,19 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                             
                             let yourRef = FIRDatabase.database().reference().child("users").child(scopeUserUID)
                             
+                            
+                            
+                            yourRef.child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                                
+                                if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                                    
+                                    appDelegate.pushMessage(scopeUserUID, token: token, message: "\(myFirstName) is now in your squad!")
+                                    
+                                    
+                                }
+                            })
+
+                            
                             let timeInterval = NSDate().timeIntervalSince1970
 
                             yourRef.child("notifications").child(selfUID).child("squadRequest").setValue(["firstName" : myFirstName, "lastName" : myLastName, "type" : "addedYou", "timeStamp" : timeInterval, "uid" : selfUID, "read" : false])
@@ -258,6 +270,17 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                 
                 if let selfUID = FIRAuth.auth()?.currentUser?.uid, selfData = self.rootController?.selfData, firstName = selfData["firstName"] as? String, lastName = selfData["lastName"] as? String {
                     
+                    let yourRef = FIRDatabase.database().reference().child("users").child(scopeUserUID)
+                    
+                    yourRef.child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                        
+                        if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                            
+                            appDelegate.pushMessage(scopeUserUID, token: token, message: "\(firstName) has sent you a squad request")
+        
+                        }
+                    })
+
                     let timeInterval = NSDate().timeIntervalSince1970
                     
                     //0 -> Hasn't responded yet, 1 -> Approved, 2 -> Denied
@@ -490,6 +513,8 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     func closeWithDirection(x: CGFloat, y: CGFloat, animationTime: NSTimeInterval){
         
         singlePost = false
+        
+        snapchatChatController?.clearPlayers()
         
         if let profileRevealed = rootController?.profileRevealed {
             

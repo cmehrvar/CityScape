@@ -52,7 +52,7 @@ class LogInController: UIViewController {
         alertController.buttonColor = UIColor.redColor()
         alertController.buttonTitleColor = UIColor.whiteColor()
         
-        alertController.cancelButtonTitleColor = UIColor.blackColor()
+        alertController.cancelButtonTitleColor = UIColor.whiteColor()
         alertController.cancelButtonColor = UIColor.lightGrayColor()
 
         alertController.addAction(NYAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
@@ -189,12 +189,22 @@ class LogInController: UIViewController {
                                                                 ref.child("lastCityRank").setValue(rank + 1)
                                                                 ref.child("users").child(uid).setValue(userData)
                                                                 ref.child("userScores").child(uid).setValue(0)
+                                                                ref.child("userUIDs").child(uid).setValue(true)
                                                                 
                                                                 let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
                                                                 
                                                                 self.presentViewController(vc, animated: true, completion: {
                                                                     
                                                                     vc.setStage()
+                                                                    
+                                                                    if let city = userData["city"] as? String {
+                                                                        
+                                                                        vc.vibesFeedController?.currentCity = city
+                                                                        vc.vibesFeedController?.observeCurrentCityPosts()
+                                                                        
+                                                                    }
+                                                                    
+                                                                    
                                                                     
                                                                     vc.loadSelfData({ (userData) in
                                                                         
@@ -218,9 +228,6 @@ class LogInController: UIViewController {
                                                                         print("nearby toggled")
                                                                         
                                                                     })
-                                                                    
-                                                                    
-                                                                    
                                                                 })
                                                                 
                                                             }

@@ -22,6 +22,8 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
     //Functions
     func observeUsers(){
 
+        self.globUsers.removeAll()
+        
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
             let ref = FIRDatabase.database().reference().child("userUIDs")
@@ -32,24 +34,50 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
                 
                 if selfUID != snapshot.key {
                     
-                    let scopeIndex = index
-                    
-                    self.globUsers.insert([NSObject : AnyObject](), atIndex: scopeIndex)
-                    
-                    let userRef = FIRDatabase.database().reference().child("users").child(snapshot.key)
-                    
-                    userRef.observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                    if let myReported = self.searchController?.rootController?.selfData["reportedUsers"] as? [String : Bool] {
                         
-                        if let value = snapshot.value as? [NSObject : AnyObject] {
+                        if myReported[snapshot.key] == nil {
                             
-                            self.globUsers[scopeIndex] = value
-                            self.globCollectionView.reloadData()
+                            let scopeIndex = index
                             
-                        }
-                    })
-                    
-                    index += 1
+                            self.globUsers.insert([NSObject : AnyObject](), atIndex: scopeIndex)
+                            
+                            let userRef = FIRDatabase.database().reference().child("users").child(snapshot.key)
+                            
+                            userRef.observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                                
+                                if let value = snapshot.value as? [NSObject : AnyObject] {
+                                    
+                                    self.globUsers[scopeIndex] = value
+                                    self.globCollectionView.reloadData()
+                                    
+                                }
+                            })
+                            
+                            index += 1
 
+                        }
+                    } else {
+                        
+                        let scopeIndex = index
+                        
+                        self.globUsers.insert([NSObject : AnyObject](), atIndex: scopeIndex)
+                        
+                        let userRef = FIRDatabase.database().reference().child("users").child(snapshot.key)
+                        
+                        userRef.observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                            
+                            if let value = snapshot.value as? [NSObject : AnyObject] {
+                                
+                                self.globUsers[scopeIndex] = value
+                                self.globCollectionView.reloadData()
+                                
+                            }
+                        })
+                        
+                        index += 1
+                        
+                    }
                 }
             })
         }

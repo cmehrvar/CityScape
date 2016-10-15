@@ -30,6 +30,13 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
     var typeOfChat = ""
     var currentKey = ""
     
+    var videoAssets = [String : AVAsset]()
+    var videoPlayers = [AVPlayer?]()
+    var videoPlayersObserved = [Bool]()
+    var videoLayers = [AVPlayerLayer?]()
+    var videoKeys = [String?]()
+    var videoPlayerIndexes = [String : Int]()
+    
     var messages = [JSQMessageData]()
     var messageData = [[NSObject : AnyObject]]()
     var addedMessages = [String : Bool]()
@@ -44,6 +51,49 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
     
     var contentOffset: CGFloat = 0
     var scrollingUp = true
+    
+    
+    
+    func clearPlayers(){
+        
+        for i in 0..<20 {
+            
+            videoKeys[i] = nil
+            
+            if videoPlayersObserved[i] {
+                
+                videoPlayers[i]?.removeObserver(self, forKeyPath: "rate")
+                
+            }
+            
+            videoPlayersObserved[i] = false
+            
+            if let player = videoPlayers[i] {
+                
+                player.pause()
+                
+                if videoPlayersObserved[i] {
+                    
+                    player.removeObserver(self, forKeyPath: "rate")
+                    
+                }
+            }
+            
+            if let layer = videoLayers[i] {
+                
+                layer.removeFromSuperlayer()
+                
+            }
+            
+            videoPlayers[i] = nil
+            videoLayers[i] = nil
+            videoAssets.removeAll()
+            
+            
+        }
+    }
+    
+    
     
     
     //Did press send button
@@ -114,6 +164,17 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
         
         if typeOfChat == "matches" || typeOfChat == "squad" {
             
+            let scopeUID = currentKey
+            
+            ref.child("users").child(currentKey).child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                
+                if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+
+                    appDelegate.pushMessage(scopeUID, token: token, message: "\(self.senderDisplayName): \(text)")
+                    
+                }
+            })
+
             ref.child(passedRef).child("messages").childByAutoId().setValue(messageItem)
             ref.child(passedRef).child("lastActivity").setValue(timeStamp)
             
@@ -151,6 +212,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
             if let members = rootController?.topChatController?.members {
                 
                 for member in members {
+
                     
                     FIRDatabase.database().reference().child("users").child(member).child("groupChats").child(currentKey).child("timeStamp").setValue(timeStamp)
                     FIRDatabase.database().reference().child("users").child(member).child("groupChats").child(currentKey).child("read").setValue(false)
@@ -159,6 +221,15 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                         
                         if member != selfUID {
                             
+                            ref.child("users").child(member).child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                                
+                                if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                                    
+                                    appDelegate.pushMessage(member, token: token, message: "\(self.senderDisplayName) to \(self.rootController?.topChatController?.chatTitleOutlet.text): \(text)")
+                                    
+                                }
+                            })
+
                             FIRDatabase.database().reference().child("users").child(member).child("notifications").child("groupChats").child(currentKey).setValue(notificationItem)
                             
                         }
@@ -218,8 +289,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                         
                         var notificationItem = [NSObject : AnyObject]()
                         notificationItem["text"] = "Sent Photo!"
-                        
-                        let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".jpeg")
+
                         let timeStamp = date.timeIntervalSince1970
                         
                         var messageItem: [NSObject : AnyObject] = [
@@ -268,17 +338,20 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                         notificationItem["read"] = false
                         notificationItem["timeStamp"] = timeStamp
                         notificationItem["type"] = scopeType
-                        
-                        let photoItem = JSQPhotoMediaItem(image: image)
-                        let message = JSQMessage(senderId: self.senderId, senderDisplayName: self.senderDisplayName, date: date, media: photoItem)
-                        
-                        self.messages.append(message)
-                        self.messageData.append(messageItem)
-                        self.addedMessages[fileName] = true
-                        
+
                         if scopeType == "matches" || scopeType == "squad" {
                             
-                            ref.child(self.passedRef).child("lastActivity").setValue(timeStamp)
+                            ref.child("users").child(scopeCurrentKey).child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                                
+                                if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                                    
+                                    appDelegate.pushMessage(scopeCurrentKey, token: token, message: "\(self.senderDisplayName): Sent a photo!")
+                                    
+                                }
+                            })
+                            
+                            ref.child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
+                            ref.child(scopePassedRef).child("lastActivity").setValue(timeStamp)
                             
                             if let selfUID = FIRAuth.auth()?.currentUser?.uid {
                                 
@@ -292,8 +365,8 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                                 
                             }
                         } else if scopeType == "groupChats" {
+
                             
-                            //notificationItem["title"] =
                             
                             if let scopeTitle = self.rootController?.topChatController?.chatTitleOutlet.text {
                                 
@@ -308,19 +381,32 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                             }
                             
                             
+                            
+                            
                             ref.child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
                             ref.child(scopePassedRef).child("timeStamp").setValue(timeStamp)
                             
                             if let members = self.rootController?.topChatController?.members {
                                 
                                 for member in members {
-                                    
                                     FIRDatabase.database().reference().child("users").child(member).child("groupChats").child(scopeCurrentKey).child("timeStamp").setValue(timeStamp)
                                     FIRDatabase.database().reference().child("users").child(member).child("groupChats").child(scopeCurrentKey).child("read").setValue(false)
                                     
                                     if let selfUID = FIRAuth.auth()?.currentUser?.uid {
                                         
                                         if member != selfUID {
+                                            
+                                            
+                                            ref.child("users").child(member).child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                                                
+                                                if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                                                    
+                                                    appDelegate.pushMessage(member, token: token, message: "\(self.senderDisplayName) to \(self.rootController?.topChatController?.chatTitleOutlet.text): Sent a photo!")
+                                                    
+                                                }
+                                            })
+
+                                            
                                             FIRDatabase.database().reference().child("users").child(member).child("notifications").child("groupChats").child(scopeCurrentKey).setValue(notificationItem)
                                             
                                         }
@@ -373,9 +459,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                     request.bucket = "cityscapebucket"
                     
                     let transferManager = AWSS3TransferManager.defaultS3TransferManager()
-                    
-                    
-                    
+
                     transferManager.upload(request).continueWithBlock({ (task) -> AnyObject? in
                         
                         if task.error == nil {
@@ -386,8 +470,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                                 
                                 var notificationItem = [NSObject : AnyObject]()
                                 notificationItem["text"] = "Sent Video!"
-                                
-                                let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".mov")
+
                                 let timeStamp = date.timeIntervalSince1970
                                 
                                 var messageItem: [NSObject : AnyObject] = [
@@ -436,17 +519,21 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                                 notificationItem["read"] = false
                                 notificationItem["timeStamp"] = timeStamp
                                 notificationItem["type"] = scopeType
-                                
-                                let videoItem = JSQVideoMediaItem(fileURL: outputURL, isReadyToPlay: true)
-                                let message = JSQMessage(senderId: self.senderId, senderDisplayName: self.senderDisplayName, date: date, media: videoItem)
-                                
-                                self.messages.append(message)
-                                self.messageData.append(messageItem)
-                                self.addedMessages[fileName] = true
-                                
+
                                 if scopeType == "matches" || scopeType == "squad" {
                                     
-                                    ref.child(scopeType).child("lastActivity").setValue(timeStamp)
+                                    ref.child("users").child(scopeCurrentKey).child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                                        
+                                        if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                                            
+                                            appDelegate.pushMessage(scopeCurrentKey, token: token, message: "\(self.senderDisplayName): Sent a video!")
+                                            
+                                        }
+                                    })
+
+                                    
+                                    ref.child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
+                                    ref.child(scopePassedRef).child("lastActivity").setValue(timeStamp)
                                     
                                     if let selfUID = FIRAuth.auth()?.currentUser?.uid {
                                         
@@ -489,6 +576,17 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                                             if let selfUID = FIRAuth.auth()?.currentUser?.uid {
                                                 
                                                 if member != selfUID {
+                                                    
+                                                    ref.child("users").child(member).child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                                                        
+                                                        if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                                                            
+                                                            appDelegate.pushMessage(member, token: token, message: "\(self.senderDisplayName) to \(self.rootController?.topChatController?.chatTitleOutlet.text): Sent a video!")
+                                                            
+                                                        }
+                                                    })
+
+                                                    
                                                     FIRDatabase.database().reference().child("users").child(member).child("notifications").child("groupChats").child(scopeCurrentKey).setValue(notificationItem)
                                                     
                                                 }
@@ -632,34 +730,179 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
     }
     
     
-    
-    override func collectionView(collectionView: UICollectionView, didEndDisplayingCell cell: UICollectionViewCell, forItemAtIndexPath indexPath: NSIndexPath) {
-        
-        if !messages.isEmpty {
+    override func collectionView(collectionView: UICollectionView, willDisplayCell cell: UICollectionViewCell, forItemAtIndexPath indexPath: NSIndexPath) {
+
+        if let mediaCell = cell as? JSQMessagesCollectionViewCell {
             
             let message = messages[indexPath.item]
             
             if message.isMediaMessage() {
                 
-                if let anyCell = cell as? JSQMessagesCollectionViewCell {
+                if message.media!() is JSQVideoMediaItem {
                     
-                    for view in anyCell.mediaView.subviews {
+                    if let key = messageData[indexPath.item]["key"] as? String, playerIndex = videoPlayerIndexes[key]  {
                         
-                        view.removeFromSuperview()
-                        
+                        if let player = videoPlayers[playerIndex] {
+
+                            if !videoPlayersObserved[playerIndex] {
+                                
+                                player.addObserver(self, forKeyPath: "rate", options: NSKeyValueObservingOptions(), context: nil)
+                                videoPlayersObserved[playerIndex] = true
+                                
+                            }
+
+                            dispatch_async(dispatch_get_main_queue(), {
+                                
+                                self.videoLayers[playerIndex] = AVPlayerLayer(player: player)
+                                self.videoLayers[playerIndex]?.videoGravity = AVLayerVideoGravityResizeAspectFill
+                                self.videoLayers[playerIndex]?.frame = mediaCell.mediaView.bounds
+                                
+                                if let layer = self.videoLayers[playerIndex] {
+                                    
+                                    mediaCell.mediaView.layer.addSublayer(layer)
+                                    
+                                }
+                                
+                                player.muted = true
+                                player.play()
+                                
+                            })
+ 
+                        } else {
+                            
+                            var asset: AVAsset?
+                            
+                            if let loadedAsset = videoAssets[key] {
+                                
+                                asset = loadedAsset
+                                
+                            } else if let media = message.media!() as? JSQVideoMediaItem, url = media.fileURL {
+                                
+                                asset = AVAsset(URL: url)
+                                
+                            }
+                            
+                            if let actualAsset = asset {
+                                
+                                dispatch_async(dispatch_get_main_queue(), {
+                                    
+                                    let playerItem = AVPlayerItem(asset: actualAsset)
+                                    self.videoKeys[playerIndex] = key
+                                    self.videoPlayers[playerIndex] = AVPlayer(playerItem: playerItem)
+                                    self.videoPlayers[playerIndex]?.addObserver(self, forKeyPath: "rate", options: NSKeyValueObservingOptions(), context: nil)
+                                    self.videoPlayersObserved[playerIndex] = true
+                                    
+                                    self.videoLayers[playerIndex] = AVPlayerLayer(player: self.videoPlayers[playerIndex])
+                                    self.videoLayers[playerIndex]?.videoGravity = AVLayerVideoGravityResizeAspectFill
+                                    self.videoLayers[playerIndex]?.frame = mediaCell.mediaView.bounds
+                                    
+                                    if let layer = self.videoLayers[playerIndex] {
+                                        
+                                        mediaCell.mediaView.layer.addSublayer(layer)
+                                        
+                                    }
+                                    
+                                    self.videoPlayers[playerIndex]?.muted = true
+                                    self.videoPlayers[playerIndex]?.play()
+                                
+                                })
+                            }
+                        }
                     }
                 }
             }
-            
         }
     }
+    
+    
+    override func collectionView(collectionView: UICollectionView, didEndDisplayingCell cell: UICollectionViewCell, forItemAtIndexPath indexPath: NSIndexPath) {
+        
+        
+        if !messages.isEmpty && !messageData.isEmpty {
+            
+            if let mediaCell = cell as? JSQMessagesCollectionViewCell {
+                
+                let message = messages[indexPath.item]
+                
+                if message.media!() is JSQVideoMediaItem {
+                    
+                    if let key = messageData[indexPath.item]["key"] as? String {
+                        
+                        if let playerNumber = videoPlayerIndexes[key] {
+                            
+                            if let player = videoPlayers[playerNumber] {
+                                
+                                if videoPlayersObserved[playerNumber] {
+                                    
+                                    player.removeObserver(self, forKeyPath: "rate")
+                                    videoPlayersObserved[playerNumber] = false
+                                    
+                                }
+                            }
+                            
+                            
+                            videoLayers[playerNumber]?.removeFromSuperlayer()
+                            videoLayers[playerNumber] = nil
+                            videoKeys[playerNumber] = nil
+                            videoPlayerIndexes.removeValueForKey(key)
+                            videoPlayers[playerNumber]?.pause()
+                            videoPlayers[playerNumber] = nil
+                            
+                            if let subLayers = mediaCell.mediaView.layer.sublayers {
+                                
+                                for layer in subLayers {
+                                    
+                                    if layer is AVPlayerLayer {
+                                        
+                                        layer.removeFromSuperlayer()
+                                        
+                                    }
+                                }
+                            }
+                            
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    
+    
+    func setPlayerTitle(postKey: String) {
+        
+        var playerForCell = 0
+        
+        for i in 0..<20 {
+            
+            if videoKeys[i] == nil {
+                
+                playerForCell = i
+                
+            }
+        }
+        
+        for i in 0..<20 {
+            
+            if videoKeys[i] == postKey {
+                
+                playerForCell = i
+                
+            }
+        }
+        
+        videoKeys[playerForCell] = postKey
+        videoPlayerIndexes[postKey] = playerForCell
+        
+    }
+    
     
     
     //Cell for item at index path
     override func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         
         let cell = super.collectionView(collectionView, cellForItemAtIndexPath: indexPath) as! JSQMessagesCollectionViewCell
-        
+
         let message = messages[indexPath.item]
         
         cell.cellBottomLabel.textColor = UIColor.blackColor()
@@ -713,60 +956,15 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
             }
         } else {
             
-            if let key = messageData[indexPath.item]["key"] as? String {
+            if message.media!() is JSQVideoMediaItem {
                 
-                if let media = message.media!() as? JSQVideoMediaItem {
-                    
-/*
-                    if let /*player = videoPlayers[key], view = player.view */{
-                        
-                     /*
-                     
-                        dispatch_async(dispatch_get_main_queue(), {
-                            
-                            self.addChildViewController(player)
-                            player.didMoveToParentViewController(self)
-                            player.muted = true
-                            player.playFromCurrentTime()
-                            cell.mediaView.addSubview(view)
-                            
-                        })
-                        */
-                        
-                    } else { */
-                        
-                        if let url = media.fileURL {
-                            
-                            
-                            /*
-                            
-                            dispatch_async(dispatch_get_main_queue(), {
-                                
-                                let player = Player()
-                                player.delegate = self
-                                
-                                if let videoPlayerView = player.view {
-                                    
-                                    self.addChildViewController(player)
-                                    player.view.frame = cell.mediaView.bounds
-                                    player.didMoveToParentViewController(self)
-                                    player.setUrl(url)
-                                    player.fillMode = AVLayerVideoGravityResizeAspectFill
-                                    player.playbackLoops = true
-                                    player.muted = true
-                                    player.playFromCurrentTime()
-                                    cell.mediaView.addSubview(videoPlayerView)
-                                    self.videoPlayers[key] = player
-                                }
-                                
-                            })
- 
- */
-                    
-                        
-                    }
-                    
-                } else if let _ = message.media!() as? JSQPhotoMediaItem, urlString = messageData[indexPath.item]["media"] as? String, url = NSURL(string: urlString) {
+                if let key = messageData[indexPath.item]["key"] as? String {
+
+                    setPlayerTitle(key)
+
+                }
+                
+            } else if let _ = message.media!() as? JSQPhotoMediaItem, urlString = messageData[indexPath.item]["media"] as? String, url = NSURL(string: urlString) {
                     
                     SDWebImageManager.sharedManager().downloadImageWithURL(url, options: .ContinueInBackground, progress: { (currentSize, expectedSize) in
                         
@@ -785,8 +983,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                                 
                             })
                     })
-                    
-                }
+
             }
         }
         
@@ -1197,6 +1394,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                 mediaView.contentMode = .ScaleAspectFill
                 
             }
+            
             messageData = JSQMessage(senderId: senderId, senderDisplayName: senderDisplayName, date: date, media: message)
             
         } else {
@@ -1224,12 +1422,11 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
             messageItem["chatKey"] = currentKey
             
         }
-        
-        
+
         self.messageData.append(messageItem)
         self.messages.append(messageData)
         self.addedMessages[fileName] = true
-        
+
         finishReceivingMessage()
         
         handler(date: date, fileName: fileName, messageData: messageData)
@@ -1436,6 +1633,27 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
         
     }
     
+    override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
+        
+        if keyPath == "rate" {
+            
+            if let player = object as? AVPlayer, item = player.currentItem {
+                
+                if CMTimeGetSeconds(player.currentTime()) == CMTimeGetSeconds(item.duration) {
+                    
+                    player.seekToTime(kCMTimeZero)
+                    player.play()
+                    
+                } else if player.rate == 0 {
+                    
+                    player.play()
+                    
+                }
+            }
+        }
+    }
+
+    
     
     override func viewDidLoad() {
         
@@ -1451,6 +1669,16 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
         
         addUploadStuff()
         setUpBubbles()
+        
+        for _ in 0..<20 {
+            
+            videoPlayersObserved.append(false)
+            videoLayers.append(nil)
+            videoPlayers.append(nil)
+            videoKeys.append(nil)
+            
+        }
+
         
         // Do any additional setup after loading the view.
     }

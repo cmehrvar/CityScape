@@ -178,6 +178,17 @@ class SquadTableViewCell: UITableViewCell {
                             ref.child("squad").child(scopeUID).setValue(["firstName" : scopeFirstName, "lastName" : scopeLastName, "uid" : scopeUID])
                             
                             let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
+
+                            yourRef.child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                                
+                                if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                                    
+                                    appDelegate.pushMessage(scopeUID, token: token, message: "\(myFirstName) has sent you a squad request")
+                                    
+                                    
+                                }
+                            })
+
                             
                             let timeInterval = NSDate().timeIntervalSince1970
                             
@@ -239,6 +250,19 @@ class SquadTableViewCell: UITableViewCell {
             alertController.addAction(UIAlertAction(title: "Send Request", style: .Default, handler: { (action) in
                 
                 if let selfUID = FIRAuth.auth()?.currentUser?.uid, selfData = self.squadCountController?.rootController?.selfData, firstName = selfData["firstName"] as? String, lastName = selfData["lastName"] as? String {
+                    
+                    let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
+                    
+                    yourRef.child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                        
+                        if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                            
+                            appDelegate.pushMessage(scopeUID, token: token, message: "\(firstName) has sent you a squad request")
+                            
+                            
+                        }
+                    })
+
                     
                     let timeInterval = NSDate().timeIntervalSince1970
                     

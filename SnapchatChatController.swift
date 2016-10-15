@@ -30,6 +30,14 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, UIGestu
     var typeOfChat = "snapchat"
     var currentPostKey = ""
     
+    var videoAssets = [String : AVAsset]()
+    var videoPlayers = [AVPlayer?]()
+    var videoPlayersObserved = [Bool]()
+    var videoLayers = [AVPlayerLayer?]()
+    var videoKeys = [String?]()
+    var videoPlayerIndexes = [String : Int]()
+    
+    
     var messages = [JSQMessageData]()
     var messageData = [[NSObject : AnyObject]]()
     var addedMessages = [String : Bool]()
@@ -45,6 +53,42 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, UIGestu
     var contentOffset: CGFloat = 0
     var scrollingUp = true
 
+    
+    
+    func clearPlayers(){
+
+            for i in 0..<20 {
+                
+                videoKeys[i] = nil
+                
+                if let player = videoPlayers[i] {
+                    
+                    player.pause()
+                    
+                    if videoPlayersObserved[i] {
+                        
+                        player.removeObserver(self, forKeyPath: "rate")
+                        
+                    }
+                }
+                
+                if let layer = videoLayers[i] {
+                    
+                    layer.removeFromSuperlayer()
+                    
+                }
+                
+                videoPlayers[i] = nil
+                videoLayers[i] = nil
+                videoAssets.removeAll()
+                
+                
+            }
+        
+    }
+    
+    
+    
     
     
     //Did press send button
@@ -97,6 +141,10 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, UIGestu
         
         
     }
+    
+    
+    
+    
     
     //Did press accessory button
     override func didPressAccessoryButton(sender: UIButton!) {
@@ -336,6 +384,36 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, UIGestu
         
     }
     
+    
+    func setPlayerTitle(postKey: String) {
+        
+        var playerForCell = 0
+        
+        for i in 0..<20 {
+            
+            if videoKeys[i] == nil {
+                
+                playerForCell = i
+                
+            }
+        }
+        
+        for i in 0..<20 {
+            
+            if videoKeys[i] == postKey {
+                
+                playerForCell = i
+                
+            }
+        }
+        
+        videoKeys[playerForCell] = postKey
+        videoPlayerIndexes[postKey] = playerForCell
+        
+    }
+    
+    
+    
     //Cell for item at index path
     override func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
         
@@ -393,116 +471,177 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, UIGestu
             }
         } else {
             
-            if let key = messageData[indexPath.item]["key"] as? String {
+            if message.media!() is JSQVideoMediaItem {
                 
-                if let media = message.media!() as? JSQVideoMediaItem {
+                if let key = messageData[indexPath.item]["key"] as? String {
                     
-                    /*
-                     if let /*player = videoPlayers[key], view = player.view */{
-                     
-                     /*
-                     
-                     dispatch_async(dispatch_get_main_queue(), {
-                     
-                     self.addChildViewController(player)
-                     player.didMoveToParentViewController(self)
-                     player.muted = true
-                     player.playFromCurrentTime()
-                     cell.mediaView.addSubview(view)
-                     
-                     })
-                     */
-                     
-                     } else { */
+                    setPlayerTitle(key)
                     
-                    if let url = media.fileURL {
-                        
-                        
-                        /*
-                         
-                         dispatch_async(dispatch_get_main_queue(), {
-                         
-                         let player = Player()
-                         player.delegate = self
-                         
-                         if let videoPlayerView = player.view {
-                         
-                         self.addChildViewController(player)
-                         player.view.frame = cell.mediaView.bounds
-                         player.didMoveToParentViewController(self)
-                         player.setUrl(url)
-                         player.fillMode = AVLayerVideoGravityResizeAspectFill
-                         player.playbackLoops = true
-                         player.muted = true
-                         player.playFromCurrentTime()
-                         cell.mediaView.addSubview(videoPlayerView)
-                         self.videoPlayers[key] = player
-                         }
-                         
-                         })
-                         
-                         */
-                        
-                        
-                    }
+                }
+                
+            } else if message.media!() is JSQPhotoMediaItem {
+                
+                if let imageString = messageData[indexPath.item]["media"] as? String, imageURL = NSURL(string: imageString) {
                     
-                } else if message.media!() is JSQPhotoMediaItem {
-                    
-                    if let imageString = messageData[indexPath.item]["media"] as? String, imageURL = NSURL(string: imageString) {
+                    SDWebImageManager.sharedManager().downloadImageWithURL(imageURL, options: .ContinueInBackground, progress: { (currentSize, expectedSize) in
                         
-                        SDWebImageManager.sharedManager().downloadImageWithURL(imageURL, options: .ContinueInBackground, progress: { (currentSize, expectedSize) in
+                        }, completed: { (image, error, cache, bool, url) in
                             
-                            }, completed: { (image, error, cache, bool, url) in
+                            dispatch_async(dispatch_get_main_queue(), {
                                 
-                                dispatch_async(dispatch_get_main_queue(), {
-                                    
-                                    let imageView = UIImageView(image: image)
-                                    imageView.frame = cell.mediaView.bounds
-                                    imageView.contentMode = .ScaleAspectFill
-                                    imageView.clipsToBounds = true
-                                    cell.mediaView.addSubview(imageView)
-                                    
-                                })
-                        })
-                    }
+                                let imageView = UIImageView(image: image)
+                                imageView.frame = cell.mediaView.bounds
+                                imageView.contentMode = .ScaleAspectFill
+                                imageView.clipsToBounds = true
+                                cell.mediaView.addSubview(imageView)
+                                
+                            })
+                            
+                    })
                 }
             }
+            
         }
         
         return cell
         
     }
     
-    
-    override func collectionView(collectionView: UICollectionView, willDisplayCell cell: UICollectionViewCell, forItemAtIndexPath indexPath: NSIndexPath) {
-        
-        let message = messages[indexPath.item]
-        
-        if message.media!() is JSQVideoMediaItem {
+    override func collectionView(collectionView: UICollectionView, didEndDisplayingCell cell: UICollectionViewCell, forItemAtIndexPath indexPath: NSIndexPath) {
+
+        if !messages.isEmpty && !messageData.isEmpty {
             
-            if let jsqCell = cell as? JSQMessagesCollectionViewCell, key = messageData[indexPath.item]["key"] as? String {
+            if let mediaCell = cell as? JSQMessagesCollectionViewCell {
                 
-                /*
-                if let player = self.videoPlayers[key] {
+                let message = messages[indexPath.item]
+                
+                if message.media!() is JSQVideoMediaItem {
                     
-                    if let videoPlayerView = player.view {
+                    if let key = messageData[indexPath.item]["key"] as? String {
                         
-                        dispatch_async(dispatch_get_main_queue(), {
+                        if let playerNumber = videoPlayerIndexes[key] {
                             
-                            self.addChildViewController(player)
-                            player.didMoveToParentViewController(self)
-                            player.playFromCurrentTime()
+                            if let player = videoPlayers[playerNumber] {
+                                
+                                if videoPlayersObserved[playerNumber] {
+                                    
+                                    player.removeObserver(self, forKeyPath: "rate")
+                                    videoPlayersObserved[playerNumber] = false
+                                    
+                                }
+                            }
+     
+                            videoLayers[playerNumber]?.removeFromSuperlayer()
+                            videoLayers[playerNumber] = nil
+                            videoKeys[playerNumber] = nil
+                            videoPlayerIndexes.removeValueForKey(key)
+                            videoPlayers[playerNumber]?.pause()
+                            videoPlayers[playerNumber] = nil
                             
-                            jsqCell.mediaView.addSubview(videoPlayerView)
-                            
-                        })
+                            if let subLayers = mediaCell.mediaView.layer.sublayers {
+                                
+                                for layer in subLayers {
+                                    
+                                    if layer is AVPlayerLayer {
+                                        
+                                        layer.removeFromSuperlayer()
+                                        
+                                    }
+                                    
+                                }
+                            } 
+                        }
                     }
                 }
- */
             }
         }
     }
 
+    override func collectionView(collectionView: UICollectionView, willDisplayCell cell: UICollectionViewCell, forItemAtIndexPath indexPath: NSIndexPath) {
+        
+        
+        if let mediaCell = cell as? JSQMessagesCollectionViewCell {
+            
+            let message = messages[indexPath.item]
+            
+            if message.isMediaMessage() {
+                
+                if message.media!() is JSQVideoMediaItem {
+                    
+                    if let key = messageData[indexPath.item]["key"] as? String, playerIndex = videoPlayerIndexes[key]  {
+                        
+                        if let player = videoPlayers[playerIndex] {
+                            
+                            if !videoPlayersObserved[playerIndex] {
+                                
+                                player.addObserver(self, forKeyPath: "rate", options: NSKeyValueObservingOptions(), context: nil)
+                                videoPlayersObserved[playerIndex] = true
+                                
+                            }
+                            
+                            dispatch_async(dispatch_get_main_queue(), {
+                                
+                                self.videoLayers[playerIndex] = AVPlayerLayer(player: player)
+                                self.videoLayers[playerIndex]?.videoGravity = AVLayerVideoGravityResizeAspectFill
+                                self.videoLayers[playerIndex]?.frame = mediaCell.mediaView.bounds
+                                
+                                if let layer = self.videoLayers[playerIndex] {
+                                    
+                                    mediaCell.mediaView.layer.addSublayer(layer)
+                                    
+                                }
+                                
+                                player.muted = true
+                                player.play()
+                                
+                            })
+                            
+                        } else {
+                            
+                            var asset: AVAsset?
+                            
+                            if let loadedAsset = videoAssets[key] {
+                                
+                                asset = loadedAsset
+                                
+                            } else if let media = message.media!() as? JSQVideoMediaItem, url = media.fileURL {
+                                
+                                asset = AVAsset(URL: url)
+                                
+                            }
+                            
+                            if let actualAsset = asset {
+                                
+                                dispatch_async(dispatch_get_main_queue(), {
+                                    
+                                    let playerItem = AVPlayerItem(asset: actualAsset)
+                                    self.videoKeys[playerIndex] = key
+                                    self.videoPlayers[playerIndex] = AVPlayer(playerItem: playerItem)
+                                    self.videoPlayers[playerIndex]?.addObserver(self, forKeyPath: "rate", options: NSKeyValueObservingOptions(), context: nil)
+                                    self.videoPlayersObserved[playerIndex] = true
+                                    
+                                    self.videoLayers[playerIndex] = AVPlayerLayer(player: self.videoPlayers[playerIndex])
+                                    self.videoLayers[playerIndex]?.videoGravity = AVLayerVideoGravityResizeAspectFill
+                                    self.videoLayers[playerIndex]?.frame = mediaCell.mediaView.bounds
+                                    
+                                    if let layer = self.videoLayers[playerIndex] {
+                                        
+                                        mediaCell.mediaView.layer.addSublayer(layer)
+                                        
+                                    }
+                                    
+                                    self.videoPlayers[playerIndex]?.muted = true
+                                    self.videoPlayers[playerIndex]?.play()
+                                    
+                                })
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
     //Top Cell Label Text
     override func collectionView(collectionView: JSQMessagesCollectionView!, attributedTextForCellTopLabelAtIndexPath indexPath: NSIndexPath!) -> NSAttributedString! {
         
@@ -1095,7 +1234,7 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, UIGestu
                             
                         }
                     }
-   
+                    
             })
         }
     }
@@ -1168,6 +1307,27 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, UIGestu
         
     }
     
+    override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
+        
+        if keyPath == "rate" {
+            
+            if let player = object as? AVPlayer, item = player.currentItem {
+                
+                if CMTimeGetSeconds(player.currentTime()) == CMTimeGetSeconds(item.duration) {
+                    
+                    player.seekToTime(kCMTimeZero)
+                    player.play()
+                    
+                } else if player.rate == 0 {
+                    
+                    player.play()
+                    
+                }
+            }
+        }
+    }
+
+    
     
     
     override func viewDidLoad() {
@@ -1185,6 +1345,16 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, UIGestu
         
         addUploadStuff()
         setUpBubbles()
+        
+        for _ in 0..<20 {
+            
+            videoPlayersObserved.append(false)
+            videoLayers.append(nil)
+            videoPlayers.append(nil)
+            videoKeys.append(nil)
+            
+        }
+        
         
         // Do any additional setup after loading the view.
     }

@@ -11,6 +11,7 @@ import CoreLocation
 import Firebase
 import FirebaseDatabase
 import FirebaseAuth
+import NYAlertViewController
 
 class ProfileInfoCollectionCell: UICollectionViewCell {
     
@@ -34,7 +35,162 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
     
     @IBOutlet weak var squadImageOutlet: UIImageView!
     @IBOutlet weak var messageImageOutlet: UIImageView!
+    @IBOutlet weak var addOccupationOutletButton: UIButton!
     
+    @IBOutlet weak var reportButtonOutlet: UIButton!
+    @IBOutlet weak var reportIconOutlet: UIImageView!
+    
+    
+    
+    
+    
+    
+    @IBAction func report(sender: AnyObject) {
+        
+        let scopeProfile = profileController
+        let scopeUID = uid
+        
+        let alertController = NYAlertViewController()
+        
+        alertController.title = "Report \(firstName) \(lastName)?"
+        alertController.message = "This will remove \(firstName) from your squad and delete \(firstName) from your matches. You will no longer see content generated from \(firstName). Warning, this cannot be undone."
+        
+        alertController.backgroundTapDismissalGestureEnabled = true
+        
+        alertController.alertViewBackgroundColor = UIColor.whiteColor()
+        
+        alertController.titleColor = UIColor.blackColor()
+        alertController.messageColor = UIColor.darkGrayColor()
+        
+        alertController.cancelButtonColor = UIColor.lightGrayColor()
+        alertController.cancelButtonTitleColor = UIColor.whiteColor()
+        
+        alertController.buttonColor = UIColor.redColor()
+        alertController.buttonTitleColor = UIColor.whiteColor()
+        
+        alertController.addAction(NYAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
+            
+            print("cancel")
+            
+            self.profileController?.dismissViewControllerAnimated(true, completion: nil)
+            
+        }))
+        
+        
+        alertController.addAction(NYAlertAction(title: "Report", style: .Default, handler: { (action) in
+            
+            print("report user")
+
+            self.profileController?.dismissViewControllerAnimated(true, completion: {
+                
+                if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                    
+                    let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
+                    let myRef = FIRDatabase.database().reference().child("users").child(selfUID)
+                    
+                    myRef.child("reportedUsers").child(scopeUID).setValue(true)
+                    
+                    yourRef.child("squad").child(scopeUID).removeValue()
+                    yourRef.child("matches").child(scopeUID).removeValue()
+                    yourRef.child("notifications").child(scopeUID).removeValue()
+                    
+                    myRef.child("squad").child(scopeUID).removeValue()
+                    myRef.child("matches").child(scopeUID).removeValue()
+                    myRef.child("notifications").child(scopeUID).removeValue()
+                    
+                    
+                    if let myReported = scopeProfile?.rootController?.selfData["reportedUsers"] as? [String : Bool] {
+
+                        var temp = myReported
+                        temp.updateValue(true, forKey: scopeUID)
+                        scopeProfile?.rootController?.selfData.updateValue(temp, forKey: "reportedUsers")
+                        
+                    }
+
+                    scopeProfile?.rootController?.toggleHome({ (bool) in
+                        
+                        scopeProfile?.rootController?.searchController?.userController?.observeUsers()
+                        
+                        scopeProfile?.rootController?.nearbyController?.nearbyUsers.removeAll()
+                        scopeProfile?.rootController?.nearbyController?.addedCells.removeAll()
+                        scopeProfile?.rootController?.nearbyController?.addedCells.removeAll()
+                        scopeProfile?.rootController?.nearbyController?.dismissedCells.removeAll()
+                        
+                        if let myLocation = scopeProfile?.rootController?.nearbyController?.globLocation {
+                            
+                            scopeProfile?.rootController?.nearbyController?.queryNearby(myLocation)
+                            
+                            
+                        }
+                        
+                        scopeProfile?.rootController?.clearVibesPlayers()
+                        scopeProfile?.rootController?.vibesFeedController?.globCollectionView.contentOffset = CGPointZero
+                        scopeProfile?.rootController?.vibesFeedController?.observePosts()
+                        
+                    })
+                }
+            })
+        }))
+        
+        
+        profileController?.presentViewController(alertController, animated: true, completion: {
+            
+            print("presented")
+            
+        })
+    }
+    
+
+    @IBAction func addOccupation(sender: AnyObject) {
+        
+        let alertController = NYAlertViewController()
+        
+        var scopeTextField = UITextField()
+        alertController.title = "Current Occupation"
+        alertController.message = nil
+        alertController.backgroundTapDismissalGestureEnabled = true
+        
+        alertController.cancelButtonColor = UIColor.lightGrayColor()
+        alertController.cancelButtonTitleColor = UIColor.blackColor()
+        
+        alertController.buttonColor = UIColor.redColor()
+        alertController.buttonTitleColor = UIColor.whiteColor()
+        
+        alertController.addTextFieldWithConfigurationHandler { (textField) in
+            
+            textField.placeholder = "Enter current occupation..."
+            textField.autocorrectionType = .No
+            scopeTextField = textField
+            
+        }
+        
+        alertController.addAction(NYAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
+            
+            self.profileController?.dismissViewControllerAnimated(true, completion: nil)
+            
+        }))
+
+        alertController.addAction(NYAlertAction(title: "Add", style: .Default, handler: { (action) in
+
+            self.profileController?.dismissViewControllerAnimated(true, completion: {
+                
+                if scopeTextField.text != "" || scopeTextField.text != nil {
+                    
+                    if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                        
+                        FIRDatabase.database().reference().child("users").child(selfUID).child("occupation").setValue(scopeTextField.text)
+                        
+                    }
+                }
+            })
+        }))
+        
+        self.profileController?.presentViewController(alertController, animated: true, completion: {
+            
+            print("alert controller presented")
+            
+        })
+    }
     
     //Functions
     func loadData(data: [NSObject:AnyObject]){
@@ -46,6 +202,9 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
             self.uid = userUID
             
             if userUID == selfUID {
+
+                reportIconOutlet.image = nil
+                reportButtonOutlet.enabled = false
                 
                 squadImageOutlet.image = nil
                 squadButtonOutlet.enabled = false
@@ -56,6 +215,9 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                 
             } else {
                 
+                reportIconOutlet.image = UIImage(named: "reportIcon")
+                reportButtonOutlet.enabled = true
+
                 squadButtonOutlet.enabled = true
                 messageButtonOutlet.enabled = true
                 
@@ -68,8 +230,7 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                     if squad[selfUID] != nil {
                         
                         youreInMySquad = true
-                        
-                        
+
                     }
                 }
                 
@@ -177,6 +338,20 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
             
             occupationOutlet.text = occupation
             
+            if let selfProfile = profileController?.selfProfile {
+                
+                if selfProfile {
+                    
+                    addOccupationOutletButton.enabled = true
+                    
+                } else {
+                    
+                    addOccupationOutletButton.enabled = false
+                    
+                }
+                
+            }
+            
         } else {
             
             if let selfProfile = profileController?.selfProfile {
@@ -184,16 +359,19 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                 if selfProfile {
                     
                     occupationOutlet.text = "Tap to add occupation!"
+                    addOccupationOutletButton.enabled = true
                     
                 } else {
                     
                     occupationOutlet.text = nil
+                    addOccupationOutletButton.enabled = false
                     
                 }
                 
             } else {
                 
                 occupationOutlet.text = nil
+                addOccupationOutletButton.enabled = false
             }
         }
     }
@@ -292,15 +470,29 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                 
                 alertController.addAction(UIAlertAction(title: "Add to Squad", style: .Default, handler: { (action) in
 
+
                     if let selfUID = FIRAuth.auth()?.currentUser?.uid, selfData = self.profileController?.rootController?.selfData, myFirstName = selfData["firstName"] as? String, myLastName = selfData["lastName"] as? String, scopeUID = scopeUserData["uid"] as? String {
 
+                        let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
+                        
+                        yourRef.child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                            
+                            if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+ 
+                                    
+                                    appDelegate.pushMessage(scopeUID, token: token, message: "\(myFirstName) is now in your squad!")
+
+                                
+                            }
+                        })
+                        
                             let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
                             ref.child("notifications").child(scopeUID).child("squadRequest").updateChildValues(["status" : "approved"])
                             ref.child("squadRequests").child(scopeUID).removeValue()
                             
                             ref.child("squad").child(scopeUID).setValue(["firstName" : scopeFirstName, "lastName" : scopeLastName, "uid" : scopeUID])
                             
-                            let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
+                        
                             
                             let timeInterval = NSDate().timeIntervalSince1970
 
@@ -349,9 +541,19 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                 
                 alertController.addAction(UIAlertAction(title: "Send Request", style: .Default, handler: { (action) in
 
-
-                    
                     if let userUID = scopeUserData["uid"] as? String, selfUID = FIRAuth.auth()?.currentUser?.uid, selfData = self.profileController?.rootController?.selfData, firstName = selfData["firstName"] as? String, lastName = selfData["lastName"] as? String {
+                        
+                        let yourRef = FIRDatabase.database().reference().child("users").child(userUID)
+                        
+                        yourRef.child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                            
+                            if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+     
+                                appDelegate.pushMessage(userUID, token: token, message: "\(firstName) has sent you a squad request")
+                                
+                                
+                            }
+                        })
                         
                         let timeInterval = NSDate().timeIntervalSince1970
                         

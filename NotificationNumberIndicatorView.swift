@@ -14,8 +14,6 @@ class NotificationNumberIndicatorView: UIView {
         
         super.awakeFromNib()
         layer.cornerRadius = 10
-        layer.borderWidth = 1
-        layer.borderColor = UIColor.blackColor().CGColor
         self.clipsToBounds = true
         
     }

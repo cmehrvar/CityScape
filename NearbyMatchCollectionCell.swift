@@ -78,6 +78,20 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                                 
                                 if scopeUsentMe {
                                     
+                                    ref.child("users").child(scopeUID).child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                                        
+                                        if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                                            
+                                            if let myFirstName = self.nearbyController?.rootController?.selfData["firstName"] as? String, myLastName = self.nearbyController?.rootController?.selfData["lastName"] as? String {
+                                                
+                                                appDelegate.pushMessage(scopeUID, token: token, message: "You've matched with \(myFirstName) \(myLastName)!")
+                                                
+                                            }
+   
+                                        }
+                                    })
+
+                                    
                                     ref.child("users").child(myUID).child("matchesDisplayed").child(scopeUID).setValue(false)
                                     ref.child("users").child(scopeUID).child("matchesDisplayed").child(myUID).setValue(false)
                                     

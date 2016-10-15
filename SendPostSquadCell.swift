@@ -26,54 +26,28 @@ class SendPostSquadCell: UITableViewCell {
     
     @IBAction func addToChat(sender: AnyObject) {
         
-        if let selectedUsers = handleController?.userSelected {
+        if let selectedUsers = handleController?.selectedSquad {
             
             if selectedUsers[uid] != nil {
                 
                 //Remove
-                if let last = handleController?.selectedSquad.last, index = handleController?.userSelected[uid] {
-                    
-                    handleController?.selectedSquad[index] = last
-                    
-                    if let uid = last["uid"] as? String {
-                        
-                        handleController?.userSelected[uid] = index
-                        
-                    }
-                    
-                    handleController?.selectedSquad.removeLast()
-                    handleController?.userSelected.removeValueForKey(uid)
+                self.handleController?.selectedSquad.removeValueForKey(self.uid)
+                self.handleController?.globTableViewOutlet.reloadData()
 
-                    handleController?.globTableViewOutlet.reloadData()
-                    
-                }
-                
+
             } else {
                 
-                
-                if let count = handleController?.selectedSquad.count {
-                    
-                    handleController?.userSelected[uid] = count
+                print(uid)
+                self.handleController?.selectedSquad.updateValue(self.userData, forKey: self.uid)
+                self.handleController?.globTableViewOutlet.reloadData()
 
-                    //Add
-                    handleController?.selectedSquad.append(userData)
-                    handleController?.globTableViewOutlet.reloadData()
-                    
-                }
             }
             
         } else {
             
-            if let count = handleController?.selectedSquad.count {
-                
-                handleController?.userSelected[uid] = count
-                
-            }
-            
             //Add
-            handleController?.selectedSquad.append(userData)
-            
-            handleController?.globTableViewOutlet.reloadData()
+            self.handleController?.selectedSquad.updateValue(self.userData, forKey: self.uid)
+            self.handleController?.globTableViewOutlet.reloadData()
 
         }
         
@@ -119,14 +93,13 @@ class SendPostSquadCell: UITableViewCell {
             
             let ref = FIRDatabase.database().reference().child("users").child(uid)
             
-            if (handleController?.userSelected[uid]) != nil {
+            if (handleController?.selectedSquad[uid]) != nil {
                 
-                self.selectedImageOutlet.image = UIImage(named: "Checkmark")
+                self.selectedImageOutlet.backgroundColor = UIColor.redColor()
                 
             } else {
                 
-                self.selectedImageOutlet.image = nil
-                
+                self.selectedImageOutlet.backgroundColor = UIColor.clearColor()
             }
             
             ref.child("profilePicture").observeEventType(.Value, withBlock: { (snapshot) in

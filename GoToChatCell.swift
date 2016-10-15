@@ -70,27 +70,52 @@ class GoToChatCell: UICollectionViewCell {
         alertController.addAction(NYAlertAction(title: "Report", style: .Default, handler: { (action) in
             
             print("report user")
-            
-            if let selfUID = FIRAuth.auth()?.currentUser?.uid {
-                
-                let myRef = FIRDatabase.database().reference().child("users").child(selfUID)
-                
-                myRef.child("reportedUsers").child(scopeUID).setValue(true)
-                myRef.child("squad").child(scopeUID).removeValue()
-                myRef.child("matches").child(scopeUID).removeValue()
-                myRef.child("notifications").child(scopeUID).removeValue()
-                
-                
-                self.vibesController?.rootController?.selfData.updateValue([scopeUID : true], forKey: "reportedUsers")
-                
-                self.vibesController?.rootController?.clearVibesPlayers()
-                self.vibesController?.globCollectionView.contentOffset = CGPointZero
-                self.vibesController?.observePosts()
-                
-            }
 
-            self.vibesController?.dismissViewControllerAnimated(true, completion: nil)
-            
+            self.vibesController?.dismissViewControllerAnimated(true, completion: {
+                
+                if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                    
+                    let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
+                    let myRef = FIRDatabase.database().reference().child("users").child(selfUID)
+                    
+                    myRef.child("reportedUsers").child(scopeUID).setValue(true)
+                    
+                    yourRef.child("squad").child(scopeUID).removeValue()
+                    yourRef.child("matches").child(scopeUID).removeValue()
+                    yourRef.child("notifications").child(scopeUID).removeValue()
+                    
+                    myRef.child("squad").child(scopeUID).removeValue()
+                    myRef.child("matches").child(scopeUID).removeValue()
+                    myRef.child("notifications").child(scopeUID).removeValue()
+                    
+                    
+                    if let myReported = self.vibesController?.rootController?.selfData["reportedUsers"] as? [String : Bool] {
+                        
+                        var temp = myReported
+                        temp.updateValue(true, forKey: scopeUID)
+                        self.vibesController?.rootController?.selfData.updateValue(temp, forKey: "reportedUsers")
+                        
+                    }
+                    
+                    self.vibesController?.rootController?.searchController?.userController?.observeUsers()
+                    
+                    self.vibesController?.rootController?.nearbyController?.nearbyUsers.removeAll()
+                    self.vibesController?.rootController?.nearbyController?.addedCells.removeAll()
+                    self.vibesController?.rootController?.nearbyController?.addedCells.removeAll()
+                    self.vibesController?.rootController?.nearbyController?.dismissedCells.removeAll()
+                    
+                    if let myLocation = self.vibesController?.rootController?.nearbyController?.globLocation {
+                        
+                        self.vibesController?.rootController?.nearbyController?.queryNearby(myLocation)
+                        
+                    }
+                    
+                    self.vibesController?.rootController?.clearVibesPlayers()
+                    self.vibesController?.globCollectionView.contentOffset = CGPointZero
+                    self.vibesController?.observePosts()
+                    
+                }
+            })
         }))
 
         

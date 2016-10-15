@@ -18,6 +18,60 @@ import NWPusher
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
+    var pusher: NWPusher?
+
+    func pushMessage(uid: String, token: String, message: String) {
+        
+        let ref = FIRDatabase.database().reference().child("users").child(uid)
+
+        ref.child("badgeNumber").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+            
+            if snapshot.exists() {
+                
+                if let badgeNumber = snapshot.value as? Int {
+                    
+                    
+                    
+                    let payload: String = "{\"aps\":{\"alert\":\"\(message)\",\"badge\":\(badgeNumber + 1),\"sound\":\"default\"}}"
+                    
+                    ref.child("badgeNumber").setValue(badgeNumber + 1)
+                    
+                    if let scopePusher = self.pusher {
+                        
+                        do {
+
+                            try scopePusher.pushPayload(payload, token: token, identifier: UInt(rand()))
+                            
+                        } catch let error {
+                            
+                            print(error)
+                            
+                        }
+                    }
+                }
+                
+            } else {
+                
+                let payload = "{\"aps\":{\"alert\":\"\(message)\", \"badge\":\(1), \"sound\":\"default\"}}"
+                
+                ref.child("badgeNumber").setValue(1)
+                
+                if let scopePusher = self.pusher {
+                    
+                    do {
+                        
+                        try scopePusher.pushPayload(payload, token: token, identifier: UInt(rand()))
+                        
+                    } catch let error {
+                        
+                        print(error)
+                        
+                    }
+                }
+            }
+        })
+    }
+
     var window: UIWindow?
     var selfData = [NSObject : AnyObject]()
     
@@ -62,13 +116,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         }
         
-        if let url = NSBundle.mainBundle().URLForResource("pusher", withExtension: ".p12") {
+        if let url = NSBundle.mainBundle().URLForResource("AtlasProduction", withExtension: ".p12") {
             
-            print("good url")
+            let data = NSData(contentsOfURL: url)
             
+            do {
+                
+                try pusher = NWPusher.connectWithPKCS12Data(data, password: "cousinhadI@1", environment: NWEnvironment.Auto)
+                
+            } catch let error {
+                
+                print(error)
+                
+            }
+            
+            if pusher != nil {
+                
+                print("good pusher")
+                
+            } else {
+                
+                print("bad pusher")
+                
+            }
         }
 
-  
         application.statusBarStyle = .LightContent
         
         // Override point for customization after application launch.
@@ -83,6 +155,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         mainRootController?.clearVibesPlayers()
         mainRootController?.clearProfilePlayers()
 
+        if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+            
+            FIRDatabase.database().reference().child("users").child(selfUID).child("badgeNumber").setValue(0)
+            application.applicationIconBadgeNumber = 0
+            
+        }
  
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
