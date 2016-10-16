@@ -16281,15 +16281,9 @@
                                                 </button>
                                                 <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="deny" translatesAutoresizingMaskIntoConstraints="NO" id="QLI-wL-tj7" userLabel="denyImage">
                                                     <rect key="frame" x="0.0" y="0.0" width="240" height="128"/>
-                                                    <variation key="heightClass=regular" misplaced="YES">
-                                                        <rect key="frame" x="156" y="32" width="30" height="30"/>
-                                                    </variation>
                                                 </imageView>
                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Agi-82-5TL" userLabel="X">
                                                     <rect key="frame" x="-23" y="-15" width="46" height="30"/>
-                                                    <variation key="heightClass=regular" misplaced="YES">
-                                                        <rect key="frame" x="140" y="0.0" width="46" height="94"/>
-                                                    </variation>
                                                     <connections>
                                                         <action selector="deny:" destination="mbs-PH-n2h" eventType="touchUpInside" id="Pdi-xS-B7z"/>
                                                     </connections>
@@ -16310,8 +16304,7 @@
                                                             <exclude reference="oXt-AN-36H"/>
                                                         </mask>
                                                     </variation>
-                                                    <variation key="heightClass=regular" misplaced="YES">
-                                                        <rect key="frame" x="194" y="32" width="30" height="30"/>
+                                                    <variation key="heightClass=regular">
                                                         <mask key="constraints">
                                                             <include reference="esM-1J-Ip3"/>
                                                             <include reference="oXt-AN-36H"/>
@@ -16320,9 +16313,6 @@
                                                 </imageView>
                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YLt-8t-C4k" userLabel="Check">
                                                     <rect key="frame" x="-23" y="-15" width="46" height="30"/>
-                                                    <variation key="heightClass=regular" misplaced="YES">
-                                                        <rect key="frame" x="194" y="0.0" width="46" height="94"/>
-                                                    </variation>
                                                     <connections>
                                                         <action selector="approve:" destination="mbs-PH-n2h" eventType="touchUpInside" id="dzp-44-mrQ"/>
                                                     </connections>
@@ -19046,7 +19036,7 @@
                                             <rect key="frame" x="16" y="19" width="39" height="32"/>
                                         </variation>
                                         <connections>
-                                            <action selector="back:" destination="VvB-l5-Aog" eventType="touchUpInside" id="vqm-6T-Wud"/>
+                                            <action selector="back:" destination="VvB-l5-Aog" eventType="touchUpInside" id="rZb-q3-h48"/>
                                         </connections>
                                     </button>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Logo" translatesAutoresizingMaskIntoConstraints="NO" id="lhu-23-Vbc">
@@ -19068,7 +19058,7 @@
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yya-tE-BxO" userLabel="Back2">
                                         <rect key="frame" x="-23" y="-15" width="46" height="30"/>
                                         <connections>
-                                            <action selector="back:" destination="VvB-l5-Aog" eventType="touchUpInside" id="lhT-Pf-hbt"/>
+                                            <action selector="back:" destination="VvB-l5-Aog" eventType="touchUpInside" id="FlL-5s-mq3"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -19340,8 +19330,8 @@
                                     </tableViewCell>
                                 </prototypes>
                                 <connections>
-                                    <outlet property="dataSource" destination="VvB-l5-Aog" id="Xlj-mf-UQs"/>
-                                    <outlet property="delegate" destination="VvB-l5-Aog" id="oys-HE-C59"/>
+                                    <outlet property="dataSource" destination="VvB-l5-Aog" id="ybW-5m-fGz"/>
+                                    <outlet property="delegate" destination="VvB-l5-Aog" id="LWT-WV-Ukp"/>
                                 </connections>
                             </tableView>
                         </subviews>
@@ -19408,7 +19398,7 @@
                         </variation>
                     </view>
                     <connections>
-                        <outlet property="globTableView" destination="HAJ-H0-OTJ" id="Npe-hB-ohJ"/>
+                        <outlet property="globTableviewOutlet" destination="HAJ-H0-OTJ" id="NTV-1d-vUq"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="MkS-y0-xw8" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -19461,6 +19451,9 @@
                                         <state key="normal" title="Back">
                                             <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         </state>
+                                        <variation key="heightClass=regular" misplaced="YES">
+                                            <rect key="frame" x="16" y="27" width="39" height="32"/>
+                                        </variation>
                                         <connections>
                                             <action selector="back:" destination="PwC-kI-Djl" eventType="touchUpInside" id="LZe-br-088"/>
                                         </connections>
@@ -19498,19 +19491,19 @@
                                     </mask>
                                     <mask key="constraints">
                                         <exclude reference="xbe-fD-BDb"/>
-                                        <exclude reference="LtI-Jn-PCK"/>
-                                        <exclude reference="ON4-YL-s9z"/>
-                                        <exclude reference="PbZ-N2-TR0"/>
-                                        <exclude reference="ZwR-PH-bEz"/>
-                                        <exclude reference="4br-A5-1kI"/>
-                                        <exclude reference="ivm-UE-kjf"/>
-                                        <exclude reference="pI2-OX-2wg"/>
-                                        <exclude reference="MaU-Rx-jGb"/>
-                                        <exclude reference="mWV-Lg-hFe"/>
                                         <exclude reference="7o3-CP-kcw"/>
                                         <exclude reference="DTq-bh-Ozy"/>
                                         <exclude reference="EhK-OR-oVO"/>
                                         <exclude reference="u0l-Wf-57S"/>
+                                        <exclude reference="4br-A5-1kI"/>
+                                        <exclude reference="ivm-UE-kjf"/>
+                                        <exclude reference="pI2-OX-2wg"/>
+                                        <exclude reference="LtI-Jn-PCK"/>
+                                        <exclude reference="ON4-YL-s9z"/>
+                                        <exclude reference="PbZ-N2-TR0"/>
+                                        <exclude reference="ZwR-PH-bEz"/>
+                                        <exclude reference="MaU-Rx-jGb"/>
+                                        <exclude reference="mWV-Lg-hFe"/>
                                     </mask>
                                 </variation>
                                 <variation key="heightClass=regular">
@@ -19522,19 +19515,19 @@
                                     </mask>
                                     <mask key="constraints">
                                         <include reference="xbe-fD-BDb"/>
-                                        <include reference="LtI-Jn-PCK"/>
-                                        <include reference="ON4-YL-s9z"/>
-                                        <include reference="PbZ-N2-TR0"/>
-                                        <include reference="ZwR-PH-bEz"/>
-                                        <include reference="4br-A5-1kI"/>
-                                        <include reference="ivm-UE-kjf"/>
-                                        <exclude reference="pI2-OX-2wg"/>
-                                        <include reference="MaU-Rx-jGb"/>
-                                        <include reference="mWV-Lg-hFe"/>
                                         <include reference="7o3-CP-kcw"/>
                                         <include reference="DTq-bh-Ozy"/>
                                         <include reference="EhK-OR-oVO"/>
                                         <include reference="u0l-Wf-57S"/>
+                                        <include reference="4br-A5-1kI"/>
+                                        <include reference="ivm-UE-kjf"/>
+                                        <exclude reference="pI2-OX-2wg"/>
+                                        <include reference="LtI-Jn-PCK"/>
+                                        <include reference="ON4-YL-s9z"/>
+                                        <include reference="PbZ-N2-TR0"/>
+                                        <include reference="ZwR-PH-bEz"/>
+                                        <include reference="MaU-Rx-jGb"/>
+                                        <include reference="mWV-Lg-hFe"/>
                                     </mask>
                                 </variation>
                             </view>
@@ -19719,6 +19712,9 @@ These Terms of Use were most recently updated on June 2, 2014
                                 <subviews>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="topGradient" translatesAutoresizingMaskIntoConstraints="NO" id="rUA-wd-gX2">
                                         <rect key="frame" x="0.0" y="0.0" width="240" height="128"/>
+                                        <variation key="heightClass=regular" misplaced="YES">
+                                            <rect key="frame" x="0.0" y="-65" width="600" height="65"/>
+                                        </variation>
                                     </imageView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="24L-ee-DPH">
                                         <rect key="frame" x="-23" y="-15" width="46" height="30"/>
@@ -19743,7 +19739,8 @@ These Terms of Use were most recently updated on June 2, 2014
                                                 <exclude reference="dw5-DW-1VX"/>
                                             </mask>
                                         </variation>
-                                        <variation key="heightClass=regular">
+                                        <variation key="heightClass=regular" misplaced="YES">
+                                            <rect key="frame" x="237" y="-10" width="127" height="20"/>
                                             <mask key="constraints">
                                                 <include reference="dw5-DW-1VX"/>
                                             </mask>
@@ -19751,6 +19748,9 @@ These Terms of Use were most recently updated on June 2, 2014
                                     </imageView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ufm-Yh-zGF">
                                         <rect key="frame" x="-23" y="-15" width="46" height="30"/>
+                                        <variation key="heightClass=regular" misplaced="YES">
+                                            <rect key="frame" x="237" y="0.0" width="127" height="30"/>
+                                        </variation>
                                         <connections>
                                             <action selector="back:" destination="NmJ-Hh-30P" eventType="touchUpInside" id="faS-4k-MnW"/>
                                         </connections>
@@ -19797,7 +19797,8 @@ These Terms of Use were most recently updated on June 2, 2014
                                         <exclude reference="zFb-zK-7bY"/>
                                     </mask>
                                 </variation>
-                                <variation key="heightClass=regular">
+                                <variation key="heightClass=regular" misplaced="YES">
+                                    <rect key="frame" x="0.0" y="0.0" width="600" height="0.0"/>
                                     <mask key="subviews">
                                         <include reference="rUA-wd-gX2"/>
                                         <include reference="24L-ee-DPH"/>
@@ -19851,7 +19852,7 @@ These Terms of Use were most recently updated on June 2, 2014
                                     </mask>
                                 </variation>
                                 <variation key="heightClass=regular" misplaced="YES">
-                                    <rect key="frame" x="0.0" y="50" width="600" height="0.0"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="600" height="0.0"/>
                                     <mask key="subviews">
                                         <include reference="VRm-TO-oX4"/>
                                     </mask>
@@ -19873,7 +19874,7 @@ These Terms of Use were most recently updated on June 2, 2014
                                     </mask>
                                 </variation>
                                 <variation key="heightClass=regular" misplaced="YES">
-                                    <rect key="frame" x="0.0" y="125" width="600" height="150"/>
+                                    <rect key="frame" x="0.0" y="75" width="600" height="150"/>
                                     <mask key="constraints">
                                         <include reference="F1T-Pl-qw0"/>
                                     </mask>
@@ -19883,7 +19884,7 @@ These Terms of Use were most recently updated on June 2, 2014
                                 <rect key="frame" x="0.0" y="0.0" width="240" height="128"/>
                                 <color key="backgroundColor" red="0.93725490196078431" green="0.27450980392156865" blue="0.33725490196078434" alpha="1" colorSpace="calibratedRGB"/>
                                 <variation key="heightClass=regular" misplaced="YES">
-                                    <rect key="frame" x="0.0" y="275" width="600" height="505"/>
+                                    <rect key="frame" x="0.0" y="225" width="600" height="555"/>
                                 </variation>
                             </view>
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Stephen" translatesAutoresizingMaskIntoConstraints="NO" id="vlg-j7-zwB" userLabel="Stephen">
@@ -19899,7 +19900,7 @@ These Terms of Use were most recently updated on June 2, 2014
                                     </mask>
                                 </variation>
                                 <variation key="heightClass=regular" misplaced="YES">
-                                    <rect key="frame" x="0.0" y="50" width="300" height="150"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="300" height="150"/>
                                     <mask key="constraints">
                                         <include reference="Sps-EY-neK"/>
                                     </mask>
@@ -19911,7 +19912,7 @@ These Terms of Use were most recently updated on June 2, 2014
                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
                                 <variation key="heightClass=regular" misplaced="YES">
-                                    <rect key="frame" x="81" y="220" width="138" height="24"/>
+                                    <rect key="frame" x="81" y="170" width="138" height="24"/>
                                 </variation>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="CEO" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Sd1-D7-DCL">
@@ -19920,13 +19921,13 @@ These Terms of Use were most recently updated on June 2, 2014
                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
                                 <variation key="heightClass=regular" misplaced="YES">
-                                    <rect key="frame" x="129" y="249" width="42" height="24"/>
+                                    <rect key="frame" x="129" y="199" width="42" height="24"/>
                                 </variation>
                             </label>
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Cina" translatesAutoresizingMaskIntoConstraints="NO" id="uRQ-Fa-2PY" userLabel="Cina">
                                 <rect key="frame" x="0.0" y="0.0" width="240" height="128"/>
                                 <variation key="heightClass=regular" misplaced="YES">
-                                    <rect key="frame" x="300" y="50" width="300" height="150"/>
+                                    <rect key="frame" x="300" y="0.0" width="300" height="150"/>
                                 </variation>
                             </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Cina Mehrvar" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gjZ-ph-cIP" userLabel="Cina Mehrvar">
@@ -20024,7 +20025,7 @@ These Terms of Use were most recently updated on June 2, 2014
                                     </mask>
                                 </variation>
                                 <variation key="heightClass=regular" misplaced="YES">
-                                    <rect key="frame" x="0.0" y="273" width="600" height="0.0"/>
+                                    <rect key="frame" x="0.0" y="223" width="600" height="0.0"/>
                                     <mask key="subviews">
                                         <include reference="NFt-9b-bPM"/>
                                     </mask>
@@ -20099,7 +20100,7 @@ These Terms of Use were most recently updated on June 2, 2014
                                     </mask>
                                 </variation>
                                 <variation key="heightClass=regular" misplaced="YES">
-                                    <rect key="frame" x="171" y="273" width="258" height="472"/>
+                                    <rect key="frame" x="171" y="223" width="258" height="522"/>
                                     <mask key="subviews">
                                         <include reference="XAh-od-6Uo"/>
                                         <include reference="GE1-ga-blh"/>

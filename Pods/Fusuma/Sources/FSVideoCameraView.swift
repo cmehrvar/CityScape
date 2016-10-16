@@ -19,12 +19,8 @@ final class FSVideoCameraView: UIView {
     @IBOutlet weak var shotButton: UIButton!
     @IBOutlet weak var flashButton: UIButton!
     @IBOutlet weak var flipButton: UIButton!
-    @IBOutlet weak var timeIndicatorOutlet: UIView!
-    @IBOutlet weak var timerLabelOutlet: UILabel!
     
     weak var delegate: FSVideoCameraViewDelegate? = nil
-    
-    let micDeviceInput: AVCaptureDeviceInput = AVCaptureDeviceInput()
     
     var session: AVCaptureSession?
     var device: AVCaptureDevice?
@@ -36,12 +32,6 @@ final class FSVideoCameraView: UIView {
     var flashOnImage: UIImage?
     var videoStartImage: UIImage?
     var videoStopImage: UIImage?
-    
-    var ms = 0
-    var s = 0
-    
-    var startTime = NSTimeInterval()
-    var timer:NSTimer = NSTimer()
 
     
     private var isRecording = false
@@ -73,29 +63,16 @@ final class FSVideoCameraView: UIView {
             }
         }
         
-        let audioDevices = AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeAudio)
-        
         do {
             
             if let session = session {
                 
                 videoInput = try AVCaptureDeviceInput(device: device)
+                
                 session.addInput(videoInput)
                 
-                guard let audioCaptureDevice = audioDevices else {
-                    print("Unable to cast the first device as a capture device")
-                    return
-                }
-                
-                do {
-                    let input = try AVCaptureDeviceInput(device: audioCaptureDevice)
-                    session.addInput(input)
-                } catch let error {
-                    print("Error was caught when trying to transform the device into a session input: \(error)")
-                }
-                
                 videoOutput = AVCaptureMovieFileOutput()
-                let totalSeconds = 15.0 //Total Seconds of capture time
+                let totalSeconds = 60.0 //Total Seconds of capture time
                 let timeScale: Int32 = 30 //FPS
                 
                 let maxDuration = CMTimeMakeWithSeconds(totalSeconds, timeScale)
@@ -134,7 +111,7 @@ final class FSVideoCameraView: UIView {
         let flipImage = fusumaFlipImage != nil ? fusumaFlipImage : UIImage(named: "ic_loop", inBundle: bundle, compatibleWithTraitCollection: nil)
         videoStartImage = fusumaVideoStartImage != nil ? fusumaVideoStartImage : UIImage(named: "video_button", inBundle: bundle, compatibleWithTraitCollection: nil)
         videoStopImage = fusumaVideoStopImage != nil ? fusumaVideoStopImage : UIImage(named: "video_button_rec", inBundle: bundle, compatibleWithTraitCollection: nil)
-        
+
         
         if(fusumaTintIcons) {
             flashButton.tintColor = fusumaBaseTintColor
@@ -153,7 +130,6 @@ final class FSVideoCameraView: UIView {
         flashConfiguration()
         
         self.startCamera()
-        
     }
     
     deinit {
@@ -188,7 +164,6 @@ final class FSVideoCameraView: UIView {
     }
     
     private func toggleRecording() {
-        
         guard let videoOutput = videoOutput else {
             return
         }
@@ -204,14 +179,6 @@ final class FSVideoCameraView: UIView {
         self.shotButton.setImage(shotImage, forState: .Normal)
         
         if self.isRecording {
-            
-            self.timerLabelOutlet.alpha = 1
-            self.timerLabelOutlet.text = "15s"
-            self.timeIndicatorOutlet.layer.cornerRadius = 10
-            self.timeIndicatorOutlet.alpha = 1
-
-            self.timer = NSTimer.scheduledTimerWithTimeInterval(0.01, target: self, selector: Selector("update"), userInfo: nil, repeats: true)
-
             let outputPath = "\(NSTemporaryDirectory())output.mov"
             let outputURL = NSURL.fileURLWithPath(outputPath)
             
@@ -229,15 +196,6 @@ final class FSVideoCameraView: UIView {
             self.flashButton.enabled = false
             videoOutput.startRecordingToOutputFileURL(outputURL, recordingDelegate: self)
         } else {
-            
-            self.timerLabelOutlet.alpha = 0
-            self.timeIndicatorOutlet.alpha = 0
-            
-            timer.invalidate()
-            ms = 0
-            s = 0
-            timerLabelOutlet.text = ""
-            
             videoOutput.stopRecording()
             self.flipButton.enabled = true
             self.flashButton.enabled = true
@@ -403,70 +361,5 @@ extension FSVideoCameraView {
             
             return
         }
-    }
-    
-    
-    func update() {
-        
-        ms++
-        
-        switch ms {
-            
-        case 0:
-            s = 15
-            
-        case 100:
-            s = 14
-            
-        case 200:
-            s = 13
-            
-        case 300:
-            s = 12
-            
-        case 400:
-            s = 11
-            
-        case 500:
-            s = 10
-            
-        case 600:
-            s = 9
-            
-        case 700:
-            s = 8
-            
-        case 800:
-            s = 7
-            
-        case 900:
-            s = 6
-            
-        case 1000:
-            s = 5
-            
-        case 1100:
-            s = 4
-            
-        case 1200:
-            s = 3
-            
-        case 1300:
-            s = 2
-            
-        case 1400:
-            s = 1
-            
-        case 1500:
-            s = 0
-            
-        default:
-            break
-            
-            
-        }
-        
-        timerLabelOutlet.text = "\(s)"
-        
     }
 }

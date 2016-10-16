@@ -210,7 +210,7 @@ class MainRootController: UIViewController {
             
             offset = self.view.bounds.height
             leaderBoardController?.leaders.removeAll()
-            leaderBoardController?.globTableView.reloadData()
+            leaderBoardController?.globTableviewOutlet.reloadData()
             
         } else {
             

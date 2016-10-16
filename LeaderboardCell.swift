@@ -43,12 +43,8 @@ class LeaderboardCell: UITableViewCell {
             
             
         })
-        
-        
     }
-    
-    
-    
+
     func loadCell(uid: String) {
         
         self.uid = uid

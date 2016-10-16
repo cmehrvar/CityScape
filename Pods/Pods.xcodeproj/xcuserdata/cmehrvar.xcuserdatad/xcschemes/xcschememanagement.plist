@@ -89,6 +89,16 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
+		<key>Pods-CityScapeTests.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
+		<key>Pods-CityScapeUITests.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>SDWebImage.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -107,7 +117,17 @@
 			<key>primary</key>
 			<true/>
 		</dict>
+		<key>1B31F16537E47C10B7DCC947CE0409E6</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>1ED4DFAAD25E1999D0244868457A351E</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>30D7FCF8072F5D59AE1C98D94F9A6EC9</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -127,12 +147,7 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>5D69761C2CD2A1E5C013537B29CAB4CF</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>6A932845C7A5BE5374224A90EA874591</key>
+		<key>6EDC37F3FA92533C6AC3562458AA91F1</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -152,11 +167,6 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>99951036087DA0C5FE3306F5B480C63D</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
 		<key>9D0F2E5EA1B46A5D72FFD42B0B39DBBC</key>
 		<dict>
 			<key>primary</key>
@@ -167,17 +177,27 @@
 			<key>primary</key>
 			<true/>
 		</dict>
+		<key>B23429EC7D01FF349DE5C15D3300FF93</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>B6DA1BDD83124C63F006EF628720357D</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>BAA396C4D689A02A15029B49E076FAF0</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>CFF7D2E886B0E696113A679CB8EFC1AF</key>
+		<key>D8F9A80908D93C2E8008C2E61054C6EB</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>E15476058E9AB60474A23B03CF9BB509</key>
+		<key>E1CCA5AC0EB2DD13674BF23B2B738365</key>
 		<dict>
 			<key>primary</key>
 			<true/>

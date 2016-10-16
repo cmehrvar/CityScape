@@ -14,7 +14,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = 'primary'
-               BlueprintIdentifier = '5C01190D3045A673EEBDD095'
+               BlueprintIdentifier = '7380ABD049E12DCFEC9B9E1D2D52C627'
                BlueprintName = 'Fusuma'
                ReferencedContainer = 'container:Pods.xcodeproj'
                BuildableName = 'Fusuma.framework'>
