@@ -25,11 +25,11 @@ class PostUpdateCell: UITableViewCell {
     
     
 
-    @IBAction func goToPost(sender: AnyObject) {
+    @IBAction func goToPost(_ sender: AnyObject) {
 
-        if let selfData = notificationController?.rootController?.selfData, myPosts = selfData["posts"] as? [NSObject : AnyObject] {
+        if let selfData = notificationController?.rootController?.selfData, let myPosts = selfData["posts"] as? [AnyHashable: Any] {
             
-            if let post = myPosts[postKey] as? [NSObject : AnyObject] {
+            if let post = myPosts[postKey] as? [AnyHashable: Any] {
 
                 let postArray = [post]
                 
@@ -46,10 +46,10 @@ class PostUpdateCell: UITableViewCell {
     
     
     
-    func loadCell(data: [NSObject : AnyObject]) {
+    func loadCell(_ data: [AnyHashable: Any]) {
         
         nameOutlet.adjustsFontSizeToFitWidth = true
-        nameOutlet.baselineAdjustment = .AlignCenters
+        nameOutlet.baselineAdjustment = .alignCenters
         
         if let uid = data["senderUid"] as? String {
             
@@ -57,7 +57,7 @@ class PostUpdateCell: UITableViewCell {
             
             let userRef = FIRDatabase.database().reference().child("users").child(uid)
             
-            userRef.child("firstName").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+            userRef.child("firstName").observeSingleEvent(of: .value, with: { (snapshot) in
                 
                 if let firstName = snapshot.value as? String {
                     
@@ -66,13 +66,13 @@ class PostUpdateCell: UITableViewCell {
                 }
             })
             
-            userRef.child("profilePicture").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+            userRef.child("profilePicture").observeSingleEvent(of: .value, with: { (snapshot) in
                 
-                if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
+                if let profileString = snapshot.value as? String, let url = URL(string: profileString) {
                     
                     if self.uid == uid {
                         
-                        self.profileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                        self.profileOutlet.sd_setImage(with: url, placeholderImage: nil)
                         
                     }
                 }
@@ -85,9 +85,9 @@ class PostUpdateCell: UITableViewCell {
                 
             }
             
-            if let imageString = data["image"] as? String, url = NSURL(string: imageString) {
+            if let imageString = data["image"] as? String, let url = URL(string: imageString) {
                 
-                postOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                postOutlet.sd_setImage(with: url, placeholderImage: nil)
                 
             }
             
@@ -119,7 +119,7 @@ class PostUpdateCell: UITableViewCell {
         // Initialization code
     }
     
-    override func setSelected(selected: Bool, animated: Bool) {
+    override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
         
         // Configure the view for the selected state

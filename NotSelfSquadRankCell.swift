@@ -12,7 +12,7 @@ class NotSelfSquadRankCell: UICollectionViewCell {
     
     weak var profileController: ProfileController?
     
-    var userData = [NSObject : AnyObject]()
+    var userData = [AnyHashable: Any]()
     
     //Outlets
     @IBOutlet weak var squadCountOutlet: UILabel!
@@ -20,7 +20,7 @@ class NotSelfSquadRankCell: UICollectionViewCell {
     
     
     
-    @IBAction func revealSquad(sender: AnyObject) {
+    @IBAction func revealSquad(_ sender: AnyObject) {
         
         profileController?.rootController?.openSquadCount(userData, completion: { (bool) in
             
@@ -30,7 +30,7 @@ class NotSelfSquadRankCell: UICollectionViewCell {
     }
 
     
-    func loadData(data: [NSObject : AnyObject]){
+    func loadData(_ data: [AnyHashable: Any]){
         
         userData = data
         

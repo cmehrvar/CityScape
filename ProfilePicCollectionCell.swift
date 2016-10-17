@@ -49,12 +49,18 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
     @IBOutlet weak var indicator4Outlet: ProfileCurrentPictureIndicatorVIew!
     @IBOutlet weak var indicator5Outlet: ProfileCurrentPictureIndicatorVIew!
     
+    @IBOutlet weak var backView1: UIView!
+    @IBOutlet weak var backView2: UIView!
+    @IBOutlet weak var backView3: UIView!
+    @IBOutlet weak var backView4: UIView!
+    
+    
     @IBOutlet weak var editButtonOutlet: UIButton!
     @IBOutlet weak var editImageOutlet: UIImageView!
     
     
     //Actions
-    @IBAction func edit(sender: AnyObject) {
+    @IBAction func edit(_ sender: AnyObject) {
         
         print("currentPicture: \(currentPicture)", terminator: "")
         
@@ -108,15 +114,15 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                 currentPicture = 2
                 profileController?.currentPicture = 2
                 
-                UIView.animateWithDuration(0.3, animations: {
+                UIView.animate(withDuration: 0.3, animations: {
                     
                     self.profilePicCenterConstOutlet.constant = -screenWidth
                     
-                    self.indicator1Outlet.backgroundColor = UIColor.clearColor()
-                    self.indicator2Outlet.backgroundColor = UIColor.lightGrayColor()
-                    self.indicator3Outlet.backgroundColor = UIColor.clearColor()
-                    self.indicator4Outlet.backgroundColor = UIColor.clearColor()
-                    self.indicator5Outlet.backgroundColor = UIColor.clearColor()
+                    self.indicator1Outlet.backgroundColor = UIColor.clear
+                    self.indicator2Outlet.backgroundColor = UIColor.lightGray
+                    self.indicator3Outlet.backgroundColor = UIColor.clear
+                    self.indicator4Outlet.backgroundColor = UIColor.clear
+                    self.indicator5Outlet.backgroundColor = UIColor.clear
                     
                     self.layoutIfNeeded()
                     
@@ -131,15 +137,15 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                 currentPicture = 3
                 profileController?.currentPicture = 3
                 
-                UIView.animateWithDuration(0.3, animations: {
+                UIView.animate(withDuration: 0.3, animations: {
                     
                     self.profilePicCenterConstOutlet.constant = -(screenWidth*2)
                     
-                    self.indicator1Outlet.backgroundColor = UIColor.clearColor()
-                    self.indicator2Outlet.backgroundColor = UIColor.clearColor()
-                    self.indicator3Outlet.backgroundColor = UIColor.lightGrayColor()
-                    self.indicator4Outlet.backgroundColor = UIColor.clearColor()
-                    self.indicator5Outlet.backgroundColor = UIColor.clearColor()
+                    self.indicator1Outlet.backgroundColor = UIColor.clear
+                    self.indicator2Outlet.backgroundColor = UIColor.clear
+                    self.indicator3Outlet.backgroundColor = UIColor.lightGray
+                    self.indicator4Outlet.backgroundColor = UIColor.clear
+                    self.indicator5Outlet.backgroundColor = UIColor.clear
                     
                     self.layoutIfNeeded()
                     
@@ -154,15 +160,15 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                 currentPicture = 4
                 profileController?.currentPicture = 4
                 
-                UIView.animateWithDuration(0.3, animations: {
+                UIView.animate(withDuration: 0.3, animations: {
                     
                     self.profilePicCenterConstOutlet.constant = -(screenWidth * 3)
                     
-                    self.indicator1Outlet.backgroundColor = UIColor.clearColor()
-                    self.indicator2Outlet.backgroundColor = UIColor.clearColor()
-                    self.indicator3Outlet.backgroundColor = UIColor.clearColor()
-                    self.indicator4Outlet.backgroundColor = UIColor.lightGrayColor()
-                    self.indicator5Outlet.backgroundColor = UIColor.clearColor()
+                    self.indicator1Outlet.backgroundColor = UIColor.clear
+                    self.indicator2Outlet.backgroundColor = UIColor.clear
+                    self.indicator3Outlet.backgroundColor = UIColor.clear
+                    self.indicator4Outlet.backgroundColor = UIColor.lightGray
+                    self.indicator5Outlet.backgroundColor = UIColor.clear
                     
                     self.layoutIfNeeded()
                     
@@ -177,15 +183,15 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                 currentPicture = 5
                 profileController?.currentPicture = 5
                 
-                UIView.animateWithDuration(0.3, animations: {
+                UIView.animate(withDuration: 0.3, animations: {
                     
                     self.profilePicCenterConstOutlet.constant = -(screenWidth * 4)
                     
-                    self.indicator1Outlet.backgroundColor = UIColor.clearColor()
-                    self.indicator2Outlet.backgroundColor = UIColor.clearColor()
-                    self.indicator3Outlet.backgroundColor = UIColor.clearColor()
-                    self.indicator4Outlet.backgroundColor = UIColor.clearColor()
-                    self.indicator5Outlet.backgroundColor = UIColor.lightGrayColor()
+                    self.indicator1Outlet.backgroundColor = UIColor.clear
+                    self.indicator2Outlet.backgroundColor = UIColor.clear
+                    self.indicator3Outlet.backgroundColor = UIColor.clear
+                    self.indicator4Outlet.backgroundColor = UIColor.clear
+                    self.indicator5Outlet.backgroundColor = UIColor.lightGray
                     
                     self.layoutIfNeeded()
                     
@@ -223,15 +229,15 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                 currentPicture = 1
                 profileController?.currentPicture = 1
                 
-                UIView.animateWithDuration(0.3, animations: {
+                UIView.animate(withDuration: 0.3, animations: {
                     
                     self.profilePicCenterConstOutlet.constant = 0
                     
-                    self.indicator1Outlet.backgroundColor = UIColor.lightGrayColor()
-                    self.indicator2Outlet.backgroundColor = UIColor.clearColor()
-                    self.indicator3Outlet.backgroundColor = UIColor.clearColor()
-                    self.indicator4Outlet.backgroundColor = UIColor.clearColor()
-                    self.indicator5Outlet.backgroundColor = UIColor.clearColor()
+                    self.indicator1Outlet.backgroundColor = UIColor.lightGray
+                    self.indicator2Outlet.backgroundColor = UIColor.clear
+                    self.indicator3Outlet.backgroundColor = UIColor.clear
+                    self.indicator4Outlet.backgroundColor = UIColor.clear
+                    self.indicator5Outlet.backgroundColor = UIColor.clear
                     
                     self.layoutIfNeeded()
                     
@@ -246,15 +252,15 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                 currentPicture = 2
                 profileController?.currentPicture = 2
                 
-                UIView.animateWithDuration(0.3, animations: {
+                UIView.animate(withDuration: 0.3, animations: {
                     
                     self.profilePicCenterConstOutlet.constant = -screenWidth
                     
-                    self.indicator1Outlet.backgroundColor = UIColor.clearColor()
-                    self.indicator2Outlet.backgroundColor = UIColor.lightGrayColor()
-                    self.indicator3Outlet.backgroundColor = UIColor.clearColor()
-                    self.indicator4Outlet.backgroundColor = UIColor.clearColor()
-                    self.indicator5Outlet.backgroundColor = UIColor.clearColor()
+                    self.indicator1Outlet.backgroundColor = UIColor.clear
+                    self.indicator2Outlet.backgroundColor = UIColor.lightGray
+                    self.indicator3Outlet.backgroundColor = UIColor.clear
+                    self.indicator4Outlet.backgroundColor = UIColor.clear
+                    self.indicator5Outlet.backgroundColor = UIColor.clear
                     
                     self.layoutIfNeeded()
                     
@@ -269,15 +275,15 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                 currentPicture = 3
                 profileController?.currentPicture = 3
                 
-                UIView.animateWithDuration(0.3, animations: {
+                UIView.animate(withDuration: 0.3, animations: {
                     
                     self.profilePicCenterConstOutlet.constant = -(screenWidth * 2)
                     
-                    self.indicator1Outlet.backgroundColor = UIColor.clearColor()
-                    self.indicator2Outlet.backgroundColor = UIColor.clearColor()
-                    self.indicator3Outlet.backgroundColor = UIColor.lightGrayColor()
-                    self.indicator4Outlet.backgroundColor = UIColor.clearColor()
-                    self.indicator5Outlet.backgroundColor = UIColor.clearColor()
+                    self.indicator1Outlet.backgroundColor = UIColor.clear
+                    self.indicator2Outlet.backgroundColor = UIColor.clear
+                    self.indicator3Outlet.backgroundColor = UIColor.lightGray
+                    self.indicator4Outlet.backgroundColor = UIColor.clear
+                    self.indicator5Outlet.backgroundColor = UIColor.clear
                     
                     self.layoutIfNeeded()
                     
@@ -292,15 +298,15 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                 currentPicture = 4
                 profileController?.currentPicture = 4
                 
-                UIView.animateWithDuration(0.3, animations: {
+                UIView.animate(withDuration: 0.3, animations: {
                     
                     self.profilePicCenterConstOutlet.constant = -(screenWidth * 3)
                     
-                    self.indicator1Outlet.backgroundColor = UIColor.clearColor()
-                    self.indicator2Outlet.backgroundColor = UIColor.clearColor()
-                    self.indicator3Outlet.backgroundColor = UIColor.clearColor()
-                    self.indicator4Outlet.backgroundColor = UIColor.lightGrayColor()
-                    self.indicator5Outlet.backgroundColor = UIColor.clearColor()
+                    self.indicator1Outlet.backgroundColor = UIColor.clear
+                    self.indicator2Outlet.backgroundColor = UIColor.clear
+                    self.indicator3Outlet.backgroundColor = UIColor.clear
+                    self.indicator4Outlet.backgroundColor = UIColor.lightGray
+                    self.indicator5Outlet.backgroundColor = UIColor.clear
                     
                     self.layoutIfNeeded()
                     
@@ -317,45 +323,45 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
     }
     
     
-    func loadImages(data: [NSObject : AnyObject], screenWidth: CGFloat){
+    func loadImages(_ data: [AnyHashable: Any], screenWidth: CGFloat){
 
-        if let profilePicture = data["profilePicture"] as? String, url = NSURL(string: profilePicture) {
+        if let profilePicture = data["profilePicture"] as? String, let url = URL(string: profilePicture) {
             
-            profilePicOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+            profilePicOutlet.sd_setImage(with: url, placeholderImage: nil)
             profile1 = profilePicture
             profileController?.profile1 = profilePicture
             pictures = 1
             
         }
         
-        if let profilePicture2 = data["profilePicture2"] as? String, url = NSURL(string: profilePicture2) {
+        if let profilePicture2 = data["profilePicture2"] as? String, let url = URL(string: profilePicture2) {
             
-            profilePic2Outlet.sd_setImageWithURL(url, placeholderImage: nil)
+            profilePic2Outlet.sd_setImage(with: url, placeholderImage: nil)
             profile2 = profilePicture2
             pictures = 2
             
         }
         
         
-        if let profilePicture3 = data["profilePicture3"] as? String, url = NSURL(string: profilePicture3) {
+        if let profilePicture3 = data["profilePicture3"] as? String, let url = URL(string: profilePicture3) {
             
-            profilePic3Outlet.sd_setImageWithURL(url, placeholderImage: nil)
+            profilePic3Outlet.sd_setImage(with: url, placeholderImage: nil)
             profile3 = profilePicture3
             pictures = 3
             
         }
         
-        if let profilePicture4 = data["profilePicture4"] as? String, url = NSURL(string: profilePicture4) {
+        if let profilePicture4 = data["profilePicture4"] as? String, let url = URL(string: profilePicture4) {
             
-            profilePic4Outlet.sd_setImageWithURL(url, placeholderImage: nil)
+            profilePic4Outlet.sd_setImage(with: url, placeholderImage: nil)
             profile4 = profilePicture4
             pictures = 4
             
         }
         
-        if let profilePicture5 = data["profilePicture5"] as? String, url = NSURL(string: profilePicture5) {
+        if let profilePicture5 = data["profilePicture5"] as? String, let url = URL(string: profilePicture5) {
             
-            profilePic5Outlet.sd_setImageWithURL(url, placeholderImage: nil)
+            profilePic5Outlet.sd_setImage(with: url, placeholderImage: nil)
             profile5 = profilePicture5
             pictures = 5
             
@@ -372,8 +378,13 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
             
             if selfUID == data["uid"] as? String {
                 
+                backView1.alpha = 1
+                backView2.alpha = 1
+                backView3.alpha = 1
+                backView4.alpha = 1
+                
                 editImageOutlet.alpha = 1
-                editButtonOutlet.enabled = true
+                editButtonOutlet.isEnabled = true
                 
                 selfProfile = true
                 
@@ -455,8 +466,13 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                 
             } else {
                 
+                backView1.alpha = 0
+                backView2.alpha = 0
+                backView3.alpha = 0
+                backView4.alpha = 0
+                
                 editImageOutlet.alpha = 0
-                editButtonOutlet.enabled = false
+                editButtonOutlet.isEnabled = false
                 selfProfile = false
                 
                 if pictures == 1 {
@@ -533,51 +549,51 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
             
             profilePicCenterConstOutlet.constant = 0
             
-            indicator1Outlet.backgroundColor = UIColor.lightGrayColor()
-            indicator2Outlet.backgroundColor = UIColor.clearColor()
-            indicator3Outlet.backgroundColor = UIColor.clearColor()
-            indicator4Outlet.backgroundColor = UIColor.clearColor()
-            indicator5Outlet.backgroundColor = UIColor.clearColor()
+            indicator1Outlet.backgroundColor = UIColor.lightGray
+            indicator2Outlet.backgroundColor = UIColor.clear
+            indicator3Outlet.backgroundColor = UIColor.clear
+            indicator4Outlet.backgroundColor = UIColor.clear
+            indicator5Outlet.backgroundColor = UIColor.clear
             
         } else if currentPicture == 2 {
             
             profilePicCenterConstOutlet.constant = -(screenWidth)
             
-            indicator1Outlet.backgroundColor = UIColor.clearColor()
-            indicator2Outlet.backgroundColor = UIColor.lightGrayColor()
-            indicator3Outlet.backgroundColor = UIColor.clearColor()
-            indicator4Outlet.backgroundColor = UIColor.clearColor()
-            indicator5Outlet.backgroundColor = UIColor.clearColor()
+            indicator1Outlet.backgroundColor = UIColor.clear
+            indicator2Outlet.backgroundColor = UIColor.lightGray
+            indicator3Outlet.backgroundColor = UIColor.clear
+            indicator4Outlet.backgroundColor = UIColor.clear
+            indicator5Outlet.backgroundColor = UIColor.clear
             
         } else if currentPicture == 3 {
             
             profilePicCenterConstOutlet.constant = -(screenWidth * 2)
             
-            indicator1Outlet.backgroundColor = UIColor.clearColor()
-            indicator2Outlet.backgroundColor = UIColor.clearColor()
-            indicator3Outlet.backgroundColor = UIColor.lightGrayColor()
-            indicator4Outlet.backgroundColor = UIColor.clearColor()
-            indicator5Outlet.backgroundColor = UIColor.clearColor()
+            indicator1Outlet.backgroundColor = UIColor.clear
+            indicator2Outlet.backgroundColor = UIColor.clear
+            indicator3Outlet.backgroundColor = UIColor.lightGray
+            indicator4Outlet.backgroundColor = UIColor.clear
+            indicator5Outlet.backgroundColor = UIColor.clear
             
         } else if currentPicture == 4 {
             
             profilePicCenterConstOutlet.constant = -(screenWidth * 3)
             
-            indicator1Outlet.backgroundColor = UIColor.clearColor()
-            indicator2Outlet.backgroundColor = UIColor.clearColor()
-            indicator3Outlet.backgroundColor = UIColor.clearColor()
-            indicator4Outlet.backgroundColor = UIColor.lightGrayColor()
-            indicator5Outlet.backgroundColor = UIColor.clearColor()
+            indicator1Outlet.backgroundColor = UIColor.clear
+            indicator2Outlet.backgroundColor = UIColor.clear
+            indicator3Outlet.backgroundColor = UIColor.clear
+            indicator4Outlet.backgroundColor = UIColor.lightGray
+            indicator5Outlet.backgroundColor = UIColor.clear
             
         } else if currentPicture == 5 {
             
             profilePicCenterConstOutlet.constant = -(screenWidth * 4)
             
-            indicator1Outlet.backgroundColor = UIColor.clearColor()
-            indicator2Outlet.backgroundColor = UIColor.clearColor()
-            indicator3Outlet.backgroundColor = UIColor.clearColor()
-            indicator4Outlet.backgroundColor = UIColor.clearColor()
-            indicator5Outlet.backgroundColor = UIColor.lightGrayColor()
+            indicator1Outlet.backgroundColor = UIColor.clear
+            indicator2Outlet.backgroundColor = UIColor.clear
+            indicator3Outlet.backgroundColor = UIColor.clear
+            indicator4Outlet.backgroundColor = UIColor.clear
+            indicator5Outlet.backgroundColor = UIColor.lightGray
             
         }
         
@@ -588,7 +604,7 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
     
     
     
-    func callCamera(imageToEdit: String){
+    func callCamera(_ imageToEdit: String){
         
         let scopeCurrentPicture = currentPicture
         let scopePictures = pictures
@@ -603,9 +619,9 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
             
             let ref = FIRDatabase.database().reference().child("users").child(selfUID)
             
-            let alertController = UIAlertController(title: "What would you like to do?", message: nil, preferredStyle: .ActionSheet)
+            let alertController = UIAlertController(title: "What would you like to do?", message: nil, preferredStyle: .actionSheet)
             
-            alertController.addAction(UIAlertAction(title: "Edit Image", style: .Default, handler: { (action) in
+            alertController.addAction(UIAlertAction(title: "Edit Image", style: .default, handler: { (action) in
                 
                 print("edit image")
                 self.profileController?.presentFusuma(imageToEdit)
@@ -615,7 +631,7 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
             
             if scopeCurrentPicture > 1 && scopeCurrentPicture <= scopePictures {
 
-                alertController.addAction(UIAlertAction(title: "Swap with first image", style: .Default, handler: { (action) in
+                alertController.addAction(UIAlertAction(title: "Swap with first image", style: .default, handler: { (action) in
                     
                     print("make first picture")
                     
@@ -645,7 +661,7 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                 }))
 
                 
-                alertController.addAction(UIAlertAction(title: "Delete", style: .Destructive, handler: { (action) in
+                alertController.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { (action) in
                     
                     print("delete picture")
   
@@ -760,12 +776,12 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
             }
             
             
-            alertController.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (actions) in
+            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (actions) in
                 
             }))
             
             
-            self.profileController?.presentViewController(alertController, animated: true, completion: nil)
+            self.profileController?.present(alertController, animated: true, completion: nil)
             
         }
     }
@@ -775,11 +791,11 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
     func addSwipeGesture(){
         
         let leftSwipe = UISwipeGestureRecognizer(target: self, action: #selector(swipeLeft))
-        leftSwipe.direction = .Left
+        leftSwipe.direction = .left
         leftSwipe.delegate = self
         
         let rightSwipe = UISwipeGestureRecognizer(target: self, action: #selector(swipeRight))
-        rightSwipe.direction = .Right
+        rightSwipe.direction = .right
         rightSwipe.delegate = self
         
         self.addGestureRecognizer(rightSwipe)

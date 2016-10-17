@@ -13,7 +13,7 @@ import FirebaseAuth
 
 class SquadTableViewCell: UITableViewCell {
     
-    var data = [NSObject : AnyObject]()
+    var data = [AnyHashable: Any]()
     var firstName = ""
     var lastName = ""
     var profile = ""
@@ -37,19 +37,19 @@ class SquadTableViewCell: UITableViewCell {
     
     
     //Actions
-    @IBAction func inSquad(sender: AnyObject) {
+    @IBAction func inSquad(_ sender: AnyObject) {
         
         let scopeUID = uid
         
-        let alertController = UIAlertController(title: "Delete \(firstName + " " + lastName) from your squad?", message: nil, preferredStyle: .ActionSheet)
+        let alertController = UIAlertController(title: "Delete \(firstName + " " + lastName) from your squad?", message: nil, preferredStyle: .actionSheet)
         
-        alertController.addAction(UIAlertAction(title: "Delete \(firstName)", style: .Destructive, handler: { (action) in
+        alertController.addAction(UIAlertAction(title: "Delete \(firstName)", style: .destructive, handler: { (action) in
             
             if let selfUID = FIRAuth.auth()?.currentUser?.uid {
                 
                 let myRef = FIRDatabase.database().reference().child("users").child(selfUID)
                 
-                dispatch_async(dispatch_get_main_queue(), {
+                DispatchQueue.main.async(execute: {
                     
                     myRef.child("notifications").child(scopeUID).child("squad").removeValue()
                     myRef.child("notifications").child(scopeUID).child("squadRequest").removeValue()
@@ -63,7 +63,7 @@ class SquadTableViewCell: UITableViewCell {
                 
                 let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
                 
-                dispatch_async(dispatch_get_main_queue(), {
+                DispatchQueue.main.async(execute: {
                     
                     yourRef.child("notifications").child(selfUID).child("squad").removeValue()
                     yourRef.child("notifications").child(selfUID).child("squadRequest").removeValue()
@@ -77,21 +77,21 @@ class SquadTableViewCell: UITableViewCell {
         }))
         
         
-        alertController.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
+        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
             
             print("canceled")
             
         }))
         
         
-        self.squadCountController?.presentViewController(alertController, animated: true, completion: {
+        self.squadCountController?.present(alertController, animated: true, completion: {
             
             print("alert controller presented")
             
         })
     }
     
-    @IBAction func messageSquad(sender: AnyObject) {
+    @IBAction func messageSquad(_ sender: AnyObject) {
         
         //let scopeUserData = data
         let scopeUID = uid
@@ -114,21 +114,21 @@ class SquadTableViewCell: UITableViewCell {
             //Cancel send?
             print("cancel send?", terminator: "")
             
-            let alertController = UIAlertController(title: "Unsend squad request to \(firstName + " " + lastName)", message: nil, preferredStyle: .ActionSheet)
+            let alertController = UIAlertController(title: "Unsend squad request to \(firstName + " " + lastName)", message: nil, preferredStyle: .actionSheet)
             
-            alertController.addAction(UIAlertAction(title: "Unsend Request", style: .Destructive, handler: { (action) in
+            alertController.addAction(UIAlertAction(title: "Unsend Request", style: .destructive, handler: { (action) in
                 
                 if let selfUID = FIRAuth.auth()?.currentUser?.uid {
                     
                     let ref = FIRDatabase.database().reference().child("users").child(scopeUID)
                     
-                    ref.child("squadRequests").child(selfUID).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                    ref.child("squadRequests").child(selfUID).observeSingleEvent(of: .value, with: { (snapshot) in
                         
-                        if let mySquadRequest = snapshot.value as? [NSObject : AnyObject] {
+                        if let mySquadRequest = snapshot.value as? [AnyHashable: Any] {
                             
                             if let notKey = mySquadRequest["notificationKey"] as? String {
                                 
-                                dispatch_async(dispatch_get_main_queue(), {
+                                DispatchQueue.main.async(execute: {
                                     
                                     ref.child("squadRequests").child(selfUID).removeValue()
                                     ref.child("notifications").child(notKey).removeValue()
@@ -142,13 +142,13 @@ class SquadTableViewCell: UITableViewCell {
                 }
             }))
             
-            alertController.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
+            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
                 
                 print("canceled")
                 
             }))
             
-            self.squadCountController?.presentViewController(alertController, animated: true, completion: {
+            self.squadCountController?.present(alertController, animated: true, completion: {
                 
                 print("alert controller presented")
                 
@@ -160,17 +160,17 @@ class SquadTableViewCell: UITableViewCell {
             //Confrim or Deny
             print("confirm or deny", terminator: "")
             
-            let alertController = UIAlertController(title: "Confirm \(firstName + " " + lastName) to your squad?", message: nil, preferredStyle: .ActionSheet)
+            let alertController = UIAlertController(title: "Confirm \(firstName + " " + lastName) to your squad?", message: nil, preferredStyle: .actionSheet)
             
-            alertController.addAction(UIAlertAction(title: "Add to Squad", style: .Default, handler: { (action) in
+            alertController.addAction(UIAlertAction(title: "Add to Squad", style: .default, handler: { (action) in
                 
-                if let selfUID = FIRAuth.auth()?.currentUser?.uid, selfData = self.squadCountController?.rootController?.selfData, myFirstName = selfData["firstName"] as? String, myLastName = selfData["lastName"] as? String {
+                if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.squadCountController?.rootController?.selfData, let myFirstName = selfData["firstName"] as? String, let myLastName = selfData["lastName"] as? String {
                     
                     let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
                     
-                    if let mySquadRequests = selfData["squadRequests"] as? [NSObject : AnyObject], userSquadRequest = mySquadRequests[scopeUID] as? [NSObject : AnyObject], scopeNotificationKey = userSquadRequest["notificationKey"] as? String {
+                    if let mySquadRequests = selfData["squadRequests"] as? [AnyHashable: Any], let userSquadRequest = mySquadRequests[scopeUID] as? [AnyHashable: Any], let scopeNotificationKey = userSquadRequest["notificationKey"] as? String {
                         
-                        dispatch_async(dispatch_get_main_queue(), {
+                        DispatchQueue.main.async(execute: {
                             
                             ref.child("notifications").child(scopeNotificationKey).updateChildValues(["status" : "approved"])
                             ref.child("squadRequests").child(scopeUID).removeValue()
@@ -179,9 +179,9 @@ class SquadTableViewCell: UITableViewCell {
                             
                             let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
 
-                            yourRef.child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                            yourRef.child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
                                 
-                                if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                                if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
                                     
                                     appDelegate.pushMessage(scopeUID, token: token, message: "\(myFirstName) has sent you a squad request")
                                     
@@ -190,7 +190,7 @@ class SquadTableViewCell: UITableViewCell {
                             })
 
                             
-                            let timeInterval = NSDate().timeIntervalSince1970
+                            let timeInterval = Date().timeIntervalSince1970
                             
                             let key = yourRef.child("notifications").childByAutoId().key
                             
@@ -205,15 +205,15 @@ class SquadTableViewCell: UITableViewCell {
                 }
             }))
             
-            alertController.addAction(UIAlertAction(title: "Reject \(firstName)", style: .Destructive, handler: { (action) in
+            alertController.addAction(UIAlertAction(title: "Reject \(firstName)", style: .destructive, handler: { (action) in
                 
                 if let selfUID = FIRAuth.auth()?.currentUser?.uid {
                     
                     let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
                     
-                    if let selfData = self.squadCountController?.rootController?.selfData, mySquadRequests = selfData["squadRequests"] as? [NSObject : AnyObject], userSquadRequest = mySquadRequests[scopeUID] as? [NSObject : AnyObject], scopeNotificationKey = userSquadRequest["notificationKey"] as? String {
+                    if let selfData = self.squadCountController?.rootController?.selfData, let mySquadRequests = selfData["squadRequests"] as? [AnyHashable: Any], let userSquadRequest = mySquadRequests[scopeUID] as? [AnyHashable: Any], let scopeNotificationKey = userSquadRequest["notificationKey"] as? String {
                         
-                        dispatch_async(dispatch_get_main_queue(), {
+                        DispatchQueue.main.async(execute: {
                             
                             ref.child("notifications").child(scopeNotificationKey).removeValue()
                             ref.child("squadRequests").child(scopeUID).removeValue()
@@ -225,13 +225,13 @@ class SquadTableViewCell: UITableViewCell {
                 }
             }))
             
-            alertController.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
+            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
                 
                 print("canceled")
                 
             }))
             
-            self.squadCountController?.presentViewController(alertController, animated: true, completion: {
+            self.squadCountController?.present(alertController, animated: true, completion: {
                 
                 print("alert controller presented")
                 
@@ -245,17 +245,17 @@ class SquadTableViewCell: UITableViewCell {
             print(currentSquadInstance, terminator: "")
             print("send a request", terminator: "")
             
-            let alertController = UIAlertController(title: "Add \(firstName + " " + lastName) to your squad!", message: nil, preferredStyle: .ActionSheet)
+            let alertController = UIAlertController(title: "Add \(firstName + " " + lastName) to your squad!", message: nil, preferredStyle: .actionSheet)
             
-            alertController.addAction(UIAlertAction(title: "Send Request", style: .Default, handler: { (action) in
+            alertController.addAction(UIAlertAction(title: "Send Request", style: .default, handler: { (action) in
                 
-                if let selfUID = FIRAuth.auth()?.currentUser?.uid, selfData = self.squadCountController?.rootController?.selfData, firstName = selfData["firstName"] as? String, lastName = selfData["lastName"] as? String {
+                if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.squadCountController?.rootController?.selfData, let firstName = selfData["firstName"] as? String, let lastName = selfData["lastName"] as? String {
                     
                     let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
                     
-                    yourRef.child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                    yourRef.child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
                         
-                        if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                        if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
                             
                             appDelegate.pushMessage(scopeUID, token: token, message: "\(firstName) has sent you a squad request")
                             
@@ -264,19 +264,19 @@ class SquadTableViewCell: UITableViewCell {
                     })
 
                     
-                    let timeInterval = NSDate().timeIntervalSince1970
+                    let timeInterval = Date().timeIntervalSince1970
                     
                     //0 -> Hasn't responded yet, 1 -> Approved, 2 -> Denied
                     let ref = FIRDatabase.database().reference().child("users").child(scopeUID)
                     
                     let notificationKey = ref.child("notifications").childByAutoId().key
                     
-                    let squadItem = ["uid" : selfUID, "read" : false, "status": 0, "timeStamp" : timeInterval, "firstName" : firstName, "lastName" : lastName, "notificationKey" : notificationKey]
+                    let squadItem = ["uid" : selfUID, "read" : false, "status": 0, "timeStamp" : timeInterval, "firstName" : firstName, "lastName" : lastName, "notificationKey" : notificationKey] as [String : Any]
                     
-                    let notificationItem = ["uid" : selfUID, "read" : false, "status" : "awaitingAction", "type" : "squadRequest", "timeStamp" : timeInterval, "firstName" : firstName, "lastName" : lastName, "notificationKey" : notificationKey]
+                    let notificationItem = ["uid" : selfUID, "read" : false, "status" : "awaitingAction", "type" : "squadRequest", "timeStamp" : timeInterval, "firstName" : firstName, "lastName" : lastName, "notificationKey" : notificationKey] as [String : Any]
                     
                     
-                    dispatch_async(dispatch_get_main_queue(), {
+                    DispatchQueue.main.async(execute: {
                         
                         ref.child("squadRequests").child(selfUID).setValue(squadItem)
                         ref.child("notifications").child(notificationKey).setValue(notificationItem)
@@ -287,13 +287,13 @@ class SquadTableViewCell: UITableViewCell {
                 }
             }))
             
-            alertController.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
+            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
                 
                 print("canceled")
                 
             }))
             
-            self.squadCountController?.presentViewController(alertController, animated: true, completion: {
+            self.squadCountController?.present(alertController, animated: true, completion: {
                 
                 print("alert controller presented")
                 
@@ -302,7 +302,7 @@ class SquadTableViewCell: UITableViewCell {
     }
     
     
-    @IBAction func toProfile(sender: AnyObject) {
+    @IBAction func toProfile(_ sender: AnyObject) {
         
         var selfProfile = false
         
@@ -324,12 +324,12 @@ class SquadTableViewCell: UITableViewCell {
     
     
     //Functions
-    func loadCell(data: [NSObject : AnyObject]) {
+    func loadCell(_ data: [AnyHashable: Any]) {
         
         nameOutlet.adjustsFontSizeToFitWidth = true
-        nameOutlet.baselineAdjustment = .AlignCenters
+        nameOutlet.baselineAdjustment = .alignCenters
         
-        if let firstName = data["firstName"] as? String, lastName = data["lastName"] as? String {
+        if let firstName = data["firstName"] as? String, let lastName = data["lastName"] as? String {
             
             self.firstName = firstName
             self.lastName = lastName
@@ -338,7 +338,7 @@ class SquadTableViewCell: UITableViewCell {
             
         }
         
-        if let uid = data["uid"] as? String, selfUID = FIRAuth.auth()?.currentUser?.uid {
+        if let uid = data["uid"] as? String, let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
             let ref = FIRDatabase.database().reference().child("users").child(uid)
             self.uid = uid
@@ -347,14 +347,14 @@ class SquadTableViewCell: UITableViewCell {
                 
                 if uid == selfUID {
                     
-                    inSquadButton.enabled = false
+                    inSquadButton.isEnabled = false
                     inSquadIconOutlet.image = nil
                     buttonIconOutlet.image = nil
-                    buttonOutlet.enabled = false
+                    buttonOutlet.isEnabled = false
                     
                 } else {
 
-                    buttonOutlet.enabled = true
+                    buttonOutlet.isEnabled = true
                     
                     if let selfData = squadCountController?.rootController?.selfData {
                         
@@ -362,7 +362,7 @@ class SquadTableViewCell: UITableViewCell {
                         var iSentYou = false
                         var youSentMe = false
                         
-                        if let mySquad = selfData["squad"] as? [NSObject : AnyObject] {
+                        if let mySquad = selfData["squad"] as? [AnyHashable: Any] {
                             
                             if mySquad[uid] != nil {
                                 
@@ -373,7 +373,7 @@ class SquadTableViewCell: UITableViewCell {
                         
                         if inMySquad {
                             
-                            self.inSquadButton.enabled = true
+                            self.inSquadButton.isEnabled = true
                             self.inSquadIconOutlet.image = UIImage(named: "inSquad")
                             
                             self.buttonIconOutlet.image = UIImage(named: "enabledMessage")
@@ -381,10 +381,10 @@ class SquadTableViewCell: UITableViewCell {
                             
                         } else {
                             
-                            self.inSquadButton.enabled = false
+                            self.inSquadButton.isEnabled = false
                             self.inSquadIconOutlet.image = nil
                             
-                            if let mySquadRequests = selfData["squadRequests"] as? [NSObject : AnyObject] {
+                            if let mySquadRequests = selfData["squadRequests"] as? [AnyHashable: Any] {
                                 
                                 for (key, _) in mySquadRequests {
                                     
@@ -408,13 +408,13 @@ class SquadTableViewCell: UITableViewCell {
                                 
                                 let ref = FIRDatabase.database().reference().child("users").child(uid)
                                 
-                                ref.child("squadRequests").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                                ref.child("squadRequests").observeSingleEvent(of: .value, with: { (snapshot) in
                                     
                                     print(snapshot.value)
                                     
                                     if snapshot.exists() {
                                         
-                                        if let yourSquadRequests = snapshot.value as? [NSObject : AnyObject] {
+                                        if let yourSquadRequests = snapshot.value as? [AnyHashable: Any] {
                                             
                                             for (key, _) in yourSquadRequests {
                                                 
@@ -466,20 +466,20 @@ class SquadTableViewCell: UITableViewCell {
             }
             
             
-            ref.child("profilePicture").observeEventType(.Value, withBlock: { (snapshot) in
+            ref.child("profilePicture").observe(.value, with: { (snapshot) in
                 
                 if self.uid == uid {
                     
-                    if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
+                    if let profileString = snapshot.value as? String, let url = URL(string: profileString) {
                         
                         self.profile = profileString
-                        self.profilePicOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                        self.profilePicOutlet.sd_setImage(with: url, placeholderImage: nil)
                     }
                 }
             })
             
             
-            ref.child("cityRank").observeEventType(.Value, withBlock: { (snapshot) in
+            ref.child("cityRank").observe(.value, with: { (snapshot) in
                 
                 if self.uid == uid {
                     
@@ -492,7 +492,7 @@ class SquadTableViewCell: UITableViewCell {
             })
             
             
-            ref.child("online").observeEventType(.Value, withBlock: { (snapshot) in
+            ref.child("online").observe(.value, with: { (snapshot) in
                 
                 if self.uid == uid {
                     
@@ -508,11 +508,11 @@ class SquadTableViewCell: UITableViewCell {
                             
                             if online {
                                 
-                                self.onlineIndicator.backgroundColor = UIColor.greenColor()
+                                self.onlineIndicator.backgroundColor = UIColor.green
                                 
                             } else {
                                 
-                                self.onlineIndicator.backgroundColor = UIColor.redColor()
+                                self.onlineIndicator.backgroundColor = UIColor.red
                                 
                             }
                         }
@@ -528,7 +528,7 @@ class SquadTableViewCell: UITableViewCell {
         // Initialization code
     }
     
-    override func setSelected(selected: Bool, animated: Bool) {
+    override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
         
         // Configure the view for the selected state

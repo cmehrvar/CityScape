@@ -24,19 +24,19 @@ class VideoVibeCollectionCell: UICollectionViewCell {
     
     
     
-    @IBAction func tapForSound(sender: AnyObject) {
+    @IBAction func tapForSound(_ sender: AnyObject) {
 
         if vibesController?.videoWithSound == postKey {
             
             vibesController?.videoWithSound = ""
-            vibesController?.videoPlayers[player]?.muted = true
+            vibesController?.videoPlayers[player]?.isMuted = true
             soundImageOutlet.image = UIImage(named: "mute")
             soundLabelOutlet.text = "Tap for sound"
             
         } else {
             
             vibesController?.videoWithSound = postKey
-            vibesController?.videoPlayers[player]?.muted = false
+            vibesController?.videoPlayers[player]?.isMuted = false
             soundImageOutlet.image = UIImage(named: "unmute")
             soundLabelOutlet.text = "Tap to mute"
             
@@ -52,7 +52,7 @@ class VideoVibeCollectionCell: UICollectionViewCell {
         
         let frame = CGRect(x: x, y: y, width: 200, height: 200)
         
-        let activityIndicator = NVActivityIndicatorView(frame: frame, type: .BallClipRotatePulse, color: UIColor.redColor(), padding: 0)
+        let activityIndicator = NVActivityIndicatorView(frame: frame, type: .ballClipRotatePulse, color: UIColor.red, padding: 0)
         self.videoThumbnailOutlet.addSubview(activityIndicator)
         activityIndicator.startAnimation()
         

@@ -20,7 +20,7 @@ class IncomingCollectionCell: UICollectionViewCell {
     @IBOutlet weak var textOutlet: UILabel!
     @IBOutlet weak var nameOutlet: UILabel!
     
-    func loadData(loadName: Bool, data: [NSObject : AnyObject]){
+    func loadData(_ loadName: Bool, data: [AnyHashable: Any]){
         
         messageBubbleOutlet.layer.cornerRadius = 8
         
@@ -39,13 +39,13 @@ class IncomingCollectionCell: UICollectionViewCell {
             if loadName {
                 
                 profileOutlet.alpha = 1
-                ref.child("profilePicture").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                ref.child("profilePicture").observeSingleEvent(of: .value, with: { (snapshot) in
                     
-                    if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
+                    if let profileString = snapshot.value as? String, let url = URL(string: profileString) {
                         
                         if self.uid == uid {
                             
-                            self.profileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                            self.profileOutlet.sd_setImage(with: url, placeholderImage: nil)
                             
                         }
                     }

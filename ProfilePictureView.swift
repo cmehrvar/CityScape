@@ -15,7 +15,7 @@ class ProfilePictureView: UIImageView {
         super.awakeFromNib()
         layer.cornerRadius = 60
         layer.borderWidth = 3
-        layer.borderColor = UIColor.whiteColor().CGColor
+        layer.borderColor = UIColor.white.cgColor
         self.clipsToBounds = true
         
     }

@@ -15,7 +15,7 @@ class HeaderCollectionCell: UICollectionViewCell {
     
     @IBOutlet weak var exploreOutlet: UILabel!
     
-    @IBAction func showSnapchat(sender: AnyObject) {
+    @IBAction func showSnapchat(_ sender: AnyObject) {
         
         if let user = userController {
             

@@ -17,10 +17,10 @@ class RequestsController: UIViewController, UITableViewDataSource, UITableViewDe
     @IBOutlet weak var numberOfRequestsOutlet: UILabel!
     @IBOutlet weak var globTableViewOutlet: UITableView!
 
-    var requests = [[NSObject : AnyObject]]()
+    var requests = [[AnyHashable: Any]]()
 
     
-    @IBAction func back(sender: AnyObject) {
+    @IBAction func back(_ sender: AnyObject) {
         
         if let uid = FIRAuth.auth()?.currentUser?.uid {
             
@@ -35,20 +35,20 @@ class RequestsController: UIViewController, UITableViewDataSource, UITableViewDe
     
     
     //TableView Delegates
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         tableView.allowsSelection = false
         
-        let cell = tableView.dequeueReusableCellWithIdentifier("requestTableViewCell", forIndexPath: indexPath) as! RequestTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "requestTableViewCell", for: indexPath) as! RequestTableViewCell
         cell.requestController = self
         
-        cell.loadCell(requests[indexPath.row])
+        cell.loadCell(requests[(indexPath as NSIndexPath).row])
         
         return cell
         
     }
 
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         return requests.count
         

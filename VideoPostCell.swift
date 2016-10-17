@@ -23,18 +23,18 @@ class UserVideoPostCell: UICollectionViewCell {
     var city = ""
     var postChildKey = ""
     var index = 0
-    var posts = [[NSObject : AnyObject]]()
+    var posts = [[AnyHashable: Any]]()
     
     weak var profileController: ProfileController?
     
-    @IBAction func goToContent(sender: AnyObject) {
+    @IBAction func goToContent(_ sender: AnyObject) {
         
-        let alertController = UIAlertController(title: "Options", message: nil, preferredStyle: .ActionSheet)
+        let alertController = UIAlertController(title: "Options", message: nil, preferredStyle: .actionSheet)
         
         let scopePosts = posts
         let scopeIndex = index
 
-        alertController.addAction(UIAlertAction(title: "Enlarge", style: .Default, handler: { (action) in
+        alertController.addAction(UIAlertAction(title: "Enlarge", style: .default, handler: { (action) in
             
             self.profileController?.rootController?.toggleSnapchat(scopePosts, startingi: scopeIndex, completion: { (bool) in
                 
@@ -50,14 +50,14 @@ class UserVideoPostCell: UICollectionViewCell {
             
             if uid == selfUID {
                 
-                alertController.addAction(UIAlertAction(title: "Delete", style: .Destructive, handler: { (action) in
+                alertController.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { (action) in
                     
                     print("delete post")
                     let postRef = FIRDatabase.database().reference().child("posts").child(scopeCity).child(scopeChildKey)
                     let userRef = FIRDatabase.database().reference().child("users").child(selfUID).child("posts").child(scopeChildKey)
                     let allPostRef = FIRDatabase.database().reference().child("allPosts").child(scopeChildKey)
                     
-                    dispatch_async(dispatch_get_main_queue(), {
+                    DispatchQueue.main.async(execute: {
                         
                         postRef.removeValue()
                         userRef.removeValue()
@@ -70,14 +70,14 @@ class UserVideoPostCell: UICollectionViewCell {
             }
         }
 
-        alertController.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
+        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
             
             print("cancel post", terminator: "")
             
         }))
         
         
-        profileController?.presentViewController(alertController, animated: true, completion: {
+        profileController?.present(alertController, animated: true, completion: {
             
             print("alert controller presented", terminator: "")
             
@@ -93,7 +93,7 @@ class UserVideoPostCell: UICollectionViewCell {
         
         let frame = CGRect(x: x, y: y, width: 40, height: 40)
         
-        let activityIndicator = NVActivityIndicatorView(frame: frame, type: .BallClipRotatePulse, color: UIColor.redColor(), padding: 0)
+        let activityIndicator = NVActivityIndicatorView(frame: frame, type: .ballClipRotatePulse, color: UIColor.red, padding: 0)
         self.imageOutlet.addSubview(activityIndicator)
         activityIndicator.startAnimation()
         
@@ -102,7 +102,7 @@ class UserVideoPostCell: UICollectionViewCell {
 
     
     
-    func loadCell(data: [NSObject:AnyObject]) {
+    func loadCell(_ data: [AnyHashable: Any]) {
         
         imageOutlet.layer.cornerRadius = 10
         videoOutlet.layer.cornerRadius = 10
@@ -114,9 +114,9 @@ class UserVideoPostCell: UICollectionViewCell {
         }
         
         
-        if let imageString = data["imageURL"] as? String, url = NSURL(string: imageString) {
+        if let imageString = data["imageURL"] as? String, let url = URL(string: imageString) {
             
-            imageOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+            imageOutlet.sd_setImage(with: url, placeholderImage: nil)
             
         }
         

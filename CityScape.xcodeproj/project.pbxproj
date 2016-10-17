@@ -24,6 +24,7 @@
 		A318308D1DA6E87900D40C88 /* SendPostSquadCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A318308C1DA6E87900D40C88 /* SendPostSquadCell.swift */; };
 		A32C2C5D1D58E43C0064D707 /* AlertControllerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32C2C5C1D58E43C0064D707 /* AlertControllerView.swift */; };
 		A33193F81DAD95A3002BDE2C /* FooterCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A33193F71DAD95A3002BDE2C /* FooterCollectionCell.swift */; };
+		A339B4261DB3E7990027067D /* AtlasProduction.p12 in Resources */ = {isa = PBXBuildFile; fileRef = A339B4251DB3E7990027067D /* AtlasProduction.p12 */; };
 		A341522F1D94408E00C6DB3C /* TableViewOnlineIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A341522E1D94408E00C6DB3C /* TableViewOnlineIndicatorView.swift */; };
 		A34D2CEE1DB3312900EC6179 /* LeaderboardController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A34D2CED1DB3312900EC6179 /* LeaderboardController.swift */; };
 		A34F266F1D977B90007ABFB9 /* TopChatController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A34F266E1D977B90007ABFB9 /* TopChatController.swift */; };
@@ -75,7 +76,6 @@
 		A3A31D1B1D9C760000BB0509 /* AddToChatCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3A31D1A1D9C760000BB0509 /* AddToChatCollectionCell.swift */; };
 		A3A5D2411DAEE7A30030E95F /* ContactUsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3A5D2401DAEE7A30030E95F /* ContactUsController.swift */; };
 		A3A5D2431DAEF49E0030E95F /* background.gif in Resources */ = {isa = PBXBuildFile; fileRef = A3A5D2421DAEF49E0030E95F /* background.gif */; };
-		A3A5D2451DAEF9BE0030E95F /* AtlasProduction.p12 in Resources */ = {isa = PBXBuildFile; fileRef = A3A5D2441DAEF9BE0030E95F /* AtlasProduction.p12 */; };
 		A3B7BF7D1DADF62D002C2AAF /* TermsOfServiceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3B7BF7C1DADF62D002C2AAF /* TermsOfServiceController.swift */; };
 		A3BB98191D12E67E00BD384F /* TextFields.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BB98181D12E67E00BD384F /* TextFields.swift */; };
 		A3BB981B1D12E89E00BD384F /* ExploreButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BB981A1D12E89E00BD384F /* ExploreButton.swift */; };
@@ -179,6 +179,8 @@
 		A318308C1DA6E87900D40C88 /* SendPostSquadCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendPostSquadCell.swift; sourceTree = "<group>"; };
 		A32C2C5C1D58E43C0064D707 /* AlertControllerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertControllerView.swift; sourceTree = "<group>"; };
 		A33193F71DAD95A3002BDE2C /* FooterCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FooterCollectionCell.swift; sourceTree = "<group>"; };
+		A339B4251DB3E7990027067D /* AtlasProduction.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; path = AtlasProduction.p12; sourceTree = "<group>"; };
+		A339B4271DB3EB310027067D /* CityScape.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = CityScape.entitlements; path = CityScape/CityScape.entitlements; sourceTree = "<group>"; };
 		A341522E1D94408E00C6DB3C /* TableViewOnlineIndicatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TableViewOnlineIndicatorView.swift; sourceTree = "<group>"; };
 		A34D2CED1DB3312900EC6179 /* LeaderboardController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LeaderboardController.swift; sourceTree = "<group>"; };
 		A34F266E1D977B90007ABFB9 /* TopChatController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TopChatController.swift; sourceTree = "<group>"; };
@@ -234,7 +236,6 @@
 		A3A31D1A1D9C760000BB0509 /* AddToChatCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddToChatCollectionCell.swift; sourceTree = "<group>"; };
 		A3A5D2401DAEE7A30030E95F /* ContactUsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContactUsController.swift; sourceTree = "<group>"; };
 		A3A5D2421DAEF49E0030E95F /* background.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = background.gif; sourceTree = "<group>"; };
-		A3A5D2441DAEF9BE0030E95F /* AtlasProduction.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; path = AtlasProduction.p12; sourceTree = "<group>"; };
 		A3B7BF7C1DADF62D002C2AAF /* TermsOfServiceController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TermsOfServiceController.swift; sourceTree = "<group>"; };
 		A3BB98181D12E67E00BD384F /* TextFields.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextFields.swift; sourceTree = "<group>"; };
 		A3BB981A1D12E89E00BD384F /* ExploreButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExploreButton.swift; sourceTree = "<group>"; };
@@ -440,7 +441,8 @@
 		A353F0BF1D1224BC009A2182 = {
 			isa = PBXGroup;
 			children = (
-				A3A5D2441DAEF9BE0030E95F /* AtlasProduction.p12 */,
+				A339B4271DB3EB310027067D /* CityScape.entitlements */,
+				A339B4251DB3E7990027067D /* AtlasProduction.p12 */,
 				A3DB261F1DAC3E040088063B /* PROXIMA NOVA SOFT W03 SEMIBOLD.TTF */,
 				A3DB26211DAC3E1B0088063B /* PROXIMANOVASOFT-REGULAR.OTF */,
 				A3FC18931D3412AB0031D165 /* Extensions */,
@@ -1037,12 +1039,14 @@
 			attributes = {
 				LastSwiftMigration = 0730;
 				LastSwiftUpdateCheck = 0730;
-				LastUpgradeCheck = 0720;
+				LastUpgradeCheck = 0800;
 				ORGANIZATIONNAME = "Cina Mehrvar";
 				TargetAttributes = {
 					A353F0C71D1224BC009A2182 = {
 						CreatedOnToolsVersion = 7.2;
 						DevelopmentTeam = 8YKL2VACPX;
+						LastSwiftMigration = 0800;
+						ProvisioningStyle = Manual;
 						SystemCapabilities = {
 							com.apple.Push = {
 								enabled = 1;
@@ -1051,10 +1055,12 @@
 					};
 					A353F0DB1D1224BC009A2182 = {
 						CreatedOnToolsVersion = 7.2;
+						LastSwiftMigration = 0800;
 						TestTargetID = A353F0C71D1224BC009A2182;
 					};
 					A353F0E61D1224BC009A2182 = {
 						CreatedOnToolsVersion = 7.2;
+						LastSwiftMigration = 0800;
 						TestTargetID = A353F0C71D1224BC009A2182;
 					};
 				};
@@ -1090,7 +1096,7 @@
 				A3DB26221DAC3E1B0088063B /* PROXIMANOVASOFT-REGULAR.OTF in Resources */,
 				A3DB26201DAC3E040088063B /* PROXIMA NOVA SOFT W03 SEMIBOLD.TTF in Resources */,
 				A353F0D61D1224BC009A2182 /* LaunchScreen.storyboard in Resources */,
-				A3A5D2451DAEF9BE0030E95F /* AtlasProduction.p12 in Resources */,
+				A339B4261DB3E7990027067D /* AtlasProduction.p12 in Resources */,
 				A353F0FA1D1226D3009A2182 /* GoogleService-Info.plist in Resources */,
 				A353F0D31D1224BC009A2182 /* Assets.xcassets in Resources */,
 				A353F0D11D1224BC009A2182 /* Main.storyboard in Resources */,
@@ -1422,8 +1428,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -1446,7 +1454,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -1468,8 +1476,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -1486,9 +1496,10 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -1498,12 +1509,15 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 83A72D651EFF6CEA156796F8 /* Pods-CityScape.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "Brand Assets";
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = CityScape/CityScape.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 8YKL2VACPX;
 				EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1529,10 +1543,12 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = DormRoom.CityScape;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "cd9e893c-f933-4459-bfb1-ab5db562d774";
+				PROVISIONING_PROFILE_SPECIFIER = AtlasDevelopment;
 				SWIFT_OBJC_BRIDGING_HEADER = "CityScape-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				TARGETED_DEVICE_FAMILY = 1;
+				SWIFT_VERSION = 3.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -1540,12 +1556,15 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7FFF5BF6984FDFB7BF06B786 /* Pods-CityScape.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "Brand Assets";
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = CityScape/CityScape.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 8YKL2VACPX;
 				EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1571,9 +1590,11 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = DormRoom.CityScape;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "a31701d3-ff6f-48f3-afc1-a18618506805";
+				PROVISIONING_PROFILE_SPECIFIER = AtlasDistribution;
 				SWIFT_OBJC_BRIDGING_HEADER = "CityScape-Bridging-Header.h";
-				TARGETED_DEVICE_FAMILY = 1;
+				SWIFT_VERSION = 3.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -1586,6 +1607,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = DormRoom.CityScapeTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CityScape.app/CityScape";
 			};
 			name = Debug;
@@ -1599,6 +1621,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = DormRoom.CityScapeTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CityScape.app/CityScape";
 			};
 			name = Release;
@@ -1611,6 +1634,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = DormRoom.CityScapeUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 				TEST_TARGET_NAME = CityScape;
 				USES_XCTRUNNER = YES;
 			};
@@ -1624,6 +1648,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = DormRoom.CityScapeUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 3.0;
 				TEST_TARGET_NAME = CityScape;
 				USES_XCTRUNNER = YES;
 			};

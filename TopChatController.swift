@@ -59,15 +59,15 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
     var postCity = ""
     
     
-    override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         
         if keyPath == "rate" {
             
-            if let player = object as? AVPlayer, item = player.currentItem {
+            if let player = object as? AVPlayer, let item = player.currentItem {
                 
                 if CMTimeGetSeconds(player.currentTime()) == CMTimeGetSeconds(item.duration) {
                     
-                    player.seekToTime(kCMTimeZero)
+                    player.seek(to: kCMTimeZero)
                     player.play()
                     
                 } else if player.rate == 0 {
@@ -87,29 +87,29 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
         let scopeCity = postCity
         
         postCaptionOutlet.adjustsFontSizeToFitWidth = true
-        postCaptionOutlet.baselineAdjustment = .AlignCenters
+        postCaptionOutlet.baselineAdjustment = .alignCenters
         postNameOutlet.adjustsFontSizeToFitWidth = true
-        postNameOutlet.baselineAdjustment = .AlignCenters
+        postNameOutlet.baselineAdjustment = .alignCenters
 
         let ref = FIRDatabase.database().reference().child("posts").child(scopeCity).child(scopeKey)
         
-        ref.child("imageURL").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+        ref.child("imageURL").observeSingleEvent(of: .value, with: { (snapshot) in
             
             if self.postkey == scopeKey {
                 
-                if let imageString = snapshot.value as? String, url = NSURL(string: imageString) {
+                if let imageString = snapshot.value as? String, let url = URL(string: imageString) {
                     
-                    self.postImageOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                    self.postImageOutlet.sd_setImage(with: url, placeholderImage: nil)
                     
                 }
             }
         })
         
-        ref.child("firstName").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+        ref.child("firstName").observeSingleEvent(of: .value, with: { (snapshot) in
             
             if let firstName = snapshot.value as? String {
                 
-                ref.child("lastName").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                ref.child("lastName").observeSingleEvent(of: .value, with: { (snapshot) in
                     
                     if let lastName = snapshot.value as? String {
                         
@@ -124,19 +124,19 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
             }
         })
         
-        ref.child("userUID").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+        ref.child("userUID").observeSingleEvent(of: .value, with: { (snapshot) in
             
             if let uid = snapshot.value as? String {
                 
                 let userRef = FIRDatabase.database().reference().child("users").child(uid)
                 
-                userRef.child("profilePicture").observeEventType(.Value, withBlock: { (snapshot) in
+                userRef.child("profilePicture").observe(.value, with: { (snapshot) in
                     
                     if self.postkey == scopeKey {
                         
-                        if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
+                        if let profileString = snapshot.value as? String, let url = URL(string: profileString) {
                             
-                            self.postProfileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                            self.postProfileOutlet.sd_setImage(with: url, placeholderImage: nil)
                             
                         }
                         
@@ -149,7 +149,7 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
             }
         })
         
-        ref.child("caption").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+        ref.child("caption").observeSingleEvent(of: .value, with: { (snapshot) in
             
             if self.postkey == scopeKey {
                 
@@ -162,7 +162,7 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
         })
         
         
-        ref.child("state").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+        ref.child("state").observeSingleEvent(of: .value, with: { (snapshot) in
             
             if self.postkey == scopeKey {
                 
@@ -175,7 +175,7 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
         })
         
         
-        ref.child("isImage").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+        ref.child("isImage").observeSingleEvent(of: .value, with: { (snapshot) in
             
             if let isImage = snapshot.value as? Bool {
                 
@@ -183,13 +183,13 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
                     
                     if !isImage {
                         
-                        ref.child("videoURL").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                        ref.child("videoURL").observeSingleEvent(of: .value, with: { (snapshot) in
                             
-                            if let urlString = snapshot.value as? String, url = NSURL(string: urlString) {
+                            if let urlString = snapshot.value as? String, let url = URL(string: urlString) {
                                 
-                                dispatch_async(dispatch_get_main_queue(), {
+                                DispatchQueue.main.async(execute: {
 
-                                    self.asset = AVAsset(URL: url)
+                                    self.asset = AVAsset(url: url)
                                     
                                     if let asset = self.asset {
                                         
@@ -247,7 +247,7 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
         
         let ref = FIRDatabase.database().reference().child("groupChats").child(scopeKey)
         
-        ref.child("title").observeEventType(.Value, withBlock: { (snapshot) in
+        ref.child("title").observe(.value, with: { (snapshot) in
             
             if scopeKey == self.chatKey {
                 
@@ -265,14 +265,14 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
         })
         
         
-        ref.child("members").observeEventType(.Value, withBlock: { (snapshot) in
+        ref.child("members").observe(.value, with: { (snapshot) in
             
             var scopeMembers = [String]()
             var collectionScopeMembers = [String]()
             
             if scopeKey == self.chatKey {
                 
-                if let valueMembers = snapshot.value as? [NSObject : AnyObject] {
+                if let valueMembers = snapshot.value as? [AnyHashable: Any] {
                     
                     for (valueUID, _) in valueMembers {
                         
@@ -311,16 +311,16 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
         })
         
         
-        ref.child("groupPhoto").observeEventType(.Value, withBlock: { (snapshot) in
+        ref.child("groupPhoto").observe(.value, with: { (snapshot) in
             
             if snapshot.exists() {
                 
                 if self.chatKey == scopeKey {
                     
-                    if let photoString = snapshot.value as? String, url = NSURL(string: photoString){
+                    if let photoString = snapshot.value as? String, let url = URL(string: photoString){
                         
                         self.groupPicture = photoString
-                        self.groupPhotoOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                        self.groupPhotoOutlet.sd_setImage(with: url, placeholderImage: nil)
                         
                     }
                 }
@@ -343,7 +343,7 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
         fusuma.delegate = self
         fusuma.hasVideo = false
         
-        self.presentViewController(fusuma, animated: true) {
+        self.present(fusuma, animated: true) {
             
             print("fusumaPresented")
             
@@ -355,7 +355,7 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
     
     
     //Fusuma Delegates
-    func fusumaDismissedWithImage(image: UIImage) {
+    func fusumaDismissedWithImage(_ image: UIImage) {
         
         let scopeMembers = members
         let scopeKey = chatKey
@@ -363,13 +363,13 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
         print("fusuma dismissed with image")
         presentAlertController(image)
         
-        dispatch_async(dispatch_get_main_queue(), {
+        DispatchQueue.main.async(execute: {
             
             let imageView = UIImageView(image: image)
             imageView.clipsToBounds = true
-            imageView.addConstraint(NSLayoutConstraint(item: imageView, attribute: .Height, relatedBy: .Equal, toItem: imageView, attribute: .Width, multiplier: 0.75, constant: 0))
+            imageView.addConstraint(NSLayoutConstraint(item: imageView, attribute: .height, relatedBy: .equal, toItem: imageView, attribute: .width, multiplier: 0.75, constant: 0))
             
-            imageView.contentMode = .ScaleAspectFill
+            imageView.contentMode = .scaleAspectFill
             
             if let alertController = self.globAlertController {
                 
@@ -382,9 +382,9 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
         
         self.imageUploadRequest(image) { (url, uploadRequest) in
             
-            let transferManager = AWSS3TransferManager.defaultS3TransferManager()
+            let transferManager = AWSS3TransferManager.default()
             
-            transferManager.upload(uploadRequest).continueWithBlock { (task) -> AnyObject? in
+            transferManager?.upload(uploadRequest).continue({ (task) -> Any? in
                 
                 if task.error == nil {
                     
@@ -407,20 +407,22 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
                 } else {
                     print("error uploading: \(task.error)")
                     
-                    let alertController = UIAlertController(title: "Sorry", message: "Error uploading profile picture, please try again later", preferredStyle:  UIAlertControllerStyle.Alert)
-                    alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Cancel, handler: nil))
-                    self.presentViewController(alertController, animated: true, completion: nil)
+                    let alertController = UIAlertController(title: "Sorry", message: "Error uploading profile picture, please try again later", preferredStyle:  UIAlertControllerStyle.alert)
+                    alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.cancel, handler: nil))
+                    self.present(alertController, animated: true, completion: nil)
                     
                 }
+                
                 return nil
-            }
+ 
+            })
         }
     }
     
     
     
     
-    func fusumaImageSelected(image: UIImage) {
+    func fusumaImageSelected(_ image: UIImage) {
         
         print("image selected")
         
@@ -428,73 +430,73 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
     
     
     
-    func fusumaVideoCompleted(withFileURL fileURL: NSURL) {
+    func fusumaVideoCompleted(withFileURL fileURL: URL) {
         
         
     }
     
     func fusumaCameraRollUnauthorized() {
         
-        let alertController = UIAlertController(title: "Sorry", message: "Camera not authorized", preferredStyle:  UIAlertControllerStyle.Alert)
-        alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Cancel, handler: nil))
-        self.presentViewController(alertController, animated: true, completion: nil)
+        let alertController = UIAlertController(title: "Sorry", message: "Camera not authorized", preferredStyle:  UIAlertControllerStyle.alert)
+        alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.cancel, handler: nil))
+        self.present(alertController, animated: true, completion: nil)
         
         print("camera unauthorized")
         
     }
     func fusumaClosed() {
         
-        UIApplication.sharedApplication().statusBarHidden = false
+        UIApplication.shared.isStatusBarHidden = false
         rootController?.cameraTransitionOutlet.alpha = 0
         
     }
     
     
-    func imageUploadRequest(image: UIImage, completion: (url: String, uploadRequest: AWSS3TransferManagerUploadRequest) -> ()) {
+    func imageUploadRequest(_ image: UIImage, completion: @escaping (_ url: String, _ uploadRequest: AWSS3TransferManagerUploadRequest) -> ()) {
         
-        let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".jpeg")
-        let fileURL = NSURL(fileURLWithPath: NSTemporaryDirectory()).URLByAppendingPathComponent("upload").URLByAppendingPathComponent(fileName)
-        let filePath = fileURL.path!
+        let fileName = ProcessInfo.processInfo.globallyUniqueString + ".jpeg"
+        let fileURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("upload").appendingPathComponent(fileName)
+        let filePath = fileURL.path
         
         let imageData = UIImageJPEGRepresentation(image, 0.5)
         
         //SEGMENTATION BUG, IF FAULT 11 - COMMENT OUT AND REWRITE
-        dispatch_async(dispatch_get_main_queue()) {
-            imageData?.writeToFile(filePath, atomically: true)
+        DispatchQueue.main.async {
+            try? imageData?.write(to: URL(fileURLWithPath: filePath), options: [.atomic])
             
             let uploadRequest = AWSS3TransferManagerUploadRequest()
-            uploadRequest.body = fileURL
-            uploadRequest.key = fileName
-            uploadRequest.bucket = "cityscapebucket"
+            uploadRequest?.body = fileURL
+            uploadRequest?.key = fileName
+            uploadRequest?.bucket = "cityscapebucket"
             
             var imageUrl = ""
             
-            if let key = uploadRequest.key {
+            if let key = uploadRequest?.key {
                 imageUrl = "https://s3.amazonaws.com/cityscapebucket/" + key
                 
             }
             
-            completion(url: imageUrl, uploadRequest: uploadRequest)
+            completion(imageUrl, uploadRequest!)
         }
     }
     
     
     
     //CollectionView Delegates
-    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("squadMemberChatCell", forIndexPath: indexPath) as! TopGroupChatCollectionCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "squadMemberChatCell", for: indexPath) as! TopGroupChatCollectionCell
         
         cell.topChatController = self
         
-        cell.loadData(collectionViewMembers[indexPath.row])
+        cell.loadData(collectionViewMembers[(indexPath as NSIndexPath).row])
         
         return cell
     }
     
     
     
-    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
         return collectionViewMembers.count
         
@@ -507,9 +509,9 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
         let error = NSErrorPointer.init(nilLiteral: ())
         
         do{
-            try NSFileManager.defaultManager().createDirectoryAtURL(NSURL(fileURLWithPath: NSTemporaryDirectory()).URLByAppendingPathComponent("upload"), withIntermediateDirectories: true, attributes: nil)
+            try FileManager.default.createDirectory(at: URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("upload"), withIntermediateDirectories: true, attributes: nil)
         } catch let error1 as NSError {
-            error.memory = error1
+            error?.pointee = error1
             print("Creating upload directory failed. Error: \(error)")
         }
     }
@@ -518,7 +520,7 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
     var firstName = ""
     var lastName = ""
     
-    func presentAlertController(image: UIImage?){
+    func presentAlertController(_ image: UIImage?){
         
         let scopeUID = uid
         let scopeType = type
@@ -539,13 +541,13 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
             
             if let imageToAdd = image {
                 
-                dispatch_async(dispatch_get_main_queue(), {
+                DispatchQueue.main.async(execute: {
                     
                     let imageView = UIImageView(image: imageToAdd)
                     imageView.clipsToBounds = true
-                    imageView.addConstraint(NSLayoutConstraint(item: imageView, attribute: .Height, relatedBy: .Equal, toItem: imageView, attribute: .Width, multiplier: 0.75, constant: 0))
+                    imageView.addConstraint(NSLayoutConstraint(item: imageView, attribute: .height, relatedBy: .equal, toItem: imageView, attribute: .width, multiplier: 0.75, constant: 0))
                     
-                    imageView.contentMode = .ScaleAspectFill
+                    imageView.contentMode = .scaleAspectFill
                     
                     alertController.alertViewContentView = imageView
                     
@@ -556,19 +558,19 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
                 
                 let scopePicture = groupPicture
                 
-                dispatch_async(dispatch_get_main_queue(), {
+                DispatchQueue.main.async(execute: {
                     
                     let imageView = UIImageView(image: photo)
                     imageView.clipsToBounds = true
-                    imageView.addConstraint(NSLayoutConstraint(item: imageView, attribute: .Height, relatedBy: .Equal, toItem: imageView, attribute: .Width, multiplier: 0.75, constant: 0))
+                    imageView.addConstraint(NSLayoutConstraint(item: imageView, attribute: .height, relatedBy: .equal, toItem: imageView, attribute: .width, multiplier: 0.75, constant: 0))
                     
                     if scopePicture == nil {
                         
-                        imageView.contentMode = .ScaleAspectFit
+                        imageView.contentMode = .scaleAspectFit
                         
                     } else {
                         
-                        imageView.contentMode = .ScaleAspectFill
+                        imageView.contentMode = .scaleAspectFill
                     }
                     
                     alertController.alertViewContentView = imageView
@@ -576,17 +578,17 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
                 })
             }
             
-            alertController.addTextFieldWithConfigurationHandler({ (textField) in
+            alertController.addTextField(configurationHandler: { (textField) in
                 
-                textField.text = self.chatTitleOutlet.text
-                textField.textAlignment = .Center
-                textField.autocorrectionType = .No
-                textField.delegate = self
-                scopeTextField = textField
+                textField?.text = self.chatTitleOutlet.text
+                textField?.textAlignment = .center
+                textField?.autocorrectionType = .no
+                textField?.delegate = self
+                scopeTextField = textField!
                 
             })
             
-            alertController.addAction(NYAlertAction(title: "Edit Chat Title", style: .Default, handler: { (action) in
+            alertController.addAction(NYAlertAction(title: "Edit Chat Title", style: .default, handler: { (action) in
                 
                 if let text = scopeTextField.text {
                     
@@ -613,23 +615,23 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
                 }
             }))
             
-            alertController.addAction(NYAlertAction(title: "Edit Group Photo", style: .Default, handler: { (action) in
+            alertController.addAction(NYAlertAction(title: "Edit Group Photo", style: .default, handler: { (action) in
                 
                 //Edit Chat Photo
-                self.dismissViewControllerAnimated(true, completion: {
+                self.dismiss(animated: true, completion: {
                     self.presentFusuma()
                 })
                 
             }))
             
             
-            alertController.addAction(NYAlertAction(title: "Add Members", style: .Default, handler: { (action) in
+            alertController.addAction(NYAlertAction(title: "Add Members", style: .default, handler: { (action) in
                 
                 //Add Members!
                 
                 self.rootController?.addToChatController?.loadUsers()
                 
-                self.dismissViewControllerAnimated(true, completion: {
+                self.dismiss(animated: true, completion: {
                     
                     self.rootController?.toggleAddToChat(scopeMembers, chatKey: scopeChatKey, completion: { (bool) in
                         
@@ -640,7 +642,7 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
             }))
             
             
-            alertController.addAction(NYAlertAction(title: "Leave Chat", style: .Destructive, handler: { (action) in
+            alertController.addAction(NYAlertAction(title: "Leave Chat", style: .destructive, handler: { (action) in
                 
                 //Leave Chat
                 if let selfUID = FIRAuth.auth()?.currentUser?.uid {
@@ -655,7 +657,7 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
                     
                     FIRDatabase.database().reference().child("users").child(selfUID).child("groupChats").child(scopeChatKey).removeValue()
                     
-                    self.dismissViewControllerAnimated(true, completion: {
+                    self.dismiss(animated: true, completion: {
                         
                         self.rootController?.toggleHome({ (bool) in
                             
@@ -667,11 +669,11 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
             }))
             
             
-            alertController.addAction(NYAlertAction(title: "Close", style: .Cancel, handler: { (action) in
+            alertController.addAction(NYAlertAction(title: "Close", style: .cancel, handler: { (action) in
                 
                 print("cancel hit")
                 
-                self.dismissViewControllerAnimated(true, completion: {
+                self.dismiss(animated: true, completion: {
                     
                     print("Controller Dismissed")
                     
@@ -680,7 +682,7 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
             
             globAlertController = alertController
             
-            self.presentViewController(alertController, animated: true, completion: {
+            self.present(alertController, animated: true, completion: {
                 
                 print("presented")
                 
@@ -689,21 +691,21 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
             
         } else if type == "posts" {
             
-            let alertController = UIAlertController(title: nil, message: "Report \(firstName) \(lastName) for inappropriate behavior?", preferredStyle: .ActionSheet)
+            let alertController = UIAlertController(title: nil, message: "Report \(firstName) \(lastName) for inappropriate behavior?", preferredStyle: .actionSheet)
             
-            alertController.addAction(UIAlertAction(title: "Report \(firstName)", style: .Destructive, handler: { (action) in
+            alertController.addAction(UIAlertAction(title: "Report \(firstName)", style: .destructive, handler: { (action) in
                 
                 print("report")
                 
             }))
             
-            alertController.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
+            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
                 
                 print("cancel")
                 
             }))
             
-            self.presentViewController(alertController, animated: true, completion: {
+            self.present(alertController, animated: true, completion: {
                 
                 print("controller presented")
                 
@@ -715,7 +717,7 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
             
             //MATCH OR SQUAD
             
-            let alertController = UIAlertController(title: "\(firstName + " " + lastName)", message: nil, preferredStyle: .ActionSheet)
+            let alertController = UIAlertController(title: "\(firstName + " " + lastName)", message: nil, preferredStyle: .actionSheet)
             
             if type == "matches" {
                 
@@ -727,7 +729,7 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
                 
             }
             
-            alertController.addAction(UIAlertAction(title: title, style: .Destructive, handler: { (action) in
+            alertController.addAction(UIAlertAction(title: title, style: .destructive, handler: { (action) in
                 
                 self.rootController?.toggleHome({ (bool) in
                     
@@ -773,13 +775,13 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
             }))
             
             
-            alertController.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
+            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
                 
                 print("canceled")
                 
             }))
             
-            self.presentViewController(alertController, animated: true, completion: {
+            self.present(alertController, animated: true, completion: {
                 
                 print("alert controller presented")
                 
@@ -790,7 +792,7 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
     
     
     //Actions
-    @IBAction func cancel(sender: AnyObject) {
+    @IBAction func cancel(_ sender: AnyObject) {
 
         //rootController?.chatController.cl
         rootController?.chatController?.clearPlayers()
@@ -844,13 +846,13 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
         })
     }
     
-    @IBAction func settings(sender: AnyObject) {
+    @IBAction func settings(_ sender: AnyObject) {
         
         presentAlertController(nil)
         
     }
     
-    @IBAction func toProfile(sender: AnyObject) {
+    @IBAction func toProfile(_ sender: AnyObject) {
         
         let scopeUID = uid
         var selfProfile = false
@@ -904,11 +906,11 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardDidShow), name: UIKeyboardWillShowNotification, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardDidHide), name: UIKeyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
         
         nameOutlet.adjustsFontSizeToFitWidth = true
-        nameOutlet.baselineAdjustment = .AlignCenters
+        nameOutlet.baselineAdjustment = .alignCenters
         
         addUploadStuff()
         

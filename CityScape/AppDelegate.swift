@@ -20,11 +20,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var pusher: NWPusher?
 
-    func pushMessage(uid: String, token: String, message: String) {
+    func pushMessage(_ uid: String, token: String, message: String) {
         
         let ref = FIRDatabase.database().reference().child("users").child(uid)
 
-        ref.child("badgeNumber").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+        ref.child("badgeNumber").observeSingleEvent(of: .value, with: { (snapshot) in
             
             if snapshot.exists() {
                 
@@ -38,7 +38,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                         
                         do {
 
-                            try scopePusher.pushPayload(payload, token: token, identifier: UInt(rand()))
+                            try scopePusher.pushPayload(payload, token: token, identifier: UInt(arc4random()))
                             
                         } catch let error {
                             
@@ -58,7 +58,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     
                     do {
                         
-                        try scopePusher.pushPayload(payload, token: token, identifier: UInt(rand()))
+                        try scopePusher.pushPayload(payload, token: token, identifier: UInt(arc4random()))
                         
                     } catch let error {
                         
@@ -71,7 +71,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     var window: UIWindow?
-    var selfData = [NSObject : AnyObject]()
+    var selfData = [AnyHashable: Any]()
     
     //ViewControllers
     weak var mainRootController: MainRootController?
@@ -83,21 +83,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     let CLIENT_SECRET = "a26fee79-6884-47c3-82e1-c7f8e82a2b23"
 
 
-    func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         FIRApp.configure()
-        FBSDKProfile.enableUpdatesOnAccessTokenChange(true)
+        FBSDKProfile.enableUpdates(onAccessTokenChange: true)
         FBSDKApplicationDelegate.sharedInstance().application(application, didFinishLaunchingWithOptions: launchOptions)
         
-        let credentialsProvider = AWSCognitoCredentialsProvider(regionType:.USEast1,
+        let credentialsProvider = AWSCognitoCredentialsProvider(regionType:.usEast1,
                                                                 identityPoolId:"us-east-1:6594b46d-9999-456e-9af7-bace2751204a")
-        let configuration = AWSServiceConfiguration(region:.USEast1, credentialsProvider:credentialsProvider)
-        AWSServiceManager.defaultServiceManager().defaultServiceConfiguration = configuration
+        let configuration = AWSServiceConfiguration(region:.usEast1, credentialsProvider:credentialsProvider)
+        AWSServiceManager.default().defaultServiceConfiguration = configuration
         
         AWSNetworkingConfiguration().timeoutIntervalForRequest = 0
         
         AWSNetworkingConfiguration().timeoutIntervalForResource = 15
         
-        AdobeUXAuthManager.sharedManager().setAuthenticationParametersWithClientID(CLIENT_ID, withClientSecret: CLIENT_SECRET)
+        AdobeUXAuthManager.shared().setAuthenticationParametersWithClientID(CLIENT_ID, withClientSecret: CLIENT_SECRET)
         
         do {
             try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryAmbient)
@@ -107,20 +107,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         FIRDatabase.database().persistenceEnabled = true
         
-        if application.respondsToSelector(#selector(application.registerUserNotificationSettings)) {
+        if application.responds(to: #selector(application.registerUserNotificationSettings)) {
             
-            let settings = UIUserNotificationSettings(forTypes: [.Alert, .Badge, .Sound], categories: nil)
-            UIApplication.sharedApplication().registerUserNotificationSettings(settings)
+            let settings = UIUserNotificationSettings(types: [.alert, .badge, .sound], categories: nil)
+            UIApplication.shared.registerUserNotificationSettings(settings)
         
         }
         
-        if let url = NSBundle.mainBundle().URLForResource("AtlasProduction", withExtension: ".p12") {
+        if let url = Bundle.main.url(forResource: "AtlasProduction", withExtension: ".p12") {
             
-            let data = NSData(contentsOfURL: url)
+            let data = try? Data(contentsOf: url)
             
             do {
                 
-                try pusher = NWPusher.connectWithPKCS12Data(data, password: "cousinhadI@1", environment: NWEnvironment.Auto)
+                try pusher = NWPusher.connect(withPKCS12Data: data, password: "cousinhadI@1", environment: NWEnvironment.auto)
                 
             } catch let error {
                 
@@ -139,13 +139,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
 
-        application.statusBarStyle = .LightContent
+        application.statusBarStyle = .lightContent
         
         // Override point for customization after application launch.
         return true
     }
 
-    func applicationWillResignActive(application: UIApplication) {
+    func applicationWillResignActive(_ application: UIApplication) {
         
         nearbyController?.invalidateTimer()
         nearbyController?.currentCityLoaded = false
@@ -164,18 +164,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
     }
 
-    func applicationDidEnterBackground(application: UIApplication) {
+    func applicationDidEnterBackground(_ application: UIApplication) {
         // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
     }
 
-    func applicationWillEnterForeground(application: UIApplication) {
+    func applicationWillEnterForeground(_ application: UIApplication) {
         // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
         print("foreground")
                 
     }
 
-    func applicationDidBecomeActive(application: UIApplication) {
+    func applicationDidBecomeActive(_ application: UIApplication) {
         FBSDKAppEvents.activateApp()
         
         nearbyController?.checkStatus()
@@ -193,7 +193,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
             guard let scopeController = nearbyController else {return}
             
-            self.nearbyController?.timer = NSTimer.scheduledTimerWithTimeInterval(30, target: scopeController, selector: #selector(self.nearbyController?.updateLocationToFirebase), userInfo: nil, repeats: true)
+            self.nearbyController?.timer = Timer.scheduledTimer(timeInterval: 30, target: scopeController, selector: #selector(self.nearbyController?.updateLocationToFirebase), userInfo: nil, repeats: true)
             
         }
         
@@ -202,28 +202,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
     }
 
-    func applicationWillTerminate(application: UIApplication) {
+    func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
     
-    func application(application: UIApplication, openURL url: NSURL, sourceApplication: String?, annotation: AnyObject) -> Bool {
+    func application(_ application: UIApplication, open url: URL, sourceApplication: String?, annotation: Any) -> Bool {
         
-        return FBSDKApplicationDelegate.sharedInstance().application(application, openURL: url, sourceApplication: sourceApplication, annotation: annotation)
+        return FBSDKApplicationDelegate.sharedInstance().application(application, open: url, sourceApplication: sourceApplication, annotation: annotation)
         
     }
     
-    func application(application: UIApplication, didRegisterUserNotificationSettings notificationSettings: UIUserNotificationSettings) {
+    func application(_ application: UIApplication, didRegister notificationSettings: UIUserNotificationSettings) {
         
         application.registerForRemoteNotifications()
         
     }
     
-    func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken token: NSData) {
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken token: Data) {
         
         var pushToken = token.description
-        pushToken = pushToken.stringByReplacingOccurrencesOfString("<", withString: "")
-        pushToken = pushToken.stringByReplacingOccurrencesOfString(">", withString: "")
-        pushToken = pushToken.stringByReplacingOccurrencesOfString(" ", withString: "")
+        pushToken = pushToken.replacingOccurrences(of: "<", with: "")
+        pushToken = pushToken.replacingOccurrences(of: ">", with: "")
+        pushToken = pushToken.replacingOccurrences(of: " ", with: "")
         
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
@@ -233,13 +233,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
     
-    func application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError) {
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
 
         print(error)
         
     }
     
-    func application(application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [NSObject : AnyObject], completionHandler: () -> Void) {
+    func application(_ application: UIApplication, handleActionWithIdentifier identifier: String?, forRemoteNotification userInfo: [AnyHashable: Any], completionHandler: @escaping () -> Void) {
         
         print("Received push notification: \(userInfo), identifier: \(identifier)")
         completionHandler()

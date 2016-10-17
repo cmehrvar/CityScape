@@ -13,15 +13,15 @@ class TermsOfServiceController: UIViewController {
     weak var logInController: LogInController?
 
     
-    @IBAction func back(sender: AnyObject) {
+    @IBAction func back(_ sender: AnyObject) {
         
-        UIView.animateWithDuration(0.3) { 
+        UIView.animate(withDuration: 0.3, animations: { 
             
             //self.logInController.termsC
             self.logInController?.termsContainer.alpha = 0
             self.logInController?.view.layoutIfNeeded()
             
-        }
+        }) 
         
     }
     

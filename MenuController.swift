@@ -36,7 +36,7 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
     @IBOutlet weak var dismissKeyboardViewOutlet: UIView!
     
     
-    @IBAction func leaderboard(sender: AnyObject) {
+    @IBAction func leaderboard(_ sender: AnyObject) {
         
         rootController?.toggleMenu({ (bool) in
             
@@ -67,14 +67,14 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
         }
         
         
-        if let profilePicture = rootController?.selfData["profilePicture"] as? String, profileURL = NSURL(string: profilePicture) {
+        if let profilePicture = rootController?.selfData["profilePicture"] as? String, let profileURL = URL(string: profilePicture) {
             
             if profileUID == "" {
                 profileUID = profilePicture
-                profilePicOutlet.sd_setImageWithURL(profileURL, placeholderImage: nil)
+                profilePicOutlet.sd_setImage(with: profileURL, placeholderImage: nil)
             } else if profileUID != profilePicture {
                 profileUID = profilePicture
-                profilePicOutlet.sd_setImageWithURL(profileURL, placeholderImage: tempCaptured)
+                profilePicOutlet.sd_setImage(with: profileURL, placeholderImage: tempCaptured)
                 
             }
         }
@@ -110,19 +110,18 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     
     //ImagePicker Delegates
-    func imagePickerController(picker: UIImagePickerController, didFinishPickingImage image: UIImage, editingInfo: [String : AnyObject]?) {
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingImage image: UIImage, editingInfo: [String : AnyObject]?) {
         
         tempCaptured = image
         profilePicOutlet.image = image
         
-        dismissViewControllerAnimated(true) {
+        dismiss(animated: true) {
             
             self.imageUploadRequest(image) { (url, uploadRequest) in
                 
-                let transferManager = AWSS3TransferManager.defaultS3TransferManager()
+                let transferManager = AWSS3TransferManager.default()
                 
-                
-                transferManager.upload(uploadRequest).continueWithBlock { (task) -> AnyObject? in
+                transferManager?.upload(uploadRequest).continue({ (task) -> Any? in
                     
                     if task.error == nil {
                         
@@ -136,42 +135,43 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
                     } else {
                         print("error uploading: \(task.error)")
                         
-                        let alertController = UIAlertController(title: "Sorry", message: "Error uploading profile picture, please try again later", preferredStyle:  UIAlertControllerStyle.Alert)
-                        alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Cancel, handler: nil))
-                        self.presentViewController(alertController, animated: true, completion: nil)
+                        let alertController = UIAlertController(title: "Sorry", message: "Error uploading profile picture, please try again later", preferredStyle:  UIAlertControllerStyle.alert)
+                        alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.cancel, handler: nil))
+                        self.present(alertController, animated: true, completion: nil)
                         
                     }
+
                     return nil
-                }
+                })
             }
         }
     }
     
-    func imageUploadRequest(image: UIImage, completion: (url: String, uploadRequest: AWSS3TransferManagerUploadRequest) -> ()) {
+    func imageUploadRequest(_ image: UIImage, completion: @escaping (_ url: String, _ uploadRequest: AWSS3TransferManagerUploadRequest) -> ()) {
         
-        let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".jpeg")
-        let fileURL = NSURL(fileURLWithPath: NSTemporaryDirectory()).URLByAppendingPathComponent("upload").URLByAppendingPathComponent(fileName)
-        let filePath = fileURL.path!
+        let fileName = ProcessInfo.processInfo.globallyUniqueString + ".jpeg"
+        let fileURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("upload").appendingPathComponent(fileName)
+        let filePath = fileURL.path
         
         let imageData = UIImageJPEGRepresentation(image, 0.5)
         
         //SEGMENTATION BUG, IF FAULT 11 - COMMENT OUT AND REWRITE
-        dispatch_async(dispatch_get_main_queue()) {
-            imageData?.writeToFile(filePath, atomically: true)
+        DispatchQueue.main.async {
+            try? imageData?.write(to: URL(fileURLWithPath: filePath), options: [.atomic])
             
             let uploadRequest = AWSS3TransferManagerUploadRequest()
-            uploadRequest.body = fileURL
-            uploadRequest.key = fileName
-            uploadRequest.bucket = "cityscapebucket"
+            uploadRequest?.body = fileURL
+            uploadRequest?.key = fileName
+            uploadRequest?.bucket = "cityscapebucket"
             
             var imageUrl = ""
             
-            if let key = uploadRequest.key {
+            if let key = uploadRequest?.key {
                 imageUrl = "https://s3.amazonaws.com/cityscapebucket/" + key
                 
             }
             
-            completion(url: imageUrl, uploadRequest: uploadRequest)
+            completion(imageUrl, uploadRequest!)
         }
     }
     
@@ -181,9 +181,9 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
         let error = NSErrorPointer.init(nilLiteral: ())
         
         do{
-            try NSFileManager.defaultManager().createDirectoryAtURL(NSURL(fileURLWithPath: NSTemporaryDirectory()).URLByAppendingPathComponent("upload"), withIntermediateDirectories: true, attributes: nil)
+            try FileManager.default.createDirectory(at: URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("upload"), withIntermediateDirectories: true, attributes: nil)
         } catch let error1 as NSError {
-            error.memory = error1
+            error?.pointee = error1
             print("Creating upload directory failed. Error: \(error)")
         }
     }
@@ -198,7 +198,7 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
     func addGestureRecognizers(){
         
         let leftSwipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(closeMenu))
-        leftSwipeGestureRecognizer.direction = .Left
+        leftSwipeGestureRecognizer.direction = .left
         leftSwipeGestureRecognizer.delegate = self
         
         self.view.addGestureRecognizer(leftSwipeGestureRecognizer)
@@ -220,14 +220,14 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     
     //TextView Delegates
-    func textViewDidChange(textView: UITextView) {
+    func textViewDidChange(_ textView: UITextView) {
         
         let textCount = textView.text.characters.count
         charactersOutlet.text = "\(textCount)/30 Characters"
         
     }
     
-    func textView(textView: UITextView, shouldChangeTextInRange range: NSRange, replacementText text: String) -> Bool {
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         
         if text == "\n" {
             
@@ -243,7 +243,7 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     
     
-    func textViewDidEndEditing(textView: UITextView) {
+    func textViewDidEndEditing(_ textView: UITextView) {
         
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
@@ -256,41 +256,41 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     
     //Actions
-    @IBAction func editProfile(sender: AnyObject) {
+    @IBAction func editProfile(_ sender: AnyObject) {
         
         let cameraProfile = UIImagePickerController()
         
         cameraProfile.delegate = self
         cameraProfile.allowsEditing = false
         
-        let alertController = UIAlertController(title: "Smile!", message: "Take a pic or choose from gallery?", preferredStyle:  UIAlertControllerStyle.Alert)
+        let alertController = UIAlertController(title: "Smile!", message: "Take a pic or choose from gallery?", preferredStyle:  UIAlertControllerStyle.alert)
         
-        alertController.addAction(UIAlertAction(title: "Camera", style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+        alertController.addAction(UIAlertAction(title: "Camera", style: UIAlertActionStyle.default, handler: { (UIAlertAction) -> Void in
             
-            if UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.Camera) {
-                cameraProfile.sourceType = UIImagePickerControllerSourceType.Camera
+            if UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.camera) {
+                cameraProfile.sourceType = UIImagePickerControllerSourceType.camera
             }
             
-            self.presentViewController(cameraProfile, animated: true, completion: nil)
+            self.present(cameraProfile, animated: true, completion: nil)
             
         }))
         
-        alertController.addAction(UIAlertAction(title: "Gallery", style: UIAlertActionStyle.Default, handler: { (UIAlertAction) -> Void in
+        alertController.addAction(UIAlertAction(title: "Gallery", style: UIAlertActionStyle.default, handler: { (UIAlertAction) -> Void in
             
-            cameraProfile.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
+            cameraProfile.sourceType = UIImagePickerControllerSourceType.photoLibrary
             
-            self.presentViewController(cameraProfile, animated: true, completion: nil)
+            self.present(cameraProfile, animated: true, completion: nil)
             
         }))
         
-        self.presentViewController(alertController, animated: true, completion: nil)
+        self.present(alertController, animated: true, completion: nil)
         
         
     }
     
     
     
-    @IBAction func goToProfile(sender: AnyObject) {
+    @IBAction func goToProfile(_ sender: AnyObject) {
         
         print("go to profile")
         
@@ -300,21 +300,20 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
             
             print("menu toggled")
             
-            self.rootController?.toggleHome({ (bool) in
+            self.rootController?.clearVibesPlayers()
+            
+            if let uid = FIRAuth.auth()?.currentUser?.uid {
                 
-                if let uid = FIRAuth.auth()?.currentUser?.uid {
+                self.rootController?.toggleProfile(uid, selfProfile: true, completion: { (bool) in
                     
-                    self.rootController?.toggleProfile(uid, selfProfile: true, completion: { (bool) in
-                        
-                        print("self profile toggled")
-                        
-                    })
-                }
-            })
+                    print("self profile toggled")
+                    
+                })
+            }
         })
     }
     
-    @IBAction func logOut(sender: AnyObject) {
+    @IBAction func logOut(_ sender: AnyObject) {
         
         
         rootController?.toggleMenu({ (bool) in
@@ -372,7 +371,7 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
     }
     
     
-    override func viewDidAppear(animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         
         let height = self.view.bounds.height
         let viewHeight = (height/2) - 62.5
@@ -393,15 +392,15 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
         super.viewDidLoad()
         
         nameOutlet.adjustsFontSizeToFitWidth = true
-        nameOutlet.baselineAdjustment = .AlignCenters
+        nameOutlet.baselineAdjustment = .alignCenters
         
         worldwideViewOutlet.layer.cornerRadius = 12
         settingsViewOutlet.layer.cornerRadius = 12
         
         currentStatusTextViewOutlet.layer.cornerRadius = 8
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardDidShow), name: UIKeyboardWillShowNotification, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardDidHide), name: UIKeyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
         
         addGestureRecognizers()
         addUploadStuff()

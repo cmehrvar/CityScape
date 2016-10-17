@@ -21,13 +21,13 @@ class ComposeChatCollectionCell: UICollectionViewCell {
     @IBOutlet weak var onlineIndicatorOutlet: TableViewOnlineIndicatorView!
     @IBOutlet weak var firstNameOutlet: UILabel!
     
-    func loadData(uid: String) {
+    func loadData(_ uid: String) {
         
         self.uid = uid
         
         let ref = FIRDatabase.database().reference().child("users").child(uid)
 
-        ref.child("firstName").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+        ref.child("firstName").observeSingleEvent(of: .value, with: { (snapshot) in
             
             if let firstName = snapshot.value as? String {
                 
@@ -36,20 +36,20 @@ class ComposeChatCollectionCell: UICollectionViewCell {
             }
         })
         
-        ref.child("profilePicture").observeEventType(.Value, withBlock: { (snapshot) in
+        ref.child("profilePicture").observe(.value, with: { (snapshot) in
             
             if self.uid == uid {
                 
-                if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
+                if let profileString = snapshot.value as? String, let url = URL(string: profileString) {
                     
-                    self.profilePicOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                    self.profilePicOutlet.sd_setImage(with: url, placeholderImage: nil)
                     
                 }
             }
         })
         
         
-        ref.child("online").observeEventType(.Value, withBlock: { (snapshot) in
+        ref.child("online").observe(.value, with: { (snapshot) in
             
             if self.uid == uid {
                 
@@ -57,11 +57,11 @@ class ComposeChatCollectionCell: UICollectionViewCell {
                     
                     if online {
                         
-                        self.onlineIndicatorOutlet.backgroundColor = UIColor.greenColor()
+                        self.onlineIndicatorOutlet.backgroundColor = UIColor.green
                         
                     } else {
                         
-                        self.onlineIndicatorOutlet.backgroundColor = UIColor.redColor()
+                        self.onlineIndicatorOutlet.backgroundColor = UIColor.red
                         
                     }
                 }

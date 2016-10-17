@@ -14,6 +14,26 @@ import FirebaseAuth
 import AVFoundation
 import NVActivityIndicatorView
 import SDWebImage
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
+fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l > r
+  default:
+    return rhs < lhs
+  }
+}
+
 
 class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
@@ -24,12 +44,12 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     //Variables
     weak var rootController: MainRootController?
     var transitioning = false
-    var newPosts = [[NSObject : AnyObject]]()
+    var newPosts = [[AnyHashable: Any]]()
     var addedPosts = [String : Bool]()
     
-    var globFirstMessages = [[NSObject : AnyObject]]()
-    var globSecondMessages = [[NSObject : AnyObject]]()
-    var globThirdMessages = [[NSObject : AnyObject]]()
+    var globFirstMessages = [[AnyHashable: Any]]()
+    var globSecondMessages = [[AnyHashable: Any]]()
+    var globThirdMessages = [[AnyHashable: Any]]()
     
     var videoAssets = [String : AVAsset]()
     var videoPlayers = [AVPlayer?]()
@@ -55,7 +75,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     
     
     
-    func setPlayerTitle(postKey: String, cell: UICollectionViewCell) {
+    func setPlayerTitle(_ postKey: String, cell: UICollectionViewCell) {
         
         var playerForCell = 0
         
@@ -102,7 +122,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     
     
     //CollectionView Delegates
-    func collectionView(collectionView: UICollectionView, didEndDisplayingCell cell: UICollectionViewCell, forItemAtIndexPath indexPath: NSIndexPath) {
+    func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         
         if !newPosts.isEmpty {
             
@@ -110,11 +130,11 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
             
             var isVisible = false
             
-            for visibleCell in collectionView.visibleCells() {
+            for visibleCell in collectionView.visibleCells {
                 
                 if let visibleVideo = visibleCell as? VideoVibeCollectionCell {
                     
-                    if visibleVideo.postKey == self.newPosts[indexPath.section]["postChildKey"] as? String {
+                    if visibleVideo.postKey == self.newPosts[(indexPath as NSIndexPath).section]["postChildKey"] as? String {
                         
                         isVisible = true
                         
@@ -126,26 +146,26 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                         
                         if !visibleVideo.isImage {
                             
-                            if indexPath.row == 4 {
+                            if (indexPath as NSIndexPath).row == 4 {
                                 
-                                if visibleVideo.key == self.globFirstMessages[indexPath.section]["key"] as? String {
+                                if visibleVideo.key == self.globFirstMessages[(indexPath as NSIndexPath).section]["key"] as? String {
                                     
                                     isVisible = true
                                     
                                 }
                                 
                                 
-                            } else if indexPath.row == 5 {
+                            } else if (indexPath as NSIndexPath).row == 5 {
                                 
-                                if visibleVideo.key == self.globSecondMessages[indexPath.section]["key"] as? String {
+                                if visibleVideo.key == self.globSecondMessages[(indexPath as NSIndexPath).section]["key"] as? String {
                                     
                                     isVisible = true
                                     
                                 }
                                 
-                            } else if indexPath.row == 6 {
+                            } else if (indexPath as NSIndexPath).row == 6 {
                                 
-                                if visibleVideo.key == self.globThirdMessages[indexPath.section]["key"] as? String {
+                                if visibleVideo.key == self.globThirdMessages[(indexPath as NSIndexPath).section]["key"] as? String {
                                     
                                     isVisible = true
                                     
@@ -157,25 +177,25 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                         
                         if !visibleVideo.isImage {
                             
-                            if indexPath.row == 4 {
+                            if (indexPath as NSIndexPath).row == 4 {
                                 
-                                if visibleVideo.key == self.globFirstMessages[indexPath.section]["key"] as? String {
+                                if visibleVideo.key == self.globFirstMessages[(indexPath as NSIndexPath).section]["key"] as? String {
                                     
                                     isVisible = true
                                     
                                 }
                                 
-                            } else if indexPath.row == 5 {
+                            } else if (indexPath as NSIndexPath).row == 5 {
                                 
-                                if visibleVideo.key == self.globSecondMessages[indexPath.section]["key"] as? String {
+                                if visibleVideo.key == self.globSecondMessages[(indexPath as NSIndexPath).section]["key"] as? String {
                                     
                                     isVisible = true
                                     
                                 }
                                 
-                            } else if indexPath.row == 6 {
+                            } else if (indexPath as NSIndexPath).row == 6 {
                                 
-                                if visibleVideo.key == self.globThirdMessages[indexPath.section]["key"] as? String {
+                                if visibleVideo.key == self.globThirdMessages[(indexPath as NSIndexPath).section]["key"] as? String {
                                     
                                     isVisible = true
                                     
@@ -280,7 +300,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
         }
     }
     
-    func collectionView(collectionView: UICollectionView, willDisplayCell cell: UICollectionViewCell, forItemAtIndexPath indexPath: NSIndexPath) {
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         
         var shouldAdd = false
         
@@ -326,7 +346,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                     
                 }
                 
-                dispatch_async(dispatch_get_main_queue(), {
+                DispatchQueue.main.async(execute: {
                     
                     
                     self.videoLayers[playerNumber] = AVPlayerLayer(player: player)
@@ -345,13 +365,13 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                                 
                                 postVideo.soundImageOutlet.image = UIImage(named: "unmute")
                                 postVideo.soundLabelOutlet.text = "Tap to mute"
-                                player.muted = false
+                                player.isMuted = false
                                 
                             } else {
                                 
                                 postVideo.soundImageOutlet.image = UIImage(named: "mute")
                                 postVideo.soundLabelOutlet.text = "Tap for sound"
-                                player.muted = true
+                                player.isMuted = true
                                 
                             }
                             
@@ -361,7 +381,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                                 
                                 layer.frame = inVideo.bounds
                                 inVideo.videoOutlet.layer.addSublayer(layer)
-                                player.muted = true
+                                player.isMuted = true
                                 
                             }
                             
@@ -370,7 +390,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                             if !outVideo.isImage {
                                 
                                 layer.frame = outVideo.bounds
-                                player.muted = true
+                                player.isMuted = true
                                 outVideo.videoOutlet.layer.addSublayer(layer)
                                 
                             }
@@ -392,36 +412,36 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                     
                     if cell is VideoVibeCollectionCell {
                         
-                        if let urlString = newPosts[indexPath.section]["videoURL"] as? String, url = NSURL(string: urlString) {
+                        if let urlString = newPosts[(indexPath as NSIndexPath).section]["videoURL"] as? String, let url = URL(string: urlString) {
                             
-                            asset = AVAsset(URL: url)
+                            asset = AVAsset(url: url)
                             
                         }
                         
                     } else if cell is InMediaCollectionCell || cell is OutMediaCollectionCell {
                         
-                        if indexPath.row == 4 {
+                        if (indexPath as NSIndexPath).row == 4 {
                             
-                            if let urlString = globFirstMessages[indexPath.section]["media"] as? String, url = NSURL(string: urlString) {
+                            if let urlString = globFirstMessages[(indexPath as NSIndexPath).section]["media"] as? String, let url = URL(string: urlString) {
                                 
-                                asset = AVAsset(URL: url)
-                                
-                            }
-                            
-                        } else if indexPath.row == 5 {
-                            
-                            if let urlString = globSecondMessages[indexPath.section]["media"] as? String, url = NSURL(string: urlString) {
-                                
-                                asset = AVAsset(URL: url)
+                                asset = AVAsset(url: url)
                                 
                             }
                             
+                        } else if (indexPath as NSIndexPath).row == 5 {
                             
-                        } else if indexPath.row == 6 {
-                            
-                            if let urlString = globThirdMessages[indexPath.section]["media"] as? String, url = NSURL(string: urlString) {
+                            if let urlString = globSecondMessages[(indexPath as NSIndexPath).section]["media"] as? String, let url = URL(string: urlString) {
                                 
-                                asset = AVAsset(URL: url)
+                                asset = AVAsset(url: url)
+                                
+                            }
+                            
+                            
+                        } else if (indexPath as NSIndexPath).row == 6 {
+                            
+                            if let urlString = globThirdMessages[(indexPath as NSIndexPath).section]["media"] as? String, let url = URL(string: urlString) {
+                                
+                                asset = AVAsset(url: url)
                                 
                             }
                         }
@@ -430,7 +450,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                 
                 if let actualAsset = asset {
                     
-                    dispatch_async(dispatch_get_main_queue(), {
+                    DispatchQueue.main.async(execute: {
                         
                         let playerItem = AVPlayerItem(asset: actualAsset)
                         self.videoKeys[playerNumber] = key
@@ -455,13 +475,13 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                                         
                                         postVideo.soundImageOutlet.image = UIImage(named: "unmute")
                                         postVideo.soundLabelOutlet.text = "Tap to mute"
-                                        player.muted = false
+                                        player.isMuted = false
                                         
                                     } else {
                                         
                                         postVideo.soundImageOutlet.image = UIImage(named: "mute")
                                         postVideo.soundLabelOutlet.text = "Tap for sound"
-                                        player.muted = true
+                                        player.isMuted = true
                                         
                                     }
                                     
@@ -473,7 +493,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                                         
                                         layer.frame = inVideo.bounds
                                         inVideo.videoOutlet.layer.addSublayer(layer)
-                                        player.muted = true
+                                        player.isMuted = true
                                         
                                     }
                                     
@@ -483,7 +503,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                                         
                                         layer.frame = outVideo.bounds
                                         outVideo.videoOutlet.layer.addSublayer(layer)
-                                        player.muted = true
+                                        player.isMuted = true
                                         
                                     }
                                 }
@@ -499,17 +519,17 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     }
     
     
-    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
 
-        if indexPath.row == 0 {
+        if (indexPath as NSIndexPath).row == 0 {
             
-            if let isImage = newPosts[indexPath.section]["isImage"] as? Bool {
+            if let isImage = newPosts[(indexPath as NSIndexPath).section]["isImage"] as? Bool {
                 
                 if isImage {
                     
-                    if let urlString = newPosts[indexPath.section]["imageURL"] as? String, url = NSURL(string: urlString){
+                    if let urlString = newPosts[(indexPath as NSIndexPath).section]["imageURL"] as? String, let url = URL(string: urlString){
                         
-                        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("imageCell", forIndexPath: indexPath) as! ImageVibeCollectionCell
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "imageCell", for: indexPath) as! ImageVibeCollectionCell
                         cell.createIndicator()
                         cell.loadImage(url)
                         cell.addPinchRecognizer()
@@ -518,9 +538,9 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                     
                 } else {
                     
-                    if let  imageUrlString = newPosts[indexPath.section]["imageURL"] as? String, imageUrl = NSURL(string: imageUrlString), key = newPosts[indexPath.section]["postChildKey"] as? String {
+                    if let  imageUrlString = newPosts[(indexPath as NSIndexPath).section]["imageURL"] as? String, let imageUrl = URL(string: imageUrlString), let key = newPosts[(indexPath as NSIndexPath).section]["postChildKey"] as? String {
                         
-                        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("videoCell", forIndexPath: indexPath) as! VideoVibeCollectionCell
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "videoCell", for: indexPath) as! VideoVibeCollectionCell
                         
                         cell.soundOutlet.layer.cornerRadius = 5
                         cell.postKey = key
@@ -529,7 +549,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                         
                         cell.vibesController = self
                         
-                        cell.videoThumbnailOutlet.sd_setImageWithURL(imageUrl, completed: { (image, error, cache, url) in
+                        cell.videoThumbnailOutlet.sd_setImage(with: imageUrl, completed: { (image, error, cache, url) in
                             
                             print("done loading video thumbnail")
                             
@@ -542,34 +562,34 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
             }
             
             
-        } else if indexPath.row == 1 {
+        } else if (indexPath as NSIndexPath).row == 1 {
             
-            let cell = collectionView.dequeueReusableCellWithReuseIdentifier("buttonsCell", forIndexPath: indexPath) as! LikeButtonsCollectionCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "buttonsCell", for: indexPath) as! LikeButtonsCollectionCell
             
             cell.vibesController = self
-            cell.loadData(newPosts[indexPath.section])
+            cell.loadData(newPosts[(indexPath as NSIndexPath).section])
             
             return cell
             
-        } else if indexPath.row == 2 {
+        } else if (indexPath as NSIndexPath).row == 2 {
             
-            let cell = collectionView.dequeueReusableCellWithReuseIdentifier("captionCell", forIndexPath: indexPath) as! CaptionCell
-            cell.loadData(newPosts[indexPath.section])
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "captionCell", for: indexPath) as! CaptionCell
+            cell.loadData(newPosts[(indexPath as NSIndexPath).section])
             return cell
             
-        } else if indexPath.row == 3 {
+        } else if (indexPath as NSIndexPath).row == 3 {
             
-            let cell = collectionView.dequeueReusableCellWithReuseIdentifier("timeAgoCell", forIndexPath: indexPath) as! TimeAgoCollectionCell
-            cell.loadData(newPosts[indexPath.section])
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "timeAgoCell", for: indexPath) as! TimeAgoCollectionCell
+            cell.loadData(newPosts[(indexPath as NSIndexPath).section])
             return cell
             
-        } else if indexPath.row == 4 {
+        } else if (indexPath as NSIndexPath).row == 4 {
             
             //if incoming -> inCell, else outCell
             
             if let selfUID = FIRAuth.auth()?.currentUser?.uid {
                 
-                if let senderId = globFirstMessages[indexPath.section]["senderId"] as? String {
+                if let senderId = globFirstMessages[(indexPath as NSIndexPath).section]["senderId"] as? String {
                     
                     var selfMessage = false
                     
@@ -579,29 +599,29 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                         
                     }
                     
-                    if let isMedia = globFirstMessages[indexPath.section]["isMedia"] as? Bool {
+                    if let isMedia = globFirstMessages[(indexPath as NSIndexPath).section]["isMedia"] as? Bool {
                         
                         if !isMedia {
                             
                             if !selfMessage {
                                 
-                                let cell = collectionView.dequeueReusableCellWithReuseIdentifier("inMessageCell", forIndexPath: indexPath) as! IncomingCollectionCell
+                                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "inMessageCell", for: indexPath) as! IncomingCollectionCell
                                 
-                                if let secondId = globSecondMessages[indexPath.section]["senderId"] as? String {
+                                if let secondId = globSecondMessages[(indexPath as NSIndexPath).section]["senderId"] as? String {
                                     
                                     if secondId == senderId {
                                         
-                                        cell.loadData(false, data: globFirstMessages[indexPath.section])
+                                        cell.loadData(false, data: globFirstMessages[(indexPath as NSIndexPath).section])
                                         
                                     } else {
                                         
-                                        cell.loadData(true, data: globFirstMessages[indexPath.section])
+                                        cell.loadData(true, data: globFirstMessages[(indexPath as NSIndexPath).section])
                                         
                                     }
                                     
                                 } else {
                                     
-                                    cell.loadData(true, data: globFirstMessages[indexPath.section])
+                                    cell.loadData(true, data: globFirstMessages[(indexPath as NSIndexPath).section])
                                     
                                 }
                                 
@@ -610,9 +630,9 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                                 
                             } else {
                                 
-                                let cell = collectionView.dequeueReusableCellWithReuseIdentifier("outMessageCell", forIndexPath: indexPath) as! OutgoingCollectionCell
+                                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "outMessageCell", for: indexPath) as! OutgoingCollectionCell
                                 
-                                cell.loadData(globFirstMessages[indexPath.section])
+                                cell.loadData(globFirstMessages[(indexPath as NSIndexPath).section])
                                 return cell
                                 
                             }
@@ -621,28 +641,28 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                             
                             if !selfMessage {
                                 
-                                let cell = collectionView.dequeueReusableCellWithReuseIdentifier("inMediaCell", forIndexPath: indexPath) as! InMediaCollectionCell
+                                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "inMediaCell", for: indexPath) as! InMediaCollectionCell
                                 
                                 
-                                if let secondId = globSecondMessages[indexPath.section]["senderId"] as? String {
+                                if let secondId = globSecondMessages[(indexPath as NSIndexPath).section]["senderId"] as? String {
                                     
                                     if secondId == senderId {
                                         
-                                        cell.loadCell(false, message: globFirstMessages[indexPath.section])
+                                        cell.loadCell(false, message: globFirstMessages[(indexPath as NSIndexPath).section])
                                         
                                     } else {
                                         
-                                        cell.loadCell(true, message: globFirstMessages[indexPath.section])
+                                        cell.loadCell(true, message: globFirstMessages[(indexPath as NSIndexPath).section])
                                         
                                     }
                                     
                                 } else {
                                     
-                                    cell.loadCell(true, message: globFirstMessages[indexPath.section])
+                                    cell.loadCell(true, message: globFirstMessages[(indexPath as NSIndexPath).section])
                                     
                                 }
                                 
-                                if let key = globFirstMessages[indexPath.section]["key"] as? String {
+                                if let key = globFirstMessages[(indexPath as NSIndexPath).section]["key"] as? String {
                                     
                                     setPlayerTitle(key, cell: cell)
                                     
@@ -652,11 +672,11 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                                 
                             } else {
                                 
-                                let cell = collectionView.dequeueReusableCellWithReuseIdentifier("outMediaCell", forIndexPath: indexPath) as! OutMediaCollectionCell
+                                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "outMediaCell", for: indexPath) as! OutMediaCollectionCell
                                 
-                                cell.loadCell(globFirstMessages[indexPath.section])
+                                cell.loadCell(globFirstMessages[(indexPath as NSIndexPath).section])
                                 
-                                if let key = globFirstMessages[indexPath.section]["key"] as? String {
+                                if let key = globFirstMessages[(indexPath as NSIndexPath).section]["key"] as? String {
                                     
                                     setPlayerTitle(key, cell: cell)
                                     
@@ -670,11 +690,11 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                 }
             }
             
-        } else if indexPath.row == 5 {
+        } else if (indexPath as NSIndexPath).row == 5 {
             
             if let selfUID = FIRAuth.auth()?.currentUser?.uid {
                 
-                if let senderId = globSecondMessages[indexPath.section]["senderId"] as? String {
+                if let senderId = globSecondMessages[(indexPath as NSIndexPath).section]["senderId"] as? String {
                     
                     var selfMessage = false
                     
@@ -684,32 +704,32 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                         
                     }
                     
-                    if let isMedia = globSecondMessages[indexPath.section]["isMedia"] as? Bool {
+                    if let isMedia = globSecondMessages[(indexPath as NSIndexPath).section]["isMedia"] as? Bool {
                         
                         if !isMedia {
                             
                             if !selfMessage {
                                 
-                                let cell = collectionView.dequeueReusableCellWithReuseIdentifier("inMessageCell", forIndexPath: indexPath) as! IncomingCollectionCell
+                                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "inMessageCell", for: indexPath) as! IncomingCollectionCell
                                 
-                                if let thirdId = globThirdMessages[indexPath.section]["senderId"] as? String {
+                                if let thirdId = globThirdMessages[(indexPath as NSIndexPath).section]["senderId"] as? String {
                                     
                                     if thirdId == senderId {
                                         
-                                        cell.loadData(false, data: globSecondMessages[indexPath.section])
+                                        cell.loadData(false, data: globSecondMessages[(indexPath as NSIndexPath).section])
                                         
                                     } else {
                                         
-                                        cell.loadData(true, data: globSecondMessages[indexPath.section])
+                                        cell.loadData(true, data: globSecondMessages[(indexPath as NSIndexPath).section])
                                         
                                     }
                                 } else {
                                     
-                                    cell.loadData(true, data: globSecondMessages[indexPath.section])
+                                    cell.loadData(true, data: globSecondMessages[(indexPath as NSIndexPath).section])
                                     
                                 }
                                 
-                                if let key = globSecondMessages[indexPath.section]["key"] as? String {
+                                if let key = globSecondMessages[(indexPath as NSIndexPath).section]["key"] as? String {
                                     
                                     setPlayerTitle(key, cell: cell)
                                     
@@ -719,11 +739,11 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                                 
                             } else {
                                 
-                                let cell = collectionView.dequeueReusableCellWithReuseIdentifier("outMessageCell", forIndexPath: indexPath) as! OutgoingCollectionCell
+                                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "outMessageCell", for: indexPath) as! OutgoingCollectionCell
                                 
-                                cell.loadData(globSecondMessages[indexPath.section])
+                                cell.loadData(globSecondMessages[(indexPath as NSIndexPath).section])
                                 
-                                if let key = globSecondMessages[indexPath.section]["key"] as? String {
+                                if let key = globSecondMessages[(indexPath as NSIndexPath).section]["key"] as? String {
                                     
                                     setPlayerTitle(key, cell: cell)
                                     
@@ -737,27 +757,27 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                             
                             if !selfMessage {
                                 
-                                let cell = collectionView.dequeueReusableCellWithReuseIdentifier("inMediaCell", forIndexPath: indexPath) as! InMediaCollectionCell
+                                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "inMediaCell", for: indexPath) as! InMediaCollectionCell
                                 
-                                if let thirdId = globThirdMessages[indexPath.section]["senderId"] as? String {
+                                if let thirdId = globThirdMessages[(indexPath as NSIndexPath).section]["senderId"] as? String {
                                     
                                     if thirdId == senderId {
                                         
-                                        cell.loadCell(false, message: globSecondMessages[indexPath.section])
+                                        cell.loadCell(false, message: globSecondMessages[(indexPath as NSIndexPath).section])
                                         
                                     } else {
                                         
-                                        cell.loadCell(true, message: globSecondMessages[indexPath.section])
+                                        cell.loadCell(true, message: globSecondMessages[(indexPath as NSIndexPath).section])
                                         
                                     }
                                     
                                 } else {
                                     
-                                    cell.loadCell(true, message: globSecondMessages[indexPath.section])
+                                    cell.loadCell(true, message: globSecondMessages[(indexPath as NSIndexPath).section])
                                     
                                 }
                                 
-                                if let key = globSecondMessages[indexPath.section]["key"] as? String {
+                                if let key = globSecondMessages[(indexPath as NSIndexPath).section]["key"] as? String {
                                     
                                     setPlayerTitle(key, cell: cell)
                                     
@@ -767,11 +787,11 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                                 
                             } else {
                                 
-                                let cell = collectionView.dequeueReusableCellWithReuseIdentifier("outMediaCell", forIndexPath: indexPath) as! OutMediaCollectionCell
+                                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "outMediaCell", for: indexPath) as! OutMediaCollectionCell
                                 
-                                cell.loadCell(globSecondMessages[indexPath.section])
+                                cell.loadCell(globSecondMessages[(indexPath as NSIndexPath).section])
                                 
-                                if let key = globSecondMessages[indexPath.section]["key"] as? String {
+                                if let key = globSecondMessages[(indexPath as NSIndexPath).section]["key"] as? String {
                                     
                                     setPlayerTitle(key, cell: cell)
                                     
@@ -785,11 +805,11 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                 }
             }
             
-        } else if indexPath.row == 6 {
+        } else if (indexPath as NSIndexPath).row == 6 {
             
             if let selfUID = FIRAuth.auth()?.currentUser?.uid {
                 
-                if let senderId = globThirdMessages[indexPath.section]["senderId"] as? String {
+                if let senderId = globThirdMessages[(indexPath as NSIndexPath).section]["senderId"] as? String {
                     
                     var selfMessage = false
                     
@@ -799,20 +819,20 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                         
                     }
                     
-                    if let isMedia = globThirdMessages[indexPath.section]["isMedia"] as? Bool {
+                    if let isMedia = globThirdMessages[(indexPath as NSIndexPath).section]["isMedia"] as? Bool {
                         
                         if !isMedia {
                             
                             if !selfMessage {
                                 
-                                let cell = collectionView.dequeueReusableCellWithReuseIdentifier("inMessageCell", forIndexPath: indexPath) as! IncomingCollectionCell
-                                cell.loadData(true, data: globThirdMessages[indexPath.section])
+                                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "inMessageCell", for: indexPath) as! IncomingCollectionCell
+                                cell.loadData(true, data: globThirdMessages[(indexPath as NSIndexPath).section])
                                 return cell
                                 
                             } else {
                                 
-                                let cell = collectionView.dequeueReusableCellWithReuseIdentifier("outMessageCell", forIndexPath: indexPath) as! OutgoingCollectionCell
-                                cell.loadData(globThirdMessages[indexPath.section])
+                                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "outMessageCell", for: indexPath) as! OutgoingCollectionCell
+                                cell.loadData(globThirdMessages[(indexPath as NSIndexPath).section])
                                 return cell
                                 
                             }
@@ -821,11 +841,11 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                             
                             if !selfMessage {
                                 
-                                let cell = collectionView.dequeueReusableCellWithReuseIdentifier("inMediaCell", forIndexPath: indexPath) as! InMediaCollectionCell
+                                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "inMediaCell", for: indexPath) as! InMediaCollectionCell
                                 
-                                cell.loadCell(true, message: globThirdMessages[indexPath.section])
+                                cell.loadCell(true, message: globThirdMessages[(indexPath as NSIndexPath).section])
                                 
-                                if let key = globThirdMessages[indexPath.section]["key"] as? String {
+                                if let key = globThirdMessages[(indexPath as NSIndexPath).section]["key"] as? String {
                                     
                                     setPlayerTitle(key, cell: cell)
                                     
@@ -835,11 +855,11 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                                 
                             } else {
                                 
-                                let cell = collectionView.dequeueReusableCellWithReuseIdentifier("outMediaCell", forIndexPath: indexPath) as! OutMediaCollectionCell
+                                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "outMediaCell", for: indexPath) as! OutMediaCollectionCell
                                 
-                                cell.loadCell(globThirdMessages[indexPath.section])
+                                cell.loadCell(globThirdMessages[(indexPath as NSIndexPath).section])
                                 
-                                if let key = globThirdMessages[indexPath.section]["key"] as? String {
+                                if let key = globThirdMessages[(indexPath as NSIndexPath).section]["key"] as? String {
                                     
                                     setPlayerTitle(key, cell: cell)
                                     
@@ -853,32 +873,32 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                 }
             }
             
-        } else if indexPath.row == 7 {
+        } else if (indexPath as NSIndexPath).row == 7 {
             
-            let cell = collectionView.dequeueReusableCellWithReuseIdentifier("goToChatCell", forIndexPath: indexPath) as! GoToChatCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "goToChatCell", for: indexPath) as! GoToChatCell
             cell.vibesController = self
-            cell.loadData(newPosts[indexPath.section])
+            cell.loadData(newPosts[(indexPath as NSIndexPath).section])
            
             return cell
             
         }
         
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("inMessageCell", forIndexPath: indexPath) as! IncomingCollectionCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "inMessageCell", for: indexPath) as! IncomingCollectionCell
         
         return cell
         
     }
     
-    func collectionView(collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, atIndexPath indexPath: NSIndexPath) -> UICollectionReusableView {
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         
         var reusableView = UICollectionReusableView()
         
         if kind == UICollectionElementKindSectionHeader {
             
-            let cell = collectionView.dequeueReusableSupplementaryViewOfKind(UICollectionElementKindSectionHeader, withReuseIdentifier: "headerCell", forIndexPath: indexPath) as! VibeHeaderCollectionCell
+            let cell = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "headerCell", for: indexPath) as! VibeHeaderCollectionCell
             
             cell.vibesController = self
-            cell.loadCell(newPosts[indexPath.section])
+            cell.loadCell(newPosts[(indexPath as NSIndexPath).section])
             
             reusableView = cell
             
@@ -888,33 +908,33 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
         
     }
     
-    func numberOfSectionsInCollectionView(collectionView: UICollectionView) -> Int {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
         
         return newPosts.count
     }
     
     
-    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
         return 8
         
     }
     
-    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
  
         let width = self.view.bounds.width
 
-        if indexPath.row == 0 {
+        if (indexPath as NSIndexPath).row == 0 {
             
             return CGSize(width: width, height: width)
             
-        } else if indexPath.row == 1 {
+        } else if (indexPath as NSIndexPath).row == 1 {
             
             return CGSize(width: width, height: 65)
             
-        } else if indexPath.row == 2 {
+        } else if (indexPath as NSIndexPath).row == 2 {
             
-            if newPosts[indexPath.section]["caption"] as? String != "" {
+            if newPosts[(indexPath as NSIndexPath).section]["caption"] as? String != "" {
                 
                 return CGSize(width: width, height: 33)
                 
@@ -924,13 +944,13 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                 
             }
             
-        } else if indexPath.row == 3 {
+        } else if (indexPath as NSIndexPath).row == 3 {
             
             return CGSize(width: width, height: 25)
             
-        } else if indexPath.row == 4 {
+        } else if (indexPath as NSIndexPath).row == 4 {
             
-            if let senderId = globFirstMessages[indexPath.section]["senderId"] as? String, selfUID = FIRAuth.auth()?.currentUser?.uid {
+            if let senderId = globFirstMessages[(indexPath as NSIndexPath).section]["senderId"] as? String, let selfUID = FIRAuth.auth()?.currentUser?.uid {
                 
                 var selfMessage = false
                 
@@ -940,13 +960,13 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                     
                 }
                 
-                if let isMedia = globFirstMessages[indexPath.section]["isMedia"] as? Bool {
+                if let isMedia = globFirstMessages[(indexPath as NSIndexPath).section]["isMedia"] as? Bool {
                     
                     if !isMedia {
                         
                         if !selfMessage {
                             
-                            if let secondId = globSecondMessages[indexPath.section]["senderId"] as? String {
+                            if let secondId = globSecondMessages[(indexPath as NSIndexPath).section]["senderId"] as? String {
                                 
                                 if secondId == senderId {
                                     
@@ -976,7 +996,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                         
                         if !selfMessage {
                             
-                            if let secondId = globSecondMessages[indexPath.section]["senderID"] as? String {
+                            if let secondId = globSecondMessages[(indexPath as NSIndexPath).section]["senderID"] as? String {
                                 
                                 if secondId == senderId {
                                     
@@ -1009,9 +1029,9 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                 
             }
             
-        } else if indexPath.row == 5 {
+        } else if (indexPath as NSIndexPath).row == 5 {
             
-            if let senderId = globSecondMessages[indexPath.section]["senderId"] as? String, selfUID = FIRAuth.auth()?.currentUser?.uid {
+            if let senderId = globSecondMessages[(indexPath as NSIndexPath).section]["senderId"] as? String, let selfUID = FIRAuth.auth()?.currentUser?.uid {
                 
                 var selfMessage = false
                 
@@ -1021,13 +1041,13 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                     
                 }
                 
-                if let isMedia = globSecondMessages[indexPath.section]["isMedia"] as? Bool {
+                if let isMedia = globSecondMessages[(indexPath as NSIndexPath).section]["isMedia"] as? Bool {
                     
                     if !isMedia {
                         
                         if !selfMessage {
                             
-                            if let thirdId = globThirdMessages[indexPath.section]["senderId"] as? String {
+                            if let thirdId = globThirdMessages[(indexPath as NSIndexPath).section]["senderId"] as? String {
                                 
                                 if thirdId == senderId {
                                     return CGSize(width: width, height: 38)
@@ -1053,7 +1073,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                         
                         if !selfMessage {
                             
-                            if let thirdId = globThirdMessages[indexPath.section]["senderId"] as? String {
+                            if let thirdId = globThirdMessages[(indexPath as NSIndexPath).section]["senderId"] as? String {
                                 
                                 if thirdId == senderId {
                                     return CGSize(width: width, height: 108)
@@ -1083,9 +1103,9 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                 
             }
             
-        } else if indexPath.row == 6 {
+        } else if (indexPath as NSIndexPath).row == 6 {
             
-            if let senderId = globThirdMessages[indexPath.section]["senderId"] as? String, selfUID = FIRAuth.auth()?.currentUser?.uid {
+            if let senderId = globThirdMessages[(indexPath as NSIndexPath).section]["senderId"] as? String, let selfUID = FIRAuth.auth()?.currentUser?.uid {
                 
                 var selfMessage = false
                 
@@ -1095,7 +1115,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                     
                 }
                 
-                if let isMedia = globThirdMessages[indexPath.section]["isMedia"] as? Bool {
+                if let isMedia = globThirdMessages[(indexPath as NSIndexPath).section]["isMedia"] as? Bool {
                     
                     if !isMedia {
                         
@@ -1128,9 +1148,9 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                 
             }
             
-        } else if indexPath.row == 7 {
+        } else if (indexPath as NSIndexPath).row == 7 {
             
-            if indexPath.section == newPosts.count - 1 {
+            if (indexPath as NSIndexPath).section == newPosts.count - 1 {
                 
                 return CGSize(width: width, height: 80)
                 
@@ -1141,10 +1161,10 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
             }
         }
         
-        return CGSizeZero
+        return CGSize.zero
     }
     
-    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         
         let width = self.view.bounds.width
         
@@ -1153,27 +1173,27 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     }
     
     
-    func collectionView(collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, atIndexPath indexPath: NSIndexPath) {
+    func collectionView(_ collectionView: UICollectionView, willDisplaySupplementaryView view: UICollectionReusableView, forElementKind elementKind: String, at indexPath: IndexPath) {
         
-        if indexPath.section <= endedDisplaying {
+        if (indexPath as NSIndexPath).section <= endedDisplaying {
             
             if scrollingUp {
                 
                 contentOffsetToShowNavAt = collectionView.contentOffset.y
-                beganDisplaying = indexPath.section
+                beganDisplaying = (indexPath as NSIndexPath).section
                 
             }
         }
     }
     
-    func collectionView(collectionView: UICollectionView, didEndDisplayingSupplementaryView view: UICollectionReusableView, forElementOfKind elementKind: String, atIndexPath indexPath: NSIndexPath) {
+    func collectionView(_ collectionView: UICollectionView, didEndDisplayingSupplementaryView view: UICollectionReusableView, forElementOfKind elementKind: String, at indexPath: IndexPath) {
         
-        endedDisplaying = indexPath.section
+        endedDisplaying = (indexPath as NSIndexPath).section
         
     }
     
     
-    func scrollViewDidScroll(scrollView: UIScrollView) {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
         if scrollingUp && (scrollView.contentOffset.y < 75) {
             
@@ -1243,7 +1263,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     
     
     
-    func scrollViewWillEndDragging(scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
         
         if velocity.y > 0 {
             
@@ -1288,7 +1308,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
             
             let ref = FIRDatabase.database().reference().child("posts").child(self.currentCity)
             
-            ref.queryLimitedToLast(100).observeEventType(.Value, withBlock: { (snapshot) in
+            ref.queryLimited(toLast: 100).observe(.value, with: { (snapshot) in
                 
                 if !snapshot.exists() {
                     
@@ -1300,9 +1320,9 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                     
                 }
 
-                var scopeData = [[NSObject : AnyObject]]()
+                var scopeData = [[AnyHashable: Any]]()
                 
-                if let value = snapshot.value as? [NSObject : AnyObject] {
+                if let value = snapshot.value as? [AnyHashable: Any] {
                     
                     if self.observingCity != scopeCity {
                         
@@ -1312,9 +1332,9 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                         
                         for (_, snapValue) in value {
                             
-                            if let valueToAdd = snapValue as? [NSObject : AnyObject] {
+                            if let valueToAdd = snapValue as? [AnyHashable: Any] {
                                 
-                                if let uid = valueToAdd["userUID"] as? String, myReported = self.rootController?.selfData["reportedUsers"] as? [String : Bool] {
+                                if let uid = valueToAdd["userUID"] as? String, let myReported = self.rootController?.selfData["reportedUsers"] as? [String : Bool] {
                                     
                                     if myReported[uid] == nil {
                                         
@@ -1330,9 +1350,9 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                             }
                         }
                         
-                        scopeData.sortInPlace({ (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
+                        scopeData.sort(by: { (a: [AnyHashable: Any], b: [AnyHashable: Any]) -> Bool in
                             
-                            if a["timeStamp"] as? NSTimeInterval > b["timeStamp"] as? NSTimeInterval {
+                            if a["timeStamp"] as? TimeInterval > b["timeStamp"] as? TimeInterval {
                                 
                                 return true
                                 
@@ -1343,41 +1363,41 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                             }
                         })
                         
-                        var messages = [[NSObject : AnyObject]]()
+                        var messages = [[AnyHashable: Any]]()
                         
                         for post in scopeData {
                             
-                            if let message = post["messages"] as? [NSObject : AnyObject] {
+                            if let message = post["messages"] as? [AnyHashable: Any] {
                                 
                                 messages.append(message)
                                 
                             } else {
                                 
-                                messages.append([NSObject : AnyObject]())
+                                messages.append([AnyHashable: Any]())
                                 
                             }
                         }
                         
-                        var firstMessages = [[NSObject : AnyObject]]()
-                        var secondMessages = [[NSObject : AnyObject]]()
-                        var thirdMessages = [[NSObject : AnyObject]]()
+                        var firstMessages = [[AnyHashable: Any]]()
+                        var secondMessages = [[AnyHashable: Any]]()
+                        var thirdMessages = [[AnyHashable: Any]]()
                         
                         for message in messages {
                             
-                            var messageArray = [[NSObject : AnyObject]]()
+                            var messageArray = [[AnyHashable: Any]]()
                             
                             for singleMessage in message {
                                 
-                                if let messageToAdd = singleMessage.1 as? [NSObject : AnyObject] {
+                                if let messageToAdd = singleMessage.1 as? [AnyHashable: Any] {
                                     
                                     messageArray.append(messageToAdd)
                                     
                                 }
                             }
                             
-                            messageArray.sortInPlace({ (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
+                            messageArray.sort(by: { (a: [AnyHashable: Any], b: [AnyHashable: Any]) -> Bool in
                                 
-                                if a["timeStamp"] as? NSTimeInterval > b["timeStamp"] as? NSTimeInterval {
+                                if a["timeStamp"] as? TimeInterval > b["timeStamp"] as? TimeInterval {
                                     
                                     return true
                                     
@@ -1403,22 +1423,22 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                                         
                                     } else {
                                         
-                                        firstMessages.append([NSObject : AnyObject]())
+                                        firstMessages.append([AnyHashable: Any]())
                                         
                                     }
                                     
                                 } else {
                                     
-                                    firstMessages.append([NSObject : AnyObject]())
-                                    secondMessages.append([NSObject : AnyObject]())
+                                    firstMessages.append([AnyHashable: Any]())
+                                    secondMessages.append([AnyHashable: Any]())
                                     
                                 }
                                 
                             } else {
                                 
-                                firstMessages.append([NSObject : AnyObject]())
-                                secondMessages.append([NSObject : AnyObject]())
-                                thirdMessages.append([NSObject : AnyObject]())
+                                firstMessages.append([AnyHashable: Any]())
+                                secondMessages.append([AnyHashable: Any]())
+                                thirdMessages.append([AnyHashable: Any]())
                                 
                             }
                         }
@@ -1431,10 +1451,10 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                         
                         self.rootController?.clearVibesPlayers()
                         
-                        if self.globCollectionView.contentOffset == CGPointZero {
+                        if self.globCollectionView.contentOffset == CGPoint.zero {
                             
                             self.globCollectionView.reloadData()
-                            self.globCollectionView.setContentOffset(CGPointZero, animated: true)
+                            self.globCollectionView.setContentOffset(CGPoint.zero, animated: true)
                             
                         }
                     }
@@ -1462,7 +1482,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
             
             let ref = FIRDatabase.database().reference().child("posts").child(scopeCity)
             
-            ref.queryLimitedToLast(100).observeEventType(.Value, withBlock: { (snapshot) in
+            ref.queryLimited(toLast: 100).observe(.value, with: { (snapshot) in
                 
                 if !snapshot.exists() {
                     
@@ -1472,9 +1492,9 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                     
                     self.noPostsOutlet.alpha = 0
                     
-                    var scopeData = [[NSObject : AnyObject]]()
+                    var scopeData = [[AnyHashable: Any]]()
                     
-                    if let value = snapshot.value as? [NSObject : AnyObject] {
+                    if let value = snapshot.value as? [AnyHashable: Any] {
                         
                         if self.observingCity != scopeCity {
                             
@@ -1484,9 +1504,9 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                             
                             for (_, snapValue) in value {
                                 
-                                if let valueToAdd = snapValue as? [NSObject : AnyObject] {
+                                if let valueToAdd = snapValue as? [AnyHashable: Any] {
                                     
-                                    if let uid = valueToAdd["userUID"] as? String, myReported = self.rootController?.selfData["reportedUsers"] as? [String : Bool] {
+                                    if let uid = valueToAdd["userUID"] as? String, let myReported = self.rootController?.selfData["reportedUsers"] as? [String : Bool] {
                                         
                                         if myReported[uid] == nil {
                                             
@@ -1503,9 +1523,9 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                                 
                             }
                             
-                            scopeData.sortInPlace({ (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
+                            scopeData.sort(by: { (a: [AnyHashable: Any], b: [AnyHashable: Any]) -> Bool in
                                 
-                                if a["timeStamp"] as? NSTimeInterval > b["timeStamp"] as? NSTimeInterval {
+                                if a["timeStamp"] as? TimeInterval > b["timeStamp"] as? TimeInterval {
                                     
                                     return true
                                     
@@ -1516,41 +1536,41 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                                 }
                             })
                             
-                            var messages = [[NSObject : AnyObject]]()
+                            var messages = [[AnyHashable: Any]]()
                             
                             for post in scopeData {
                                 
-                                if let message = post["messages"] as? [NSObject : AnyObject] {
+                                if let message = post["messages"] as? [AnyHashable: Any] {
                                     
                                     messages.append(message)
                                     
                                 } else {
                                     
-                                    messages.append([NSObject : AnyObject]())
+                                    messages.append([AnyHashable: Any]())
                                     
                                 }
                             }
                             
-                            var firstMessages = [[NSObject : AnyObject]]()
-                            var secondMessages = [[NSObject : AnyObject]]()
-                            var thirdMessages = [[NSObject : AnyObject]]()
+                            var firstMessages = [[AnyHashable: Any]]()
+                            var secondMessages = [[AnyHashable: Any]]()
+                            var thirdMessages = [[AnyHashable: Any]]()
                             
                             for message in messages {
                                 
-                                var messageArray = [[NSObject : AnyObject]]()
+                                var messageArray = [[AnyHashable: Any]]()
                                 
                                 for singleMessage in message {
                                     
-                                    if let messageToAdd = singleMessage.1 as? [NSObject : AnyObject] {
+                                    if let messageToAdd = singleMessage.1 as? [AnyHashable: Any] {
                                         
                                         messageArray.append(messageToAdd)
                                         
                                     }
                                 }
                                 
-                                messageArray.sortInPlace({ (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
+                                messageArray.sort(by: { (a: [AnyHashable: Any], b: [AnyHashable: Any]) -> Bool in
                                     
-                                    if a["timeStamp"] as? NSTimeInterval > b["timeStamp"] as? NSTimeInterval {
+                                    if a["timeStamp"] as? TimeInterval > b["timeStamp"] as? TimeInterval {
                                         
                                         return true
                                         
@@ -1564,34 +1584,34 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                                 
                                 if messageArray.count > 0 {
                                     
-                                    firstMessages.insert(messageArray[0], atIndex: 0)
+                                    firstMessages.insert(messageArray[0], at: 0)
                                     
                                     if messageArray.count > 1 {
                                         
-                                        secondMessages.insert(messageArray[1], atIndex: 0)
+                                        secondMessages.insert(messageArray[1], at: 0)
                                         
                                         if messageArray.count > 2 {
                                             
-                                            thirdMessages.insert(messageArray[2], atIndex: 0)
+                                            thirdMessages.insert(messageArray[2], at: 0)
                                             
                                         } else {
                                             
-                                            thirdMessages.insert([NSObject : AnyObject](), atIndex: 0)
+                                            thirdMessages.insert([AnyHashable: Any](), at: 0)
                                             
                                         }
                                         
                                     } else {
                                         
-                                        secondMessages.insert([NSObject : AnyObject](), atIndex: 0)
-                                        thirdMessages.insert([NSObject : AnyObject](), atIndex: 0)
+                                        secondMessages.insert([AnyHashable: Any](), at: 0)
+                                        thirdMessages.insert([AnyHashable: Any](), at: 0)
                                         
                                     }
                                     
                                 } else {
                                     
-                                    firstMessages.insert([NSObject : AnyObject](), atIndex: 0)
-                                    secondMessages.insert([NSObject : AnyObject](), atIndex: 0)
-                                    thirdMessages.insert([NSObject : AnyObject](), atIndex: 0)
+                                    firstMessages.insert([AnyHashable: Any](), at: 0)
+                                    secondMessages.insert([AnyHashable: Any](), at: 0)
+                                    thirdMessages.insert([AnyHashable: Any](), at: 0)
                                     
                                 }
                             }
@@ -1605,10 +1625,10 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                             
                             self.rootController?.clearVibesPlayers()
                             
-                            if self.globCollectionView.contentOffset == CGPointZero {
+                            if self.globCollectionView.contentOffset == CGPoint.zero {
                                 
                                 self.globCollectionView.reloadData()
-                                self.globCollectionView.setContentOffset(CGPointZero, animated: true)
+                                self.globCollectionView.setContentOffset(CGPoint.zero, animated: true)
                                 
                             }
                         }
@@ -1621,16 +1641,16 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     func addGestureRecognizers(){
         
         let downSwipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(showNav))
-        downSwipeGestureRecognizer.direction = UISwipeGestureRecognizerDirection.Down
+        downSwipeGestureRecognizer.direction = UISwipeGestureRecognizerDirection.down
         downSwipeGestureRecognizer.delegate = self
         
         
         let leftSwipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(showMessages))
-        leftSwipeGestureRecognizer.direction = UISwipeGestureRecognizerDirection.Left
+        leftSwipeGestureRecognizer.direction = UISwipeGestureRecognizerDirection.left
         leftSwipeGestureRecognizer.delegate = self
         
         let rightSwipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(showNearby))
-        rightSwipeGestureRecognizer.direction = UISwipeGestureRecognizerDirection.Right
+        rightSwipeGestureRecognizer.direction = UISwipeGestureRecognizerDirection.right
         rightSwipeGestureRecognizer.delegate = self
         
         self.view.addGestureRecognizer(rightSwipeGestureRecognizer)
@@ -1657,11 +1677,11 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
         
         transitioning = true
         
-        self.globCollectionView.scrollEnabled = false
+        self.globCollectionView.isScrollEnabled = false
         
         rootController?.toggleNearby({ (bool) in
             
-            self.globCollectionView.scrollEnabled = true
+            self.globCollectionView.isScrollEnabled = true
             
             self.navHidden = false
             self.transitioning = false
@@ -1674,11 +1694,11 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
         
         transitioning  = true
         
-        self.globCollectionView.scrollEnabled = false
+        self.globCollectionView.isScrollEnabled = false
         
         rootController?.toggleMessages({ (bool) in
             
-            self.globCollectionView.scrollEnabled = true
+            self.globCollectionView.isScrollEnabled = true
             
             self.navHidden = false
             self.transitioning = false
@@ -1694,15 +1714,15 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     }
     
     
-    override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         
         if keyPath == "rate" {
             
-            if let player = object as? AVPlayer, item = player.currentItem {
+            if let player = object as? AVPlayer, let item = player.currentItem {
                 
                 if CMTimeGetSeconds(player.currentTime()) == CMTimeGetSeconds(item.duration) {
                     
-                    player.seekToTime(kCMTimeZero)
+                    player.seek(to: kCMTimeZero)
                     player.play()
                     
                 } else if player.rate == 0 {
@@ -1718,13 +1738,13 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
         
         self.refresher.endRefreshing()
         self.globCollectionView.reloadData()
-        self.globCollectionView.setContentOffset(CGPointZero, animated: true)
+        self.globCollectionView.setContentOffset(CGPoint.zero, animated: true)
         
 
     }
     
     
-    override func viewDidAppear(animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         
         super.viewDidAppear(true)
         
@@ -1746,25 +1766,25 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
         
         vibeFlowLayout.sectionHeadersPinToVisibleBounds = true
         
-        let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.vibeController = self
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(observeCurrentCityPosts), name: UIApplicationDidBecomeActiveNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(observeCurrentCityPosts), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
         
         
         addGestureRecognizers()
         
         refresher = UIRefreshControl()
         refresher.attributedTitle = NSAttributedString(string: "Pull for more posts")
-        refresher.tintColor = UIColor.redColor()
-        refresher.addTarget(self, action: #selector(loadData), forControlEvents: .ValueChanged)
+        refresher.tintColor = UIColor.red
+        refresher.addTarget(self, action: #selector(loadData), for: .valueChanged)
         globCollectionView.addSubview(refresher)
         globCollectionView.alwaysBounceVertical = true
         
         // Do any additional setup after loading the view.
     }
     
-    func gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWithGestureRecognizer otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         
         return true
         

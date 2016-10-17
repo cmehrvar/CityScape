@@ -15,7 +15,7 @@ class MatchButtons: UIView {
         super.awakeFromNib()
         layer.cornerRadius = 15
         layer.borderWidth = 2
-        layer.borderColor = UIColor.whiteColor().CGColor
+        layer.borderColor = UIColor.white.cgColor
         self.clipsToBounds = true
         
     }

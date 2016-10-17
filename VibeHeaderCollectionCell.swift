@@ -21,7 +21,7 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
     var lastName = ""
     var profilePic = ""
     
-    var data = [NSObject : AnyObject]()
+    var data = [AnyHashable: Any]()
 
     //Outlets
     @IBOutlet weak var profilePicOutlet: VibeHeaderProfilePic!
@@ -31,7 +31,7 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
     @IBOutlet weak var squadRequestButtonOutlet: UIButton!
 
     //Action
-    @IBAction func squadRequest(sender: AnyObject) {
+    @IBAction func squadRequest(_ sender: AnyObject) {
         
         let scopeUserData = data
         let scopeFirstName = firstName
@@ -54,15 +54,15 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
             //Cancel send?
             print("cancel send?", terminator: "")
             
-            let alertController = UIAlertController(title: "Unsend squad request to \(firstName + " " + lastName)", message: nil, preferredStyle: .ActionSheet)
+            let alertController = UIAlertController(title: "Unsend squad request to \(firstName + " " + lastName)", message: nil, preferredStyle: .actionSheet)
             
-            alertController.addAction(UIAlertAction(title: "Unsend Request", style: .Destructive, handler: { (action) in
+            alertController.addAction(UIAlertAction(title: "Unsend Request", style: .destructive, handler: { (action) in
                 
-                if let userUID = scopeUserData["userUID"] as? String, selfUID = FIRAuth.auth()?.currentUser?.uid {
+                if let userUID = scopeUserData["userUID"] as? String, let selfUID = FIRAuth.auth()?.currentUser?.uid {
 
                     let ref = FIRDatabase.database().reference().child("users").child(userUID)
                     
-                    dispatch_async(dispatch_get_main_queue(), {
+                    DispatchQueue.main.async(execute: {
                         
                         ref.child("squadRequests").child(selfUID).removeValue()
                         ref.child("notifications").child(selfUID).child("squadRequest").removeValue()
@@ -73,13 +73,13 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
                 }
             }))
             
-            alertController.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
+            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
                 
                 print("canceled")
 
             }))
             
-            self.vibesController?.presentViewController(alertController, animated: true, completion: {
+            self.vibesController?.present(alertController, animated: true, completion: {
                 
                 print("alert controller presented")
 
@@ -91,15 +91,15 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
             //Confrim or Deny
             print("confirm or deny", terminator: "")
             
-            let alertController = UIAlertController(title: "Confirm \(firstName + " " + lastName) to your squad?", message: nil, preferredStyle: .ActionSheet)
+            let alertController = UIAlertController(title: "Confirm \(firstName + " " + lastName) to your squad?", message: nil, preferredStyle: .actionSheet)
             
-            alertController.addAction(UIAlertAction(title: "Add to Squad", style: .Default, handler: { (action) in
+            alertController.addAction(UIAlertAction(title: "Add to Squad", style: .default, handler: { (action) in
                 
-                if let selfUID = FIRAuth.auth()?.currentUser?.uid, selfData = self.vibesController?.rootController?.selfData, myFirstName = selfData["firstName"] as? String, myLastName = selfData["lastName"] as? String, scopeUID = scopeUserData["userUID"] as? String {
+                if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.vibesController?.rootController?.selfData, let myFirstName = selfData["firstName"] as? String, let myLastName = selfData["lastName"] as? String, let scopeUID = scopeUserData["userUID"] as? String {
                     
                     let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
 
-                        dispatch_async(dispatch_get_main_queue(), {
+                        DispatchQueue.main.async(execute: {
                             
                             ref.child("notifications").child(scopeUID).child("squadRequest").updateChildValues(["status" : "approved"])
                             ref.child("squadRequests").child(scopeUID).removeValue()
@@ -108,9 +108,9 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
                             
                             let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
      
-                            yourRef.child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                            yourRef.child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
                                 
-                                if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                                if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
                                     
                                     appDelegate.pushMessage(scopeUID, token: token, message: "\(myFirstName) is now in your squad!")
                                     
@@ -120,7 +120,7 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
 
                             
                             
-                            let timeInterval = NSDate().timeIntervalSince1970
+                            let timeInterval = Date().timeIntervalSince1970
                             yourRef.child("notifications").child(selfUID).child("squadRequest").setValue(["firstName" : myFirstName, "lastName" : myLastName, "type" : "addedYou", "timeStamp" : timeInterval, "uid" : selfUID, "read" : false])
                             
                             yourRef.child("squad").child(selfUID).setValue(["firstName" : myFirstName, "lastName" : myLastName, "uid" : selfUID])
@@ -132,13 +132,13 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
                 
             }))
             
-            alertController.addAction(UIAlertAction(title: "Reject \(firstName)", style: .Destructive, handler: { (action) in
+            alertController.addAction(UIAlertAction(title: "Reject \(firstName)", style: .destructive, handler: { (action) in
 
-                if let selfUID = FIRAuth.auth()?.currentUser?.uid, scopeUID = scopeUserData["userUID"] as? String {
+                if let selfUID = FIRAuth.auth()?.currentUser?.uid, let scopeUID = scopeUserData["userUID"] as? String {
                     
                     let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
 
-                        dispatch_async(dispatch_get_main_queue(), {
+                        DispatchQueue.main.async(execute: {
                             
                             ref.child("notifications").child(scopeUID).child("squadRequest").removeValue()
                             ref.child("squadRequests").child(scopeUID).removeValue()
@@ -150,13 +150,13 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
                 }
             }))
             
-            alertController.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
+            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
                 
                 print("canceled")
                 
             }))
             
-            self.vibesController?.presentViewController(alertController, animated: true, completion: {
+            self.vibesController?.present(alertController, animated: true, completion: {
                 
                 print("alert controller presented")
                 
@@ -169,17 +169,17 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
             //Send a request
             print("send a request", terminator: "")
             
-            let alertController = UIAlertController(title: "Add \(firstName + " " + lastName) to your squad!", message: nil, preferredStyle: .ActionSheet)
+            let alertController = UIAlertController(title: "Add \(firstName + " " + lastName) to your squad!", message: nil, preferredStyle: .actionSheet)
             
-            alertController.addAction(UIAlertAction(title: "Send Request", style: .Default, handler: { (action) in
+            alertController.addAction(UIAlertAction(title: "Send Request", style: .default, handler: { (action) in
 
-                if let userUID = scopeUserData["userUID"] as? String, selfUID = FIRAuth.auth()?.currentUser?.uid, selfData = self.vibesController?.rootController?.selfData, firstName = selfData["firstName"] as? String, lastName = selfData["lastName"] as? String {
+                if let userUID = scopeUserData["userUID"] as? String, let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.vibesController?.rootController?.selfData, let firstName = selfData["firstName"] as? String, let lastName = selfData["lastName"] as? String {
 
                     let yourRef = FIRDatabase.database().reference().child("users").child(userUID)
                     
-                    yourRef.child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                    yourRef.child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
                         
-                        if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                        if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
                             
                             appDelegate.pushMessage(userUID, token: token, message: "\(firstName) has sent you a squad request")
                             
@@ -187,17 +187,17 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
                         }
                     })
 
-                    let timeInterval = NSDate().timeIntervalSince1970
+                    let timeInterval = Date().timeIntervalSince1970
                     
                     //0 -> Hasn't responded yet, 1 -> Approved, 2 -> Denied
                     let ref = FIRDatabase.database().reference().child("users").child(userUID)
 
-                    let squadItem = ["uid" : selfUID, "read" : false, "status": 0, "timeStamp" : timeInterval, "firstName" : firstName, "lastName" : lastName]
+                    let squadItem = ["uid" : selfUID, "read" : false, "status": 0, "timeStamp" : timeInterval, "firstName" : firstName, "lastName" : lastName] as [String : Any]
                     
-                    let notificationItem = ["uid" : selfUID, "read" : false, "status" : "awaitingAction", "type" : "squadRequest", "timeStamp" : timeInterval, "firstName" : firstName, "lastName" : lastName]
+                    let notificationItem = ["uid" : selfUID, "read" : false, "status" : "awaitingAction", "type" : "squadRequest", "timeStamp" : timeInterval, "firstName" : firstName, "lastName" : lastName] as [String : Any]
                     
     
-                    dispatch_async(dispatch_get_main_queue(), {
+                    DispatchQueue.main.async(execute: {
                         
                         ref.child("squadRequests").child(selfUID).setValue(squadItem)
                         ref.child("notifications").child(selfUID).child("squadRequest").setValue(notificationItem)
@@ -208,13 +208,13 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
                 }
             }))
 
-            alertController.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
+            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
                 
                 print("canceled")
                 
             }))
             
-            self.vibesController?.presentViewController(alertController, animated: true, completion: {
+            self.vibesController?.present(alertController, animated: true, completion: {
                 
                 print("alert controller presented")
                 
@@ -222,9 +222,9 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
         }
     }
 
-    @IBAction func toProfile(sender: AnyObject) {
+    @IBAction func toProfile(_ sender: AnyObject) {
         
-        if let userUid = data["userUID"] as? String, selfUID = FIRAuth.auth()?.currentUser?.uid {
+        if let userUid = data["userUID"] as? String, let selfUID = FIRAuth.auth()?.currentUser?.uid {
 
             var selfProfile = false
             
@@ -242,27 +242,27 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
         }
     }
 
-    func loadCell(data: [NSObject : AnyObject]) {
+    func loadCell(_ data: [AnyHashable: Any]) {
         
         self.data = data
 
         profilePicOutlet.image = nil
         
         self.nameOutlet.adjustsFontSizeToFitWidth = true
-        self.nameOutlet.baselineAdjustment = .AlignCenters
+        self.nameOutlet.baselineAdjustment = .alignCenters
 
-        if let uid = data["userUID"] as? String, selfUID = FIRAuth.auth()?.currentUser?.uid {
+        if let uid = data["userUID"] as? String, let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
             self.uid = uid
 
             if uid == selfUID {
                 
                 squadIndicatorOutlet.image = nil
-                squadRequestButtonOutlet.enabled = false
+                squadRequestButtonOutlet.isEnabled = false
                 
             } else {
                 
-                squadRequestButtonOutlet.enabled = true
+                squadRequestButtonOutlet.isEnabled = true
 
                 if let selfData = vibesController?.rootController?.selfData {
 
@@ -270,7 +270,7 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
                     var iSentYou = false
                     var youSentMe = false
    
-                    if let mySquad = selfData["squad"] as? [NSObject : AnyObject] {
+                    if let mySquad = selfData["squad"] as? [AnyHashable: Any] {
                         
                         if mySquad[uid] != nil {
                             
@@ -286,7 +286,7 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
                         
                     } else {
         
-                        if let mySquadRequests = selfData["squadRequests"] as? [NSObject : AnyObject] {
+                        if let mySquadRequests = selfData["squadRequests"] as? [AnyHashable: Any] {
                             
                             for (key, _) in mySquadRequests {
                                 
@@ -310,11 +310,11 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
                             
                             let ref = FIRDatabase.database().reference().child("users").child(uid)
                             
-                            ref.child("squadRequests").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                            ref.child("squadRequests").observeSingleEvent(of: .value, with: { (snapshot) in
 
                                 if snapshot.exists() {
                                     
-                                    if let yourSquadRequests = snapshot.value as? [NSObject : AnyObject] {
+                                    if let yourSquadRequests = snapshot.value as? [AnyHashable: Any] {
                                         
                                         for (key, _) in yourSquadRequests {
                                             
@@ -366,21 +366,21 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
             
             let ref = FIRDatabase.database().reference().child("users").child(uid)
             
-            ref.child("profilePicture").observeEventType(.Value, withBlock: { (snapshot) in
+            ref.child("profilePicture").observe(.value, with: { (snapshot) in
                 
                 if self.uid == uid {
                     
-                    if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
+                    if let profileString = snapshot.value as? String, let url = URL(string: profileString) {
                         
                         self.profilePic = profileString
 
-                        self.profilePicOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                        self.profilePicOutlet.sd_setImage(with: url, placeholderImage: nil)
                         
                     }
                 }
             })
             
-            ref.child("cityRank").observeEventType(.Value, withBlock: { (snapshot) in
+            ref.child("cityRank").observe(.value, with: { (snapshot) in
                 
                 if self.uid == uid {
                     
@@ -392,7 +392,7 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
                 }
             })
             
-            ref.child("online").observeEventType(.Value, withBlock: { (snapshot) in
+            ref.child("online").observe(.value, with: { (snapshot) in
                 
                 if self.uid == uid {
                     
@@ -403,7 +403,7 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
         }
 
         
-        if let firstName = data["firstName"] as? String, lastName = data["lastName"] as? String {
+        if let firstName = data["firstName"] as? String, let lastName = data["lastName"] as? String {
             
             self.firstName = firstName
             self.lastName = lastName

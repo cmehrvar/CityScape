@@ -10,10 +10,30 @@ import UIKit
 import Firebase
 import FirebaseDatabase
 import FirebaseAuth
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
+fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l > r
+  default:
+    return rhs < lhs
+  }
+}
+
 
 class ComposeTableViewCell: UITableViewCell {
 
-    var userData = [NSObject : AnyObject]()
+    var userData = [AnyHashable: Any]()
     
     weak var composeController: ComposeChatController?
     
@@ -25,14 +45,14 @@ class ComposeTableViewCell: UITableViewCell {
     @IBOutlet weak var rankOutlet: UILabel!
     @IBOutlet weak var selectedIndicator: UIImageView!
 
-    @IBAction func addRemoveFromChat(sender: AnyObject) {
+    @IBAction func addRemoveFromChat(_ sender: AnyObject) {
 
         if let selectedUsers = composeController?.userSelected {
             
             if selectedUsers[uid] != nil {
                 
                 //Remove
-                if let last = composeController?.selectedSquad.last, index = composeController?.userSelected[uid] {
+                if let last = composeController?.selectedSquad.last, let index = composeController?.userSelected[uid] {
 
                     self.composeController?.selectedSquad[index] = last
                     
@@ -43,7 +63,7 @@ class ComposeTableViewCell: UITableViewCell {
                     }
 
                     self.composeController?.selectedSquad.removeLast()
-                    composeController?.userSelected.removeValueForKey(uid)
+                    composeController?.userSelected.removeValue(forKey: uid)
                     
                     self.composeController?.globCollectionViewOutlet.reloadData()
                     self.composeController?.globTableViewOutlet.reloadData()
@@ -59,14 +79,14 @@ class ComposeTableViewCell: UITableViewCell {
                     
 
                 //Add
-                composeController?.selectedSquad.append(userData)
+                composeController?.selectedSquad.append(userData as [NSObject : AnyObject])
 
                 composeController?.globTableViewOutlet.reloadData()
                 composeController?.globCollectionViewOutlet.reloadData()
                 
-                let indexPath = NSIndexPath(forRow: count, inSection: 0)
+                let indexPath = IndexPath(row: count, section: 0)
                 
-                composeController?.globCollectionViewOutlet.scrollToItemAtIndexPath(indexPath, atScrollPosition: .None, animated: true)
+                composeController?.globCollectionViewOutlet.scrollToItem(at: indexPath, at: UICollectionViewScrollPosition(), animated: true)
                 
                 }
             }
@@ -80,7 +100,7 @@ class ComposeTableViewCell: UITableViewCell {
             }
             
             //Add
-            composeController?.selectedSquad.append(userData)
+            composeController?.selectedSquad.append(userData as [NSObject : AnyObject])
             
             composeController?.globTableViewOutlet.reloadData()
             composeController?.globCollectionViewOutlet.reloadData()
@@ -89,23 +109,23 @@ class ComposeTableViewCell: UITableViewCell {
         
         if composeController?.selectedSquad.count > 0 {
             
-            composeController?.getTalkinOutlet.enabled = true
+            composeController?.getTalkinOutlet.isEnabled = true
             
         } else {
             
-            composeController?.getTalkinOutlet.enabled = false
+            composeController?.getTalkinOutlet.isEnabled = false
             
         }
     }
     
 
-    func loadData(data: [NSObject : AnyObject]) {
+    func loadData(_ data: [AnyHashable: Any]) {
         
         self.userData = data
         nameOutlet.adjustsFontSizeToFitWidth = true
-        nameOutlet.baselineAdjustment = .AlignCenters
+        nameOutlet.baselineAdjustment = .alignCenters
 
-        if let firstName = data["firstName"] as? String, lastName = data["lastName"] as? String {
+        if let firstName = data["firstName"] as? String, let lastName = data["lastName"] as? String {
             
             self.nameOutlet.text = firstName + " " + lastName
             
@@ -119,27 +139,27 @@ class ComposeTableViewCell: UITableViewCell {
 
             if (composeController?.userSelected[uid]) != nil {
                 
-                self.selectedIndicator.backgroundColor = UIColor.redColor()
+                self.selectedIndicator.backgroundColor = UIColor.red
                 
             } else {
                 
-                self.selectedIndicator.backgroundColor = UIColor.clearColor()
+                self.selectedIndicator.backgroundColor = UIColor.clear
                 
             }
 
-            ref.child("profilePicture").observeEventType(.Value, withBlock: { (snapshot) in
+            ref.child("profilePicture").observe(.value, with: { (snapshot) in
                 
-                if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
+                if let profileString = snapshot.value as? String, let url = URL(string: profileString) {
                     
                     if self.uid == uid {
                         
-                        self.profilePicOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                        self.profilePicOutlet.sd_setImage(with: url, placeholderImage: nil)
                         
                     }
                 }
             })
 
-            ref.child("online").observeEventType(.Value, withBlock: { (snapshot) in
+            ref.child("online").observe(.value, with: { (snapshot) in
                 
                 if let online = snapshot.value as? Bool {
                     
@@ -147,11 +167,11 @@ class ComposeTableViewCell: UITableViewCell {
                         
                         if online {
                             
-                            self.onlineIndicatorOutlet.backgroundColor = UIColor.greenColor()
+                            self.onlineIndicatorOutlet.backgroundColor = UIColor.green
                             
                         } else {
                             
-                            self.onlineIndicatorOutlet.backgroundColor = UIColor.redColor()
+                            self.onlineIndicatorOutlet.backgroundColor = UIColor.red
                             
                         }
                     }
@@ -159,7 +179,7 @@ class ComposeTableViewCell: UITableViewCell {
             })
             
             
-            ref.child("cityRank").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+            ref.child("cityRank").observeSingleEvent(of: .value, with: { (snapshot) in
                 
                 if self.uid == uid {
                     
@@ -179,7 +199,7 @@ class ComposeTableViewCell: UITableViewCell {
         // Initialization code
     }
 
-    override func setSelected(selected: Bool, animated: Bool) {
+    override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
 
         // Configure the view for the selected state

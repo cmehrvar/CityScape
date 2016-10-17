@@ -10,6 +10,26 @@ import UIKit
 import Firebase
 import FirebaseDatabase
 import FirebaseAuth
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
+fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l > r
+  default:
+    return rhs < lhs
+  }
+}
+
 
 class AddToChatController: UIViewController, UITableViewDataSource, UITableViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UISearchBarDelegate {
 
@@ -18,10 +38,10 @@ class AddToChatController: UIViewController, UITableViewDataSource, UITableViewD
     var chatKey = ""
     var members = [String]()
     
-    var squad = [[NSObject : AnyObject]]()
-    var selectedSquad = [[NSObject : AnyObject]]()
+    var squad = [[AnyHashable: Any]]()
+    var selectedSquad = [[AnyHashable: Any]]()
     var userSelected = [String : Int]()
-    var dataSoruceForSearchResult = [[NSObject : AnyObject]]()
+    var dataSoruceForSearchResult = [[AnyHashable: Any]]()
 
     var searchBarActive = false
     
@@ -34,7 +54,7 @@ class AddToChatController: UIViewController, UITableViewDataSource, UITableViewD
     
     
     //Actions
-    @IBAction func cancel(sender: AnyObject) {
+    @IBAction func cancel(_ sender: AnyObject) {
         
         rootController?.toggleAddToChat(nil, chatKey: nil, completion: { (bool) in
             
@@ -43,9 +63,9 @@ class AddToChatController: UIViewController, UITableViewDataSource, UITableViewD
         })
     }
     
-    @IBAction func add(sender: AnyObject) {
+    @IBAction func add(_ sender: AnyObject) {
 
-        let timeStamp = NSDate().timeIntervalSince1970
+        let timeStamp = Date().timeIntervalSince1970
         let scopeKey = chatKey
         let scopeCurrentMembers = members
 
@@ -74,7 +94,7 @@ class AddToChatController: UIViewController, UITableViewDataSource, UITableViewD
             
         }
         
-        var groupChatItem: [NSObject : AnyObject] = [
+        var groupChatItem: [AnyHashable: Any] = [
             
             "key" : scopeKey,
             "read" : false,
@@ -121,42 +141,45 @@ class AddToChatController: UIViewController, UITableViewDataSource, UITableViewD
     //Functions
     func loadUsers(){
 
-        var scopeSquad = [[NSObject : AnyObject]]()
+        var scopeSquad = [[AnyHashable: Any]]()
         
         if let selfData = rootController?.selfData {
             
-            if let mySquad = selfData["squad"] as? [NSObject : AnyObject] {
+            if let mySquad = selfData["squad"] as? [AnyHashable: Any] {
                 
                 for (_, value) in mySquad {
                     
-                    if let valueUID = value["uid"] as? String {
+                    if let squadMember = value as? [AnyHashable : Any] {
                         
-                        if let currentGroupMembers = rootController?.topChatController?.members {
+                        if let valueUID = squadMember["uid"] as? String {
                             
-                            var isMember = false
-                            
-                            for member in currentGroupMembers {
+                            if let currentGroupMembers = rootController?.topChatController?.members {
                                 
-                                if member == valueUID {
+                                var isMember = false
+                                
+                                for member in currentGroupMembers {
                                     
-                                    isMember = true
-                                    
+                                    if member == valueUID {
+                                        
+                                        isMember = true
+                                        
+                                    }
                                 }
-                            }
-                            
-                            if !isMember {
                                 
-                                if let valueToAdd = value as? [NSObject : AnyObject] {
+                                if !isMember {
                                     
-                                    scopeSquad.append(valueToAdd)
-                                    
+                                    if let valueToAdd = value as? [AnyHashable: Any] {
+                                        
+                                        scopeSquad.append(valueToAdd)
+                                        
+                                    }
                                 }
                             }
                         }
                     }
                 }
 
-                scopeSquad.sortInPlace({ (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
+                scopeSquad.sort(by: { (a: [AnyHashable: Any], b: [AnyHashable: Any]) -> Bool in
                     
                     if a["lastName"] as? String > b["lastName"] as? String {
                         
@@ -177,7 +200,7 @@ class AddToChatController: UIViewController, UITableViewDataSource, UITableViewD
         }
     }
     
-    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         
         if searchText.characters.count > 0 {
             
@@ -196,15 +219,15 @@ class AddToChatController: UIViewController, UITableViewDataSource, UITableViewD
         }
     }
     
-    func filterContentForSearchText(searchText: String){
+    func filterContentForSearchText(_ searchText: String){
         
-        dataSoruceForSearchResult = squad.filter({ (user: [NSObject : AnyObject]) -> Bool in
+        dataSoruceForSearchResult = squad.filter({ (user: [AnyHashable: Any]) -> Bool in
             
-            if let firstName = user["firstName"] as? String, lastName = user["lastName"] as? String {
+            if let firstName = user["firstName"] as? String, let lastName = user["lastName"] as? String {
                 
                 let name = firstName + " " + lastName
                 
-                return name.containsString(searchText)
+                return name.contains(searchText)
                 
             } else {
                 
@@ -217,7 +240,7 @@ class AddToChatController: UIViewController, UITableViewDataSource, UITableViewD
     
     
     //TableView Delegates
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         if searchBarActive {
             
@@ -233,19 +256,19 @@ class AddToChatController: UIViewController, UITableViewDataSource, UITableViewD
     }
     
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCellWithIdentifier("addToChatCell", forIndexPath: indexPath) as! AddToChatCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "addToChatCell", for: indexPath) as! AddToChatCell
         
         cell.addToChatController = self
         
         if searchBarActive {
             
-            cell.loadCell(dataSoruceForSearchResult[indexPath.row])
+            cell.loadCell(dataSoruceForSearchResult[(indexPath as NSIndexPath).row])
             
         } else {
             
-            cell.loadCell(squad[indexPath.row])
+            cell.loadCell(squad[(indexPath as NSIndexPath).row])
             
         }
 
@@ -255,19 +278,19 @@ class AddToChatController: UIViewController, UITableViewDataSource, UITableViewD
     
     
     
-    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
         return selectedSquad.count
         
     }
     
     
-    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("addToChatCollectionCell", forIndexPath: indexPath) as! AddToChatCollectionCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "addToChatCollectionCell", for: indexPath) as! AddToChatCollectionCell
         
         
-        cell.loadCell(selectedSquad[indexPath.row])
+        cell.loadCell(selectedSquad[(indexPath as NSIndexPath).row])
         
         return cell
  
@@ -277,9 +300,9 @@ class AddToChatController: UIViewController, UITableViewDataSource, UITableViewD
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        addButtonOutlet.enabled = false
-        addButtonOutlet.setTitleColor(UIColor.whiteColor(), forState: .Normal)
-        addButtonOutlet.setTitleColor(UIColor.lightGrayColor(), forState: .Disabled)
+        addButtonOutlet.isEnabled = false
+        addButtonOutlet.setTitleColor(UIColor.white, for: UIControlState())
+        addButtonOutlet.setTitleColor(UIColor.lightGray, for: .disabled)
 
         // Do any additional setup after loading the view.
     }

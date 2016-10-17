@@ -26,7 +26,7 @@ class SquadCountController: UIViewController, UITableViewDataSource, UITableView
     @IBOutlet weak var dismissKeyboardView: UIView!
     
     
-    @IBAction func back(sender: AnyObject) {
+    @IBAction func back(_ sender: AnyObject) {
         
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
@@ -48,10 +48,10 @@ class SquadCountController: UIViewController, UITableViewDataSource, UITableView
     
     
     
-    var squad = [[NSObject : AnyObject]]()
-    var dataSourceForSearchResult = [[NSObject : AnyObject]]()
+    var squad = [[AnyHashable: Any]]()
+    var dataSourceForSearchResult = [[AnyHashable: Any]]()
     
-    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         
         if searchText.characters.count > 0 {
             
@@ -71,15 +71,15 @@ class SquadCountController: UIViewController, UITableViewDataSource, UITableView
     }
 
     
-    func filterContentForSearchText(searchText: String){
+    func filterContentForSearchText(_ searchText: String){
         
-        dataSourceForSearchResult = squad.filter({ (user: [NSObject : AnyObject]) -> Bool in
+        dataSourceForSearchResult = squad.filter({ (user: [AnyHashable: Any]) -> Bool in
             
-            if let firstName = user["firstName"] as? String, lastName = user["lastName"] as? String {
+            if let firstName = user["firstName"] as? String, let lastName = user["lastName"] as? String {
                 
                 let name = firstName + " " + lastName
                 
-                return name.containsString(searchText)
+                return name.contains(searchText)
                 
             } else {
                 
@@ -90,7 +90,7 @@ class SquadCountController: UIViewController, UITableViewDataSource, UITableView
     
  
     //TableView Delegates
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         if searchBarActive {
             
@@ -103,20 +103,20 @@ class SquadCountController: UIViewController, UITableViewDataSource, UITableView
         }
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCellWithIdentifier("squadTableViewCell", forIndexPath: indexPath) as! SquadTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "squadTableViewCell", for: indexPath) as! SquadTableViewCell
         
         cell.squadCountController = self
         cell.selfSquad = selfSquad
         
         if self.searchBarActive {
             
-            cell.loadCell(dataSourceForSearchResult[indexPath.row])
+            cell.loadCell(dataSourceForSearchResult[(indexPath as NSIndexPath).row])
             
         } else {
             
-            cell.loadCell(squad[indexPath.row])
+            cell.loadCell(squad[(indexPath as NSIndexPath).row])
             
         }
 
@@ -148,8 +148,8 @@ class SquadCountController: UIViewController, UITableViewDataSource, UITableView
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardDidShow), name: UIKeyboardWillShowNotification, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardDidHide), name: UIKeyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
         
         nameOutlet.adjustsFontSizeToFitWidth = true
         

@@ -28,30 +28,30 @@ class ForgotPasswordController: UIViewController, UITextFieldDelegate {
     
     
     //Actions
-    @IBAction func resetPassword(sender: AnyObject) {
+    @IBAction func resetPassword(_ sender: AnyObject) {
         
         if let email = emailOutlet.text {
             
-            FIRAuth.auth()?.sendPasswordResetWithEmail(email, completion: { (error) in
+            FIRAuth.auth()?.sendPasswordReset(withEmail: email, completion: { (error) in
                 
                 if error == nil {
                     
-                    let alertController = UIAlertController(title: "Password Reset", message: "A password reset email has been sent", preferredStyle: .Alert)
-                    alertController.addAction(UIAlertAction(title: "Ok", style: .Cancel, handler: { (action) in
+                    let alertController = UIAlertController(title: "Password Reset", message: "A password reset email has been sent", preferredStyle: .alert)
+                    alertController.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: { (action) in
                         
-                        let vc = self.storyboard?.instantiateViewControllerWithIdentifier("initial") as! LogInController
-                        self.presentViewController(vc, animated: true, completion: nil)
+                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "initial") as! LogInController
+                        self.present(vc, animated: true, completion: nil)
                         
                         
                     }))
                     
-                    self.presentViewController(alertController, animated: true, completion: nil)
+                    self.present(alertController, animated: true, completion: nil)
                     
                 } else {
                     
-                    let alertController = UIAlertController(title: "Sorry", message: error?.localizedDescription, preferredStyle: .Alert)
-                    alertController.addAction(UIAlertAction(title: "Ok", style: .Cancel, handler: nil))
-                    self.presentViewController(alertController, animated: true, completion: nil)
+                    let alertController = UIAlertController(title: "Sorry", message: error?.localizedDescription, preferredStyle: .alert)
+                    alertController.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: nil))
+                    self.present(alertController, animated: true, completion: nil)
 
                     
                 }
@@ -63,22 +63,27 @@ class ForgotPasswordController: UIViewController, UITextFieldDelegate {
     //Functions
     func loadGif() {
         
-        guard let filePath: String = NSBundle.mainBundle().pathForResource("background", ofType: "gif") else {return}
-        let gifData: NSData = NSData.dataWithContentsOfMappedFile(filePath) as! NSData
-        let image: FLAnimatedImage = FLAnimatedImage.init(GIFData: gifData)
-        gifImage.animatedImage = image
+        guard let filePath: String = Bundle.main.path(forResource: "background", ofType: "gif") else {return}
         
+    
+        if let data = try? Data(contentsOf: URL(fileURLWithPath: filePath)) {
+        
+            let image: FLAnimatedImage = FLAnimatedImage.init(gifData: data)
+            gifImage.animatedImage = image
+            
+        
+        }
     }
     
-    func isValidEmail(testStr: String) -> Bool {
+    func isValidEmail(_ testStr: String) -> Bool {
         
         let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
         let emailTest = NSPredicate(format: "SELF MATCHES %@", emailRegEx)
-        return emailTest.evaluateWithObject(testStr)
+        return emailTest.evaluate(with: testStr)
         
     }
     
-    func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         
         if textField == emailOutlet {
             
@@ -105,18 +110,18 @@ class ForgotPasswordController: UIViewController, UITextFieldDelegate {
         
         if emailValid {
             
-            resetPasswordOutlet.enabled = true
+            resetPasswordOutlet.isEnabled = true
             
         } else {
             
-            resetPasswordOutlet.enabled = false
+            resetPasswordOutlet.isEnabled = false
             
         }
         
         return true
     }
     
-    func textFieldDidEndEditing(textField: UITextField) {
+    func textFieldDidEndEditing(_ textField: UITextField) {
         
         
         if textField == emailOutlet {
@@ -140,16 +145,16 @@ class ForgotPasswordController: UIViewController, UITextFieldDelegate {
                     
                     emailChecker.image = UIImage(named: "RedX")
                     
-                    let alertController = UIAlertController(title: "Hey", message: "Please Enter a Valid Email", preferredStyle:  UIAlertControllerStyle.Alert)
+                    let alertController = UIAlertController(title: "Hey", message: "Please Enter a Valid Email", preferredStyle:  UIAlertControllerStyle.alert)
                     
-                    alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Cancel, handler: { (UIAlertAction) -> Void in
+                    alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.cancel, handler: { (UIAlertAction) -> Void in
                         
                         self.emailOutlet.becomeFirstResponder()
                         
                         
                     }))
                     
-                    self.presentViewController(alertController, animated: true, completion: nil)
+                    self.present(alertController, animated: true, completion: nil)
                     
                     emailValid = false
                     
@@ -162,11 +167,11 @@ class ForgotPasswordController: UIViewController, UITextFieldDelegate {
         
         if emailValid {
             
-            resetPasswordOutlet.enabled = true
+            resetPasswordOutlet.isEnabled = true
             
         } else {
             
-            resetPasswordOutlet.enabled = false
+            resetPasswordOutlet.isEnabled = false
             
         }
         
@@ -174,7 +179,7 @@ class ForgotPasswordController: UIViewController, UITextFieldDelegate {
     
     func addDismissKeyboard() {
         
-        let dismissKeyboard: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "dismissKeyboard")
+        let dismissKeyboard: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(ForgotPasswordController.dismissKeyboard))
         view.addGestureRecognizer(dismissKeyboard)
         
     }
@@ -189,9 +194,9 @@ class ForgotPasswordController: UIViewController, UITextFieldDelegate {
         
         emailOutlet.text = email
         emailOutlet.delegate = self
-        resetPasswordOutlet.enabled = emailValid
-        resetPasswordOutlet.setTitleColor(UIColor.blueColor(), forState: .Normal)
-        resetPasswordOutlet.setTitleColor(UIColor.grayColor(), forState: .Disabled)
+        resetPasswordOutlet.isEnabled = emailValid
+        resetPasswordOutlet.setTitleColor(UIColor.blue, for: UIControlState())
+        resetPasswordOutlet.setTitleColor(UIColor.gray, for: .disabled)
         
     }
     
@@ -205,7 +210,7 @@ class ForgotPasswordController: UIViewController, UITextFieldDelegate {
         // Do any additional setup after loading the view.
     }
     
-    override func viewDidAppear(animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         
         loadGif()
         

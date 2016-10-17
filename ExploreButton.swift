@@ -15,7 +15,7 @@ class ExploreButton: UIView {
         super.awakeFromNib()
         
         self.layer.cornerRadius = 10
-        self.layer.borderColor = UIColor.whiteColor().CGColor
+        self.layer.borderColor = UIColor.white.cgColor
         self.layer.borderWidth = 2
         self.clipsToBounds = true
         

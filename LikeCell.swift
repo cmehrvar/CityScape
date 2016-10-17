@@ -25,7 +25,7 @@ class LikeCell: UITableViewCell {
     @IBOutlet weak var unreadViewOutlet: UIView!
     
     
-    @IBAction func goToChat(sender: AnyObject) {
+    @IBAction func goToChat(_ sender: AnyObject) {
         
         let scopeUID = uid
         let scopeFirstName = firstName
@@ -43,12 +43,12 @@ class LikeCell: UITableViewCell {
     }
     
     
-    func loadData(data: [NSObject : AnyObject]){
+    func loadData(_ data: [AnyHashable: Any]){
         
         nameOutlet.adjustsFontSizeToFitWidth = true
-        nameOutlet.baselineAdjustment = .AlignCenters
+        nameOutlet.baselineAdjustment = .alignCenters
         
-        if let firstName = data["firstName"] as? String, lastName = data["lastName"] as? String {
+        if let firstName = data["firstName"] as? String, let lastName = data["lastName"] as? String {
             
             self.firstName = firstName
             self.lastName = lastName
@@ -64,12 +64,12 @@ class LikeCell: UITableViewCell {
             
             let ref = FIRDatabase.database().reference().child("users").child(uid)
             
-            ref.child("profilePicture").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+            ref.child("profilePicture").observeSingleEvent(of: .value, with: { (snapshot) in
                 
-                if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
+                if let profileString = snapshot.value as? String, let url = URL(string: profileString) {
                     
                     self.profile = profileString
-                    self.profileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                    self.profileOutlet.sd_setImage(with: url, placeholderImage: nil)
                     
                 }
             })
@@ -95,11 +95,11 @@ class LikeCell: UITableViewCell {
         super.awakeFromNib()
         
         nameOutlet.adjustsFontSizeToFitWidth = true
-        nameOutlet.baselineAdjustment = .AlignCenters
+        nameOutlet.baselineAdjustment = .alignCenters
         // Initialization code
     }
 
-    override func setSelected(selected: Bool, animated: Bool) {
+    override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
 
         // Configure the view for the selected state

@@ -21,13 +21,13 @@ class OutMediaCollectionCell: UICollectionViewCell {
     var isImage = false
     var key = ""
     
-    func loadCell(message: [NSObject : AnyObject]) {
+    func loadCell(_ message: [AnyHashable: Any]) {
         
         imageOutlet.layer.borderWidth = 1
         videoOutlet.layer.borderWidth = 1
         
-        imageOutlet.layer.borderColor = UIColor.darkGrayColor().CGColor
-        videoOutlet.layer.borderColor = UIColor.darkGrayColor().CGColor
+        imageOutlet.layer.borderColor = UIColor.darkGray.cgColor
+        videoOutlet.layer.borderColor = UIColor.darkGray.cgColor
         
         imageOutlet.layer.cornerRadius = 12
         videoOutlet.layer.cornerRadius = 12
@@ -40,13 +40,13 @@ class OutMediaCollectionCell: UICollectionViewCell {
                 
                 let userRef = FIRDatabase.database().reference().child("users").child(uid)
                 
-                userRef.child("profilePicture").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                userRef.child("profilePicture").observeSingleEvent(of: .value, with: { (snapshot) in
                     
                     if self.key == key {
                         
-                        if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
+                        if let profileString = snapshot.value as? String, let url = URL(string: profileString) {
                             
-                            self.profileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                            self.profileOutlet.sd_setImage(with: url, placeholderImage: nil)
                             
                         }
                     }
@@ -59,9 +59,9 @@ class OutMediaCollectionCell: UICollectionViewCell {
 
                 if isImage {
                     
-                    if let imageURL = message["media"] as? String, url = NSURL(string: imageURL) {
+                    if let imageURL = message["media"] as? String, let url = URL(string: imageURL) {
                         
-                        imageOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                        imageOutlet.sd_setImage(with: url, placeholderImage: nil)
                         
                     }
                 }

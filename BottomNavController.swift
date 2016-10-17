@@ -24,7 +24,7 @@ class BottomNavController: UIViewController {
     @IBOutlet weak var messagesButtonOutlet: UIButton!
 
     //Toggle Actions
-    @IBAction func toggleNearby(sender: AnyObject) {
+    @IBAction func toggleNearby(_ sender: AnyObject) {
         
        rootController?.toggleNearby({ (bool) in
         
@@ -33,7 +33,7 @@ class BottomNavController: UIViewController {
        })
     }
 
-    @IBAction func toggleVibes(sender: AnyObject) {
+    @IBAction func toggleVibes(_ sender: AnyObject) {
         
         rootController?.toggleVibes({ (bool) in
             
@@ -42,7 +42,7 @@ class BottomNavController: UIViewController {
         })
     }
 
-    @IBAction func toggleMessages(sender: AnyObject) {
+    @IBAction func toggleMessages(_ sender: AnyObject) {
     
         rootController?.toggleMessages({ (bool) in
             
@@ -53,21 +53,21 @@ class BottomNavController: UIViewController {
 
     
     //Highlight Actions
-    @IBAction func nearbyHighlight(sender: AnyObject) {
+    @IBAction func nearbyHighlight(_ sender: AnyObject) {
         toggleColour(1)
     }
 
-    @IBAction func vibesHighlight(sender: AnyObject) {
+    @IBAction func vibesHighlight(_ sender: AnyObject) {
         toggleColour(2)
     }
 
-    @IBAction func messagesHighlight(sender: AnyObject) {
+    @IBAction func messagesHighlight(_ sender: AnyObject) {
         toggleColour(3)
     }
 
     
     //Toggle Outside Actions
-    @IBAction func nearbyOutside(sender: AnyObject) {
+    @IBAction func nearbyOutside(_ sender: AnyObject) {
         
         rootController?.toggleNearby({ (bool) in
             
@@ -77,7 +77,7 @@ class BottomNavController: UIViewController {
 
     }
 
-    @IBAction func vibesOutside(sender: AnyObject) {
+    @IBAction func vibesOutside(_ sender: AnyObject) {
         
         rootController?.toggleVibes({ (bool) in
         
@@ -87,7 +87,7 @@ class BottomNavController: UIViewController {
         
     }
 
-    @IBAction func messagesOutside(sender: AnyObject) {
+    @IBAction func messagesOutside(_ sender: AnyObject) {
         
         rootController?.toggleMessages({ (bool) in
             
@@ -98,53 +98,53 @@ class BottomNavController: UIViewController {
     }
   
     
-    func toggleColour(button: Int) {
+    func toggleColour(_ button: Int) {
         
         if button == 1 {
             
-            nearbyViewOutlet.backgroundColor = UIColor.whiteColor()
-            nearbyButtonOutlet.setTitleColor(UIColor(netHex: 0xDF412E), forState: .Normal)
+            nearbyViewOutlet.backgroundColor = UIColor.white
+            nearbyButtonOutlet.setTitleColor(UIColor(netHex: 0xDF412E), for: UIControlState())
             
-            vibesViewOutlet.backgroundColor = UIColor.clearColor()
-            torontoOutlet.textColor = UIColor.whiteColor()
-            vibesOutlet.textColor = UIColor.whiteColor()
+            vibesViewOutlet.backgroundColor = UIColor.clear
+            torontoOutlet.textColor = UIColor.white
+            vibesOutlet.textColor = UIColor.white
             
-            messagesViewOutlet.backgroundColor = UIColor.clearColor()
-            messagesButtonOutlet.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+            messagesViewOutlet.backgroundColor = UIColor.clear
+            messagesButtonOutlet.setTitleColor(UIColor.white, for: UIControlState())
             
         } else if button == 2 {
             
-            nearbyViewOutlet.backgroundColor = UIColor.clearColor()
-            nearbyButtonOutlet.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+            nearbyViewOutlet.backgroundColor = UIColor.clear
+            nearbyButtonOutlet.setTitleColor(UIColor.white, for: UIControlState())
             
-            vibesViewOutlet.backgroundColor = UIColor.whiteColor()
+            vibesViewOutlet.backgroundColor = UIColor.white
             torontoOutlet.textColor = UIColor(netHex: 0xDF412E)
             vibesOutlet.textColor = UIColor(netHex: 0xDF412E)
             
-            messagesViewOutlet.backgroundColor = UIColor.clearColor()
-            messagesButtonOutlet.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+            messagesViewOutlet.backgroundColor = UIColor.clear
+            messagesButtonOutlet.setTitleColor(UIColor.white, for: UIControlState())
             
         } else if button == 3 {
             
-            nearbyViewOutlet.backgroundColor = UIColor.clearColor()
-            nearbyButtonOutlet.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+            nearbyViewOutlet.backgroundColor = UIColor.clear
+            nearbyButtonOutlet.setTitleColor(UIColor.white, for: UIControlState())
             
-            vibesViewOutlet.backgroundColor = UIColor.clearColor()
-            torontoOutlet.textColor = UIColor.whiteColor()
-            vibesOutlet.textColor = UIColor.whiteColor()
+            vibesViewOutlet.backgroundColor = UIColor.clear
+            torontoOutlet.textColor = UIColor.white
+            vibesOutlet.textColor = UIColor.white
             
-            messagesViewOutlet.backgroundColor = UIColor.whiteColor()
-            messagesButtonOutlet.setTitleColor(UIColor(netHex: 0xDF412E), forState: .Normal)
+            messagesViewOutlet.backgroundColor = UIColor.white
+            messagesButtonOutlet.setTitleColor(UIColor(netHex: 0xDF412E), for: UIControlState())
             
         }
     }
     
     
     
-    override func viewDidAppear(animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         
         torontoOutlet.adjustsFontSizeToFitWidth = true
-        torontoOutlet.baselineAdjustment = .None
+        torontoOutlet.baselineAdjustment = .none
         
     }
     

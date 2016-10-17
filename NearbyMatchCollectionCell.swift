@@ -38,7 +38,7 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
     
     
     //Actions
-    @IBAction func matchRequest(sender: AnyObject) {
+    @IBAction func matchRequest(_ sender: AnyObject) {
         
         print("match request sent", terminator: "")
         
@@ -57,14 +57,14 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
             let scopeUsentMe = youSentMe
             let scopeUID = uid
             
-            UIView.animateWithDuration(0.3, animations: {
+            UIView.animate(withDuration: 0.3, animations: {
                 
                 self.heartIndicator.alpha = 1
                 self.layoutIfNeeded()
                 
                 }, completion: { (complete) in
                     
-                    UIView.animateWithDuration(0.3, animations: {
+                    UIView.animate(withDuration: 0.3, animations: {
                         
                         self.heartIndicator.alpha = 0
                         self.layoutIfNeeded()
@@ -78,11 +78,11 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                                 
                                 if scopeUsentMe {
                                     
-                                    ref.child("users").child(scopeUID).child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                                    ref.child("users").child(scopeUID).child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
                                         
-                                        if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                                        if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
                                             
-                                            if let myFirstName = self.nearbyController?.rootController?.selfData["firstName"] as? String, myLastName = self.nearbyController?.rootController?.selfData["lastName"] as? String {
+                                            if let myFirstName = self.nearbyController?.rootController?.selfData["firstName"] as? String, let myLastName = self.nearbyController?.rootController?.selfData["lastName"] as? String {
                                                 
                                                 appDelegate.pushMessage(scopeUID, token: token, message: "You've matched with \(myFirstName) \(myLastName)!")
                                                 
@@ -105,7 +105,7 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
     }
     
     
-    @IBAction func goToProfile(sender: AnyObject) {
+    @IBAction func goToProfile(_ sender: AnyObject) {
         
         nearbyController?.rootController?.toggleProfile(uid, selfProfile: false, completion: { (bool) in
             
@@ -115,7 +115,7 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
         
     }
     
-    @IBAction func dismiss(sender: AnyObject) {
+    @IBAction func dismiss(_ sender: AnyObject) {
         
         if let last = nearbyController?.nearbyUsers.last {
             
@@ -132,20 +132,20 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
     
     
     //Functions
-    func loadUser(uid: String){
+    func loadUser(_ uid: String){
         
-        if let selfData = nearbyController?.rootController?.selfData, selfUID = FIRAuth.auth()?.currentUser?.uid {
+        if let selfData = nearbyController?.rootController?.selfData, let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
-            if let userData = self.nearbyController?.users[uid] as? [NSObject : AnyObject] {
+            if let userData = self.nearbyController?.users[uid] as? [AnyHashable: Any] {
 
                 if self.uid == uid {
                     
                     if let online = userData["online"] as? Bool {
                         
                         if online {
-                            self.onlineOutlet.backgroundColor = UIColor.greenColor()
+                            self.onlineOutlet.backgroundColor = UIColor.green
                         } else {
-                            self.onlineOutlet.backgroundColor = UIColor.redColor()
+                            self.onlineOutlet.backgroundColor = UIColor.red
                         }
                         
                     }
@@ -155,7 +155,7 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                         
                         if matchStatus == "sentMatch" {
                             
-                            self.matchButtonOutlet.enabled = false
+                            self.matchButtonOutlet.isEnabled = false
                             self.buttonImageOutlet.image = UIImage(named: "sentMatch")
                             
                         }
@@ -167,10 +167,10 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                         
                     }
                     
-                    if let profile = userData["profile"] as? String, url = NSURL(string: profile) {
+                    if let profile = userData["profile"] as? String, let url = URL(string: profile) {
                         
                         if profileImage.sd_imageURL() != url {
-                            profileImage.sd_setImageWithURL(url, placeholderImage: nil)
+                            profileImage.sd_setImage(with: url, placeholderImage: nil)
                         }
                         
                         self.profilePic = profile
@@ -191,7 +191,7 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
 
             let ref = FIRDatabase.database().reference().child("users").child(uid)
 
-            if let myMatches = selfData["matches"] as? [NSObject : AnyObject] {
+            if let myMatches = selfData["matches"] as? [AnyHashable: Any] {
                 
                 if myMatches[uid] != nil {
                     
@@ -213,12 +213,12 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                 
                 // YOUR A MATCH!!!
 
-                matchButtonOutlet.enabled = true
+                matchButtonOutlet.isEnabled = true
                 buttonImageOutlet.image = UIImage(named: "enabledMessage")
                 
             } else {
                 
-                ref.child("sentMatches").observeEventType(.Value, withBlock: { (snapshot) in
+                ref.child("sentMatches").observe(.value, with: { (snapshot) in
                     
                     var scopeYouSentMe = false
                     var scopeISentYou = false
@@ -254,7 +254,7 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                             
                             //YOU SENT ME!!!
                             
-                            if let userData = self.nearbyController?.users[uid] as? [NSObject : AnyObject] {
+                            if let userData = self.nearbyController?.users[uid] as? [AnyHashable: Any] {
                                 
                                 var data = userData
                                 data.updateValue("youSentMe", forKey: "matchStatus")
@@ -266,7 +266,7 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                                 
                             }
 
-                            self.matchButtonOutlet.enabled = true
+                            self.matchButtonOutlet.isEnabled = true
                             self.buttonImageOutlet.image = UIImage(named: "sendMatch")
                             
 
@@ -299,7 +299,7 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                             if scopeISentYou {
     
                                 
-                                if let userData = self.nearbyController?.users[uid] as? [NSObject : AnyObject] {
+                                if let userData = self.nearbyController?.users[uid] as? [AnyHashable: Any] {
                                     
                                     var data = userData
                                     data.updateValue("sentMatch", forKey: "matchStatus")
@@ -312,19 +312,19 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                                 }
                                 
                                 //I SENT YOU!!!
-                                self.matchButtonOutlet.enabled = false
+                                self.matchButtonOutlet.isEnabled = false
                                 self.buttonImageOutlet.image = UIImage(named: "sentMatch")
                                 
                             } else {
                                 
                                 
                                 //NEITHER OF US HAVE SENT :(
-                                self.matchButtonOutlet.enabled = true
+                                self.matchButtonOutlet.isEnabled = true
                                 self.buttonImageOutlet.image = UIImage(named: "sendMatch")
 
                                 
                                 
-                                if let userData = self.nearbyController?.users[uid] as? [NSObject : AnyObject] {
+                                if let userData = self.nearbyController?.users[uid] as? [AnyHashable: Any] {
                                     
                                     var data = userData
                                     data.updateValue("sendMatch", forKey: "matchStatus")
@@ -341,7 +341,7 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                 })
             }
             
-            ref.child("firstName").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+            ref.child("firstName").observeSingleEvent(of: .value, with: { (snapshot) in
                 
                 if self.uid == uid {
                     
@@ -349,15 +349,16 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                         
                         self.firstName = name
                         
-                        ref.child("age").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                        ref.child("age").observeSingleEvent(of: .value, with: { (snapshot) in
                             
-                            if let age = snapshot.value as? NSTimeInterval {
+                            if let age = snapshot.value as? TimeInterval {
                                 
-                                let date = NSDate(timeIntervalSince1970: age)
-                                let displayName = name + ", " + timeAgoSince(date, showAccronym: false)
+                                let date = Date(timeIntervalSince1970: age)
+
+                                let displayName = name + ", " + timeAgoSince(date: date as NSDate, showAccronym: false)
                                 
                                 
-                                if let userData = self.nearbyController?.users[uid] as? [NSObject : AnyObject] {
+                                if let userData = self.nearbyController?.users[uid] as? [AnyHashable: Any] {
                                     
                                     var data = userData
                                     data.updateValue(displayName, forKey: "displayName")
@@ -371,7 +372,7 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                                 
                                 
                                 self.nameOutlet.text = displayName
-                                self.nameOutlet.lineBreakMode = .ByWordWrapping
+                                self.nameOutlet.lineBreakMode = .byWordWrapping
                                 
                             }
                         })
@@ -383,7 +384,7 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
             })
             
             
-            ref.child("lastName").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+            ref.child("lastName").observeSingleEvent(of: .value, with: { (snapshot) in
                 
                 if self.uid == uid {
                     
@@ -391,7 +392,7 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                         
                         self.lastName = lastName
                         
-                        if let userData = self.nearbyController?.users[uid] as? [NSObject : AnyObject] {
+                        if let userData = self.nearbyController?.users[uid] as? [AnyHashable: Any] {
                             
                             var data = userData
                             data.updateValue(lastName, forKey: "lastName")
@@ -411,7 +412,7 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
             
             
             
-            ref.child("currentStatus").observeEventType(.Value, withBlock: { (snapshot) in
+            ref.child("currentStatus").observe(.value, with: { (snapshot) in
                 
                 if self.uid == uid {
                     
@@ -419,7 +420,7 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                         
                         self.occupationOutlet.text = status
                         
-                        if let userData = self.nearbyController?.users[uid] as? [NSObject : AnyObject] {
+                        if let userData = self.nearbyController?.users[uid] as? [AnyHashable: Any] {
                             
                             var data = userData
                             data.updateValue(status, forKey: "status")
@@ -439,19 +440,19 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                 }
             })
             
-            ref.child("profilePicture").observeEventType(.Value, withBlock: { (snapshot) in
+            ref.child("profilePicture").observe(.value, with: { (snapshot) in
                 
                 if self.uid == uid {
                     
-                    if let profile = snapshot.value as? String, url = NSURL(string: profile) {
+                    if let profile = snapshot.value as? String, let url = URL(string: profile) {
                         
                         self.profilePic = profile
                         
                         if self.profileImage.sd_imageURL() != url {
-                            self.profileImage.sd_setImageWithURL(url, placeholderImage: nil)
+                            self.profileImage.sd_setImage(with: url, placeholderImage: nil)
                         }
 
-                        if let userData = self.nearbyController?.users[uid] as? [NSObject : AnyObject] {
+                        if let userData = self.nearbyController?.users[uid] as? [AnyHashable: Any] {
                             
                             var data = userData
                             data.updateValue(profile, forKey: "profile")
@@ -467,19 +468,19 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
             })
             
             
-            ref.child("online").observeEventType(.Value, withBlock: { (snapshot) in
+            ref.child("online").observe(.value, with: { (snapshot) in
                 
                 if self.uid == uid {
                     
                     if let online = snapshot.value as? Bool {
                         
                         if online {
-                            self.onlineOutlet.backgroundColor = UIColor.greenColor()
+                            self.onlineOutlet.backgroundColor = UIColor.green
                         } else {
-                            self.onlineOutlet.backgroundColor = UIColor.redColor()
+                            self.onlineOutlet.backgroundColor = UIColor.red
                         }
 
-                        if let userData = self.nearbyController?.users[uid] as? [NSObject : AnyObject] {
+                        if let userData = self.nearbyController?.users[uid] as? [AnyHashable: Any] {
                             
                             var data = userData
                             data.updateValue(online, forKey: "online")

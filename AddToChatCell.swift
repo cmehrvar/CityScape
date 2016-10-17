@@ -10,10 +10,30 @@ import UIKit
 import Firebase
 import FirebaseDatabase
 import FirebaseAuth
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
+fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l > r
+  default:
+    return rhs < lhs
+  }
+}
+
 
 class AddToChatCell: UITableViewCell {
     
-    var userData = [NSObject : AnyObject]()
+    var userData = [AnyHashable: Any]()
     var uid = ""
     
     weak var addToChatController: AddToChatController?
@@ -24,14 +44,14 @@ class AddToChatCell: UITableViewCell {
     @IBOutlet weak var rankOutlet: UILabel!
     @IBOutlet weak var selectedIndicatorImageOutlet: UIImageView!
 
-    @IBAction func selectUser(sender: AnyObject) {
+    @IBAction func selectUser(_ sender: AnyObject) {
         
         if let selectedUsers = addToChatController?.userSelected {
             
             if selectedUsers[uid] != nil {
                 
                 //Remove
-                if let last = addToChatController?.selectedSquad.last, index = addToChatController?.userSelected[uid] {
+                if let last = addToChatController?.selectedSquad.last, let index = addToChatController?.userSelected[uid] {
                     
                     self.addToChatController?.selectedSquad[index] = last
                     
@@ -42,7 +62,7 @@ class AddToChatCell: UITableViewCell {
                     }
                     
                     self.addToChatController?.selectedSquad.removeLast()
-                    addToChatController?.userSelected.removeValueForKey(uid)
+                    addToChatController?.userSelected.removeValue(forKey: uid)
                     
                     self.addToChatController?.globCollectionViewOutlet.reloadData()
                     self.addToChatController?.globTableViewOutlet.reloadData()
@@ -58,14 +78,14 @@ class AddToChatCell: UITableViewCell {
                     
                     
                     //Add
-                    addToChatController?.selectedSquad.append(userData)
+                    addToChatController?.selectedSquad.append(userData as [NSObject : AnyObject])
                     
                     addToChatController?.globTableViewOutlet.reloadData()
                     addToChatController?.globCollectionViewOutlet.reloadData()
                     
-                    let indexPath = NSIndexPath(forRow: count, inSection: 0)
+                    let indexPath = IndexPath(row: count, section: 0)
                     
-                    addToChatController?.globCollectionViewOutlet.scrollToItemAtIndexPath(indexPath, atScrollPosition: .None, animated: true)
+                    addToChatController?.globCollectionViewOutlet.scrollToItem(at: indexPath, at: UICollectionViewScrollPosition(), animated: true)
                     
                 }
             }
@@ -79,7 +99,7 @@ class AddToChatCell: UITableViewCell {
             }
             
             //Add
-            addToChatController?.selectedSquad.append(userData)
+            addToChatController?.selectedSquad.append(userData as [NSObject : AnyObject])
             
             addToChatController?.globTableViewOutlet.reloadData()
             addToChatController?.globCollectionViewOutlet.reloadData()
@@ -89,24 +109,24 @@ class AddToChatCell: UITableViewCell {
         if addToChatController?.selectedSquad.count > 0 {
             
             //Enable Button
-            addToChatController?.addButtonOutlet.enabled = true
+            addToChatController?.addButtonOutlet.isEnabled = true
             
             
         } else {
             
             //Disable Button
-            addToChatController?.addButtonOutlet.enabled = false
+            addToChatController?.addButtonOutlet.isEnabled = false
             
         }
     }
 
-    func loadCell(data: [NSObject : AnyObject]) {
+    func loadCell(_ data: [AnyHashable: Any]) {
         
         self.userData = data
         nameOutlet.adjustsFontSizeToFitWidth = true
-        nameOutlet.baselineAdjustment = .AlignCenters
+        nameOutlet.baselineAdjustment = .alignCenters
         
-        if let firstName = data["firstName"] as? String, lastName = data["lastName"] as? String {
+        if let firstName = data["firstName"] as? String, let lastName = data["lastName"] as? String {
             
             self.nameOutlet.text = firstName + " " + lastName
             
@@ -129,19 +149,19 @@ class AddToChatCell: UITableViewCell {
                 
             }
 
-            ref.child("profilePicture").observeEventType(.Value, withBlock: { (snapshot) in
+            ref.child("profilePicture").observe(.value, with: { (snapshot) in
                 
-                if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
+                if let profileString = snapshot.value as? String, let url = URL(string: profileString) {
                     
                     if self.uid == uid {
                         
-                        self.profilePictureOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                        self.profilePictureOutlet.sd_setImage(with: url, placeholderImage: nil)
                         
                     }
                 }
             })
             
-            ref.child("online").observeEventType(.Value, withBlock: { (snapshot) in
+            ref.child("online").observe(.value, with: { (snapshot) in
                 
                 if let online = snapshot.value as? Bool {
                     
@@ -149,11 +169,11 @@ class AddToChatCell: UITableViewCell {
                         
                         if online {
                             
-                            self.onlineIndicatorOutlet.backgroundColor = UIColor.greenColor()
+                            self.onlineIndicatorOutlet.backgroundColor = UIColor.green
                             
                         } else {
                             
-                            self.onlineIndicatorOutlet.backgroundColor = UIColor.redColor()
+                            self.onlineIndicatorOutlet.backgroundColor = UIColor.red
                             
                         }
                     }
@@ -161,7 +181,7 @@ class AddToChatCell: UITableViewCell {
             })
             
             
-            ref.child("cityRank").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+            ref.child("cityRank").observeSingleEvent(of: .value, with: { (snapshot) in
                 
                 if self.uid == uid {
                     
@@ -181,7 +201,7 @@ class AddToChatCell: UITableViewCell {
         // Initialization code
     }
 
-    override func setSelected(selected: Bool, animated: Bool) {
+    override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
 
         // Configure the view for the selected state

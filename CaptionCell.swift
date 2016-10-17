@@ -12,10 +12,10 @@ class CaptionCell: UICollectionViewCell {
 
     @IBOutlet weak var captionOutlet: UILabel!
     
-    func loadData(data: [NSObject : AnyObject]) {
+    func loadData(_ data: [AnyHashable: Any]) {
         
         captionOutlet.adjustsFontSizeToFitWidth = true
-        captionOutlet.baselineAdjustment = .AlignCenters
+        captionOutlet.baselineAdjustment = .alignCenters
         
         if let caption = data["caption"] as? String {
             

@@ -24,7 +24,7 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
     var firstName = ""
     var lastName = ""
 
-    var data = [NSObject : AnyObject]()
+    var data = [AnyHashable: Any]()
     
     //Outlets
     @IBOutlet weak var nameOutlet: UILabel!
@@ -40,12 +40,8 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
     @IBOutlet weak var reportButtonOutlet: UIButton!
     @IBOutlet weak var reportIconOutlet: UIImageView!
     
-    
-    
-    
-    
-    
-    @IBAction func report(sender: AnyObject) {
+
+    @IBAction func report(_ sender: AnyObject) {
         
         let scopeProfile = profileController
         let scopeUID = uid
@@ -57,31 +53,31 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
         
         alertController.backgroundTapDismissalGestureEnabled = true
         
-        alertController.alertViewBackgroundColor = UIColor.whiteColor()
+        alertController.alertViewBackgroundColor = UIColor.white
         
-        alertController.titleColor = UIColor.blackColor()
-        alertController.messageColor = UIColor.darkGrayColor()
+        alertController.titleColor = UIColor.black
+        alertController.messageColor = UIColor.darkGray
         
-        alertController.cancelButtonColor = UIColor.lightGrayColor()
-        alertController.cancelButtonTitleColor = UIColor.whiteColor()
+        alertController.cancelButtonColor = UIColor.lightGray
+        alertController.cancelButtonTitleColor = UIColor.white
         
-        alertController.buttonColor = UIColor.redColor()
-        alertController.buttonTitleColor = UIColor.whiteColor()
+        alertController.buttonColor = UIColor.red
+        alertController.buttonTitleColor = UIColor.white
         
-        alertController.addAction(NYAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
+        alertController.addAction(NYAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
             
             print("cancel", terminator: "")
             
-            self.profileController?.dismissViewControllerAnimated(true, completion: nil)
+            self.profileController?.dismiss(animated: true, completion: nil)
             
         }))
         
         
-        alertController.addAction(NYAlertAction(title: "Report", style: .Default, handler: { (action) in
+        alertController.addAction(NYAlertAction(title: "Report", style: .default, handler: { (action) in
             
             print("report user", terminator: "")
 
-            self.profileController?.dismissViewControllerAnimated(true, completion: {
+            self.profileController?.dismiss(animated: true, completion: {
                 
                 if let selfUID = FIRAuth.auth()?.currentUser?.uid {
                     
@@ -124,7 +120,7 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                         }
                         
                         scopeProfile?.rootController?.clearVibesPlayers()
-                        scopeProfile?.rootController?.vibesFeedController?.globCollectionView.contentOffset = CGPointZero
+                        scopeProfile?.rootController?.vibesFeedController?.globCollectionView.contentOffset = CGPoint.zero
                         scopeProfile?.rootController?.vibesFeedController?.observePosts()
                         
                     })
@@ -133,7 +129,7 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
         }))
         
         
-        profileController?.presentViewController(alertController, animated: true, completion: {
+        profileController?.present(alertController, animated: true, completion: {
             
             print("presented", terminator: "")
             
@@ -141,7 +137,7 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
     }
     
 
-    @IBAction func addOccupation(sender: AnyObject) {
+    @IBAction func addOccupation(_ sender: AnyObject) {
         
         let alertController = NYAlertViewController()
         
@@ -150,29 +146,29 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
         alertController.message = nil
         alertController.backgroundTapDismissalGestureEnabled = true
         
-        alertController.cancelButtonColor = UIColor.lightGrayColor()
-        alertController.cancelButtonTitleColor = UIColor.blackColor()
+        alertController.cancelButtonColor = UIColor.lightGray
+        alertController.cancelButtonTitleColor = UIColor.black
         
-        alertController.buttonColor = UIColor.redColor()
-        alertController.buttonTitleColor = UIColor.whiteColor()
+        alertController.buttonColor = UIColor.red
+        alertController.buttonTitleColor = UIColor.white
         
-        alertController.addTextFieldWithConfigurationHandler { (textField) in
+        alertController.addTextField { (textField) in
             
-            textField.placeholder = "Enter current occupation..."
-            textField.autocorrectionType = .No
-            scopeTextField = textField
+            textField?.placeholder = "Enter current occupation..."
+            textField?.autocorrectionType = .no
+            scopeTextField = textField!
             
         }
         
-        alertController.addAction(NYAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
+        alertController.addAction(NYAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
             
-            self.profileController?.dismissViewControllerAnimated(true, completion: nil)
+            self.profileController?.dismiss(animated: true, completion: nil)
             
         }))
 
-        alertController.addAction(NYAlertAction(title: "Add", style: .Default, handler: { (action) in
+        alertController.addAction(NYAlertAction(title: "Add", style: .default, handler: { (action) in
 
-            self.profileController?.dismissViewControllerAnimated(true, completion: {
+            self.profileController?.dismiss(animated: true, completion: {
                 
                 if scopeTextField.text != "" || scopeTextField.text != nil {
                     
@@ -185,7 +181,7 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
             })
         }))
         
-        self.profileController?.presentViewController(alertController, animated: true, completion: {
+        self.profileController?.present(alertController, animated: true, completion: {
             
             print("alert controller presented", terminator: "")
             
@@ -193,39 +189,39 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
     }
     
     //Functions
-    func loadData(data: [NSObject:AnyObject]){
+    func loadData(_ data: [AnyHashable: Any]){
         
         self.data = data
 
-        if let userUID = data["uid"] as? String, selfUID = FIRAuth.auth()?.currentUser?.uid {
+        if let userUID = data["uid"] as? String, let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
             self.uid = userUID
             
             if userUID == selfUID {
 
                 reportIconOutlet.image = nil
-                reportButtonOutlet.enabled = false
+                reportButtonOutlet.isEnabled = false
                 
                 squadImageOutlet.image = nil
-                squadButtonOutlet.enabled = false
+                squadButtonOutlet.isEnabled = false
                 
                 messageImageOutlet.image = nil
-                messageButtonOutlet.enabled = false
+                messageButtonOutlet.isEnabled = false
                 
                 
             } else {
                 
                 reportIconOutlet.image = UIImage(named: "reportIcon")
-                reportButtonOutlet.enabled = true
+                reportButtonOutlet.isEnabled = true
 
-                squadButtonOutlet.enabled = true
-                messageButtonOutlet.enabled = true
+                squadButtonOutlet.isEnabled = true
+                messageButtonOutlet.isEnabled = true
                 
                 var youreInMySquad = false
                 var iSentYou = false
                 var youSentMe = false
                 
-                if let squad = data["squad"] as? [NSObject : AnyObject] {
+                if let squad = data["squad"] as? [AnyHashable: Any] {
                     
                     if squad[selfUID] != nil {
                         
@@ -234,7 +230,7 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                     }
                 }
                 
-                if let mySquadRequests = self.profileController?.rootController?.selfData["squadRequests"] as? [NSObject : AnyObject] {
+                if let mySquadRequests = self.profileController?.rootController?.selfData["squadRequests"] as? [AnyHashable: Any] {
                     
                     for (key, _) in mySquadRequests {
                         
@@ -249,7 +245,7 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                     }
                 }
                 
-                if let yourSquadRequests = data["squadRequests"] as? [NSObject : AnyObject] {
+                if let yourSquadRequests = data["squadRequests"] as? [AnyHashable: Any] {
                     
                     for (key, _) in yourSquadRequests {
                         
@@ -269,7 +265,7 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                     
                     squadImageOutlet.image = UIImage(named: "inSquad")
                     messageImageOutlet.image = UIImage(named: "enabledMessage")
-                    messageButtonOutlet.enabled = true
+                    messageButtonOutlet.isEnabled = true
                     
                     currentInstance = "inSquad"
                     
@@ -280,7 +276,7 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                         
                         squadImageOutlet.image = UIImage(named: "sentSquad")
                         messageImageOutlet.image = UIImage(named: "disabledMessage")
-                        messageButtonOutlet.enabled = false
+                        messageButtonOutlet.isEnabled = false
                         
                         currentInstance = "sentSquad"
                         
@@ -288,7 +284,7 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                         
                         squadImageOutlet.image = UIImage(named: "confirmSquad")
                         messageImageOutlet.image = UIImage(named: "disabledMessage")
-                        messageButtonOutlet.enabled = false
+                        messageButtonOutlet.isEnabled = false
                         
                         currentInstance = "confirmSquad"
                         
@@ -296,7 +292,7 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                         
                         squadImageOutlet.image = UIImage(named: "sendSquad")
                         messageImageOutlet.image = UIImage(named: "disabledMessage")
-                        messageButtonOutlet.enabled = false
+                        messageButtonOutlet.isEnabled = false
                         
                         currentInstance = "sendSquad"
                     }
@@ -304,12 +300,12 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
             }
         }
         
-        if let firstName = data["firstName"] as? String, lastName = data["lastName"] as? String, age = data["age"] as? NSTimeInterval {
+        if let firstName = data["firstName"] as? String, let lastName = data["lastName"] as? String, let age = data["age"] as? TimeInterval {
             
-            let date = NSDate(timeIntervalSince1970: age)
-            let yearsAgo = timeAgoSince(date, showAccronym: false)
+            let date = Date(timeIntervalSince1970: age)
+            let yearsAgo = timeAgoSince(date: date as NSDate, showAccronym: false)
             
-            nameOutlet.text = firstName + " " + lastName + ", \(String(yearsAgo))"
+            nameOutlet.text = firstName + " " + lastName + ", " + yearsAgo
             
             self.firstName = firstName
             self.lastName = lastName
@@ -342,11 +338,11 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                 
                 if selfProfile {
                     
-                    addOccupationOutletButton.enabled = true
+                    addOccupationOutletButton.isEnabled = true
                     
                 } else {
                     
-                    addOccupationOutletButton.enabled = false
+                    addOccupationOutletButton.isEnabled = false
                     
                 }
                 
@@ -359,26 +355,26 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                 if selfProfile {
                     
                     occupationOutlet.text = "Tap to add occupation!"
-                    addOccupationOutletButton.enabled = true
+                    addOccupationOutletButton.isEnabled = true
                     
                 } else {
                     
                     occupationOutlet.text = nil
-                    addOccupationOutletButton.enabled = false
+                    addOccupationOutletButton.isEnabled = false
                     
                 }
                 
             } else {
                 
                 occupationOutlet.text = nil
-                addOccupationOutletButton.enabled = false
+                addOccupationOutletButton.isEnabled = false
             }
         }
     }
     
     
     //Actions
-    @IBAction func squadRequest(sender: AnyObject) {
+    @IBAction func squadRequest(_ sender: AnyObject) {
         print("squad request", terminator: "")
         
         let scopeUserData = data
@@ -391,12 +387,12 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
             //Delete Squad?
             print("delete squad?", terminator: "")
   
-            let alertController = UIAlertController(title: "Delete \(firstName + " " + lastName) from your squad?", message: nil, preferredStyle: .ActionSheet)
+            let alertController = UIAlertController(title: "Delete \(firstName + " " + lastName) from your squad?", message: nil, preferredStyle: .actionSheet)
             
             
-            alertController.addAction(UIAlertAction(title: "Delete \(firstName)", style: .Destructive, handler: { (action) in
+            alertController.addAction(UIAlertAction(title: "Delete \(firstName)", style: .destructive, handler: { (action) in
 
-                if let userUID = scopeUserData["uid"] as? String, selfUID = FIRAuth.auth()?.currentUser?.uid {
+                if let userUID = scopeUserData["uid"] as? String, let selfUID = FIRAuth.auth()?.currentUser?.uid {
                     
                     let myRef = FIRDatabase.database().reference().child("users").child(selfUID)
 
@@ -416,14 +412,14 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
             }))
 
             
-            alertController.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
+            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
                 
                 print("canceled")
 
             }))
             
             
-            self.profileController?.presentViewController(alertController, animated: true, completion: {
+            self.profileController?.present(alertController, animated: true, completion: {
                 
                 print("alert controller presented")
 
@@ -434,11 +430,11 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                 //Cancel send?
                 print("cancel send?", terminator: "")
                 
-                let alertController = UIAlertController(title: "Unsend squad request to \(firstName + " " + lastName)", message: nil, preferredStyle: .ActionSheet)
+                let alertController = UIAlertController(title: "Unsend squad request to \(firstName + " " + lastName)", message: nil, preferredStyle: .actionSheet)
                 
-                alertController.addAction(UIAlertAction(title: "Unsend Request", style: .Destructive, handler: { (action) in
+                alertController.addAction(UIAlertAction(title: "Unsend Request", style: .destructive, handler: { (action) in
                     
-                    if let userUID = scopeUserData["uid"] as? String, selfUID = FIRAuth.auth()?.currentUser?.uid {
+                    if let userUID = scopeUserData["uid"] as? String, let selfUID = FIRAuth.auth()?.currentUser?.uid {
     
                         let ref = FIRDatabase.database().reference().child("users").child(userUID)
                         
@@ -449,13 +445,13 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                     }
                 }))
 
-                alertController.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
+                alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
                     
                     print("canceled")
 
                 }))
                 
-                self.profileController?.presentViewController(alertController, animated: true, completion: {
+                self.profileController?.present(alertController, animated: true, completion: {
                     
                     print("alert controller presented")
  
@@ -466,18 +462,18 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                 //Confrim or Deny
                 print("confirm or deny", terminator: "")
 
-                let alertController = UIAlertController(title: "Confirm \(firstName + " " + lastName) to your squad?", message: nil, preferredStyle: .ActionSheet)
+                let alertController = UIAlertController(title: "Confirm \(firstName + " " + lastName) to your squad?", message: nil, preferredStyle: .actionSheet)
                 
-                alertController.addAction(UIAlertAction(title: "Add to Squad", style: .Default, handler: { (action) in
+                alertController.addAction(UIAlertAction(title: "Add to Squad", style: .default, handler: { (action) in
 
 
-                    if let selfUID = FIRAuth.auth()?.currentUser?.uid, selfData = self.profileController?.rootController?.selfData, myFirstName = selfData["firstName"] as? String, myLastName = selfData["lastName"] as? String, scopeUID = scopeUserData["uid"] as? String {
+                    if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.profileController?.rootController?.selfData, let myFirstName = selfData["firstName"] as? String, let myLastName = selfData["lastName"] as? String, let scopeUID = scopeUserData["uid"] as? String {
 
                         let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
                         
-                        yourRef.child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                        yourRef.child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
                             
-                            if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                            if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
  
                                     
                                     appDelegate.pushMessage(scopeUID, token: token, message: "\(myFirstName) is now in your squad!")
@@ -494,7 +490,7 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                             
                         
                             
-                            let timeInterval = NSDate().timeIntervalSince1970
+                            let timeInterval = Date().timeIntervalSince1970
 
                             yourRef.child("notifications").child(selfUID).child("squadRequest").setValue(["firstName" : myFirstName, "lastName" : myLastName, "type" : "addedYou", "timeStamp" : timeInterval, "uid" : selfUID, "read" : false])
                             
@@ -505,10 +501,10 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                     
                 }))
                 
-                alertController.addAction(UIAlertAction(title: "Reject \(firstName)", style: .Destructive, handler: { (action) in
+                alertController.addAction(UIAlertAction(title: "Reject \(firstName)", style: .destructive, handler: { (action) in
    
                     
-                    if let selfUID = FIRAuth.auth()?.currentUser?.uid, scopeUID = scopeUserData["uid"] as? String {
+                    if let selfUID = FIRAuth.auth()?.currentUser?.uid, let scopeUID = scopeUserData["uid"] as? String {
                         
                         let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
 
@@ -518,13 +514,13 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                     }
                 }))
 
-                alertController.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
+                alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
                     
                     print("canceled")
  
                 }))
                 
-                self.profileController?.presentViewController(alertController, animated: true, completion: {
+                self.profileController?.present(alertController, animated: true, completion: {
                     
                     print("alert controller presented")
                     
@@ -537,17 +533,17 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                 //Send a request
                 print("send a request", terminator: "")
                 
-                let alertController = UIAlertController(title: "Add \(firstName + " " + lastName) to your squad!", message: nil, preferredStyle: .ActionSheet)
+                let alertController = UIAlertController(title: "Add \(firstName + " " + lastName) to your squad!", message: nil, preferredStyle: .actionSheet)
                 
-                alertController.addAction(UIAlertAction(title: "Send Request", style: .Default, handler: { (action) in
+                alertController.addAction(UIAlertAction(title: "Send Request", style: .default, handler: { (action) in
 
-                    if let userUID = scopeUserData["uid"] as? String, selfUID = FIRAuth.auth()?.currentUser?.uid, selfData = self.profileController?.rootController?.selfData, firstName = selfData["firstName"] as? String, lastName = selfData["lastName"] as? String {
+                    if let userUID = scopeUserData["uid"] as? String, let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.profileController?.rootController?.selfData, let firstName = selfData["firstName"] as? String, let lastName = selfData["lastName"] as? String {
                         
                         let yourRef = FIRDatabase.database().reference().child("users").child(userUID)
                         
-                        yourRef.child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                        yourRef.child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
                             
-                            if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                            if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
      
                                 appDelegate.pushMessage(userUID, token: token, message: "\(firstName) has sent you a squad request")
                                 
@@ -555,15 +551,15 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                             }
                         })
                         
-                        let timeInterval = NSDate().timeIntervalSince1970
+                        let timeInterval = Date().timeIntervalSince1970
                         
                         //0 -> Hasn't responded yet, 1 -> Approved, 2 -> Denied
                         
                         let ref = FIRDatabase.database().reference().child("users").child(userUID)
     
-                        let squadItem = ["uid" : selfUID, "read" : false, "status": 0, "timeStamp" : timeInterval, "firstName" : firstName, "lastName" : lastName]
+                        let squadItem = ["uid" : selfUID, "read" : false, "status": 0, "timeStamp" : timeInterval, "firstName" : firstName, "lastName" : lastName] as [String : Any]
                         
-                        let notificationItem = ["uid" : selfUID, "read" : false, "status" : "awaitingAction", "type" : "squadRequest", "timeStamp" : timeInterval, "firstName" : firstName, "lastName" : lastName]
+                        let notificationItem = ["uid" : selfUID, "read" : false, "status" : "awaitingAction", "type" : "squadRequest", "timeStamp" : timeInterval, "firstName" : firstName, "lastName" : lastName] as [String : Any]
                         
                         ref.child("squadRequests").child(selfUID).setValue(squadItem)
                         ref.child("notifications").child(selfUID).child("squadRequest").setValue(notificationItem)
@@ -572,7 +568,7 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                 }))
                 
                 
-                alertController.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
+                alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
                     
                     print("canceled")
  
@@ -580,7 +576,7 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
                     
                 }))
                 
-                self.profileController?.presentViewController(alertController, animated: true, completion: {
+                self.profileController?.present(alertController, animated: true, completion: {
                     
                     print("alert controller presented")
                     
@@ -592,7 +588,7 @@ class ProfileInfoCollectionCell: UICollectionViewCell {
     }
     
     
-    @IBAction func message(sender: AnyObject) {
+    @IBAction func message(_ sender: AnyObject) {
         print("send message", terminator: "")
         
         let profile = profileController?.profile1

@@ -20,7 +20,7 @@ class AddToChatCollectionCell: UICollectionViewCell {
     @IBOutlet weak var firstNameOutlet: UILabel!
     
     
-    func loadCell(data: [NSObject : AnyObject]) {
+    func loadCell(_ data: [AnyHashable: Any]) {
         
         if let firstName = data["firstName"] as? String {
             
@@ -34,19 +34,19 @@ class AddToChatCollectionCell: UICollectionViewCell {
             
             let ref = FIRDatabase.database().reference().child("users").child(uid)
             
-            ref.child("profilePicture").observeEventType(.Value, withBlock: { (snapshot) in
+            ref.child("profilePicture").observe(.value, with: { (snapshot) in
                 
                 if self.uid == uid {
                     
-                    if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
+                    if let profileString = snapshot.value as? String, let url = URL(string: profileString) {
                         
-                        self.profileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                        self.profileOutlet.sd_setImage(with: url, placeholderImage: nil)
 
                     }
                 }
             })
             
-            ref.child("online").observeEventType(.Value, withBlock: { (snapshot) in
+            ref.child("online").observe(.value, with: { (snapshot) in
                 
                 if self.uid == uid {
                     
@@ -54,11 +54,11 @@ class AddToChatCollectionCell: UICollectionViewCell {
                         
                         if online {
                             
-                            self.onlineIndicatorOutlet.backgroundColor = UIColor.greenColor()
+                            self.onlineIndicatorOutlet.backgroundColor = UIColor.green
 
                         } else {
                             
-                            self.onlineIndicatorOutlet.backgroundColor = UIColor.redColor()
+                            self.onlineIndicatorOutlet.backgroundColor = UIColor.red
                             
                         }
                     }

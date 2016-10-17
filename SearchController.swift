@@ -40,14 +40,14 @@ class SearchController: UIViewController, UISearchBarDelegate, UIGestureRecogniz
     
     
     //Actions
-    @IBAction func cityAction(sender: AnyObject) {
+    @IBAction func cityAction(_ sender: AnyObject) {
         
         toggleColour(1)
         
     }
     
     
-    @IBAction func userAction(sender: AnyObject) {
+    @IBAction func userAction(_ sender: AnyObject) {
         
         toggleColour(2)
         
@@ -55,7 +55,7 @@ class SearchController: UIViewController, UISearchBarDelegate, UIGestureRecogniz
     
 
     //Functions
-    func toggleColour(button: Int) {
+    func toggleColour(_ button: Int) {
         
         rootController?.showNav(0.3, completion: { (bool) in
             
@@ -68,13 +68,13 @@ class SearchController: UIViewController, UISearchBarDelegate, UIGestureRecogniz
             
             searchBarOutlet.placeholder = "Search for cities worldwide"
             
-            cityViewOutlet.backgroundColor = UIColor.whiteColor()
-            cityButtonOutlet.setTitleColor(UIColor(netHex: 0xDF412E), forState: .Normal)
+            cityViewOutlet.backgroundColor = UIColor.white
+            cityButtonOutlet.setTitleColor(UIColor(netHex: 0xDF412E), for: UIControlState())
             
-            userViewOutlet.backgroundColor = UIColor.clearColor()
-            userButtonOutlet.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+            userViewOutlet.backgroundColor = UIColor.clear
+            userButtonOutlet.setTitleColor(UIColor.white, for: UIControlState())
             
-            UIView.animateWithDuration(0.45, animations: {
+            UIView.animate(withDuration: 0.45, animations: {
                 
                 self.centerConstOutlet.constant = 0
                 self.view.layoutIfNeeded()
@@ -90,13 +90,13 @@ class SearchController: UIViewController, UISearchBarDelegate, UIGestureRecogniz
             
             searchBarOutlet.placeholder = "Search for users worldwide"
             
-            userViewOutlet.backgroundColor = UIColor.whiteColor()
-            userButtonOutlet.setTitleColor(UIColor(netHex: 0xDF412E), forState: .Normal)
+            userViewOutlet.backgroundColor = UIColor.white
+            userButtonOutlet.setTitleColor(UIColor(netHex: 0xDF412E), for: UIControlState())
 
-            cityViewOutlet.backgroundColor = UIColor.clearColor()
-            cityButtonOutlet.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+            cityViewOutlet.backgroundColor = UIColor.clear
+            cityButtonOutlet.setTitleColor(UIColor.white, for: UIControlState())
             
-            UIView.animateWithDuration(0.45, animations: {
+            UIView.animate(withDuration: 0.45, animations: {
                 
                 self.centerConstOutlet.constant = -self.view.bounds.width
                 self.view.layoutIfNeeded()
@@ -110,17 +110,17 @@ class SearchController: UIViewController, UISearchBarDelegate, UIGestureRecogniz
     }
     
     
-    func filterContentForSearchText(searchText: String){
+    func filterContentForSearchText(_ searchText: String){
         
         if searchIsCity {
             
             if let globCities = cityController?.globCities {
                 
-                cityController?.dataSourceForSearchResult = globCities.filter({ (city: [NSObject : AnyObject]) -> Bool in
+                cityController?.dataSourceForSearchResult = globCities.filter({ (city: [AnyHashable: Any]) -> Bool in
                     
                     if let key = city["city"] as? String {
                         
-                        return key.containsString(searchText)
+                        return key.contains(searchText)
                         
                     } else {
                         
@@ -134,12 +134,12 @@ class SearchController: UIViewController, UISearchBarDelegate, UIGestureRecogniz
             
             if let globUsers = userController?.globUsers {
                 
-                userController?.dataSourceForSearchResult = globUsers.filter({ (user: [NSObject : AnyObject]) -> Bool in
+                userController?.dataSourceForSearchResult = globUsers.filter({ (user: [AnyHashable: Any]) -> Bool in
                     
-                    if let firstName = user["firstName"] as? String, lastName =  user["lastName"] as? String {
+                    if let firstName = user["firstName"] as? String, let lastName =  user["lastName"] as? String {
                         
                         let name = firstName + " " + lastName
-                        return name.containsString(searchText)
+                        return name.contains(searchText)
                         
                     } else {
                         
@@ -152,7 +152,7 @@ class SearchController: UIViewController, UISearchBarDelegate, UIGestureRecogniz
     
     
     //Search Bar Delegates
-    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         
         if searchText.characters.count > 0 {
             
@@ -181,7 +181,7 @@ class SearchController: UIViewController, UISearchBarDelegate, UIGestureRecogniz
     //CollectionView Delegates
         
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         
         super.viewWillAppear(animated)
         
@@ -214,8 +214,8 @@ class SearchController: UIViewController, UISearchBarDelegate, UIGestureRecogniz
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardDidShow), name: UIKeyboardWillShowNotification, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardHid), name: UIKeyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardHid), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapHandler))
         tapGesture.delegate = self
@@ -234,17 +234,17 @@ class SearchController: UIViewController, UISearchBarDelegate, UIGestureRecogniz
      // MARK: - Navigation
      
      // In a storyboard-based application, you will often want to do a little preparation before navigation
-     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
   
         if segue.identifier == "citySegue" {
             
-            let city = segue.destinationViewController as? CityController
+            let city = segue.destination as? CityController
             cityController = city
             cityController?.searchController = self
 
         } else if segue.identifier == "userSegue" {
             
-            let user = segue.destinationViewController as? UserController
+            let user = segue.destination as? UserController
             userController = user
             userController?.searchController = self
             

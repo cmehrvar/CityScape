@@ -15,7 +15,7 @@ class ActiveDistanceCell: UICollectionViewCell {
     @IBOutlet weak var distanceOutlet: UILabel!
     @IBOutlet weak var activeOutlet: UILabel!
     
-    func loadData(data: [NSObject : AnyObject]){
+    func loadData(_ data: [AnyHashable: Any]){
         
         if let online = data["online"] as? Bool {
             
@@ -25,23 +25,23 @@ class ActiveDistanceCell: UICollectionViewCell {
                 
             } else {
                 
-                if let active = data["lastActive"] as? NSTimeInterval {
+                if let active = data["lastActive"] as? TimeInterval {
                     
-                    let date = NSDate(timeIntervalSince1970: active)
-                    activeOutlet.text = "Active " + timeAgoSince(date, showAccronym: true) + " ago"
+                    let date = Date(timeIntervalSince1970: active)
+                    activeOutlet.text = "Active " + timeAgoSince(date: date as NSDate, showAccronym: true) + " ago"
                     
                 }
             }
         }
         
-        if let latitude = data["latitude"] as? CLLocationDegrees, longitude = data["longitude"] as? CLLocationDegrees {
+        if let latitude = data["latitude"] as? CLLocationDegrees, let longitude = data["longitude"] as? CLLocationDegrees {
             
-            guard let selfLatitude = profileController?.rootController?.selfData["latitude"] as? CLLocationDegrees, selfLongitude = profileController?.rootController?.selfData["longitude"] as? CLLocationDegrees else {return}
+            guard let selfLatitude = profileController?.rootController?.selfData["latitude"] as? CLLocationDegrees, let selfLongitude = profileController?.rootController?.selfData["longitude"] as? CLLocationDegrees else {return}
             
             let selfCoordinate = CLLocation(latitude: selfLatitude, longitude: selfLongitude)
             let userCoordinate = CLLocation(latitude: latitude, longitude: longitude)
             
-            let distance = selfCoordinate.distanceFromLocation(userCoordinate)
+            let distance = selfCoordinate.distance(from: userCoordinate)
             
             if distance > 9999 {
                 

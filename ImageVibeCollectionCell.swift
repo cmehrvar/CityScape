@@ -13,7 +13,7 @@ class ImageVibeCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegate
     
     @IBOutlet weak var imageOutlet: UIImageView!
     
-    let activityIndicator = NVActivityIndicatorView(frame: CGRectZero, type: .BallClipRotatePulse, color: UIColor.redColor(), padding: 0)
+    let activityIndicator = NVActivityIndicatorView(frame: CGRect.zero, type: .ballClipRotatePulse, color: UIColor.red, padding: 0)
     
     func createIndicator(){
         
@@ -41,20 +41,20 @@ class ImageVibeCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegate
     }
     
     
-    func pinchHandler(sender: UIPinchGestureRecognizer) {
+    func pinchHandler(_ sender: UIPinchGestureRecognizer) {
 
         switch sender.state {
             
-        case .Began:
+        case .began:
             
             print("began", terminator: "")
             
-        case .Changed:
+        case .changed:
             
             print("scale: \(sender.scale)", terminator: "")
             print("velocity: \(sender.velocity)", terminator: "")
    
-        case .Ended:
+        case .ended:
             
             print("ended", terminator: "")
             
@@ -66,11 +66,11 @@ class ImageVibeCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegate
 
     
 
-    func loadImage(url: NSURL){
+    func loadImage(_ url: URL){
         
         let scopeIndicator = activityIndicator
 
-        imageOutlet.sd_setImageWithURL(url, placeholderImage: nil, options: .ContinueInBackground, progress: { (currentSize, expectedSize) in
+        imageOutlet.sd_setImage(with: url, placeholderImage: nil, options: .continueInBackground, progress: { (currentSize, expectedSize) in
             
             
             

@@ -23,13 +23,13 @@ class TopGroupChatCollectionCell: UICollectionViewCell {
     @IBOutlet weak var onlineIndicatorOutlet: TableViewOnlineIndicatorView!
     @IBOutlet weak var firstNameOutlet: UILabel!
     
-    func loadData(uid: String) {
+    func loadData(_ uid: String) {
         
         self.uid = uid
         
         let ref = FIRDatabase.database().reference().child("users").child(uid)
         
-        ref.child("firstName").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+        ref.child("firstName").observeSingleEvent(of: .value, with: { (snapshot) in
             
             if self.uid == uid {
                 
@@ -42,7 +42,7 @@ class TopGroupChatCollectionCell: UICollectionViewCell {
             }
         })
         
-        ref.child("lastName").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+        ref.child("lastName").observeSingleEvent(of: .value, with: { (snapshot) in
             
             if self.uid == uid {
                 
@@ -54,20 +54,20 @@ class TopGroupChatCollectionCell: UICollectionViewCell {
             }
         })
         
-        ref.child("profilePicture").observeEventType(.Value, withBlock: { (snapshot) in
+        ref.child("profilePicture").observe(.value, with: { (snapshot) in
             
             if self.uid == uid {
                 
-                if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
+                if let profileString = snapshot.value as? String, let url = URL(string: profileString) {
                     
-                    self.profilePicOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                    self.profilePicOutlet.sd_setImage(with: url, placeholderImage: nil)
                     
                 }
             }
         })
         
         
-        ref.child("online").observeEventType(.Value, withBlock: { (snapshot) in
+        ref.child("online").observe(.value, with: { (snapshot) in
             
             if self.uid == uid {
                 
@@ -75,11 +75,11 @@ class TopGroupChatCollectionCell: UICollectionViewCell {
                     
                     if online {
                         
-                        self.onlineIndicatorOutlet.backgroundColor = UIColor.greenColor()
+                        self.onlineIndicatorOutlet.backgroundColor = UIColor.green
                         
                     } else {
                         
-                        self.onlineIndicatorOutlet.backgroundColor = UIColor.redColor()
+                        self.onlineIndicatorOutlet.backgroundColor = UIColor.red
                         
                     }
                 }
@@ -88,14 +88,14 @@ class TopGroupChatCollectionCell: UICollectionViewCell {
     }
     
     
-    @IBAction func toProfile(sender: AnyObject) {
+    @IBAction func toProfile(_ sender: AnyObject) {
         
         let scopeUID = uid
         let name = firstName + " " + lastName
 
-        let alertController = UIAlertController(title: "\(name)", message: "Go to \(name)'s profile?", preferredStyle: .ActionSheet)
+        let alertController = UIAlertController(title: "\(name)", message: "Go to \(name)'s profile?", preferredStyle: .actionSheet)
 
-        alertController.addAction(UIAlertAction(title: "Go to profile", style: .Default, handler: { (action) in
+        alertController.addAction(UIAlertAction(title: "Go to profile", style: .default, handler: { (action) in
             
             self.topChatController?.rootController?.toggleHome({ (bool) in
                 
@@ -107,13 +107,13 @@ class TopGroupChatCollectionCell: UICollectionViewCell {
             })
         }))
 
-        alertController.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
+        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
             
             print("canceled", terminator: "")
             
         }))
         
-        topChatController?.presentViewController(alertController, animated: true, completion: {
+        topChatController?.present(alertController, animated: true, completion: {
             
             print("controller presented", terminator: "")
             

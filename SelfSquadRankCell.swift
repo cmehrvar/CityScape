@@ -12,14 +12,14 @@ class SelfSquadRankCell: UICollectionViewCell {
     
     weak var profileController: ProfileController?
     
-    var userData = [NSObject : AnyObject]()
+    var userData = [AnyHashable: Any]()
     
     //Outlets
     @IBOutlet weak var squadCountOutlet: UILabel!
     @IBOutlet weak var rankOutlet: UILabel!
     @IBOutlet weak var requestsOutlet: UILabel!
 
-    @IBAction func revealSquad(sender: AnyObject) {
+    @IBAction func revealSquad(_ sender: AnyObject) {
 
         profileController?.rootController?.openSquadCount(userData, completion: { (bool) in
             
@@ -28,7 +28,7 @@ class SelfSquadRankCell: UICollectionViewCell {
         })
     }
     
-    @IBAction func revealRequests(sender: AnyObject) {
+    @IBAction func revealRequests(_ sender: AnyObject) {
         
         profileController?.rootController?.openRequests({ (bool) in
             
@@ -38,7 +38,7 @@ class SelfSquadRankCell: UICollectionViewCell {
     }
  
     
-    func loadData(data: [NSObject : AnyObject]){
+    func loadData(_ data: [AnyHashable: Any]){
         
         userData = data
         
@@ -57,21 +57,22 @@ class SelfSquadRankCell: UICollectionViewCell {
         }
         
         
-        if let requests = data["squadRequests"] as? [NSObject : AnyObject] {
+        if let requests = data["squadRequests"] as? [AnyHashable: Any] {
             
             var index = 0
             
             for (_, value) in requests {
                 
-                if value["status"] as? Int == 0 {
+                if let request = value as? [AnyHashable : Any] {
                     
-                    index += 1
-                    
+                    if request["status"] as? Int == 0 {
+                        
+                        index += 1
+                        
+                    }
                 }
-                
             }
-            
-            
+
             requestsOutlet.text = "\(index)"
   
         } else {

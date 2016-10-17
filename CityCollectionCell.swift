@@ -21,7 +21,7 @@ class CityCollectionCell: UICollectionViewCell {
     
     var city = ""
     
-    @IBAction func goToCity(sender: AnyObject) {
+    @IBAction func goToCity(_ sender: AnyObject) {
         
         cityController?.searchController?.rootController?.vibesFeedController?.observingCity = city
         cityController?.searchController?.rootController?.vibesFeedController?.observePosts()
@@ -30,17 +30,17 @@ class CityCollectionCell: UICollectionViewCell {
 
         cityController?.searchController?.rootController?.toggleVibes({ (bool) in
             
-            self.cityController?.searchController?.rootController?.vibesFeedController?.globCollectionView.setContentOffset(CGPointZero, animated: true)
+            self.cityController?.searchController?.rootController?.vibesFeedController?.globCollectionView.setContentOffset(CGPoint.zero, animated: true)
             
         })
 
     }
     
     
-    func updateUI(data: [NSObject : AnyObject]){
+    func updateUI(_ data: [AnyHashable: Any]){
         
         cityNameOutlet.adjustsFontSizeToFitWidth = true
-        cityNameOutlet.baselineAdjustment = .AlignCenters
+        cityNameOutlet.baselineAdjustment = .alignCenters
 
         if let cityName = data["city"] as? String {
             
@@ -58,11 +58,11 @@ class CityCollectionCell: UICollectionViewCell {
             
         }
         
-        if let post = data["mostRecentPost"] as? [NSObject : AnyObject] {
+        if let post = data["mostRecentPost"] as? [AnyHashable: Any] {
             
-            if let imageString = post["imageURL"] as? String, imageUrl = NSURL(string: imageString) {
+            if let imageString = post["imageURL"] as? String, let imageUrl = URL(string: imageString) {
                 
-                imageOutlet.sd_setImageWithURL(imageUrl, completed: { (image, error, cache, url) in
+                imageOutlet.sd_setImage(with: imageUrl, completed: { (image, error, cache, url) in
                     
                     print("image loaded", terminator: "")
                     

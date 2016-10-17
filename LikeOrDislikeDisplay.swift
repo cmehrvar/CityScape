@@ -15,7 +15,7 @@ class LikeOrDislikeDisplay: UIView {
         super.awakeFromNib()
         layer.cornerRadius = 15
         layer.borderWidth = 1
-        layer.borderColor = UIColor.blackColor().CGColor
+        layer.borderColor = UIColor.black.cgColor
         self.clipsToBounds = true
     }
 

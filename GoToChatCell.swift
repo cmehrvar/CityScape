@@ -27,7 +27,7 @@ class GoToChatCell: UICollectionViewCell {
     @IBOutlet weak var reportIcon: UIImageView!
     
     
-    @IBAction func revealChat(sender: AnyObject) {
+    @IBAction func revealChat(_ sender: AnyObject) {
         
         vibesController?.rootController?.toggleChat("posts", key: postKey, city: city, firstName: nil, lastName: nil, profile: nil, completion: { (bool) in
             
@@ -36,7 +36,7 @@ class GoToChatCell: UICollectionViewCell {
         })
     }
 
-    @IBAction func report(sender: AnyObject) {
+    @IBAction func report(_ sender: AnyObject) {
         
         let scopeUID = userUID
         
@@ -47,31 +47,31 @@ class GoToChatCell: UICollectionViewCell {
         
         alertController.backgroundTapDismissalGestureEnabled = true
 
-        alertController.alertViewBackgroundColor = UIColor.whiteColor()
+        alertController.alertViewBackgroundColor = UIColor.white
         
-        alertController.titleColor = UIColor.blackColor()
-        alertController.messageColor = UIColor.darkGrayColor()
+        alertController.titleColor = UIColor.black
+        alertController.messageColor = UIColor.darkGray
         
-        alertController.cancelButtonColor = UIColor.lightGrayColor()
-        alertController.cancelButtonTitleColor = UIColor.whiteColor()
+        alertController.cancelButtonColor = UIColor.lightGray
+        alertController.cancelButtonTitleColor = UIColor.white
 
-        alertController.buttonColor = UIColor.redColor()
-        alertController.buttonTitleColor = UIColor.whiteColor()
+        alertController.buttonColor = UIColor.red
+        alertController.buttonTitleColor = UIColor.white
         
-        alertController.addAction(NYAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
+        alertController.addAction(NYAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
             
             print("cancel", terminator: "")
             
-            self.vibesController?.dismissViewControllerAnimated(true, completion: nil)
+            self.vibesController?.dismiss(animated: true, completion: nil)
             
         }))
 
         
-        alertController.addAction(NYAlertAction(title: "Report", style: .Default, handler: { (action) in
+        alertController.addAction(NYAlertAction(title: "Report", style: .default, handler: { (action) in
             
             print("report user", terminator: "")
 
-            self.vibesController?.dismissViewControllerAnimated(true, completion: {
+            self.vibesController?.dismiss(animated: true, completion: {
                 
                 if let selfUID = FIRAuth.auth()?.currentUser?.uid {
                     
@@ -111,7 +111,7 @@ class GoToChatCell: UICollectionViewCell {
                     }
                     
                     self.vibesController?.rootController?.clearVibesPlayers()
-                    self.vibesController?.globCollectionView.contentOffset = CGPointZero
+                    self.vibesController?.globCollectionView.contentOffset = CGPoint.zero
                     self.vibesController?.observePosts()
                     
                 }
@@ -119,7 +119,7 @@ class GoToChatCell: UICollectionViewCell {
         }))
 
         
-        vibesController?.presentViewController(alertController, animated: true, completion: {
+        vibesController?.present(alertController, animated: true, completion: {
             
             print("presented", terminator: "")
             
@@ -127,7 +127,7 @@ class GoToChatCell: UICollectionViewCell {
     }
     
     
-    func loadData(data: [NSObject : AnyObject]) {
+    func loadData(_ data: [AnyHashable: Any]) {
 
         if let firstName = data["firstName"] as? String {
             
@@ -148,12 +148,12 @@ class GoToChatCell: UICollectionViewCell {
                 if uid == selfUID {
                     
                     self.reportIcon.image = nil
-                    self.reportOutlet.enabled = false
+                    self.reportOutlet.isEnabled = false
                     
                 } else {
                     
                     self.reportIcon.image = UIImage(named: "reportIcon")
-                    self.reportOutlet.enabled = true
+                    self.reportOutlet.isEnabled = true
                     
                 }
             }
@@ -176,11 +176,11 @@ class GoToChatCell: UICollectionViewCell {
         
         if data["messages"] != nil {
             
-            buttonOutlet.setTitle("Reveal chat", forState: .Normal)
+            buttonOutlet.setTitle("Reveal chat", for: UIControlState())
             
         } else {
             
-            buttonOutlet.setTitle("Start the conversation!", forState: .Normal)
+            buttonOutlet.setTitle("Start the conversation!", for: UIControlState())
             
         }
     }

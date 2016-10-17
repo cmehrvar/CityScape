@@ -12,10 +12,10 @@ class StatusCell: UICollectionViewCell {
 
     @IBOutlet weak var statusOutlet: UILabel!
     
-    func loadCell(data: [NSObject : AnyObject]){
+    func loadCell(_ data: [AnyHashable: Any]){
         
         statusOutlet.adjustsFontSizeToFitWidth = true
-        statusOutlet.baselineAdjustment = .AlignCenters
+        statusOutlet.baselineAdjustment = .alignCenters
         
         if let status = data["currentStatus"] as? String {
             

@@ -38,13 +38,13 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
     var videoPlayerIndexes = [String : Int]()
     
     var messages = [JSQMessageData]()
-    var messageData = [[NSObject : AnyObject]]()
+    var messageData = [[AnyHashable: Any]]()
     var addedMessages = [String : Bool]()
     
     var incomingBubbleImageView: JSQMessagesBubbleImage!
     var outgoingBubbleImageView: JSQMessagesBubbleImage!
     
-    var exportedVideoURL = NSURL()
+    var exportedVideoURL: NSURL?
     
     var keyboardShown = false
     var chatEnlarged = false
@@ -97,19 +97,19 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
     
     
     //Did press send button
-    override func didPressSendButton(button: UIButton!, withMessageText text: String!, senderId: String!, senderDisplayName: String!, date: NSDate!) {
+    override func didPressSend(_ button: UIButton!, withMessageText text: String!, senderId: String!, senderDisplayName: String!, date: Date!) {
         
         print("send pressed")
         
         let ref = FIRDatabase.database().reference()
         
-        var notificationItem = [NSObject : AnyObject]()
+        var notificationItem = [AnyHashable: Any]()
         notificationItem["text"] = text
         
-        let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".txt")
+        let fileName = ProcessInfo.processInfo.globallyUniqueString + ".txt"
         let timeStamp = date.timeIntervalSince1970
         
-        var messageItem: [NSObject : AnyObject] = [
+        var messageItem: [AnyHashable: Any] = [
             
             "key" : fileName,
             "senderId" : senderId,
@@ -137,7 +137,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
             
         }
         
-        if let firstName = self.rootController?.selfData["firstName"] as? String, lastName = self.rootController?.selfData["lastName"] as? String {
+        if let firstName = self.rootController?.selfData["firstName"] as? String, let lastName = self.rootController?.selfData["lastName"] as? String {
             
             if typeOfChat != "groupChats" {
                 
@@ -158,7 +158,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
         
         let message = JSQMessage(senderId: senderId, senderDisplayName: senderDisplayName, date: date, text: text)
         
-        self.messages.append(message)
+        self.messages.append(message!)
         self.messageData.append(messageItem)
         self.addedMessages[fileName] = true
         
@@ -166,9 +166,9 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
             
             let scopeUID = currentKey
             
-            ref.child("users").child(currentKey).child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+            ref.child("users").child(currentKey).child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
                 
-                if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
 
                     appDelegate.pushMessage(scopeUID, token: token, message: "\(self.senderDisplayName): \(text)")
                     
@@ -221,9 +221,9 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                         
                         if member != selfUID {
                             
-                            ref.child("users").child(member).child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                            ref.child("users").child(member).child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
                                 
-                                if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                                if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
                                     
                                     appDelegate.pushMessage(member, token: token, message: "\(self.senderDisplayName) to \(self.rootController?.topChatController?.chatTitleOutlet.text): \(text)")
                                     
@@ -249,7 +249,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
     }
     
     //Did press accessory button
-    override func didPressAccessoryButton(sender: UIButton!) {
+    override func didPressAccessoryButton(_ sender: UIButton!) {
         
         presentFusumaCamera()
         
@@ -258,15 +258,15 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
     
     
     //Fusuma Delegates
-    func fusumaImageSelected(image: UIImage) {
+    func fusumaImageSelected(_ image: UIImage) {
         
         print("image selected")
         
     }
     
-    func fusumaDismissedWithImage(image: UIImage) {
+    func fusumaDismissedWithImage(_ image: UIImage) {
         
-        UIApplication.sharedApplication().statusBarHidden = false
+        UIApplication.shared.isStatusBarHidden = false
         
         let scopeCurrentKey = currentKey
         let scopePassedRef = self.passedRef
@@ -277,9 +277,9 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
             
             let request = self.uploadRequest(image)
             
-            let transferManager = AWSS3TransferManager.defaultS3TransferManager()
+            let transferManager = AWSS3TransferManager.default()
             
-            transferManager.upload(request).continueWithBlock({ (task) -> AnyObject? in
+            transferManager?.upload(request).continue({ (task) -> AnyObject? in
                 
                 if task.error == nil {
                     
@@ -287,12 +287,12 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                         
                         let ref = FIRDatabase.database().reference()
                         
-                        var notificationItem = [NSObject : AnyObject]()
+                        var notificationItem = [AnyHashable: Any]()
                         notificationItem["text"] = "Sent Photo!"
 
                         let timeStamp = date.timeIntervalSince1970
                         
-                        var messageItem: [NSObject : AnyObject] = [
+                        var messageItem: [AnyHashable: Any] = [
                             
                             "key" : fileName,
                             "senderId" : self.senderId,
@@ -320,7 +320,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                             
                         }
                         
-                        if let firstName = self.rootController?.selfData["firstName"] as? String, lastName = self.rootController?.selfData["lastName"] as? String {
+                        if let firstName = self.rootController?.selfData["firstName"] as? String, let lastName = self.rootController?.selfData["lastName"] as? String {
                             
                             if scopeType != "groupChats" {
                                 
@@ -341,9 +341,9 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
 
                         if scopeType == "matches" || scopeType == "squad" {
                             
-                            ref.child("users").child(scopeCurrentKey).child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                            ref.child("users").child(scopeCurrentKey).child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
                                 
-                                if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                                if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
                                     
                                     appDelegate.pushMessage(scopeCurrentKey, token: token, message: "\(self.senderDisplayName): Sent a photo!")
                                     
@@ -397,9 +397,9 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                                         if member != selfUID {
                                             
                                             
-                                            ref.child("users").child(member).child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                                            ref.child("users").child(member).child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
                                                 
-                                                if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                                                if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
                                                     
                                                     appDelegate.pushMessage(member, token: token, message: "\(self.senderDisplayName) to \(self.rootController?.topChatController?.chatTitleOutlet.text): Sent a photo!")
                                                     
@@ -439,9 +439,9 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
         print("fusuma dismissed with image")
     }
     
-    func fusumaVideoCompleted(withFileURL fileURL: NSURL) {
+    func fusumaVideoCompleted(withFileURL fileURL: URL) {
         
-        UIApplication.sharedApplication().statusBarHidden = false
+        UIApplication.shared.isStatusBarHidden = false
         
         let scopePassedRef = self.passedRef
         let scopeCurrentKey = currentKey
@@ -451,29 +451,29 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
             
             self.convertVideoToLowQualityWithInputURL(fileURL, handler: { (exportSession, outputURL) in
                 
-                if exportSession.status == .Completed {
+                if exportSession.status == .completed {
                     
                     let request = AWSS3TransferManagerUploadRequest()
-                    request.body = outputURL
-                    request.key = fileName
-                    request.bucket = "cityscapebucket"
+                    request?.body = outputURL
+                    request?.key = fileName
+                    request?.bucket = "cityscapebucket"
                     
-                    let transferManager = AWSS3TransferManager.defaultS3TransferManager()
+                    let transferManager = AWSS3TransferManager.default()
 
-                    transferManager.upload(request).continueWithBlock({ (task) -> AnyObject? in
+                    transferManager?.upload(request).continue({ (task) -> AnyObject? in
                         
                         if task.error == nil {
                             
-                            if let key = request.key {
+                            if let key = request?.key {
                                 
                                 let ref = FIRDatabase.database().reference()
                                 
-                                var notificationItem = [NSObject : AnyObject]()
+                                var notificationItem = [AnyHashable: Any]()
                                 notificationItem["text"] = "Sent Video!"
 
                                 let timeStamp = date.timeIntervalSince1970
                                 
-                                var messageItem: [NSObject : AnyObject] = [
+                                var messageItem: [AnyHashable: Any] = [
                                     
                                     "key" : fileName,
                                     "senderId" : self.senderId,
@@ -501,7 +501,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                                     
                                 }
                                 
-                                if let firstName = self.rootController?.selfData["firstName"] as? String, lastName = self.rootController?.selfData["lastName"] as? String {
+                                if let firstName = self.rootController?.selfData["firstName"] as? String, let lastName = self.rootController?.selfData["lastName"] as? String {
                                     
                                     if scopeType != "groupChats" {
                                         
@@ -522,9 +522,9 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
 
                                 if scopeType == "matches" || scopeType == "squad" {
                                     
-                                    ref.child("users").child(scopeCurrentKey).child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                                    ref.child("users").child(scopeCurrentKey).child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
                                         
-                                        if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                                        if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
                                             
                                             appDelegate.pushMessage(scopeCurrentKey, token: token, message: "\(self.senderDisplayName): Sent a video!")
                                             
@@ -577,9 +577,9 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                                                 
                                                 if member != selfUID {
                                                     
-                                                    ref.child("users").child(member).child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                                                    ref.child("users").child(member).child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
                                                         
-                                                        if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                                                        if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
                                                             
                                                             appDelegate.pushMessage(member, token: token, message: "\(self.senderDisplayName) to \(self.rootController?.topChatController?.chatTitleOutlet.text): Sent a video!")
                                                             
@@ -623,14 +623,14 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
     
     func presentFusumaCamera(){
         
-        UIApplication.sharedApplication().statusBarHidden = true
+        UIApplication.shared.isStatusBarHidden = true
         
         let fusuma = FusumaViewController()
         fusuma.delegate = self
         fusuma.hasVideo = true
-        fusuma.modalTransitionStyle = UIModalTransitionStyle.CrossDissolve
+        fusuma.modalTransitionStyle = UIModalTransitionStyle.crossDissolve
         
-        self.presentViewController(fusuma, animated: true, completion: {
+        self.present(fusuma, animated: true, completion: {
             
             print("camera presented")
             
@@ -639,9 +639,9 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
     
     func fusumaCameraRollUnauthorized() {
         
-        let alertController = UIAlertController(title: "Sorry", message: "Camera not authorized", preferredStyle:  UIAlertControllerStyle.Alert)
-        alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Cancel, handler: nil))
-        self.presentViewController(alertController, animated: true, completion: nil)
+        let alertController = UIAlertController(title: "Sorry", message: "Camera not authorized", preferredStyle:  UIAlertControllerStyle.alert)
+        alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.cancel, handler: nil))
+        self.present(alertController, animated: true, completion: nil)
         
         print("camera unauthorized")
         
@@ -674,7 +674,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
     //**************           Override Functions             **************//
     
     //Text Did Change
-    override func textViewDidChange(textView: UITextView) {
+    override func textViewDidChange(_ textView: UITextView) {
         
         super.textViewDidChange(textView)
         
@@ -690,20 +690,20 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
     }
     
     //Message Data
-    override func collectionView(collectionView: JSQMessagesCollectionView!, messageDataForItemAtIndexPath indexPath: NSIndexPath!) -> JSQMessageData! {
+    override func collectionView(_ collectionView: JSQMessagesCollectionView!, messageDataForItemAt indexPath: IndexPath!) -> JSQMessageData! {
         
         return messages[indexPath.row]
     }
     
     //Items in section
-    override func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
         return messages.count
         
     }
     
     //Message bubble Image
-    override func collectionView(collectionView: JSQMessagesCollectionView!, messageBubbleImageDataForItemAtIndexPath indexPath: NSIndexPath!) -> JSQMessageBubbleImageDataSource! {
+    override func collectionView(_ collectionView: JSQMessagesCollectionView!, messageBubbleImageDataForItemAt indexPath: IndexPath!) -> JSQMessageBubbleImageDataSource! {
         
         let message = messages[indexPath.item]
         
@@ -723,24 +723,24 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
     
     
     //Avatar
-    override func collectionView(collectionView: JSQMessagesCollectionView!, avatarImageDataForItemAtIndexPath indexPath: NSIndexPath!) -> JSQMessageAvatarImageDataSource! {
+    override func collectionView(_ collectionView: JSQMessagesCollectionView!, avatarImageDataForItemAt indexPath: IndexPath!) -> JSQMessageAvatarImageDataSource! {
         
-        return JSQMessagesAvatarImageFactory.avatarImageWithImage(UIImage(named: "Kate"), diameter: 48)
+        return JSQMessagesAvatarImageFactory.avatarImage(with: UIImage(), diameter: 48)
         
     }
     
     
-    override func collectionView(collectionView: UICollectionView, willDisplayCell cell: UICollectionViewCell, forItemAtIndexPath indexPath: NSIndexPath) {
+    override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
 
         if let mediaCell = cell as? JSQMessagesCollectionViewCell {
             
-            let message = messages[indexPath.item]
+            let message = messages[(indexPath as NSIndexPath).item]
             
             if message.isMediaMessage() {
                 
                 if message.media!() is JSQVideoMediaItem {
                     
-                    if let key = messageData[indexPath.item]["key"] as? String, playerIndex = videoPlayerIndexes[key]  {
+                    if let key = messageData[(indexPath as NSIndexPath).item]["key"] as? String, let playerIndex = videoPlayerIndexes[key]  {
                         
                         if let player = videoPlayers[playerIndex] {
 
@@ -751,7 +751,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                                 
                             }
 
-                            dispatch_async(dispatch_get_main_queue(), {
+                            DispatchQueue.main.async(execute: {
                                 
                                 self.videoLayers[playerIndex] = AVPlayerLayer(player: player)
                                 self.videoLayers[playerIndex]?.videoGravity = AVLayerVideoGravityResizeAspectFill
@@ -763,7 +763,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                                     
                                 }
                                 
-                                player.muted = true
+                                player.isMuted = true
                                 player.play()
                                 
                             })
@@ -776,15 +776,15 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                                 
                                 asset = loadedAsset
                                 
-                            } else if let media = message.media!() as? JSQVideoMediaItem, url = media.fileURL {
+                            } else if let media = message.media!() as? JSQVideoMediaItem, let url = media.fileURL {
                                 
-                                asset = AVAsset(URL: url)
+                                asset = AVAsset(url: url)
                                 
                             }
                             
                             if let actualAsset = asset {
                                 
-                                dispatch_async(dispatch_get_main_queue(), {
+                                DispatchQueue.main.async(execute: {
                                     
                                     let playerItem = AVPlayerItem(asset: actualAsset)
                                     self.videoKeys[playerIndex] = key
@@ -802,7 +802,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                                         
                                     }
                                     
-                                    self.videoPlayers[playerIndex]?.muted = true
+                                    self.videoPlayers[playerIndex]?.isMuted = true
                                     self.videoPlayers[playerIndex]?.play()
                                 
                                 })
@@ -815,18 +815,18 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
     }
     
     
-    override func collectionView(collectionView: UICollectionView, didEndDisplayingCell cell: UICollectionViewCell, forItemAtIndexPath indexPath: NSIndexPath) {
+    override func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         
         
         if !messages.isEmpty && !messageData.isEmpty {
             
             if let mediaCell = cell as? JSQMessagesCollectionViewCell {
                 
-                let message = messages[indexPath.item]
+                let message = messages[(indexPath as NSIndexPath).item]
                 
                 if message.media!() is JSQVideoMediaItem {
                     
-                    if let key = messageData[indexPath.item]["key"] as? String {
+                    if let key = messageData[(indexPath as NSIndexPath).item]["key"] as? String {
                         
                         if let playerNumber = videoPlayerIndexes[key] {
                             
@@ -844,7 +844,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                             videoLayers[playerNumber]?.removeFromSuperlayer()
                             videoLayers[playerNumber] = nil
                             videoKeys[playerNumber] = nil
-                            videoPlayerIndexes.removeValueForKey(key)
+                            videoPlayerIndexes.removeValue(forKey: key)
                             videoPlayers[playerNumber]?.pause()
                             videoPlayers[playerNumber] = nil
                             
@@ -869,7 +869,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
     
     
     
-    func setPlayerTitle(postKey: String) {
+    func setPlayerTitle(_ postKey: String) {
         
         var playerForCell = 0
         
@@ -899,33 +899,33 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
     
     
     //Cell for item at index path
-    override func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+    override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        let cell = super.collectionView(collectionView, cellForItemAtIndexPath: indexPath) as! JSQMessagesCollectionViewCell
+        let cell = super.collectionView(collectionView, cellForItemAt: indexPath) as! JSQMessagesCollectionViewCell
 
-        let message = messages[indexPath.item]
+        let message = messages[(indexPath as NSIndexPath).item]
         
-        cell.cellBottomLabel.textColor = UIColor.blackColor()
+        cell.cellBottomLabel.textColor = UIColor.black
         
         if let id = message.senderId() {
             
             let ref = FIRDatabase.database().reference().child("users").child(id)
             
-            ref.child("profilePicture").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+            ref.child("profilePicture").observeSingleEvent(of: .value, with: { (snapshot) in
                 
-                if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
+                if let profileString = snapshot.value as? String, let url = URL(string: profileString) {
                     
-                    SDWebImageManager.sharedManager().downloadImageWithURL(url, options: .ContinueInBackground, progress: { (currentSize, expectedSize) in
+                    SDWebImageManager.shared().downloadImage(with: url, options: .continueInBackground, progress: { (currentSize, expectedSize) in
                         
                         
                         
                         }, completed: { (image, error, cache, bool, url) in
                             
-                            dispatch_async(dispatch_get_main_queue(), {
+                            DispatchQueue.main.async(execute: {
                                 
                                 
                                 let imageView = UIImageView(image: image)
-                                imageView.contentMode = .ScaleAspectFill
+                                imageView.contentMode = .scaleAspectFill
                                 imageView.frame = cell.avatarContainerView.bounds
                                 imageView.layer.cornerRadius = cell.avatarContainerView.bounds.width/2
                                 imageView.clipsToBounds = true
@@ -947,35 +947,35 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                 
                 if id == senderId {
                     
-                    cell.textView.textColor = UIColor.blackColor()
+                    cell.textView.textColor = UIColor.black
                     
                 } else {
                     
-                    cell.textView.textColor = UIColor.whiteColor()
+                    cell.textView.textColor = UIColor.white
                 }
             }
         } else {
             
             if message.media!() is JSQVideoMediaItem {
                 
-                if let key = messageData[indexPath.item]["key"] as? String {
+                if let key = messageData[(indexPath as NSIndexPath).item]["key"] as? String {
 
                     setPlayerTitle(key)
 
                 }
                 
-            } else if let _ = message.media!() as? JSQPhotoMediaItem, urlString = messageData[indexPath.item]["media"] as? String, url = NSURL(string: urlString) {
+            } else if let _ = message.media!() as? JSQPhotoMediaItem, let urlString = messageData[(indexPath as NSIndexPath).item]["media"] as? String, let url = URL(string: urlString) {
                     
-                    SDWebImageManager.sharedManager().downloadImageWithURL(url, options: .ContinueInBackground, progress: { (currentSize, expectedSize) in
+                    SDWebImageManager.shared().downloadImage(with: url, options: .continueInBackground, progress: { (currentSize, expectedSize) in
                         
                         
                         
                         }, completed: { (image, error, cache, bool, url) in
                             
-                            dispatch_async(dispatch_get_main_queue(), {
+                            DispatchQueue.main.async(execute: {
                                 
                                 let imageView = UIImageView(image: image)
-                                imageView.contentMode = .ScaleAspectFill
+                                imageView.contentMode = .scaleAspectFill
                                 
                                 imageView.frame = cell.mediaView.bounds
                                 imageView.clipsToBounds = true
@@ -997,7 +997,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
     
     
     //Top Cell Label Text
-    override func collectionView(collectionView: JSQMessagesCollectionView!, attributedTextForCellTopLabelAtIndexPath indexPath: NSIndexPath!) -> NSAttributedString! {
+    override func collectionView(_ collectionView: JSQMessagesCollectionView!, attributedTextForCellTopLabelAt indexPath: IndexPath!) -> NSAttributedString! {
         
         let message = messages[indexPath.item]
         
@@ -1005,10 +1005,10 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
             
             if indexPath.item == 0 {
                 
-                let dateFormatter = NSDateFormatter()
-                dateFormatter.dateStyle = NSDateFormatterStyle.MediumStyle
-                dateFormatter.timeStyle = NSDateFormatterStyle.ShortStyle
-                let dateObj = dateFormatter.stringFromDate(date)
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateStyle = DateFormatter.Style.medium
+                dateFormatter.timeStyle = DateFormatter.Style.short
+                let dateObj = dateFormatter.string(from: date)
                 return NSAttributedString(string: dateObj)
                 
             } else {
@@ -1031,23 +1031,23 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                     
                     if minutesAgo >= 10 {
                         
-                        let dateFormatter = NSDateFormatter()
+                        let dateFormatter = DateFormatter()
                         
                         let daysAgo = date.daysFrom(previousDate)
                         
                         if daysAgo > 0 {
                             
-                            dateFormatter.dateStyle = NSDateFormatterStyle.MediumStyle
-                            dateFormatter.timeStyle = NSDateFormatterStyle.ShortStyle
+                            dateFormatter.dateStyle = DateFormatter.Style.medium
+                            dateFormatter.timeStyle = DateFormatter.Style.short
                             
                         } else {
                             
-                            dateFormatter.dateStyle = NSDateFormatterStyle.NoStyle
-                            dateFormatter.timeStyle = NSDateFormatterStyle.ShortStyle
+                            dateFormatter.dateStyle = DateFormatter.Style.none
+                            dateFormatter.timeStyle = DateFormatter.Style.short
                             
                         }
                         
-                        let dateObj = dateFormatter.stringFromDate(date)
+                        let dateObj = dateFormatter.string(from: date)
                         return NSAttributedString(string: dateObj)
                         
                     }
@@ -1059,7 +1059,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
     }
     
     //Height for Cell Top Label Text
-    override func collectionView(collectionView: JSQMessagesCollectionView!, layout collectionViewLayout: JSQMessagesCollectionViewFlowLayout!, heightForCellTopLabelAtIndexPath indexPath: NSIndexPath!) -> CGFloat {
+    override func collectionView(_ collectionView: JSQMessagesCollectionView!, layout collectionViewLayout: JSQMessagesCollectionViewFlowLayout!, heightForCellTopLabelAt indexPath: IndexPath!) -> CGFloat {
         
         let message = messages[indexPath.item]
         
@@ -1084,7 +1084,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
         return 0
     }
     
-    override func collectionView(collectionView: JSQMessagesCollectionView!, layout collectionViewLayout: JSQMessagesCollectionViewFlowLayout!, heightForCellBottomLabelAtIndexPath indexPath: NSIndexPath!) -> CGFloat {
+    override func collectionView(_ collectionView: JSQMessagesCollectionView!, layout collectionViewLayout: JSQMessagesCollectionViewFlowLayout!, heightForCellBottomLabelAt indexPath: IndexPath!) -> CGFloat {
         
         let message = messages[indexPath.item]
         
@@ -1123,7 +1123,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
     }
     
     
-    override func collectionView(collectionView: JSQMessagesCollectionView!, attributedTextForCellBottomLabelAtIndexPath indexPath: NSIndexPath!) -> NSAttributedString! {
+    override func collectionView(_ collectionView: JSQMessagesCollectionView!, attributedTextForCellBottomLabelAt indexPath: IndexPath!) -> NSAttributedString! {
         
         let message = messages[indexPath.item]
         
@@ -1172,11 +1172,11 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
     
     
     //Set up bubbles
-    private func setUpBubbles() {
+    fileprivate func setUpBubbles() {
         
         let factory = JSQMessagesBubbleImageFactory()
-        outgoingBubbleImageView = factory.outgoingMessagesBubbleImageWithColor(UIColor.jsq_messageBubbleLightGrayColor())
-        incomingBubbleImageView = factory.incomingMessagesBubbleImageWithColor(UIColor.jsq_messageBubbleRedColor())
+        outgoingBubbleImageView = factory?.outgoingMessagesBubbleImage(with: UIColor.jsq_messageBubbleLightGray())
+        incomingBubbleImageView = factory?.incomingMessagesBubbleImage(with: UIColor.jsq_messageBubbleRed())
         
     }
     
@@ -1193,21 +1193,21 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
         
         self.finishReceivingMessage()
         
-        ref.child("messages").queryLimitedToLast(50).observeEventType(.ChildAdded, withBlock: { (snapshot) in
+        ref.child("messages").queryLimited(toLast: 50).observe(.childAdded, with: { (snapshot) in
             
-            if let value = snapshot.value as? [NSObject : AnyObject] {
+            if let value = snapshot.value as? [AnyHashable: Any] {
                 
                 print(value)
                 
                 if self.typeOfChat == "matches" || self.typeOfChat == "squad" {
                     
-                    if let userUid = value["userUID"] as? String, senderUid = value["senderId"] as? String {
+                    if let userUid = value["userUID"] as? String, let senderUid = value["senderId"] as? String {
                         
                         if self.currentKey == userUid || self.currentKey == senderUid {
                             
-                            if let id = value["senderId"] as? String, text = value["text"] as? String, name = value["senderDisplayName"] as? String, media = value["media"] as? String, isImage = value["isImage"] as? Bool, isMedia = value["isMedia"] as? Bool, key = value["key"] as? String, timeStamp = value["timeStamp"] as? NSTimeInterval {
+                            if let id = value["senderId"] as? String, let text = value["text"] as? String, let name = value["senderDisplayName"] as? String, let media = value["media"] as? String, let isImage = value["isImage"] as? Bool, let isMedia = value["isMedia"] as? Bool, let key = value["key"] as? String, let timeStamp = value["timeStamp"] as? TimeInterval {
                                 
-                                let date = NSDate(timeIntervalSince1970: timeStamp)
+                                let date = Date(timeIntervalSince1970: timeStamp)
                                 let sentMessage = self.addedMessages[key]
                                 
                                 if sentMessage == nil {
@@ -1230,9 +1230,9 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                         
                         if self.currentKey == chatKey {
                             
-                            if let id = value["senderId"] as? String, text = value["text"] as? String, name = value["senderDisplayName"] as? String, media = value["media"] as? String, isImage = value["isImage"] as? Bool, isMedia = value["isMedia"] as? Bool, key = value["key"] as? String, timeStamp = value["timeStamp"] as? NSTimeInterval {
+                            if let id = value["senderId"] as? String, let text = value["text"] as? String, let name = value["senderDisplayName"] as? String, let media = value["media"] as? String, let isImage = value["isImage"] as? Bool, let isMedia = value["isMedia"] as? Bool, let key = value["key"] as? String, let timeStamp = value["timeStamp"] as? TimeInterval {
                                 
-                                let date = NSDate(timeIntervalSince1970: timeStamp)
+                                let date = Date(timeIntervalSince1970: timeStamp)
                                 let sentMessage = self.addedMessages[key]
                                 
                                 if sentMessage == nil {
@@ -1254,9 +1254,9 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                         
                         if self.currentKey == postKey {
                             
-                            if let id = value["senderId"] as? String, text = value["text"] as? String, name = value["senderDisplayName"] as? String, media = value["media"] as? String, isImage = value["isImage"] as? Bool, isMedia = value["isMedia"] as? Bool, key = value["key"] as? String, timeStamp = value["timeStamp"] as? NSTimeInterval {
+                            if let id = value["senderId"] as? String, let text = value["text"] as? String, let name = value["senderDisplayName"] as? String, let media = value["media"] as? String, let isImage = value["isImage"] as? Bool, let isMedia = value["isMedia"] as? Bool, let key = value["key"] as? String, let timeStamp = value["timeStamp"] as? TimeInterval {
                                 
-                                let date = NSDate(timeIntervalSince1970: timeStamp)
+                                let date = Date(timeIntervalSince1970: timeStamp)
                                 let sentMessage = self.addedMessages[key]
                                 
                                 if sentMessage == nil {
@@ -1275,7 +1275,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
     
     
     //Add Message
-    func addMessage(id: String, text: String, name: String, isMedia: Bool, media: String, isImage: Bool, date: NSDate, key: String, data: [NSObject : AnyObject]) {
+    func addMessage(_ id: String, text: String, name: String, isMedia: Bool, media: String, isImage: Bool, date: Date, key: String, data: [AnyHashable: Any]) {
         
         print(text)
         
@@ -1304,20 +1304,20 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                     
                     let message = JSQMessage(senderId: id, senderDisplayName: name, date: date, media: photoItem)
                     
-                    if let mediaView = message.media.mediaView() {
+                    if let mediaView = message?.media.mediaView() {
                         
-                        mediaView.contentMode = .ScaleAspectFill
+                        mediaView.contentMode = .scaleAspectFill
                         
                     }
                     
                     
                     self.messageData.append(data)
-                    self.messages.append(message)
+                    self.messages.append(message!)
                     
                 } else {
                     
                     //Download Video, then we need to figure out how to play???
-                    if let url = NSURL(string: media) {
+                    if let url = URL(string: media) {
                         
                         let videoMedia = JSQVideoMediaItem(fileURL: url, isReadyToPlay: false)
                         
@@ -1325,11 +1325,11 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                             
                             if selfUID == id {
                                 
-                                videoMedia.appliesMediaViewMaskAsOutgoing = true
+                                videoMedia?.appliesMediaViewMaskAsOutgoing = true
                                 
                             } else {
                                 
-                                videoMedia.appliesMediaViewMaskAsOutgoing = false
+                                videoMedia?.appliesMediaViewMaskAsOutgoing = false
                                 
                             }
                         }
@@ -1340,14 +1340,14 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                         
                         let message = JSQMessage(senderId: id, senderDisplayName: name, date: date, media: videoMedia)
                         
-                        if let mediaView = message.media.mediaView() {
+                        if let mediaView = message?.media.mediaView() {
                             
-                            mediaView.contentMode = .ScaleAspectFill
+                            mediaView.contentMode = .scaleAspectFill
                             
                         }
                         
                         self.messageData.append(data)
-                        self.messages.append(message)
+                        self.messages.append(message!)
                         
                     }
                 }
@@ -1361,7 +1361,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                 let message = JSQMessage(senderId: id, senderDisplayName: name, date: date, text: text)
                 
                 self.messageData.append(data)
-                self.messages.append(message)
+                self.messages.append(message!)
                 
             }
             
@@ -1379,19 +1379,19 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
     }
     
     //Upload Media
-    func uploadMedia(isImage: Bool, image: UIImage?, videoURL: NSURL?, handler: (date: NSDate, fileName: String, messageData: JSQMessageData) -> Void){
+    func uploadMedia(_ isImage: Bool, image: UIImage?, videoURL: URL?, handler: (_ date: Date, _ fileName: String, _ messageData: JSQMessageData) -> Void){
         
-        let date = NSDate()
+        let date = Date()
         var fileName = ""
         var messageData: JSQMessage!
         
         if isImage {
             
-            fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".jpeg")
+            fileName = ProcessInfo.processInfo.globallyUniqueString + ".jpeg"
             let message = JSQPhotoMediaItem(image: image)
-            if let mediaView = message.mediaView() {
+            if let mediaView = message?.mediaView() {
                 
-                mediaView.contentMode = .ScaleAspectFill
+                mediaView.contentMode = .scaleAspectFill
                 
             }
             
@@ -1399,7 +1399,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
             
         } else {
             
-            fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".mov")
+            fileName = ProcessInfo.processInfo.globallyUniqueString + ".mov"
             let message = JSQVideoMediaItem(fileURL: videoURL, isReadyToPlay: true)
             messageData = JSQMessage(senderId: senderId, senderDisplayName: senderDisplayName, date: date, media: message)
             
@@ -1407,7 +1407,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
         
         let timeInterval = date.timeIntervalSince1970
         
-        var messageItem: [NSObject : AnyObject] = ["key" : fileName, "senderId" : senderId, "timeStamp" : timeInterval, "senderDisplayName" : senderDisplayName, "isImage" : isImage, "isMedia" : true]
+        var messageItem: [AnyHashable: Any] = ["key" : fileName, "senderId" : senderId, "timeStamp" : timeInterval, "senderDisplayName" : senderDisplayName, "isImage" : isImage, "isMedia" : true]
         
         if typeOfChat == "matches" {
             
@@ -1429,46 +1429,46 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
 
         finishReceivingMessage()
         
-        handler(date: date, fileName: fileName, messageData: messageData)
+        handler(date, fileName, messageData)
         
     }
     
     
     //Upload Request
-    func uploadRequest(image: UIImage) -> AWSS3TransferManagerUploadRequest {
+    func uploadRequest(_ image: UIImage) -> AWSS3TransferManagerUploadRequest {
         
-        let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".jpeg")
-        let fileURL = NSURL(fileURLWithPath: NSTemporaryDirectory()).URLByAppendingPathComponent("upload").URLByAppendingPathComponent(fileName)
-        let filePath = fileURL.path!
+        let fileName = ProcessInfo.processInfo.globallyUniqueString + ".jpeg"
+        let fileURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("upload").appendingPathComponent(fileName)
+        let filePath = fileURL.path
         
         let imageData = UIImageJPEGRepresentation(image, 0.25)
-        imageData?.writeToFile(filePath, atomically: true)
+        try? imageData?.write(to: URL(fileURLWithPath: filePath), options: [.atomic])
         
         let uploadRequest = AWSS3TransferManagerUploadRequest()
-        uploadRequest.body = fileURL
-        uploadRequest.key = fileName
-        uploadRequest.bucket = "cityscapebucket"
+        uploadRequest?.body = fileURL
+        uploadRequest?.key = fileName
+        uploadRequest?.bucket = "cityscapebucket"
         
-        return uploadRequest
+        return uploadRequest!
         
     }
     
     //Convert Video
-    func convertVideoToLowQualityWithInputURL(inputURL: NSURL, handler: (AVAssetExportSession, NSURL) -> Void) {
+    func convertVideoToLowQualityWithInputURL(_ inputURL: URL, handler: @escaping (AVAssetExportSession, URL) -> Void) {
         
         let tempURL = inputURL
         
-        let newAsset: AVURLAsset = AVURLAsset(URL: tempURL)
+        let newAsset: AVURLAsset = AVURLAsset(url: tempURL)
         
         if let exportSession: AVAssetExportSession = AVAssetExportSession(asset: newAsset, presetName: AVAssetExportPresetMediumQuality) {
             
             
-            let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".mov")
-            let fileURL = NSURL(fileURLWithPath: NSTemporaryDirectory()).URLByAppendingPathComponent("upload").URLByAppendingPathComponent(fileName)
+            let fileName = ProcessInfo.processInfo.globallyUniqueString + ".mov"
+            let fileURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("upload").appendingPathComponent(fileName)
             
             exportSession.outputURL = fileURL
             exportSession.outputFileType = AVFileTypeQuickTimeMovie
-            exportSession.exportAsynchronouslyWithCompletionHandler({ () -> Void in
+            exportSession.exportAsynchronously(completionHandler: { () -> Void in
                 
                 handler(exportSession, fileURL)
                 
@@ -1534,10 +1534,10 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
         
         do{
             
-            try NSFileManager.defaultManager().createDirectoryAtURL(NSURL(fileURLWithPath: NSTemporaryDirectory()).URLByAppendingPathComponent("upload"), withIntermediateDirectories: true, attributes: nil)
+            try FileManager.default.createDirectory(at: URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("upload"), withIntermediateDirectories: true, attributes: nil)
             
         } catch let error1 as NSError {
-            error.memory = error1
+            error?.pointee = error1
             print("Creating upload directory failed. Error: \(error)")
         }
     }
@@ -1553,7 +1553,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
     var originalHeight: CGFloat?
     
     
-    override func scrollViewWillEndDragging(scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+    override func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
         
         print(velocity.y)
         
@@ -1568,9 +1568,9 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                 }
             }
             
-            UIApplication.sharedApplication().statusBarHidden = true
+            UIApplication.shared.isStatusBarHidden = true
             
-            UIView.animateWithDuration(0.3, animations: {
+            UIView.animate(withDuration: 0.3, animations: {
                 
                 self.rootController?.topChatContainerOutlet.alpha = 0
                 self.rootController?.topChatHeightConstOutlet.constant = 0
@@ -1582,9 +1582,9 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
             
             if let scopeHeight = originalHeight {
                 
-                UIApplication.sharedApplication().statusBarHidden = false
+                UIApplication.shared.isStatusBarHidden = false
                 
-                UIView.animateWithDuration(0.3, animations: {
+                UIView.animate(withDuration: 0.3, animations: {
                     
                     self.rootController?.topChatContainerOutlet.alpha = 1
                     self.rootController?.topChatHeightConstOutlet.constant = scopeHeight
@@ -1602,7 +1602,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
     }
     
     
-    override func scrollViewDidScroll(scrollView: UIScrollView) {
+    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
         if scrollView.contentOffset.y > maxContentOffset {
             
@@ -1633,15 +1633,15 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
         
     }
     
-    override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         
         if keyPath == "rate" {
             
-            if let player = object as? AVPlayer, item = player.currentItem {
+            if let player = object as? AVPlayer, let item = player.currentItem {
                 
                 if CMTimeGetSeconds(player.currentTime()) == CMTimeGetSeconds(item.duration) {
                     
-                    player.seekToTime(kCMTimeZero)
+                    player.seek(to: kCMTimeZero)
                     player.play()
                     
                 } else if player.rate == 0 {
@@ -1663,7 +1663,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
         super.viewDidLoad()
         
         self.collectionView.collectionViewLayout.springinessEnabled = false
-        self.keyboardController.textView.autocorrectionType = .No
+        self.keyboardController.textView.autocorrectionType = .no
         
         addGestureRecognizers()
         
@@ -1683,7 +1683,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
         // Do any additional setup after loading the view.
     }
     
-    func gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWithGestureRecognizer otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         
         return true
         

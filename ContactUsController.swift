@@ -12,7 +12,7 @@ class ContactUsController: UIViewController {
 
     weak var rootController: MainRootController?
     
-    @IBAction func back(sender: AnyObject) {
+    @IBAction func back(_ sender: AnyObject) {
         
         rootController?.toggleContactUs({ (bool) in
             

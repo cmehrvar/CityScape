@@ -13,6 +13,35 @@ import FirebaseDatabase
 import FirebaseAuth
 import SDWebImage
 import AVFoundation
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
+fileprivate func <= <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l <= r
+  default:
+    return !(rhs < lhs)
+  }
+}
+
+fileprivate func >= <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l >= r
+  default:
+    return !(lhs < rhs)
+  }
+}
+
 
 class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     
@@ -38,7 +67,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     
     @IBOutlet weak var videoOutlet: UIView!
     
-    var mostRecentTimeInterval: NSTimeInterval?
+    var mostRecentTimeInterval: TimeInterval?
     
     var singlePost = false
     
@@ -53,7 +82,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     
     var currentIndex = 0
     
-    var posts = [[NSObject : AnyObject]]()
+    var posts = [[AnyHashable: Any]]()
     var addedPosts = [String : Bool]()
 
     var asset: AVAsset?
@@ -69,15 +98,15 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     var lastName = ""
     var profilePic = ""
 
-    override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         
         if keyPath == "rate" {
             
-            if let player = object as? AVPlayer, item = player.currentItem {
+            if let player = object as? AVPlayer, let item = player.currentItem {
                 
                 if CMTimeGetSeconds(player.currentTime()) == CMTimeGetSeconds(item.duration) {
                     
-                    player.seekToTime(kCMTimeZero)
+                    player.seek(to: kCMTimeZero)
                     player.play()
                     
                 } else if player.rate == 0 {
@@ -90,7 +119,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     //Actions
-    @IBAction func toProfile(sender: AnyObject) {
+    @IBAction func toProfile(_ sender: AnyObject) {
         
         let screenHeight = self.view.bounds.height
         let scopeUID = currentUID
@@ -119,7 +148,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     
-    @IBAction func closeOrSquad(sender: AnyObject) {
+    @IBAction func closeOrSquad(_ sender: AnyObject) {
         
         let scopeUserUID = currentUID
         let scopeFirstName = firstName
@@ -146,13 +175,13 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
             //Cancel send?
             print("cancel send?")
             
-            let alertController = UIAlertController(title: "Unsend squad request to \(firstName + " " + lastName)", message: nil, preferredStyle: .ActionSheet)
+            let alertController = UIAlertController(title: "Unsend squad request to \(firstName + " " + lastName)", message: nil, preferredStyle: .actionSheet)
             
-            alertController.addAction(UIAlertAction(title: "Unsend Request", style: .Destructive, handler: { (action) in
+            alertController.addAction(UIAlertAction(title: "Unsend Request", style: .destructive, handler: { (action) in
                 
                 if let selfUID = FIRAuth.auth()?.currentUser?.uid {
                     
-                    dispatch_async(dispatch_get_main_queue(), {
+                    DispatchQueue.main.async(execute: {
                         
                         let ref = FIRDatabase.database().reference().child("users").child(scopeUserUID)
                         
@@ -165,13 +194,13 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                 }
             }))
             
-            alertController.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
+            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
                 
                 print("canceled")
                 
             }))
             
-            self.presentViewController(alertController, animated: true, completion: {
+            self.present(alertController, animated: true, completion: {
                 
                 print("alert controller presented")
                 
@@ -183,15 +212,15 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
             //Confrim or Deny
             print("confirm or deny")
             
-            let alertController = UIAlertController(title: "Confirm \(firstName + " " + lastName) to your squad?", message: nil, preferredStyle: .ActionSheet)
+            let alertController = UIAlertController(title: "Confirm \(firstName + " " + lastName) to your squad?", message: nil, preferredStyle: .actionSheet)
             
-            alertController.addAction(UIAlertAction(title: "Add to Squad", style: .Default, handler: { (action) in
+            alertController.addAction(UIAlertAction(title: "Add to Squad", style: .default, handler: { (action) in
                 
-                if let selfUID = FIRAuth.auth()?.currentUser?.uid, selfData = self.rootController?.selfData, myFirstName = selfData["firstName"] as? String, myLastName = selfData["lastName"] as? String {
+                if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.rootController?.selfData, let myFirstName = selfData["firstName"] as? String, let myLastName = selfData["lastName"] as? String {
                     
                     let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
 
-                        dispatch_async(dispatch_get_main_queue(), {
+                        DispatchQueue.main.async(execute: {
                             
                             ref.child("notifications").child(scopeUserUID).child("squadRequest").updateChildValues(["status" : "approved"])
                             ref.child("squadRequests").child(scopeUserUID).removeValue()
@@ -202,9 +231,9 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                             
                             
                             
-                            yourRef.child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                            yourRef.child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
                                 
-                                if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                                if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
                                     
                                     appDelegate.pushMessage(scopeUserUID, token: token, message: "\(myFirstName) is now in your squad!")
                                     
@@ -213,7 +242,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                             })
 
                             
-                            let timeInterval = NSDate().timeIntervalSince1970
+                            let timeInterval = Date().timeIntervalSince1970
 
                             yourRef.child("notifications").child(selfUID).child("squadRequest").setValue(["firstName" : myFirstName, "lastName" : myLastName, "type" : "addedYou", "timeStamp" : timeInterval, "uid" : selfUID, "read" : false])
                             
@@ -227,13 +256,13 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                 }
             }))
             
-            alertController.addAction(UIAlertAction(title: "Reject \(firstName)", style: .Destructive, handler: { (action) in
+            alertController.addAction(UIAlertAction(title: "Reject \(firstName)", style: .destructive, handler: { (action) in
                 
                 if let selfUID = FIRAuth.auth()?.currentUser?.uid {
                     
                     let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
                     
-                    dispatch_async(dispatch_get_main_queue(), {
+                    DispatchQueue.main.async(execute: {
                         
                         ref.child("notifications").child(scopeUserUID).child("squadRequest").removeValue()
                         ref.child("squadRequests").child(scopeUserUID).removeValue()
@@ -245,13 +274,13 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                 }
             }))
             
-            alertController.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
+            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
                 
                 print("canceled")
                 
             }))
             
-            self.presentViewController(alertController, animated: true, completion: {
+            self.present(alertController, animated: true, completion: {
                 
                 print("alert controller presented")
                 
@@ -264,34 +293,34 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
             //Send a request
             print("send a request")
             
-            let alertController = UIAlertController(title: "Add \(firstName + " " + lastName) to your squad!", message: nil, preferredStyle: .ActionSheet)
+            let alertController = UIAlertController(title: "Add \(firstName + " " + lastName) to your squad!", message: nil, preferredStyle: .actionSheet)
             
-            alertController.addAction(UIAlertAction(title: "Send Request", style: .Default, handler: { (action) in
+            alertController.addAction(UIAlertAction(title: "Send Request", style: .default, handler: { (action) in
                 
-                if let selfUID = FIRAuth.auth()?.currentUser?.uid, selfData = self.rootController?.selfData, firstName = selfData["firstName"] as? String, lastName = selfData["lastName"] as? String {
+                if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.rootController?.selfData, let firstName = selfData["firstName"] as? String, let lastName = selfData["lastName"] as? String {
                     
                     let yourRef = FIRDatabase.database().reference().child("users").child(scopeUserUID)
                     
-                    yourRef.child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                    yourRef.child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
                         
-                        if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                        if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
                             
                             appDelegate.pushMessage(scopeUserUID, token: token, message: "\(firstName) has sent you a squad request")
         
                         }
                     })
 
-                    let timeInterval = NSDate().timeIntervalSince1970
+                    let timeInterval = Date().timeIntervalSince1970
                     
                     //0 -> Hasn't responded yet, 1 -> Approved, 2 -> Denied
                     let ref = FIRDatabase.database().reference().child("users").child(scopeUserUID)
 
-                    let squadItem = ["uid" : selfUID, "read" : false, "status": 0, "timeStamp" : timeInterval, "firstName" : firstName, "lastName" : lastName]
+                    let squadItem = ["uid" : selfUID, "read" : false, "status": 0, "timeStamp" : timeInterval, "firstName" : firstName, "lastName" : lastName] as [String : Any]
                     
-                    let notificationItem = ["uid" : selfUID, "read" : false, "status" : "awaitingAction", "type" : "squadRequest", "timeStamp" : timeInterval, "firstName" : firstName, "lastName" : lastName]
+                    let notificationItem = ["uid" : selfUID, "read" : false, "status" : "awaitingAction", "type" : "squadRequest", "timeStamp" : timeInterval, "firstName" : firstName, "lastName" : lastName] as [String : Any]
                     
                     
-                    dispatch_async(dispatch_get_main_queue(), {
+                    DispatchQueue.main.async(execute: {
                         
                         ref.child("squadRequests").child(selfUID).setValue(squadItem)
                         ref.child("notifications").child(selfUID).child("squadRequest").setValue(notificationItem)
@@ -302,13 +331,13 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                 }
             }))
             
-            alertController.addAction(UIAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
+            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
                 
                 print("canceled")
                 
             }))
             
-            self.presentViewController(alertController, animated: true, completion: {
+            self.present(alertController, animated: true, completion: {
                 
                 print("alert controller presented")
                 
@@ -318,25 +347,25 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     
     
     //Functions
-    func observePosts(lastNumber: UInt, completion: Bool -> ()){
+    func observePosts(_ lastNumber: UInt, completion: @escaping (Bool) -> ()){
         
         let ref = FIRDatabase.database().reference()
         
-        ref.child("allPosts").queryLimitedToLast(lastNumber).observeEventType(.Value, withBlock: { (snapshot) in
+        ref.child("allPosts").queryLimited(toLast: lastNumber).observe(.value, with: { (snapshot) in
             
-            if let value = snapshot.value as? [NSObject : AnyObject]{
+            if let value = snapshot.value as? [AnyHashable: Any]{
                 
-                var scopePosts = [[NSObject : AnyObject]]()
+                var scopePosts = [[AnyHashable: Any]]()
                 
                 for (_, someValue) in value {
                     
-                    if let valueToAdd = someValue as? [NSObject : AnyObject] {
+                    if let valueToAdd = someValue as? [AnyHashable: Any] {
                         
                         if self.mostRecentTimeInterval == nil {
                             scopePosts.append(valueToAdd)
                         } else {
                             
-                            if let postTimeStamp = valueToAdd["timeStamp"] as? NSTimeInterval {
+                            if let postTimeStamp = valueToAdd["timeStamp"] as? TimeInterval {
                                 
                                 if postTimeStamp <= self.mostRecentTimeInterval {
                                     scopePosts.append(valueToAdd)
@@ -349,9 +378,9 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                 print("unordered:")
                 print(scopePosts)
                 
-                scopePosts.sortInPlace({ (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
+                scopePosts.sort(by: { (a: [AnyHashable: Any], b: [AnyHashable: Any]) -> Bool in
                     
-                    if a["timeStamp"] as? NSTimeInterval >= b["timeStamp"] as? NSTimeInterval {
+                    if a["timeStamp"] as? TimeInterval >= b["timeStamp"] as? TimeInterval {
                         
                         return true
                         
@@ -366,7 +395,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                 
                 if self.mostRecentTimeInterval == nil {
                     
-                    if let timeInterval = self.posts[0]["timeStamp"] as? NSTimeInterval {
+                    if let timeInterval = self.posts[0]["timeStamp"] as? TimeInterval {
                         
                         self.mostRecentTimeInterval = timeInterval
                         
@@ -392,12 +421,12 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     
     func revealChat(){
         
-        nameOutlet.textColor = UIColor.blackColor()
-        cityRankOutlet.textColor = UIColor.blackColor()
+        nameOutlet.textColor = UIColor.black
+        cityRankOutlet.textColor = UIColor.black
         
         if let rootWidth = self.rootController?.view.bounds.width {
             
-            UIView.animateWithDuration(0.3, animations: {
+            UIView.animate(withDuration: 0.3, animations: {
                 
                 self.topContentToHeaderOutlet.constant = 0
                 self.contentHeightConstOutlet.constant = rootWidth
@@ -426,12 +455,12 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     
     func hideChat(){
         
-        nameOutlet.textColor = UIColor.whiteColor()
-        cityRankOutlet.textColor = UIColor.whiteColor()
+        nameOutlet.textColor = UIColor.white
+        cityRankOutlet.textColor = UIColor.white
         
         if let rootHeight = self.rootController?.view.bounds.height {
             
-            UIView.animateWithDuration(0.3, animations: {
+            UIView.animate(withDuration: 0.3, animations: {
                 
                 self.topContentToHeaderOutlet.constant = -50
                 self.contentHeightConstOutlet.constant = rootHeight
@@ -460,14 +489,14 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     
     
     
-    func screenToCircle(animatingTime: NSTimeInterval){
+    func screenToCircle(_ animatingTime: TimeInterval){
         
         if let rootWidth = self.rootController?.view.bounds.width {
             
             self.view.clipsToBounds = true
             self.screenIsCircle = true
             
-            UIView.animateWithDuration(animatingTime, animations: {
+            UIView.animate(withDuration: animatingTime, animations: {
                 
                 self.rootController?.snapWidthConstOutlet.constant = (rootWidth-100)
                 self.rootController?.snapHeightConstOutlet.constant = (rootWidth-100)
@@ -481,13 +510,13 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
         }
     }
     
-    func screenToNormal(animatingTime: NSTimeInterval){
+    func screenToNormal(_ animatingTime: TimeInterval){
         
         self.screenIsCircle = false
         
-        if let rootHeight = self.rootController?.view.bounds.height, rootWidth = self.rootController?.view.bounds.width {
+        if let rootHeight = self.rootController?.view.bounds.height, let rootWidth = self.rootController?.view.bounds.width {
             
-            UIView.animateWithDuration(0.3, animations: {
+            UIView.animate(withDuration: 0.3, animations: {
                 
                 self.rootController?.snapXOutlet.constant = 0
                 self.rootController?.snapYOutlet.constant = 0
@@ -510,7 +539,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
         }
     }
     
-    func closeWithDirection(x: CGFloat, y: CGFloat, animationTime: NSTimeInterval){
+    func closeWithDirection(_ x: CGFloat, y: CGFloat, animationTime: TimeInterval){
         
         singlePost = false
         
@@ -520,7 +549,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
             
             if profileRevealed {
                 
-                UIApplication.sharedApplication().statusBarHidden = true
+                UIApplication.shared.isStatusBarHidden = true
                 
             } else {
                 
@@ -528,11 +557,11 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                     
                     if topNavConst == 0 {
                         
-                        UIApplication.sharedApplication().statusBarHidden = false
+                        UIApplication.shared.isStatusBarHidden = false
                         
                     } else {
                         
-                        UIApplication.sharedApplication().statusBarHidden = true
+                        UIApplication.shared.isStatusBarHidden = true
                     }
                 }
             }
@@ -556,7 +585,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
         item = nil
         asset = nil
         
-        UIView.animateWithDuration(animationTime, animations: {
+        UIView.animate(withDuration: animationTime, animations: {
             
             self.rootController?.snapXOutlet.constant = x
             self.rootController?.snapYOutlet.constant = y
@@ -578,18 +607,18 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     
     
     //PAN HANDLER
-    func panGestureHandler(sender: UIPanGestureRecognizer) {
+    func panGestureHandler(_ sender: UIPanGestureRecognizer) {
         
-        let translation = sender.translationInView(self.view)
+        let translation = sender.translation(in: self.view)
         
-        guard let rootHeight = self.rootController?.view.bounds.height, rootWidth = self.rootController?.view.bounds.width else {return}
+        guard let rootHeight = self.rootController?.view.bounds.height, let rootWidth = self.rootController?.view.bounds.width else {return}
         
         var initialTranslationX: CGFloat = 0
         var initialTransaltionY: CGFloat = 0
         
         switch sender.state {
             
-        case.Began:
+        case.began:
             
             initialTranslationX = translation.x
             initialTransaltionY = translation.y
@@ -600,7 +629,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
             print("initial y: \(initialTransaltionY)")
             
             
-        case .Changed:
+        case .changed:
             
             if longPressEnabled {
                 
@@ -609,7 +638,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                 
             }
             
-        case .Ended:
+        case .ended:
             
             print("end x: \(translation.x)")
             print("end y: \(translation.y)")
@@ -907,17 +936,17 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     
-    func longPressHandler(sender: UILongPressGestureRecognizer){
+    func longPressHandler(_ sender: UILongPressGestureRecognizer){
         
         switch sender.state {
             
-        case .Began:
+        case .began:
             print("long press began")
             
             screenToCircle(0.3)
             longPressEnabled = true
             
-        case .Ended:
+        case .ended:
             print("long press ended")
             
             if !isPanning {
@@ -935,7 +964,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     
     
     
-    func loadSecondaryContent(direction: String, i: Int, completion: Bool -> ()){
+    func loadSecondaryContent(_ direction: String, i: Int, completion: @escaping (Bool) -> ()){
         
         if let playerLayer = layer {
             
@@ -971,7 +1000,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
             
         } else {
             
-            var post = [NSObject : AnyObject]()
+            var post = [AnyHashable: Any]()
 
             if direction == "left" {
                 
@@ -1002,9 +1031,9 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
             self.secondaryImageOutlet.alpha = 1
             self.videoOutlet.alpha = 0
             
-            if let imageString = post["imageURL"] as? String, imageURL = NSURL(string: imageString) {
+            if let imageString = post["imageURL"] as? String, let imageURL = URL(string: imageString) {
                 
-                secondaryImageOutlet.sd_setImageWithURL(imageURL, completed: { (image, error, cache, url) in
+                secondaryImageOutlet.sd_setImage(with: imageURL, completed: { (image, error, cache, url) in
                     
                     print("image completed")
                     
@@ -1020,13 +1049,13 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     
-    func slideContent(direction: String, completion: Bool -> ()){
+    func slideContent(_ direction: String, completion: @escaping (Bool) -> ()){
         
         guard let rootWidth = self.rootController?.view.bounds.width else {return}
         
         if direction == "left" {
             
-            UIView.animateWithDuration(0.3, animations: {
+            UIView.animate(withDuration: 0.3, animations: {
                 
                 self.primaryImageLeadingConstant.constant = -rootWidth
                 self.primaryImageTrailingOutlet.constant = rootWidth
@@ -1049,7 +1078,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
             
         } else if direction == "right" {
             
-            UIView.animateWithDuration(0.3, animations: {
+            UIView.animate(withDuration: 0.3, animations: {
                 
                 self.primaryImageLeadingConstant.constant = rootWidth
                 self.primaryImageTrailingOutlet.constant = -rootWidth
@@ -1102,18 +1131,18 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     
-    func checkSquad(uid: String, selfUID: String){
+    func checkSquad(_ uid: String, selfUID: String){
         
         //LOAD SQUAD ICON
         
         if uid == selfUID {
             
             squadIndicatorImage.image = nil
-            closeOrSquadButton.enabled = false
+            closeOrSquadButton.isEnabled = false
             
         } else if uid != "" || !uid.isEmpty {
             
-            closeOrSquadButton.enabled = true
+            closeOrSquadButton.isEnabled = true
             
             if let selfData = self.rootController?.selfData {
                 
@@ -1121,7 +1150,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                 var iSentYou = false
                 var youSentMe = false
                 
-                if let mySquad = selfData["squad"] as? [NSObject : AnyObject] {
+                if let mySquad = selfData["squad"] as? [AnyHashable: Any] {
                     
                     if mySquad[uid] != nil {
                         
@@ -1137,7 +1166,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                     
                 } else {
                     
-                    if let mySquadRequests = selfData["squadRequests"] as? [NSObject : AnyObject] {
+                    if let mySquadRequests = selfData["squadRequests"] as? [AnyHashable: Any] {
                         
                         for (key, _) in mySquadRequests {
                             
@@ -1161,13 +1190,13 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                         
                         let ref = FIRDatabase.database().reference().child("users").child(uid)
                         
-                        ref.child("squadRequests").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                        ref.child("squadRequests").observeSingleEvent(of: .value, with: { (snapshot) in
                             
                             print(snapshot.value)
                             
                             if snapshot.exists() {
                                 
-                                if let yourSquadRequests = snapshot.value as? [NSObject : AnyObject] {
+                                if let yourSquadRequests = snapshot.value as? [AnyHashable: Any] {
                                     
                                     for (key, _) in yourSquadRequests {
                                         
@@ -1218,9 +1247,9 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     
-    func loadPrimary(direction: String, i: Int, completion: Bool -> ()){
+    func loadPrimary(_ direction: String, i: Int, completion: (Bool) -> ()){
         
-        var post = [NSObject : AnyObject]()
+        var post = [AnyHashable: Any]()
         
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
@@ -1258,22 +1287,22 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                 
                 let ref = FIRDatabase.database().reference().child("users").child(uid)
                 
-                ref.child("profilePicture").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                ref.child("profilePicture").observeSingleEvent(of: .value, with: { (snapshot) in
                     
-                    if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
+                    if let profileString = snapshot.value as? String, let url = URL(string: profileString) {
                         
                         self.profilePic = profileString
                         
                         if self.currentUID == uid {
                             
-                            self.profilePicOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                            self.profilePicOutlet.sd_setImage(with: url, placeholderImage: nil)
                             
                         }
                     }
                 })
                 
                 
-                ref.child("cityRank").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                ref.child("cityRank").observeSingleEvent(of: .value, with: { (snapshot) in
                     
                     if let rank = snapshot.value as? Int {
                         
@@ -1286,9 +1315,9 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                 })
                 
                 
-                if let profileString = post["profilePicture"] as? String, profileURL = NSURL(string: profileString) {
+                if let profileString = post["profilePicture"] as? String, let profileURL = URL(string: profileString) {
                     
-                    profilePicOutlet.sd_setImageWithURL(profileURL, placeholderImage: nil)
+                    profilePicOutlet.sd_setImage(with: profileURL, placeholderImage: nil)
                     
                 }
                 
@@ -1302,9 +1331,9 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                 
                 
                 
-                if let imageString = post["imageURL"] as? String, imageURL = NSURL(string: imageString) {
+                if let imageString = post["imageURL"] as? String, let imageURL = URL(string: imageString) {
                     
-                    imageOutlet.sd_setImageWithURL(imageURL, placeholderImage: nil)
+                    imageOutlet.sd_setImage(with: imageURL, placeholderImage: nil)
                     
                 }
                 
@@ -1317,11 +1346,11 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                         
                         
                             
-                            if let urlString = post["videoURL"] as? String, url = NSURL(string: urlString) {
+                            if let urlString = post["videoURL"] as? String, let url = URL(string: urlString) {
                                 
-                                dispatch_async(dispatch_get_main_queue(), {
+                                DispatchQueue.main.async(execute: {
                                     
-                                    self.asset = AVAsset(URL: url)
+                                    self.asset = AVAsset(url: url)
                                     
                                     if let asset = self.asset {
                                         
@@ -1368,7 +1397,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                     
                 }
                 */
-                if let firstName = post["firstName"] as? String, lastName = post["lastName"] as? String {
+                if let firstName = post["firstName"] as? String, let lastName = post["lastName"] as? String {
                     
                     self.firstName = firstName
                     self.lastName = lastName
@@ -1377,7 +1406,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                     
                 }
                 
-                if let postKey = post["postChildKey"] as? String, city = post["city"] as? String {
+                if let postKey = post["postChildKey"] as? String, let city = post["city"] as? String {
                     
                     let ref = "posts/\(city)/\(postKey)"
                     currentPostKey = postKey
@@ -1386,7 +1415,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                     
                 }
                 
-                if let firstName = self.rootController?.selfData["firstName"] as? String, lastName = self.rootController?.selfData["lastName"] as? String {
+                if let firstName = self.rootController?.selfData["firstName"] as? String, let lastName = self.rootController?.selfData["lastName"] as? String {
                     
                     self.snapchatChatController?.senderDisplayName = "\(firstName) \(lastName)"
                     
@@ -1448,7 +1477,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     
-    func gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWithGestureRecognizer otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         
         return true
         
@@ -1464,11 +1493,11 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     // MARK: - Navigation
     
     // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         
         if segue.identifier == "snapChatSegue" {
             
-            let chatController = segue.destinationViewController as? SnapchatChatController
+            let chatController = segue.destination as? SnapchatChatController
             snapchatChatController = chatController
             snapchatChatController?.snapchatController = self
             

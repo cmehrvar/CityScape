@@ -14,13 +14,33 @@ import Fusuma
 import AWSS3
 import AVFoundation
 import SDWebImage
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
+fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l > r
+  default:
+    return rhs < lhs
+  }
+}
+
 
 class ProfileController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, FusumaDelegate {
     
     //Variables
     weak var rootController: MainRootController?
-    var userData = [NSObject:AnyObject]()
-    var userPosts = [[NSObject : AnyObject]]()
+    var userData = [AnyHashable: Any]()
+    var userPosts = [[AnyHashable: Any]]()
     
     var videoAssets = [String : AVAsset]()
     var videoPlayers = [AVPlayer?]()
@@ -48,7 +68,7 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
     
     
     //Actions
-    @IBAction func close(sender: AnyObject) {
+    @IBAction func close(_ sender: AnyObject) {
         
         rootController?.toggleHome({ (bool) in
             
@@ -57,15 +77,15 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
         })
     }
     
-    override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         
         if keyPath == "rate" {
             
-            if let player = object as? AVPlayer, item = player.currentItem {
+            if let player = object as? AVPlayer, let item = player.currentItem {
                 
                 if CMTimeGetSeconds(player.currentTime()) == CMTimeGetSeconds(item.duration) {
                     
-                    player.seekToTime(kCMTimeZero)
+                    player.seek(to: kCMTimeZero)
                     player.play()
                     
                 } else if player.rate == 0 {
@@ -80,36 +100,36 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
     
     
     //Image Uploads
-    func imageUploadRequest(image: UIImage, completion: (url: String, uploadRequest: AWSS3TransferManagerUploadRequest) -> ()) {
+    func imageUploadRequest(_ image: UIImage, completion: @escaping (_ url: String, _ uploadRequest: AWSS3TransferManagerUploadRequest) -> ()) {
         
-        let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".jpeg")
-        let fileURL = NSURL(fileURLWithPath: NSTemporaryDirectory()).URLByAppendingPathComponent("upload").URLByAppendingPathComponent(fileName)
-        let filePath = fileURL.path!
+        let fileName = ProcessInfo.processInfo.globallyUniqueString + ".jpeg"
+        let fileURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("upload").appendingPathComponent(fileName)
+        let filePath = fileURL.path
         
         let imageData = UIImageJPEGRepresentation(image, 0.5)
         
         //SEGMENTATION BUG, IF FAULT 11 - COMMENT OUT AND REWRITE
-        dispatch_async(dispatch_get_main_queue()) {
-            imageData?.writeToFile(filePath, atomically: true)
+        DispatchQueue.main.async {
+            try? imageData?.write(to: URL(fileURLWithPath: filePath), options: [.atomic])
             
             let uploadRequest = AWSS3TransferManagerUploadRequest()
-            uploadRequest.body = fileURL
-            uploadRequest.key = fileName
-            uploadRequest.bucket = "cityscapebucket"
+            uploadRequest?.body = fileURL
+            uploadRequest?.key = fileName
+            uploadRequest?.bucket = "cityscapebucket"
             
             var imageUrl = ""
             
-            if let key = uploadRequest.key {
+            if let key = uploadRequest?.key {
                 imageUrl = "https://s3.amazonaws.com/cityscapebucket/" + key
                 
             }
             
-            completion(url: imageUrl, uploadRequest: uploadRequest)
+            completion(imageUrl, uploadRequest!)
         }
     }
     
     
-    func fusumaDismissedWithImage(image: UIImage) {
+    func fusumaDismissedWithImage(_ image: UIImage) {
         
         print("fusuma dismissed with image")
         
@@ -117,9 +137,9 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
         
         self.imageUploadRequest(image) { (url, uploadRequest) in
             
-            let transferManager = AWSS3TransferManager.defaultS3TransferManager()
+            let transferManager = AWSS3TransferManager.default()
             
-            transferManager.upload(uploadRequest).continueWithBlock { (task) -> AnyObject? in
+            transferManager?.upload(uploadRequest).continue({ (task) -> Any? in
                 
                 if task.error == nil {
                     
@@ -134,20 +154,19 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                 } else {
                     print("error uploading: \(task.error)")
                     
-                    let alertController = UIAlertController(title: "Sorry", message: "Error uploading profile picture, please try again later", preferredStyle:  UIAlertControllerStyle.Alert)
-                    alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Cancel, handler: nil))
-                    self.presentViewController(alertController, animated: true, completion: nil)
+                    let alertController = UIAlertController(title: "Sorry", message: "Error uploading profile picture, please try again later", preferredStyle:  UIAlertControllerStyle.alert)
+                    alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.cancel, handler: nil))
+                    self.present(alertController, animated: true, completion: nil)
                     
                 }
+                
                 return nil
-            }
+                
+            })
         }
     }
-    
-    
-    
-    
-    func fusumaImageSelected(image: UIImage) {
+
+    func fusumaImageSelected(_ image: UIImage) {
         
         print("image selected")
         
@@ -155,16 +174,16 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
     
     
     
-    func fusumaVideoCompleted(withFileURL fileURL: NSURL) {
+    func fusumaVideoCompleted(withFileURL fileURL: URL) {
         
         
     }
     
     func fusumaCameraRollUnauthorized() {
         
-        let alertController = UIAlertController(title: "Sorry", message: "Camera not authorized", preferredStyle:  UIAlertControllerStyle.Alert)
-        alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Cancel, handler: nil))
-        self.presentViewController(alertController, animated: true, completion: nil)
+        let alertController = UIAlertController(title: "Sorry", message: "Camera not authorized", preferredStyle:  UIAlertControllerStyle.alert)
+        alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.cancel, handler: nil))
+        self.present(alertController, animated: true, completion: nil)
         
         print("camera unauthorized")
         
@@ -177,7 +196,7 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
     }
     
     
-    func presentFusuma(editedImage: String){
+    func presentFusuma(_ editedImage: String){
         
         let fusuma = FusumaViewController()
         fusuma.delegate = self
@@ -185,7 +204,7 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
         
         self.editedImage = editedImage
         
-        self.presentViewController(fusuma, animated: true) {
+        self.present(fusuma, animated: true) {
             
             print("fusumaPresented")
             
@@ -197,15 +216,15 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
         let error = NSErrorPointer.init(nilLiteral: ())
         
         do{
-            try NSFileManager.defaultManager().createDirectoryAtURL(NSURL(fileURLWithPath: NSTemporaryDirectory()).URLByAppendingPathComponent("upload"), withIntermediateDirectories: true, attributes: nil)
+            try FileManager.default.createDirectory(at: URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("upload"), withIntermediateDirectories: true, attributes: nil)
         } catch let error1 as NSError {
-            error.memory = error1
+            error?.pointee = error1
             print("Creating upload directory failed. Error: \(error)")
         }
     }
     
     //Functions
-    func retrieveUserData(uid: String){
+    func retrieveUserData(_ uid: String){
         
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
@@ -215,13 +234,13 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                     
                     self.userData = selfData
                     
-                    var scopePosts = [[NSObject:AnyObject]]()
+                    var scopePosts = [[AnyHashable: Any]]()
                     
-                    if let posts = selfData["posts"] as? [NSObject : AnyObject] {
+                    if let posts = selfData["posts"] as? [AnyHashable: Any] {
                         
                         for post in posts {
                             
-                            if let data = post.1 as? [NSObject : AnyObject] {
+                            if let data = post.1 as? [AnyHashable: Any] {
                                 
                                 scopePosts.append(data)
                                 
@@ -229,9 +248,9 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                         }
                     }
                     
-                    scopePosts.sortInPlace({ (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
+                    scopePosts.sort(by: { (a: [AnyHashable: Any], b: [AnyHashable: Any]) -> Bool in
                         
-                        if a["timeStamp"] as? NSTimeInterval > b["timeStamp"] as? NSTimeInterval {
+                        if a["timeStamp"] as? TimeInterval > b["timeStamp"] as? TimeInterval {
                             return true
                         } else {
                             return false
@@ -248,21 +267,21 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                 
                 let ref = FIRDatabase.database().reference().child("users").child(uid)
                 
-                ref.observeEventType(.Value, withBlock: { (snapshot) in
+                ref.observe(.value, with: { (snapshot) in
                     
-                    if let value = snapshot.value as? [NSObject : AnyObject] {
+                    if let value = snapshot.value as? [AnyHashable: Any] {
                         
                         if self.currentUID == value["uid"] as? String {
                             
                             self.userData = value
                             
-                            var scopePosts = [[NSObject:AnyObject]]()
+                            var scopePosts = [[AnyHashable: Any]]()
                             
-                            if let posts = value["posts"] as? [NSObject : AnyObject] {
+                            if let posts = value["posts"] as? [AnyHashable: Any] {
                                 
                                 for post in posts {
                                     
-                                    if let data = post.1 as? [NSObject : AnyObject] {
+                                    if let data = post.1 as? [AnyHashable: Any] {
                                         
                                         scopePosts.append(data)
                                         
@@ -270,9 +289,9 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                                 }
                             }
                             
-                            scopePosts.sortInPlace({ (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
+                            scopePosts.sort(by: { (a: [AnyHashable: Any], b: [AnyHashable: Any]) -> Bool in
                                 
-                                if a["timeStamp"] as? NSTimeInterval > b["timeStamp"] as? NSTimeInterval {
+                                if a["timeStamp"] as? TimeInterval > b["timeStamp"] as? TimeInterval {
                                     return true
                                 } else {
                                     return false
@@ -296,7 +315,7 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
     
     
     
-    func setPlayerTitle(postKey: String, cell: UserVideoPostCell) {
+    func setPlayerTitle(_ postKey: String, cell: UserVideoPostCell) {
         
         var playerForCell = 0
         
@@ -325,7 +344,7 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
     
     
     //CollectionViewDelegates
-    func collectionView(collectionView: UICollectionView, willDisplayCell cell: UICollectionViewCell, forItemAtIndexPath indexPath: NSIndexPath) {
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         
         if let videoCell = cell as? UserVideoPostCell {
             
@@ -344,7 +363,7 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                 
                 
                 
-                dispatch_async(dispatch_get_main_queue(), {
+                DispatchQueue.main.async(execute: {
                         
                        self.videoLayers[playerNumber] = AVPlayerLayer(player: player)
                        self.videoLayers[playerNumber]?.videoGravity = AVLayerVideoGravityResizeAspectFill
@@ -356,7 +375,7 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                             
                         }
                         
-                        player.muted = true
+                        player.isMuted = true
                         player.play()
                         
                     
@@ -370,15 +389,15 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                         
                         asset = loadedAsset
                         
-                    } else if let urlString = userPosts[index]["videoURL"] as? String, url = NSURL(string: urlString) {
+                    } else if let urlString = userPosts[index]["videoURL"] as? String, let url = URL(string: urlString) {
                         
-                        asset = AVAsset(URL: url)
+                        asset = AVAsset(url: url)
                         
                     }
                     
                     if let actualAsset = asset {
                         
-                        dispatch_async(dispatch_get_main_queue(), {
+                        DispatchQueue.main.async(execute: {
                             
                             let playerItem = AVPlayerItem(asset: actualAsset)
                             self.videoKeys[playerNumber] = postKey
@@ -396,7 +415,7 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                                 
                             }
                             
-                            self.videoPlayers[playerNumber]?.muted = true
+                            self.videoPlayers[playerNumber]?.isMuted = true
                             self.videoPlayers[playerNumber]?.play()
                             
                         })
@@ -406,7 +425,7 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
         }
     }
 
-    func collectionView(collectionView: UICollectionView, didEndDisplayingCell cell: UICollectionViewCell, forItemAtIndexPath indexPath: NSIndexPath) {
+    func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         
         if !userPosts.isEmpty {
             
@@ -414,7 +433,7 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                 
                 var isVisible = false
                 
-                for visibleCell in collectionView.visibleCells() {
+                for visibleCell in collectionView.visibleCells {
                     
                     if let visibleVideo = visibleCell as? UserVideoPostCell {
                         
@@ -460,17 +479,17 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
     }
     
     
-    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        if indexPath.row == 0 {
+        if (indexPath as NSIndexPath).row == 0 {
             
-            let cell = collectionView.dequeueReusableCellWithReuseIdentifier("statusCell", forIndexPath: indexPath) as! StatusCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "statusCell", for: indexPath) as! StatusCell
             cell.loadCell(userData)
             return cell
             
-        } else if indexPath.row == 1 {
+        } else if (indexPath as NSIndexPath).row == 1 {
             
-            let cell = collectionView.dequeueReusableCellWithReuseIdentifier("profilePicCell", forIndexPath: indexPath) as! ProfilePicCollectionCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "profilePicCell", for: indexPath) as! ProfilePicCollectionCell
             
             let screenWidth = self.view.bounds.width
             cell.profileController = self
@@ -478,9 +497,9 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
             cell.loadImages(userData, screenWidth: screenWidth)
             return cell
             
-        }  else if indexPath.row == 2 {
+        }  else if (indexPath as NSIndexPath).row == 2 {
             
-            let cell = collectionView.dequeueReusableCellWithReuseIdentifier("nameCell", forIndexPath: indexPath) as! ProfileInfoCollectionCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "nameCell", for: indexPath) as! ProfileInfoCollectionCell
             
             if selfProfile {
                 
@@ -502,11 +521,11 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
             
             return cell
             
-        } else if indexPath.row == 3 {
+        } else if (indexPath as NSIndexPath).row == 3 {
             
             if selfProfile {
                 
-                let cell = collectionView.dequeueReusableCellWithReuseIdentifier("selfRankSquadCell", forIndexPath: indexPath)
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "selfRankSquadCell", for: indexPath)
                     as! SelfSquadRankCell
                 
                 cell.profileController = self
@@ -515,7 +534,7 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                 
             } else {
                 
-                let cell = collectionView.dequeueReusableCellWithReuseIdentifier("notSelfRankSquadCell", forIndexPath: indexPath) as! NotSelfSquadRankCell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "notSelfRankSquadCell", for: indexPath) as! NotSelfSquadRankCell
                 
                 cell.profileController = self
                 cell.loadData(userData)
@@ -524,16 +543,16 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                 
             }
             
-        } else if !selfProfile && indexPath.row == 4 {
+        } else if !selfProfile && (indexPath as NSIndexPath).row == 4 {
             
-            let cell = collectionView.dequeueReusableCellWithReuseIdentifier("activeDistanceCell", forIndexPath: indexPath) as! ActiveDistanceCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "activeDistanceCell", for: indexPath) as! ActiveDistanceCell
             cell.profileController = self
             cell.loadData(userData)
             return cell
             
         } else {
             
-            var index = indexPath.row
+            var index = (indexPath as NSIndexPath).row
             
             if selfProfile {
                 
@@ -549,11 +568,11 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                 
                 if isImage {
                     
-                    let cell = collectionView.dequeueReusableCellWithReuseIdentifier("userImagePostCell", forIndexPath: indexPath) as! UserImagePostCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "userImagePostCell", for: indexPath) as! UserImagePostCell
                     
                     cell.profileController = self
                     
-                    cell.posts = userPosts
+                    cell.posts = userPosts as [[NSObject : AnyObject]]
                     cell.index = index
                     cell.loadCell(userPosts[index])
                     
@@ -561,7 +580,7 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                     
                 } else {
                     
-                    let cell = collectionView.dequeueReusableCellWithReuseIdentifier("userVideoPostCell", forIndexPath: indexPath) as! UserVideoPostCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "userVideoPostCell", for: indexPath) as! UserVideoPostCell
                     
                     cell.profileController = self
                     
@@ -573,7 +592,7 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                     
                     cell.loadCell(userPosts[index])
                     
-                    cell.posts = userPosts
+                    cell.posts = userPosts as [[NSObject : AnyObject]]
                     cell.index = index
                     
                     cell.imageOutlet.layer.cornerRadius = 10
@@ -581,9 +600,9 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                     cell.videoOutlet.layer.cornerRadius = 10
                     cell.videoOutlet.clipsToBounds = true
                     
-                    if let imageUrlString = userPosts[index]["imageURL"] as? String, imageUrl = NSURL(string: imageUrlString) {
+                    if let imageUrlString = userPosts[index]["imageURL"] as? String, let imageUrl = URL(string: imageUrlString) {
                         
-                        cell.imageOutlet.sd_setImageWithURL(imageUrl, completed: { (image, error, cache, url) in
+                        cell.imageOutlet.sd_setImage(with: imageUrl, completed: { (image, error, cache, url) in
                             
                             print("done loading video thumbnail")
                             
@@ -597,12 +616,12 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
             }
         }
         
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("userImagePostCell", forIndexPath: indexPath) as! UserImagePostCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "userImagePostCell", for: indexPath) as! UserImagePostCell
         return cell
         
     }
     
-    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
         if selfProfile {
             return userPosts.count + 4
@@ -612,11 +631,11 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
     }
     
     
-    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
         let width = self.view.bounds.width
         
-        if indexPath.row == 0 {
+        if (indexPath as NSIndexPath).row == 0 {
             
             if let status = userData["currentStatus"] as? String {
                 
@@ -629,12 +648,12 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
             
             return CGSize(width: width, height: 0)
             
-        } else if indexPath.row == 1 {
+        } else if (indexPath as NSIndexPath).row == 1 {
             
             return CGSize(width: width, height: width)
             
             
-        } else if indexPath.row == 2 {
+        } else if (indexPath as NSIndexPath).row == 2 {
             
             if self.selfProfile {
                 
@@ -660,11 +679,11 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                 
             }
             
-        } else if indexPath.row == 3  {
+        } else if (indexPath as NSIndexPath).row == 3  {
             
             return CGSize(width: width, height: 60)
             
-        } else if indexPath.row == 4 && !selfProfile {
+        } else if (indexPath as NSIndexPath).row == 4 && !selfProfile {
             
             return CGSize(width: width, height: 34)
             
@@ -696,7 +715,7 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         
-        SDWebImageManager.sharedManager().imageCache.clearMemory()
+        SDWebImageManager.shared().imageCache.clearMemory()
         
         
         // Dispose of any resources that can be recreated.

@@ -10,14 +10,34 @@ import UIKit
 import Firebase
 import FirebaseDatabase
 import FirebaseAuth
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
+fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l > r
+  default:
+    return rhs < lhs
+  }
+}
+
 
 class MessagesController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UIGestureRecognizerDelegate, UITableViewDataSource, UITableViewDelegate {
     
     weak var rootController: MainRootController?
     
-    var tableViewMessages = [[NSObject : AnyObject]]()
+    var tableViewMessages = [[AnyHashable: Any]]()
     
-    var globMatches = [[NSObject : AnyObject]]()
+    var globMatches = [[AnyHashable: Any]]()
 
     //Outlets
     @IBOutlet weak var globCollectionViewOutlet: UICollectionView!
@@ -27,7 +47,7 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
     @IBOutlet weak var noMessagesOutlet: UILabel!
 
     //Actions
-    @IBAction func composeMessage(sender: AnyObject) {
+    @IBAction func composeMessage(_ sender: AnyObject) {
 
         self.rootController?.composeChat(true, completion: { (bool) in
             
@@ -37,22 +57,22 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
     }
     
     //Functions
-    func loadMatches(data: [NSObject : AnyObject]){
+    func loadMatches(_ data: [AnyHashable: Any]){
 
-        var matches = [[NSObject : AnyObject]]()
+        var matches = [[AnyHashable: Any]]()
 
         for (_, value) in data {
             
-            if let valueToAdd = value as? [NSObject : AnyObject] {
+            if let valueToAdd = value as? [AnyHashable: Any] {
                 
                 matches.append(valueToAdd)
 
             }
         }
         
-        matches.sortInPlace { (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
+        matches.sort { (a: [AnyHashable: Any], b: [AnyHashable: Any]) -> Bool in
             
-            if a["lastActivity"] as? NSTimeInterval > b["lastActivity"] as? NSTimeInterval {
+            if a["lastActivity"] as? TimeInterval > b["lastActivity"] as? TimeInterval {
                 
                 return true
                 
@@ -71,94 +91,112 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
  
     }
 
-    func sortMessages(selfData: [NSObject : AnyObject]) {
+    func sortMessages(_ selfData: [AnyHashable: Any]) {
 
-        var allMessages = [[NSObject : AnyObject]]()
+        var allMessages = [[AnyHashable: Any]]()
 
-        if let mySquad = selfData["squad"] as? [NSObject : AnyObject] {
+        if let mySquad = selfData["squad"] as? [AnyHashable: Any] {
             
-            for (_, value) in mySquad {
+            for (_, someValue) in mySquad {
                 
-                var read = false
-                
-                if let readValue = value["read"] as? Bool {
+                if let value = someValue as? [AnyHashable : Any] {
                     
-                    read = readValue
+                    var read = false
                     
-                }
-
-                if let messages = value["messages"] as? [NSObject : AnyObject] {
-                    
-                let sortedMessages = messages.sort({ (a: (NSObject, AnyObject), b: (NSObject, AnyObject)) -> Bool in
+                    if let readValue = value["read"] as? Bool {
                         
-                        if a.1["timeStamp"] as? NSTimeInterval > b.1["timeStamp"] as? NSTimeInterval {
+                        read = readValue
+                        
+                    }
+                    
+                    if let messages = value["messages"] as? [AnyHashable : Any] {
+                        
+                        let sortedMessages = messages.sorted(by: { (a: (key: AnyHashable, value: Any), b: (key: AnyHashable, value: Any)) -> Bool in
                             
-                            return true
-                            
-                        } else {
+                            if let aValue = a.value as? [AnyHashable : Any], let bValue = b.value as? [AnyHashable : Any] {
+                                
+                                if aValue["timeStamp"] as? TimeInterval > bValue["timeStamp"] as? TimeInterval {
+                                    
+                                    return true
+                                    
+                                } else {
+                                    
+                                    return false
+                                    
+                                }
+                            }
                             
                             return false
+
+                        })
+                        
+                        if let first = sortedMessages.first?.1 as? [AnyHashable: Any] {
+                            
+                            var toAppend = first
+                            toAppend["type"] = "squad"
+                            toAppend["read"] = read
+                            allMessages.append(toAppend)
                             
                         }
-                    })
-
-                    if let first = sortedMessages.first?.1 as? [NSObject : AnyObject] {
-
-                        var toAppend = first
-                        toAppend["type"] = "squad"
-                        toAppend["read"] = read
-                        allMessages.append(toAppend)
-                        
                     }
                 }
             }
         }
 
-        if let myMatches = selfData["matches"] as? [NSObject : AnyObject] {
+        if let myMatches = selfData["matches"] as? [AnyHashable: Any] {
             
-            for (_, value) in myMatches {
+            for (_, someValue) in myMatches {
                 
-                var read = false
-                
-                if let readValue = value["read"] as? Bool {
+                if let value = someValue as? [AnyHashable : Any] {
                     
-                    read = readValue
+                    var read = false
                     
-                }
-                
-                if let messages = value["messages"] as? [NSObject : AnyObject] {
-                    
-                    let sortedMessages = messages.sort({ (a: (NSObject, AnyObject), b: (NSObject, AnyObject)) -> Bool in
+                    if let readValue = value["read"] as? Bool {
                         
-                        if a.1["timeStamp"] as? NSTimeInterval > b.1["timeStamp"] as? NSTimeInterval {
+                        read = readValue
+                        
+                    }
+                    
+                    if let messages = value["messages"] as? [AnyHashable: Any] {
+                        
+                        let sortedMessages = messages.sorted(by: { (a: (key: AnyHashable, value: Any), b: (key: AnyHashable, value: Any)) -> Bool in
                             
-                            return true
-                            
-                        } else {
+                            if let aValue = a.value as? [AnyHashable : Any], let bValue = b.value as? [AnyHashable : Any] {
+                                
+                                if aValue["timeStamp"] as? TimeInterval > bValue["timeStamp"] as? TimeInterval {
+                                    
+                                    return true
+                                    
+                                } else {
+                                    
+                                    return false
+                                    
+                                }
+                            }
                             
                             return false
                             
+                        })
+                        
+                        if let first = sortedMessages.first?.1 as? [AnyHashable: Any] {
+                            
+                            var toAppend = first
+                            toAppend["type"] = "matches"
+                            toAppend["read"] = read
+                            allMessages.append(toAppend)
+                            
                         }
-                    })
-                    
-                    if let first = sortedMessages.first?.1 as? [NSObject : AnyObject] {
-                        
-                        var toAppend = first
-                        toAppend["type"] = "matches"
-                        toAppend["read"] = read
-                        allMessages.append(toAppend)
-                        
                     }
                 }
             }
         }
         
         
-        if let myGroupChats = selfData["groupChats"] as? [NSObject : AnyObject] {
+        if let myGroupChats = selfData["groupChats"] as? [AnyHashable: Any] {
             
             for (_, value) in myGroupChats {
                 
-                if let valueToAdd = value as? [NSObject : AnyObject] {
+                if let valueToAdd = value as? [AnyHashable: Any] {
                     
                     var toAppend = valueToAdd
                     toAppend["type"] = "groupChats"
@@ -170,9 +208,9 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
         
         
 
-        allMessages.sortInPlace { (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
+        allMessages.sort { (a: [AnyHashable: Any], b: [AnyHashable: Any]) -> Bool in
             
-            if a["timeStamp"] as? NSTimeInterval > b["timeStamp"] as? NSTimeInterval {
+            if a["timeStamp"] as? TimeInterval > b["timeStamp"] as? TimeInterval {
                 
                 return true
                 
@@ -204,7 +242,7 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
     func addGestureRecognizers(){
         
         let rightSwipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(showVibes))
-        rightSwipeGestureRecognizer.direction = UISwipeGestureRecognizerDirection.Right
+        rightSwipeGestureRecognizer.direction = UISwipeGestureRecognizerDirection.right
         rightSwipeGestureRecognizer.delegate = self
         
         self.globTableView.addGestureRecognizer(rightSwipeGestureRecognizer)
@@ -225,21 +263,21 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
     
     
     //TableView Delegates
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         return tableViewMessages.count
         
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         tableView.allowsSelection = false
         
-        let cell = tableView.dequeueReusableCellWithIdentifier("messageTableCell", forIndexPath: indexPath) as! MessageTableCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "messageTableCell", for: indexPath) as! MessageTableCell
         
         cell.messagesController = self
         
-        cell.loadCell(tableViewMessages[indexPath.row])
+        cell.loadCell(tableViewMessages[(indexPath as NSIndexPath).row])
         
         return cell
         
@@ -248,15 +286,15 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
 
     
     //Collection View Delegates
-    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
         return globMatches.count
         
     }
     
-    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("matchCell", forIndexPath: indexPath) as! MatchCollectionViewCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "matchCell", for: indexPath) as! MatchCollectionViewCell
         
         
         var diameter: CGFloat!
@@ -273,17 +311,17 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
         
         cell.indicatorOutlet.layer.cornerRadius = 8
         cell.indicatorOutlet.layer.borderWidth = 2
-        cell.indicatorOutlet.layer.borderColor = UIColor.whiteColor().CGColor
+        cell.indicatorOutlet.layer.borderColor = UIColor.white.cgColor
         
         cell.messagesController = self
         
-        cell.loadCell(globMatches[indexPath.row])
+        cell.loadCell(globMatches[(indexPath as NSIndexPath).row])
         
         return cell
         
     }
     
-    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
         var diameter: CGFloat = 0.0
         
@@ -302,7 +340,7 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
     
     
     
-    override func viewDidAppear(animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         
         print("view did appear")
         if let rootHeight = rootController?.view.bounds.height {
@@ -311,13 +349,13 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
     }
     
     
-    func gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWithGestureRecognizer otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         
         return true
         
     }
     
-    func scrollViewWillEndDragging(scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
 
         print(velocity.y)
         
@@ -348,10 +386,10 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
         
         let view = UIView()
         
-        view.frame = CGRect(origin: CGPointZero, size: CGSize(width: self.view.bounds.width
+        view.frame = CGRect(origin: CGPoint.zero, size: CGSize(width: self.view.bounds.width
             , height: 50))
         
-        view.backgroundColor = UIColor.whiteColor()
+        view.backgroundColor = UIColor.white
         
         globTableView.tableFooterView = view
         

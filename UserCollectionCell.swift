@@ -22,7 +22,7 @@ class UserCollectionCell: UICollectionViewCell {
     
     var userUID = ""
 
-    @IBAction func goToUser(sender: AnyObject) {
+    @IBAction func goToUser(_ sender: AnyObject) {
 
         if let uid = FIRAuth.auth()?.currentUser?.uid {
             
@@ -42,10 +42,10 @@ class UserCollectionCell: UICollectionViewCell {
         }
     }
 
-    func updateUI(data: [NSObject : AnyObject]){
+    func updateUI(_ data: [AnyHashable: Any]){
         
         userNameOutlet.adjustsFontSizeToFitWidth = true
-        userNameOutlet.baselineAdjustment = .AlignCenters
+        userNameOutlet.baselineAdjustment = .alignCenters
         
         
         if let uid = data["uid"] as? String {
@@ -55,7 +55,7 @@ class UserCollectionCell: UICollectionViewCell {
         }
         
         
-        if let firstName = data["firstName"] as? String, lastName = data["lastName"] as? String {
+        if let firstName = data["firstName"] as? String, let lastName = data["lastName"] as? String {
             
             let name = firstName + " " + lastName
             
@@ -63,9 +63,9 @@ class UserCollectionCell: UICollectionViewCell {
             
         }
         
-        if let profileString = data["profilePicture"] as? String, url = NSURL(string: profileString){
+        if let profileString = data["profilePicture"] as? String, let url = URL(string: profileString){
             
-            imageOutlet.sd_setImageWithURL(url)
+            imageOutlet.sd_setImage(with: url)
             
         }
         

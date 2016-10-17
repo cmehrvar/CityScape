@@ -15,7 +15,7 @@ class VibeHeaderProfilePic: UIImageView {
         super.awakeFromNib()
         layer.cornerRadius = 17
         layer.borderWidth = 2
-        layer.borderColor = UIColor.whiteColor().CGColor
+        layer.borderColor = UIColor.white.cgColor
         self.clipsToBounds = true
         
     }

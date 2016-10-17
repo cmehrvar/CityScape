@@ -11,6 +11,26 @@ import Firebase
 import FirebaseDatabase
 import FirebaseAuth
 import NYAlertViewController
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
+fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l > r
+  default:
+    return rhs < lhs
+  }
+}
+
 
 class ComposeChatController: UIViewController, UITableViewDataSource, UITableViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     
@@ -24,22 +44,22 @@ class ComposeChatController: UIViewController, UITableViewDataSource, UITableVie
     
     var userSelected = [String : Int]()
     
-    var squad = [[NSObject : AnyObject]]()
-    var selectedSquad = [[NSObject : AnyObject]]()
-    var dataSourceForSearchResult = [[NSObject : AnyObject]]()
+    var squad = [[AnyHashable: Any]]()
+    var selectedSquad = [[AnyHashable: Any]]()
+    var dataSourceForSearchResult = [[AnyHashable: Any]]()
     
     var searchBarActive = false
     
     //Actions
-    @IBAction func getTalkin(sender: AnyObject) {
+    @IBAction func getTalkin(_ sender: AnyObject) {
         
         if selectedSquad.count == 1 {
             
-            if let first = selectedSquad.first, uid = first["uid"] as? String, firstName = first["firstName"] as? String, lastName = first["lastName"] as? String {
+            if let first = selectedSquad.first, let uid = first["uid"] as? String, let firstName = first["firstName"] as? String, let lastName = first["lastName"] as? String {
                 
                 let ref = FIRDatabase.database().reference().child("users").child(uid)
                 
-                ref.child("profilePicture").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                ref.child("profilePicture").observeSingleEvent(of: .value, with: { (snapshot) in
                     
                     if let profileString = snapshot.value as? String {
                         
@@ -67,112 +87,107 @@ class ComposeChatController: UIViewController, UITableViewDataSource, UITableVie
             
             alertConroller.backgroundTapDismissalGestureEnabled = true
             
-            alertConroller.titleColor = UIColor.redColor()
-            alertConroller.buttonColor = UIColor.redColor()
-            alertConroller.buttonTitleColor = UIColor.whiteColor()
+            alertConroller.titleColor = UIColor.red
+            alertConroller.buttonColor = UIColor.red
+            alertConroller.buttonTitleColor = UIColor.white
             
-            alertConroller.addTextFieldWithConfigurationHandler({ (textField) in
+            alertConroller.addTextField(configurationHandler: { (textField) in
                 
-                textField.textAlignment = .Center
-                textField.autocorrectionType = .No
-                scopeTextField = textField
+                textField?.textAlignment = .center
+                textField?.autocorrectionType = .no
+                scopeTextField = textField!
                 
             })
             
-            let cancelAction = NYAlertAction(
-                title: "Create Chat",
-                style: .Default,
+            let cancelAction = NYAlertAction(title: "Create Chat", style: .default, handler: { (action) in
                 
-                handler: { (action: NYAlertAction!) -> Void in
-
-                    if let chatTitle = scopeTextField.text {
+                if let chatTitle = scopeTextField.text {
+                    
+                    if chatTitle != "" {
                         
-                        if chatTitle != "" {
+                        //Create chat
+                        print("create chat with title: \(chatTitle)")
+                        
+                        var memberUIDs = [String : Bool]()
+                        
+                        for member in scopeSelectedSquad {
                             
-                            //Create chat
-                            print("create chat with title: \(chatTitle)")
-                            
-                            var memberUIDs = [String : Bool]()
-                            
-                            for member in scopeSelectedSquad {
+                            if let uid = member["uid"] as? String {
                                 
-                                if let uid = member["uid"] as? String {
+                                memberUIDs[uid] = true
+                                
+                            }
+                        }
+                        
+                        if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                            
+                            memberUIDs[selfUID] = true
+                            
+                        }
+                        
+                        let ref = FIRDatabase.database().reference().child("groupChats")
+                        let chatKey = ref.childByAutoId().key
+                        let timeStamp = Date().timeIntervalSince1970
+                        
+                        let chatItem = [
+                            
+                            "title" : chatTitle,
+                            "members" : memberUIDs,
+                            "key" : chatKey,
+                            "timeStamp" : timeStamp
+                            
+                        ] as [String : Any]
+                        
+                        ref.child(chatKey).setValue(chatItem)
+                        
+                        let userChatItem = [
+                            
+                            "title" : chatTitle,
+                            "key" : chatKey,
+                            "timeStamp" : timeStamp,
+                            "members" : memberUIDs,
+                            "read" : false
+                            
+                            
+                        ] as [String : Any]
+                        
+                        if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                            FIRDatabase.database().reference().child("users").child(selfUID).child("groupChats").child(chatKey).setValue(userChatItem)
+                            
+                        }
+                        
+                        for (key, _) in memberUIDs {
+                            
+                            FIRDatabase.database().reference().child("users").child(key).child("groupChats").child(chatKey).setValue(userChatItem)
+                            
+                        }
+                        
+                        self.dismiss(animated: true, completion: {
+                            
+                            self.rootController?.composeChat(false, completion: { (bool) in
+                                
+                                self.rootController?.toggleChat("groupChats", key: chatKey, city: nil, firstName: nil, lastName: nil, profile: nil, completion: { (bool) in
                                     
-                                    memberUIDs[uid] = true
+                                    print("group chat toggled")
                                     
-                                }
-                            }
-                            
-                            if let selfUID = FIRAuth.auth()?.currentUser?.uid {
-                                
-                                memberUIDs[selfUID] = true
-                                
-                            }
-                            
-                            let ref = FIRDatabase.database().reference().child("groupChats")
-                            let chatKey = ref.childByAutoId().key
-                            let timeStamp = NSDate().timeIntervalSince1970
-                            
-                            let chatItem = [
-                                
-                                "title" : chatTitle,
-                                "members" : memberUIDs,
-                                "key" : chatKey,
-                                "timeStamp" : timeStamp
-                                
-                            ]
-                            
-                            ref.child(chatKey).setValue(chatItem)
-                            
-                            let userChatItem = [
-                                
-                                "title" : chatTitle,
-                                "key" : chatKey,
-                                "timeStamp" : timeStamp,
-                                "members" : memberUIDs,
-                                "read" : false
-                                
-                                
-                            ]
-
-                            if let selfUID = FIRAuth.auth()?.currentUser?.uid {
-                                FIRDatabase.database().reference().child("users").child(selfUID).child("groupChats").child(chatKey).setValue(userChatItem)
-                                
-                            }
-                            
-                            for (key, _) in memberUIDs {
-                                
-                                FIRDatabase.database().reference().child("users").child(key).child("groupChats").child(chatKey).setValue(userChatItem)
-
-                            }
-
-                            self.dismissViewControllerAnimated(true, completion: {
-                                
-                                self.rootController?.composeChat(false, completion: { (bool) in
-                                    
-                                    self.rootController?.toggleChat("groupChats", key: chatKey, city: nil, firstName: nil, lastName: nil, profile: nil, completion: { (bool) in
-                                        
-                                        print("group chat toggled")
-                                        
-                                    })
                                 })
                             })
-                        }
+                        })
                     }
                 }
-            )
-            
+            })
+
             alertConroller.addAction(cancelAction)
             
             // Present the alert view controller
-            self.presentViewController(alertConroller, animated: true, completion: nil)
+            self.present(alertConroller, animated: true, completion: nil)
             
             
         }
     }
     
     
-    @IBAction func cancel(sender: AnyObject) {
+    @IBAction func cancel(_ sender: AnyObject) {
         
         rootController?.composeChat(false, completion: { (bool) in
             
@@ -183,7 +198,7 @@ class ComposeChatController: UIViewController, UITableViewDataSource, UITableVie
     
     
     //Functions
-    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         
         if searchText.characters.count > 0 {
             
@@ -202,15 +217,15 @@ class ComposeChatController: UIViewController, UITableViewDataSource, UITableVie
         }
     }
     
-    func filterContentForSearchText(searchText: String){
+    func filterContentForSearchText(_ searchText: String){
         
-        dataSourceForSearchResult = squad.filter({ (user: [NSObject : AnyObject]) -> Bool in
+        dataSourceForSearchResult = squad.filter({ (user: [AnyHashable: Any]) -> Bool in
             
-            if let firstName = user["firstName"] as? String, lastName = user["lastName"] as? String {
+            if let firstName = user["firstName"] as? String, let lastName = user["lastName"] as? String {
                 
                 let name = firstName + " " + lastName
                 
-                return name.containsString(searchText)
+                return name.contains(searchText)
                 
             } else {
                 
@@ -219,20 +234,20 @@ class ComposeChatController: UIViewController, UITableViewDataSource, UITableVie
         })
     }
     
-    func loadTableView(data: [NSObject : AnyObject]){
+    func loadTableView(_ data: [AnyHashable: Any]){
         
-        var scopeSquad = [[NSObject : AnyObject]]()
+        var scopeSquad = [[AnyHashable: Any]]()
         
         for (_, value) in data {
             
-            if let valueToAdd = value as? [NSObject : AnyObject] {
+            if let valueToAdd = value as? [AnyHashable: Any] {
                 
                 scopeSquad.append(valueToAdd)
                 
             }
         }
         
-        scopeSquad.sortInPlace { (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
+        scopeSquad.sort { (a: [AnyHashable: Any], b: [AnyHashable: Any]) -> Bool in
             
             if a["lastName"] as? String > b["lastName"] as? String {
                 
@@ -252,20 +267,20 @@ class ComposeChatController: UIViewController, UITableViewDataSource, UITableVie
     
     
     //CollectionView Delegates
-    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
         return selectedSquad.count
         
     }
     
     
-    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("squadChatCell", forIndexPath: indexPath) as! ComposeChatCollectionCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "squadChatCell", for: indexPath) as! ComposeChatCollectionCell
 
         cell.composeController = self
         
-        if let userUid = selectedSquad[indexPath.row]["uid"] as? String {
+        if let userUid = selectedSquad[(indexPath as NSIndexPath).row]["uid"] as? String {
             
             cell.loadData(userUid)
             
@@ -275,7 +290,7 @@ class ComposeChatController: UIViewController, UITableViewDataSource, UITableVie
     }
     
     
-    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
         return CGSize(width: 96, height: 103)
     }
@@ -283,7 +298,7 @@ class ComposeChatController: UIViewController, UITableViewDataSource, UITableVie
     
     
     //TableView Delegates
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         if searchBarActive {
             
@@ -297,19 +312,19 @@ class ComposeChatController: UIViewController, UITableViewDataSource, UITableVie
     }
     
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCellWithIdentifier("squadSelectCell", forIndexPath: indexPath) as! ComposeTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "squadSelectCell", for: indexPath) as! ComposeTableViewCell
         
         cell.composeController = self
         
         if searchBarActive {
             
-            cell.loadData(dataSourceForSearchResult[indexPath.row])
+            cell.loadData(dataSourceForSearchResult[(indexPath as NSIndexPath).row])
             
         } else {
             
-            cell.loadData(squad[indexPath.row])
+            cell.loadData(squad[(indexPath as NSIndexPath).row])
             
         }
         
@@ -342,12 +357,12 @@ class ComposeChatController: UIViewController, UITableViewDataSource, UITableVie
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(showKeyboard), name: UIKeyboardWillShowNotification, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(hideKeyboard), name: UIKeyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(showKeyboard), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(hideKeyboard), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
         
-        getTalkinOutlet.enabled = false
-        getTalkinOutlet.setTitleColor(UIColor.whiteColor(), forState: .Normal)
-        getTalkinOutlet.setTitleColor(UIColor.lightGrayColor(), forState: .Disabled)
+        getTalkinOutlet.isEnabled = false
+        getTalkinOutlet.setTitleColor(UIColor.white, for: UIControlState())
+        getTalkinOutlet.setTitleColor(UIColor.lightGray, for: .disabled)
         
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))

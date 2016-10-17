@@ -27,7 +27,7 @@ class MessageTableCell: UITableViewCell {
     @IBOutlet weak var textOutlet: UILabel!
     @IBOutlet weak var typeIndicatorImageOutlet: UIImageView!
 
-    @IBAction func goToMessage(sender: AnyObject) {
+    @IBAction func goToMessage(_ sender: AnyObject) {
  
         messagesController?.rootController?.toggleChat(type, key: uid, city: nil, firstName: firstName, lastName: lastName, profile: profile, completion: { (bool) in
             
@@ -37,12 +37,12 @@ class MessageTableCell: UITableViewCell {
     }
 
     
-    func loadCell(data: [NSObject : AnyObject]) {
+    func loadCell(_ data: [AnyHashable: Any]) {
         
         var scopeUID = ""
         
         nameOutlet.adjustsFontSizeToFitWidth = true
-        nameOutlet.baselineAdjustment = .AlignCenters
+        nameOutlet.baselineAdjustment = .alignCenters
   
         if let read = data["read"] as? Bool {
             
@@ -107,9 +107,9 @@ class MessageTableCell: UITableViewCell {
                 
             }
             
-            if let chatPhoto = data["groupPhoto"] as? String, url = NSURL(string: chatPhoto) {
+            if let chatPhoto = data["groupPhoto"] as? String, let url = URL(string: chatPhoto) {
 
-                self.profileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                self.profileOutlet.sd_setImage(with: url, placeholderImage: nil)
  
             } else {
                 
@@ -127,14 +127,14 @@ class MessageTableCell: UITableViewCell {
                 
             }
             
-            if let senderId = data["senderId"] as? String, selfUID = FIRAuth.auth()?.currentUser?.uid {
+            if let senderId = data["senderId"] as? String, let selfUID = FIRAuth.auth()?.currentUser?.uid {
                 
                 if senderId != selfUID {
                     
                     self.uid = senderId
                     scopeUID = senderId
                     
-                    if let firstName = data["firstName"] as? String, lastName = data["lastName"] as? String {
+                    if let firstName = data["firstName"] as? String, let lastName = data["lastName"] as? String {
                         
                         self.firstName = firstName
                         self.lastName = lastName
@@ -152,11 +152,11 @@ class MessageTableCell: UITableViewCell {
                         
                         let yourRef = FIRDatabase.database().reference().child("users").child(userUid)
                         
-                        yourRef.child("firstName").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                        yourRef.child("firstName").observeSingleEvent(of: .value, with: { (snapshot) in
                             
                             if let firstName = snapshot.value as? String {
                                 
-                                yourRef.child("lastName").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                                yourRef.child("lastName").observeSingleEvent(of: .value, with: { (snapshot) in
                                     
                                     if let lastName = snapshot.value as? String {
                                         
@@ -181,21 +181,21 @@ class MessageTableCell: UITableViewCell {
                 
                 let ref = FIRDatabase.database().reference().child("users").child(scopeUID)
                 
-                ref.child("profilePicture").observeEventType(.Value, withBlock: { (snapshot) in
+                ref.child("profilePicture").observe(.value, with: { (snapshot) in
                     
                     if self.uid == scopeUID {
                         
-                        if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
+                        if let profileString = snapshot.value as? String, let url = URL(string: profileString) {
                             
                             self.profile = profileString
                             
-                            self.profileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                            self.profileOutlet.sd_setImage(with: url, placeholderImage: nil)
                             
                         }
                     }
                 })
                 
-                ref.child("online").observeEventType(.Value, withBlock: { (snapshot) in
+                ref.child("online").observe(.value, with: { (snapshot) in
                     
                     if self.uid == scopeUID {
      
@@ -203,11 +203,11 @@ class MessageTableCell: UITableViewCell {
                             
                             if online {
                                 
-                                self.onlineIndicatorOutlet.backgroundColor = UIColor.greenColor()
+                                self.onlineIndicatorOutlet.backgroundColor = UIColor.green
                                 
                             } else {
                                 
-                                self.onlineIndicatorOutlet.backgroundColor = UIColor.redColor()
+                                self.onlineIndicatorOutlet.backgroundColor = UIColor.red
                                 
                             }
                         }
@@ -223,11 +223,11 @@ class MessageTableCell: UITableViewCell {
         
         onlineIndicatorOutlet.layer.cornerRadius = 8
         onlineIndicatorOutlet.layer.borderWidth = 2
-        onlineIndicatorOutlet.layer.borderColor = UIColor.whiteColor().CGColor
+        onlineIndicatorOutlet.layer.borderColor = UIColor.white.cgColor
         
     }
     
-    override func setSelected(selected: Bool, animated: Bool) {
+    override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
         
         // Configure the view for the selected state

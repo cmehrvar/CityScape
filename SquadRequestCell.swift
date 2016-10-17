@@ -32,7 +32,7 @@ class SquadRequestCell: UITableViewCell {
     @IBOutlet weak var unreadViewOutlet: UIView!
     
 
-    @IBAction func toProfile(sender: AnyObject) {
+    @IBAction func toProfile(_ sender: AnyObject) {
         
         let scopeUID = uid
         
@@ -48,7 +48,7 @@ class SquadRequestCell: UITableViewCell {
     
     
     
-    @IBAction func deny(sender: AnyObject) {
+    @IBAction func deny(_ sender: AnyObject) {
 
         self.unreadViewOutlet.alpha = 0
         
@@ -63,16 +63,16 @@ class SquadRequestCell: UITableViewCell {
             
         }
         
-        UIView.animateWithDuration(0.3, animations: {
+        UIView.animate(withDuration: 0.3, animations: {
             
-            self.backgroundColor = UIColor.redColor()
+            self.backgroundColor = UIColor.red
             self.layoutIfNeeded()
             
-        }) { (bool) in
+        }, completion: { (bool) in
             
-            UIView.animateWithDuration(0.3, animations: {
+            UIView.animate(withDuration: 0.3, animations: {
                 
-                self.backgroundColor = UIColor.whiteColor()
+                self.backgroundColor = UIColor.white
                 self.layoutIfNeeded()
                 
                 }, completion: { (bool) in
@@ -80,10 +80,10 @@ class SquadRequestCell: UITableViewCell {
                     self.notificationController?.globTableViewOutlet.reloadData()
                     
             })
-        }
+        }) 
     }
     
-    @IBAction func approve(sender: AnyObject) {
+    @IBAction func approve(_ sender: AnyObject) {
 
         self.unreadViewOutlet.alpha = 0
         
@@ -111,7 +111,7 @@ class SquadRequestCell: UITableViewCell {
             let scopeFirstName = firstName
             let scopeLastName = lastName
             
-            if let selfUID = FIRAuth.auth()?.currentUser?.uid, selfData = self.notificationController?.rootController?.selfData, myFirstName = selfData["firstName"] as? String, myLastName = selfData["lastName"] as? String {
+            if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.notificationController?.rootController?.selfData, let myFirstName = selfData["firstName"] as? String, let myLastName = selfData["lastName"] as? String {
                 
                 let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
 ref.child("notifications").child(scopeUID).child("squadRequest").updateChildValues(["status" : "approved"])
@@ -121,9 +121,9 @@ ref.child("notifications").child(scopeUID).child("squadRequest").updateChildValu
 
                 let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
 
-                yourRef.child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                yourRef.child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
                     
-                    if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                    if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
                         
                         appDelegate.pushMessage(scopeUID, token: token, message: "\(myFirstName) is now in your squad!")
                         
@@ -132,22 +132,22 @@ ref.child("notifications").child(scopeUID).child("squadRequest").updateChildValu
                 })
 
                 
-                let timeInterval = NSDate().timeIntervalSince1970
+                let timeInterval = Date().timeIntervalSince1970
 
                 yourRef.child("notifications").child(selfUID).child("squadRequest").setValue(["firstName" : myFirstName, "lastName" : myLastName, "type" : "addedYou", "timeStamp" : timeInterval, "uid" : selfUID, "read" : false])
                 
                 yourRef.child("squad").child(selfUID).setValue(["firstName" : myFirstName, "lastName" : myLastName, "uid" : selfUID])
                 
-                UIView.animateWithDuration(0.3, animations: {
+                UIView.animate(withDuration: 0.3, animations: {
                     
-                    self.backgroundColor = UIColor.greenColor()
+                    self.backgroundColor = UIColor.green
                     self.layoutIfNeeded()
                     
-                }) { (bool) in
+                }, completion: { (bool) in
                     
-                    UIView.animateWithDuration(0.3, animations: {
+                    UIView.animate(withDuration: 0.3, animations: {
                         
-                        self.backgroundColor = UIColor.whiteColor()
+                        self.backgroundColor = UIColor.white
                         self.layoutIfNeeded()
                         
                         }, completion: { (bool) in
@@ -155,12 +155,12 @@ ref.child("notifications").child(scopeUID).child("squadRequest").updateChildValu
                             self.notificationController?.globTableViewOutlet.reloadData()
                             
                     })
-                }
+                }) 
             }
         }
     }
 
-    func loadCell(data: [NSObject : AnyObject]) {
+    func loadCell(_ data: [AnyHashable: Any]) {
 
         if let read = data["read"] as? Bool {
             
@@ -177,8 +177,8 @@ ref.child("notifications").child(scopeUID).child("squadRequest").updateChildValu
         
         if data["status"] as? String == "approved" || data["type"] as? String == "addedYou" {
             
-            self.denyButtonOutlet.enabled = false
-            self.approveButtonOutlet.enabled = true
+            self.denyButtonOutlet.isEnabled = false
+            self.approveButtonOutlet.isEnabled = true
             
             inSquad = true
             
@@ -187,8 +187,8 @@ ref.child("notifications").child(scopeUID).child("squadRequest").updateChildValu
             
         } else {
             
-            self.denyButtonOutlet.enabled = true
-            self.approveButtonOutlet.enabled = true
+            self.denyButtonOutlet.isEnabled = true
+            self.approveButtonOutlet.isEnabled = true
             
             inSquad = false
             
@@ -203,18 +203,18 @@ ref.child("notifications").child(scopeUID).child("squadRequest").updateChildValu
 
             let ref = FIRDatabase.database().reference().child("users").child(userUID)
 
-            ref.child("profilePicture").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+            ref.child("profilePicture").observeSingleEvent(of: .value, with: { (snapshot) in
 
-                if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
+                if let profileString = snapshot.value as? String, let url = URL(string: profileString) {
 
                     self.profile = profileString
-                    self.profilePictureOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                    self.profilePictureOutlet.sd_setImage(with: url, placeholderImage: nil)
 
                 }
             })
         }
         
-        if let firstName = data["firstName"] as? String, lastName = data["lastName"] as? String {
+        if let firstName = data["firstName"] as? String, let lastName = data["lastName"] as? String {
             
             self.firstName = firstName
             self.lastName = lastName
@@ -231,7 +231,7 @@ ref.child("notifications").child(scopeUID).child("squadRequest").updateChildValu
         // Initialization code
     }
 
-    override func setSelected(selected: Bool, animated: Bool) {
+    override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
 
         // Configure the view for the selected state

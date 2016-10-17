@@ -33,7 +33,7 @@ class LikeButtonsCollectionCell: UICollectionViewCell {
     @IBOutlet weak var button5Outlet: UIButton!
     
     
-    func add(button: String){
+    func add(_ button: String){
         
         let scopePostKey = postKey
         
@@ -43,7 +43,7 @@ class LikeButtonsCollectionCell: UICollectionViewCell {
             ref.child("liked").child(selfUID).setValue(true)
         }
         
-        ref.child(button).observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+        ref.child(button).observeSingleEvent(of: .value, with: { (snapshot) in
             
             if snapshot.exists(){
                 
@@ -67,7 +67,7 @@ class LikeButtonsCollectionCell: UICollectionViewCell {
             
             if selfUID != uid {
                 
-                let timeStamp = NSDate().timeIntervalSince1970
+                let timeStamp = Date().timeIntervalSince1970
                 
                 let notificationItem = [
                     
@@ -80,7 +80,7 @@ class LikeButtonsCollectionCell: UICollectionViewCell {
                     "senderUid" : selfUID,
                     "image" : image
                     
-                ]
+                ] as [String : Any]
                 
                 
                 let userRef = FIRDatabase.database().reference().child("users").child(uid)
@@ -92,20 +92,20 @@ class LikeButtonsCollectionCell: UICollectionViewCell {
     
     
     
-    @IBAction func one(sender: AnyObject) {
+    @IBAction func one(_ sender: AnyObject) {
         
         add("one")
     }
     
     
-    @IBAction func two(sender: AnyObject) {
+    @IBAction func two(_ sender: AnyObject) {
         
         add("two")
         
     }
     
     
-    @IBAction func three(sender: AnyObject) {
+    @IBAction func three(_ sender: AnyObject) {
         
         add("three")
         
@@ -114,20 +114,20 @@ class LikeButtonsCollectionCell: UICollectionViewCell {
     }
     
     
-    @IBAction func four(sender: AnyObject) {
+    @IBAction func four(_ sender: AnyObject) {
         
         add("four")
         
         
     }
     
-    @IBAction func five(sender: AnyObject) {
+    @IBAction func five(_ sender: AnyObject) {
         
         add("five")
     }
     
     
-    func loadData(data: [NSObject : AnyObject]) {
+    func loadData(_ data: [AnyHashable: Any]) {
         
         if let uid = data["userUID"] as? String {
             
@@ -141,59 +141,59 @@ class LikeButtonsCollectionCell: UICollectionViewCell {
             
         }
         
-        button1Outlet.enabled = false
-        button2Outlet.enabled = false
-        button3Outlet.enabled = false
-        button4Outlet.enabled = false
-        button5Outlet.enabled = false
+        button1Outlet.isEnabled = false
+        button2Outlet.isEnabled = false
+        button3Outlet.isEnabled = false
+        button4Outlet.isEnabled = false
+        button5Outlet.isEnabled = false
         
-        if let city = data["city"] as? String,  key = data["postChildKey"] as? String {
+        if let city = data["city"] as? String,  let key = data["postChildKey"] as? String {
             
             self.city = city
             self.postKey = key
             
             let ref = FIRDatabase.database().reference().child("posts").child(city).child(postKey)
 
-            ref.child("liked").observeEventType(.Value, withBlock: { (snapshot) in
+            ref.child("liked").observe(.value, with: { (snapshot) in
                 
                 if key == self.postKey {
                     
                     if snapshot.exists() {
                         
-                        if let usersLiked = snapshot.value as? [String : Bool], selfUID = FIRAuth.auth()?.currentUser?.uid {
+                        if let usersLiked = snapshot.value as? [String : Bool], let selfUID = FIRAuth.auth()?.currentUser?.uid {
                             
                             if usersLiked[selfUID] == nil {
                                 
-                                self.button1Outlet.enabled = true
-                                self.button2Outlet.enabled = true
-                                self.button3Outlet.enabled = true
-                                self.button4Outlet.enabled = true
-                                self.button5Outlet.enabled = true
+                                self.button1Outlet.isEnabled = true
+                                self.button2Outlet.isEnabled = true
+                                self.button3Outlet.isEnabled = true
+                                self.button4Outlet.isEnabled = true
+                                self.button5Outlet.isEnabled = true
                                 
                             } else {
                                 
-                                self.button1Outlet.enabled = false
-                                self.button2Outlet.enabled = false
-                                self.button3Outlet.enabled = false
-                                self.button4Outlet.enabled = false
-                                self.button5Outlet.enabled = false
+                                self.button1Outlet.isEnabled = false
+                                self.button2Outlet.isEnabled = false
+                                self.button3Outlet.isEnabled = false
+                                self.button4Outlet.isEnabled = false
+                                self.button5Outlet.isEnabled = false
 
                             }
                         }
                         
                     } else {
                         
-                        self.button1Outlet.enabled = true
-                        self.button2Outlet.enabled = true
-                        self.button3Outlet.enabled = true
-                        self.button4Outlet.enabled = true
-                        self.button5Outlet.enabled = true
+                        self.button1Outlet.isEnabled = true
+                        self.button2Outlet.isEnabled = true
+                        self.button3Outlet.isEnabled = true
+                        self.button4Outlet.isEnabled = true
+                        self.button5Outlet.isEnabled = true
                         
                     }
                 }
             })
 
-            ref.child("one").observeEventType(.Value, withBlock: { (snapshot) in
+            ref.child("one").observe(.value, with: { (snapshot) in
                 
                 if self.postKey == key {
                     
@@ -213,7 +213,7 @@ class LikeButtonsCollectionCell: UICollectionViewCell {
                 }
             })
 
-            ref.child("two").observeEventType(.Value, withBlock: { (snapshot) in
+            ref.child("two").observe(.value, with: { (snapshot) in
                 
                 if self.postKey == key {
                     
@@ -233,7 +233,7 @@ class LikeButtonsCollectionCell: UICollectionViewCell {
                 }
             })
             
-            ref.child("three").observeEventType(.Value, withBlock: { (snapshot) in
+            ref.child("three").observe(.value, with: { (snapshot) in
                 
                 if self.postKey == key {
                     
@@ -253,7 +253,7 @@ class LikeButtonsCollectionCell: UICollectionViewCell {
                 }
             })
 
-            ref.child("four").observeEventType(.Value, withBlock: { (snapshot) in
+            ref.child("four").observe(.value, with: { (snapshot) in
                 
                 if self.postKey == key {
                     
@@ -274,7 +274,7 @@ class LikeButtonsCollectionCell: UICollectionViewCell {
             })
             
             
-            ref.child("five").observeEventType(.Value, withBlock: { (snapshot) in
+            ref.child("five").observe(.value, with: { (snapshot) in
                 
                 if self.postKey == key {
                     

@@ -27,7 +27,7 @@ class MatchCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var indicatorOutlet: UIView!
 
     //Actions
-    @IBAction func openChat(sender: AnyObject) {
+    @IBAction func openChat(_ sender: AnyObject) {
         
         
         
@@ -47,7 +47,7 @@ class MatchCollectionViewCell: UICollectionViewCell {
     
 
     //Functions
-    func loadCell(data: [NSObject : AnyObject]){
+    func loadCell(_ data: [AnyHashable: Any]){
         
         nameOutlet.adjustsFontSizeToFitWidth = true
         
@@ -60,20 +60,20 @@ class MatchCollectionViewCell: UICollectionViewCell {
             
             let ref = FIRDatabase.database().reference().child("users").child(uid)
             
-            ref.child("profilePicture").observeEventType(.Value, withBlock: { (snapshot) in
+            ref.child("profilePicture").observe(.value, with: { (snapshot) in
                 
                 if self.uid == uid {
                     
-                    if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
+                    if let profileString = snapshot.value as? String, let url = URL(string: profileString) {
                         
                         self.profileString = profileString
-                        self.profileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                        self.profileOutlet.sd_setImage(with: url, placeholderImage: nil)
                         
                     }
                 }
             })
  
-            ref.child("online").observeEventType(.Value, withBlock: { (snapshot) in
+            ref.child("online").observe(.value, with: { (snapshot) in
                 
                 if self.uid == uid {
                     
@@ -81,11 +81,11 @@ class MatchCollectionViewCell: UICollectionViewCell {
                         
                         if online {
                             
-                            self.indicatorOutlet.backgroundColor = UIColor.greenColor()
+                            self.indicatorOutlet.backgroundColor = UIColor.green
                             
                         } else {
                             
-                            self.indicatorOutlet.backgroundColor = UIColor.redColor()
+                            self.indicatorOutlet.backgroundColor = UIColor.red
                             
                         }
                     }

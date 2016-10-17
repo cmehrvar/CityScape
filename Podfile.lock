@@ -1,9 +1,9 @@
 PODS:
-  - AWSCognito (2.4.7):
-    - AWSCore (= 2.4.7)
-  - AWSCore (2.4.7)
-  - AWSS3 (2.4.7):
-    - AWSCore (= 2.4.7)
+  - AWSCognito (2.4.10):
+    - AWSCore (= 2.4.10)
+  - AWSCore (2.4.10)
+  - AWSS3 (2.4.10):
+    - AWSCore (= 2.4.10)
   - Bolts (1.8.4):
     - Bolts/AppLinks (= 1.8.4)
     - Bolts/Tasks (= 1.8.4)
@@ -43,7 +43,7 @@ PODS:
     - FirebaseAnalytics (~> 3.2)
   - FirebaseInstanceID (1.0.8)
   - FLAnimatedImage (1.0.12)
-  - Fusuma (0.5.2)
+  - Fusuma (0.5.3)
   - GoogleInterchangeUtilities (1.2.1):
     - GoogleSymbolUtilities (~> 1.0)
   - GoogleNetworkingUtilities (1.2.1):
@@ -66,9 +66,9 @@ PODS:
   - THLabel (1.4.7)
 
 DEPENDENCIES:
-  - AWSCognito
-  - AWSCore
-  - AWSS3
+  - AWSCognito (~> 2.4.10)
+  - AWSCore (~> 2.4.10)
+  - AWSS3 (~> 2.4.10)
   - DownPicker
   - FBSDKCoreKit
   - FBSDKLoginKit
@@ -77,7 +77,7 @@ DEPENDENCIES:
   - Firebase/Auth
   - Firebase/Database
   - FLAnimatedImage
-  - Fusuma
+  - Fusuma (~> 0.5.3)
   - JSQMessagesViewController
   - NVActivityIndicatorView
   - NWPusher
@@ -86,9 +86,9 @@ DEPENDENCIES:
   - THLabel
 
 SPEC CHECKSUMS:
-  AWSCognito: 6aa404f15d1eb2b4b51f45322a409257b3248e79
-  AWSCore: 9a729a3c0050a51ece3547d546c327acdac7838a
-  AWSS3: 0f3c8ed11e04cd78cf86ed396c06330ab142db7a
+  AWSCognito: d9c6932091ceedac47e187ae04f0248505242cb0
+  AWSCore: c78eff928514e90075c3bd53f5ff2d9a77f8658e
+  AWSS3: 46dcb199860206d72820942ab82be93597338646
   Bolts: 8a7995239dbe724f9cba2248b766d48b7ebdd322
   DownPicker: c00ea63f08ae82116cc93d0eba74e86bf3d4c68e
   FBSDKCoreKit: 6e020b5db0b5bd1e01f5fb0902131befd129a502
@@ -100,7 +100,7 @@ SPEC CHECKSUMS:
   FirebaseDatabase: 59bea2e7dfd81b3b8b2f8e396caf1a52c2ced6f7
   FirebaseInstanceID: ba1e640935235e5fac39dfa816fe7660e72e1a8a
   FLAnimatedImage: 4a0b56255d9b05f18b6dd7ee06871be5d3b89e31
-  Fusuma: 7cdf6d3ee8e0e09335118a807408795523e20de8
+  Fusuma: 02ffb3a9943792519f2c0972263b750acb550a49
   GoogleInterchangeUtilities: def8415a862effc67d549d5b5b0b9c7a2f97d4de
   GoogleNetworkingUtilities: 3e83269048cfb498dc7ec83ab36813360965c74f
   GoogleParsingUtilities: 30b3896f9ee167dc78747f013d3de157ced1cadf
@@ -114,6 +114,6 @@ SPEC CHECKSUMS:
   SDWebImage: 35f9627a3e44b4f292a8a8ce6a531fa488239b91
   THLabel: 1a23e71d7738abfeacaf22ab409b981209b105ae
 
-PODFILE CHECKSUM: e78fae97ef8fab6c3f99bf478a342b5f85b2af42
+PODFILE CHECKSUM: 90490e3f44f5dab1cc0b4aabe9d82ce43f6fc0ca
 
 COCOAPODS: 1.0.1

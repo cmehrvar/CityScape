@@ -16,8 +16,8 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
     @IBOutlet weak var globCollectionView: UICollectionView!
     
     weak var searchController: SearchController?
-    var globCities = [[NSObject : AnyObject]]()
-    var dataSourceForSearchResult = [[NSObject : AnyObject]]()
+    var globCities = [[AnyHashable: Any]]()
+    var dataSourceForSearchResult = [[AnyHashable: Any]]()
 
     
     //Functions
@@ -25,35 +25,35 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
         
         if let selfData = searchController?.rootController?.selfData {
             
-            if let latitude = selfData["latitude"] as? CLLocationDegrees, longitude = selfData["longitude"] as? CLLocationDegrees {
+            if let latitude = selfData["latitude"] as? CLLocationDegrees, let longitude = selfData["longitude"] as? CLLocationDegrees {
                 
                 let center = CLLocation(latitude: latitude, longitude: longitude)
                 
                 let ref = FIRDatabase.database().reference().child("cityLocations")
                 
-                ref.observeEventType(.Value, withBlock: { (snapshot) in
+                ref.observe(.value, with: { (snapshot) in
                     
-                    if let actualValue = snapshot.value as? [NSObject : AnyObject] {
+                    if let actualValue = snapshot.value as? [AnyHashable: Any] {
                         
-                        var cities = [[NSObject : AnyObject]]()
+                        var cities = [[AnyHashable: Any]]()
                         
                         for (_, value) in actualValue {
                             
-                            if let city = value as? [NSObject : AnyObject] {
+                            if let city = value as? [AnyHashable: Any] {
                                 
                                 cities.append(city)
                                 
                             }
                         }
                         
-                        let sortedArray = cities.sort({ (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
+                        let sortedArray = cities.sorted(by: { (a: [AnyHashable: Any], b: [AnyHashable: Any]) -> Bool in
                             
-                            if let latitudeA = a["latitude"] as? CLLocationDegrees, latitudeB = b["latitude"] as? CLLocationDegrees, longitudeA = a["longitude"] as? CLLocationDegrees, longitudeB = b["longitude"] as? CLLocationDegrees {
+                            if let latitudeA = a["latitude"] as? CLLocationDegrees, let latitudeB = b["latitude"] as? CLLocationDegrees, let longitudeA = a["longitude"] as? CLLocationDegrees, let longitudeB = b["longitude"] as? CLLocationDegrees {
                                 
                                 let locA = CLLocation(latitude: latitudeA, longitude: longitudeA)
                                 let locB = CLLocation(latitude: latitudeB, longitude: longitudeB)
                                 
-                                if center.distanceFromLocation(locA) > center.distanceFromLocation(locB) {
+                                if center.distance(from: locA) > center.distance(from: locB) {
                                     
                                     return false
                                     
@@ -84,7 +84,7 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
     
     
     //CollectionView Delegates
-    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
         if let vc = searchController {
 
@@ -102,9 +102,9 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
         return 0
     }
     
-    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("cityCell", forIndexPath: indexPath) as! CityCollectionCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cityCell", for: indexPath) as! CityCollectionCell
         
         cell.cityController = self
         
@@ -112,10 +112,10 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
             
             if vc.searchBarActive {
                 
-                cell.updateUI(dataSourceForSearchResult[indexPath.row])
+                cell.updateUI(dataSourceForSearchResult[(indexPath as NSIndexPath).row])
 
             } else {
-                cell.updateUI(globCities[indexPath.row])
+                cell.updateUI(globCities[(indexPath as NSIndexPath).row])
             }
         }
 
@@ -124,13 +124,13 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
     }
     
     
-    func collectionView(collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, atIndexPath indexPath: NSIndexPath) -> UICollectionReusableView {
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         
         var reusableView = UICollectionReusableView()
         
         if kind == UICollectionElementKindSectionHeader {
             
-            let cell = collectionView.dequeueReusableSupplementaryViewOfKind(UICollectionElementKindSectionHeader, withReuseIdentifier: "headerCell", forIndexPath: indexPath) as! HeaderCollectionCell
+            let cell = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "headerCell", for: indexPath) as! HeaderCollectionCell
             
             cell.cityController = self
             cell.exploreOutlet.adjustsFontSizeToFitWidth = true
@@ -143,7 +143,7 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
     }
 
     
-    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         
         let width = self.view.bounds.width
         return CGSize(width: width, height: 100)
@@ -155,7 +155,7 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
     
 
     
-    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
         let width = self.view.bounds.width
         
@@ -165,7 +165,7 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
 
 
     //ScrollView Delegates
-    func scrollViewWillEndDragging(scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
         
         
         if velocity.y > 0 {
@@ -207,7 +207,7 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
         super.viewDidLoad()
         
         let leftSwipeGesture = UISwipeGestureRecognizer(target: self, action: #selector(swipeToUser))
-        leftSwipeGesture.direction = .Left
+        leftSwipeGesture.direction = .left
         leftSwipeGesture.delegate = self
         self.globCollectionView.addGestureRecognizer(leftSwipeGesture)
         

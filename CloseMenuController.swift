@@ -12,9 +12,9 @@ class CloseMenuController: UIViewController {
     
     weak var rootController: MainRootController?
     
-    @IBAction func closeMenu(sender: AnyObject) {
+    @IBAction func closeMenu(_ sender: AnyObject) {
         
-        if let menuRevealed = rootController?.menuIsRevealed, notificationRevealed = rootController?.notificationRevealed {
+        if let menuRevealed = rootController?.menuIsRevealed, let notificationRevealed = rootController?.notificationRevealed {
             
             if menuRevealed {
                 

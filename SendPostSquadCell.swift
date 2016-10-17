@@ -14,7 +14,7 @@ import FirebaseAuth
 class SendPostSquadCell: UITableViewCell {
 
     weak var handleController: HandlePostController?
-    var userData = [NSObject : AnyObject]()
+    var userData = [AnyHashable: Any]()
     var uid = ""
     
     @IBOutlet weak var profileOutlet: TableViewProfilePicView!
@@ -24,21 +24,21 @@ class SendPostSquadCell: UITableViewCell {
     @IBOutlet weak var selectedImageOutlet: UIImageView!
     
     
-    @IBAction func addToChat(sender: AnyObject) {
+    @IBAction func addToChat(_ sender: AnyObject) {
         
         if let selectedUsers = handleController?.selectedSquad {
             
             if selectedUsers[uid] != nil {
                 
                 //Remove
-                self.handleController?.selectedSquad.removeValueForKey(self.uid)
+                self.handleController?.selectedSquad.removeValue(forKey: self.uid as NSObject)
                 self.handleController?.globTableViewOutlet.reloadData()
 
 
             } else {
                 
                 print(uid, terminator: "")
-                self.handleController?.selectedSquad.updateValue(self.userData, forKey: self.uid)
+                self.handleController?.selectedSquad.updateValue(self.userData as AnyObject, forKey: self.uid as NSObject)
                 self.handleController?.globTableViewOutlet.reloadData()
 
             }
@@ -46,7 +46,7 @@ class SendPostSquadCell: UITableViewCell {
         } else {
             
             //Add
-            self.handleController?.selectedSquad.updateValue(self.userData, forKey: self.uid)
+            self.handleController?.selectedSquad.updateValue(self.userData as AnyObject, forKey: self.uid as NSObject)
             self.handleController?.globTableViewOutlet.reloadData()
 
         }
@@ -56,32 +56,32 @@ class SendPostSquadCell: UITableViewCell {
             
             if vc.selectedSquad.count == 0 {
                 
-                if vc.postToFeedSelected {
+                if vc.postToFeedSelected || vc.postToFacebookSelected {
 
-                    vc.shareOutlet.enabled = true
+                    vc.shareOutlet.isEnabled = true
                     
                 } else {
                     
-                    vc.shareOutlet.enabled = false
+                    vc.shareOutlet.isEnabled = false
                     
                 }
                 
             } else {
                 
-                vc.shareOutlet.enabled = true
+                vc.shareOutlet.isEnabled = true
                 
                 
             }
         }
     }
     
-    func loadData(data: [NSObject : AnyObject]) {
+    func loadData(_ data: [AnyHashable: Any]) {
         
         self.userData = data
         nameOutlet.adjustsFontSizeToFitWidth = true
-        nameOutlet.baselineAdjustment = .AlignCenters
+        nameOutlet.baselineAdjustment = .alignCenters
         
-        if let firstName = data["firstName"] as? String, lastName = data["lastName"] as? String {
+        if let firstName = data["firstName"] as? String, let lastName = data["lastName"] as? String {
             
             self.nameOutlet.text = firstName + " " + lastName
             
@@ -95,26 +95,26 @@ class SendPostSquadCell: UITableViewCell {
             
             if (handleController?.selectedSquad[uid]) != nil {
                 
-                self.selectedImageOutlet.backgroundColor = UIColor.redColor()
+                self.selectedImageOutlet.backgroundColor = UIColor.red
                 
             } else {
                 
-                self.selectedImageOutlet.backgroundColor = UIColor.clearColor()
+                self.selectedImageOutlet.backgroundColor = UIColor.clear
             }
             
-            ref.child("profilePicture").observeEventType(.Value, withBlock: { (snapshot) in
+            ref.child("profilePicture").observe(.value, with: { (snapshot) in
                 
-                if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
+                if let profileString = snapshot.value as? String, let url = URL(string: profileString) {
                     
                     if self.uid == uid {
                         
-                        self.profileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                        self.profileOutlet.sd_setImage(with: url, placeholderImage: nil)
                         
                     }
                 }
             })
             
-            ref.child("online").observeEventType(.Value, withBlock: { (snapshot) in
+            ref.child("online").observe(.value, with: { (snapshot) in
                 
                 if let online = snapshot.value as? Bool {
                     
@@ -122,11 +122,11 @@ class SendPostSquadCell: UITableViewCell {
                         
                         if online {
                             
-                            self.onlineIndicatorOutlet.backgroundColor = UIColor.greenColor()
+                            self.onlineIndicatorOutlet.backgroundColor = UIColor.green
                             
                         } else {
                             
-                            self.onlineIndicatorOutlet.backgroundColor = UIColor.redColor()
+                            self.onlineIndicatorOutlet.backgroundColor = UIColor.red
                             
                         }
                     }
@@ -134,7 +134,7 @@ class SendPostSquadCell: UITableViewCell {
             })
             
             
-            ref.child("cityRank").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+            ref.child("cityRank").observeSingleEvent(of: .value, with: { (snapshot) in
                 
                 if self.uid == uid {
                     
@@ -156,7 +156,7 @@ class SendPostSquadCell: UITableViewCell {
         // Initialization code
     }
 
-    override func setSelected(selected: Bool, animated: Bool) {
+    override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
 
         // Configure the view for the selected state

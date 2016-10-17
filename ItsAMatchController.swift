@@ -31,7 +31,7 @@ class ItsAMatchController: UIViewController {
     var profileString = ""
 
     //Actions
-    @IBAction func sendMessage(sender: AnyObject) {
+    @IBAction func sendMessage(_ sender: AnyObject) {
 
         rootController?.closeMatch(uid, profile: profileString, firstName: firstName, lastName: lastName, keepPlaying: false, completion: { (bool) in
 
@@ -42,7 +42,7 @@ class ItsAMatchController: UIViewController {
     }
     
     
-    @IBAction func keepPlaying(sender: AnyObject) {
+    @IBAction func keepPlaying(_ sender: AnyObject) {
         
         rootController?.closeMatch(uid, profile: profileString, firstName: firstName, lastName: lastName, keepPlaying: true, completion: { (bool) in
             
@@ -64,16 +64,16 @@ class ItsAMatchController: UIViewController {
         
         self.myProfileOutlet.layer.cornerRadius = ((screenWidth / 2.5) - 21) / 2
         self.myProfileOutlet.layer.borderWidth = 3
-        self.myProfileOutlet.layer.borderColor = UIColor.whiteColor().CGColor
+        self.myProfileOutlet.layer.borderColor = UIColor.white.cgColor
         
         self.yourProfileOutlet.layer.cornerRadius = ((screenWidth / 2.5) - 21) / 2
         self.yourProfileOutlet.layer.borderWidth = 3
-        self.yourProfileOutlet.layer.borderColor = UIColor.whiteColor().CGColor
+        self.yourProfileOutlet.layer.borderColor = UIColor.white.cgColor
         
     }
     
     //Launch Calls
-    override func viewDidAppear(animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         
         setStage()
 
@@ -83,7 +83,7 @@ class ItsAMatchController: UIViewController {
         super.viewDidLoad()
 
         likesYouOutlet.adjustsFontSizeToFitWidth = true
-        likesYouOutlet.baselineAdjustment = .None
+        likesYouOutlet.baselineAdjustment = .none
         likesYouOutlet.sizeToFit()
 
         // Do any additional setup after loading the view.

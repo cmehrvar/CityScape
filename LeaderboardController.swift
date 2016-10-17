@@ -16,24 +16,23 @@ class LeaderboardController: UIViewController, UITableViewDataSource, UITableVie
     weak var rootController: MainRootController?
     
     var leaders = [String]()
-    
-    
+
     @IBOutlet weak var globTableviewOutlet: UITableView!
     
     
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         return leaders.count
         
     }
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCellWithIdentifier("leaderCell", forIndexPath: indexPath) as! LeaderboardCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "leaderCell", for: indexPath) as! LeaderboardCell
         
-        cell.rankOutlet.text = "#\(indexPath.row + 1)"
+        cell.rankOutlet.text = "#\((indexPath as NSIndexPath).row + 1)"
         
-        cell.loadCell(leaders[indexPath.row])
+        cell.loadCell(leaders[(indexPath as NSIndexPath).row])
         
         return cell
         
@@ -45,13 +44,13 @@ class LeaderboardController: UIViewController, UITableViewDataSource, UITableVie
         
         let ref = FIRDatabase.database().reference().child("leaders")
         
-        ref.observeSingleEventOfType(.Value, withBlock:  { (snapshot) in
+        ref.observeSingleEvent(of: .value, with:  { (snapshot) in
             
             if let value = snapshot.value as? [String : Int] {
                 
                 var scopeLeaders = [String]()
                 
-                let sortedValue = value.sort({ (a: (String, Int), b: (String, Int)) -> Bool in
+                let sortedValue = value.sorted(by: { (a: (String, Int), b: (String, Int)) -> Bool in
                     
                     if a.1 > b.1 {
                         
@@ -78,7 +77,7 @@ class LeaderboardController: UIViewController, UITableViewDataSource, UITableVie
         })
     }
     
-    @IBAction func back(sender: AnyObject) {
+    @IBAction func back(_ sender: AnyObject) {
         
         rootController?.toggleLeaderboard({ (bool) in
             

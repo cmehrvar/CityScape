@@ -18,13 +18,13 @@ class InitialController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        FIRAuth.auth()?.addAuthStateDidChangeListener({ (auth, user) in
+        FIRAuth.auth()?.addStateDidChangeListener({ (auth, user) in
             
             if user != nil {
                 
-                let vc = self.storyboard?.instantiateViewControllerWithIdentifier("mainRootController") as! MainRootController
+                let vc = self.storyboard?.instantiateViewController(withIdentifier: "mainRootController") as! MainRootController
                 
-                self.presentViewController(vc, animated: true, completion: {
+                self.present(vc, animated: true, completion: {
 
                     vc.setStage()
                     
@@ -38,8 +38,8 @@ class InitialController: UIViewController {
             } else {
                 
                 FBSDKLoginManager().logOut()
-                let vc = self.storyboard?.instantiateViewControllerWithIdentifier("initial") as! LogInController
-                self.presentViewController(vc, animated: true, completion: nil)
+                let vc = self.storyboard?.instantiateViewController(withIdentifier: "initial") as! LogInController
+                self.present(vc, animated: true, completion: nil)
                 
             }
         })

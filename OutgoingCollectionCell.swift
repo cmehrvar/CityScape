@@ -19,7 +19,7 @@ class OutgoingCollectionCell: UICollectionViewCell {
     @IBOutlet weak var messageBubbleOutlet: UIView!
     @IBOutlet weak var textOutlet: UILabel!
     
-    func loadData(data: [NSObject : AnyObject]){
+    func loadData(_ data: [AnyHashable: Any]){
         
         messageBubbleOutlet.layer.cornerRadius = 8
         
@@ -35,13 +35,13 @@ class OutgoingCollectionCell: UICollectionViewCell {
             
             let ref = FIRDatabase.database().reference().child("users").child(uid)
             
-            ref.child("profilePicture").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+            ref.child("profilePicture").observeSingleEvent(of: .value, with: { (snapshot) in
                 
-                if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
+                if let profileString = snapshot.value as? String, let url = URL(string: profileString) {
                     
                     if self.uid == uid {
                         
-                        self.profileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                        self.profileOutlet.sd_setImage(with: url, placeholderImage: nil)
                         
                     }
                 }

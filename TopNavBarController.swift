@@ -19,7 +19,7 @@ class TopNavBarController: UIViewController {
     
 
     //Actions
-    @IBAction func toggleMenu(sender: AnyObject) {
+    @IBAction func toggleMenu(_ sender: AnyObject) {
         
         rootController?.toggleMenu({ (bool) in
             
@@ -29,7 +29,7 @@ class TopNavBarController: UIViewController {
     }
     
     
-    @IBAction func toggleNotification(sender: AnyObject) {
+    @IBAction func toggleNotification(_ sender: AnyObject) {
         
                 
         rootController?.toggleNotifications({ (bool) in
@@ -40,7 +40,7 @@ class TopNavBarController: UIViewController {
     }
     
     
-    @IBAction func logoToHome(sender: AnyObject) {
+    @IBAction func logoToHome(_ sender: AnyObject) {
         
         rootController?.toggleHome({ (bool) in
             
@@ -51,7 +51,7 @@ class TopNavBarController: UIViewController {
     
     var imageView = UIImageView()
     
-    override func viewDidAppear(animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         
         imageView.frame = view.bounds
         
@@ -61,7 +61,7 @@ class TopNavBarController: UIViewController {
         super.viewDidLoad()
 
         imageView = UIImageView(image: UIImage(named: "topGradient"))
-        imageView.contentMode = .ScaleAspectFill
+        imageView.contentMode = .scaleAspectFill
         view.addSubview(imageView)
         
         // Do any additional setup after loading the view.

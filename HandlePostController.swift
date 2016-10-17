@@ -14,25 +14,49 @@ import AWSCognito
 import Firebase
 import FirebaseDatabase
 import FirebaseAuth
+import FBSDKShareKit
 
-class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate {
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
+fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l > r
+  default:
+    return rhs < lhs
+  }
+}
+
+
+class HandlePostController: UIViewController, UITextViewDelegate, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate, FBSDKSharingDelegate {
     
     weak var rootController: MainRootController?
 
-    var squad = [[NSObject : AnyObject]]()
-    var selectedSquad = [NSObject : AnyObject]()
-    var dataSourceForSearchResult = [[NSObject : AnyObject]]()
+    var squad = [[AnyHashable: Any]]()
+    var selectedSquad = [AnyHashable: Any]()
+    var dataSourceForSearchResult = [[AnyHashable: Any]]()
     
     var searchBarActive = false
+    
     
     var shouldUpload = false
     
     //Global Variables
+    var postToFacebookSelected = false
     var postToFeedSelected = true
     var isImage = true
     var image: UIImage!
-    var videoURL: NSURL!
-    var exportedVideoURL: NSURL!
+    var videoURL: URL!
+    var exportedVideoURL: URL!
     var scale: CGFloat?
     
     var asset: AVAsset?
@@ -54,10 +78,67 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
     @IBOutlet weak var postToFeedViewOutlet: UIView!
     @IBOutlet weak var dismissKeyboardView: UIView!
     
+    @IBOutlet weak var postToCurrentCityOutlet: UILabel!
+    
+    @IBOutlet weak var postToFacebookLabelOutlet: UILabel!
+    
     @IBOutlet weak var globTableViewOutlet: UITableView!
     
     @IBOutlet weak var contentHeightOutlet: NSLayoutConstraint!
     
+    @IBOutlet weak var facebookButtonViewOutlet: UIView!
+
+    
+    func sharerDidCancel(_ sharer: FBSDKSharing!) {
+        
+        print("canceled")
+        
+    }
+    
+    func sharer(_ sharer: FBSDKSharing!, didFailWithError error: Error!) {
+        
+        print(error)
+        
+    }
+    
+    func sharer(_ sharer: FBSDKSharing!, didCompleteWithResults results: [AnyHashable: Any]!) {
+        
+        if postToFeedSelected || selectedSquad.count > 0 {
+            
+            if self.isImage {
+                
+                self.uploadPost(self.image, videoURL: nil, isImage: self.isImage)
+                
+            } else {
+                
+                self.uploadPost(self.image, videoURL: self.exportedVideoURL, isImage: self.isImage)
+                
+            }
+            
+        } else {
+            
+            DispatchQueue.main.async(execute: {
+                
+                self.rootController?.toggleHandlePost(nil, videoURL: nil, isImage: false, completion: { (bool) in
+                    
+                    self.uploadingViewOutlet.alpha = 0
+                    self.shareOutlet.isEnabled = true
+                    print("handle closed")
+                    
+                })
+                
+                self.rootController?.toggleVibes({ (bool) in
+ 
+                    self.clearPlayers()
+                    self.rootController?.vibesFeedController?.observeCurrentCityPosts()
+
+                    print("vibes toggled")
+                    
+                })
+            })
+        }
+    }
+
     func keyboardShown(){
         
         dismissKeyboardView.alpha = 1
@@ -72,15 +153,45 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
     }
     
     
+    @IBAction func setFacebookToYes(_ sender: AnyObject) {
+        
+        if postToFacebookSelected {
+            
+            postToFacebookLabelOutlet.text = "NO"
+            facebookButtonViewOutlet.backgroundColor = UIColor.lightGray
+            
+            if selectedSquad.count == 0 && !postToFeedSelected {
+                
+                shareOutlet.isEnabled = false
+                
+            } else {
+                
+                shareOutlet.isEnabled = true
+                
+            }
+            
+        } else {
+            
+            shareOutlet.isEnabled = true
+            postToFacebookLabelOutlet.text = "YES"
+            facebookButtonViewOutlet.backgroundColor = UIColor(netHex: 0x3b5998)
+            
+        }
+        
+        postToFacebookSelected = !postToFacebookSelected
+        
+    }
+    
+    
     func setPostToYes(){
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardShown), name: UIKeyboardWillShowNotification, object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(keyboardHid), name: UIKeyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardShown), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardHid), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
         
-        shareOutlet.enabled = true
+        shareOutlet.isEnabled = true
         postToFeedLabelOutlet.text = "YES"
-        postToFeedLabelOutlet.textColor = UIColor.whiteColor()
-        postToFeedViewOutlet.backgroundColor = UIColor.redColor()
+        postToFeedLabelOutlet.textColor = UIColor.white
+        postToFeedViewOutlet.backgroundColor = UIColor.red
         postToFeedSelected = true
         
     }
@@ -91,25 +202,25 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
         if postToFeedSelected {
             
             postToFeedLabelOutlet.text = "NO"
-            postToFeedLabelOutlet.textColor = UIColor.blackColor()
-            postToFeedViewOutlet.backgroundColor = UIColor.lightGrayColor()
+            postToFeedLabelOutlet.textColor = UIColor.black
+            postToFeedViewOutlet.backgroundColor = UIColor.lightGray
             
-            if selectedSquad.count == 0 {
+            if selectedSquad.count == 0 && !postToFacebookSelected {
                 
-                shareOutlet.enabled = false
+                shareOutlet.isEnabled = false
                 
             } else {
                 
-                shareOutlet.enabled = true
+                shareOutlet.isEnabled = true
                 
             }
             
         } else {
             
-            shareOutlet.enabled = true
+            shareOutlet.isEnabled = true
             postToFeedLabelOutlet.text = "YES"
-            postToFeedLabelOutlet.textColor = UIColor.whiteColor()
-            postToFeedViewOutlet.backgroundColor = UIColor.redColor()
+            postToFeedLabelOutlet.textColor = UIColor.white
+            postToFeedViewOutlet.backgroundColor = UIColor.red
             
         }
         
@@ -121,7 +232,7 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
     }
     
     //Functions
-    func searchBar(searchBar: UISearchBar, textDidChange searchText: String) {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         
         if searchText.characters.count > 0 {
             
@@ -140,15 +251,15 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
         }
     }
     
-    func filterContentForSearchText(searchText: String){
+    func filterContentForSearchText(_ searchText: String){
         
-        dataSourceForSearchResult = squad.filter({ (user: [NSObject : AnyObject]) -> Bool in
+        dataSourceForSearchResult = squad.filter({ (user: [AnyHashable: Any]) -> Bool in
             
-            if let firstName = user["firstName"] as? String, lastName = user["lastName"] as? String {
+            if let firstName = user["firstName"] as? String, let lastName = user["lastName"] as? String {
                 
                 let name = firstName + " " + lastName
                 
-                return name.containsString(searchText)
+                return name.contains(searchText)
                 
             } else {
                 
@@ -159,13 +270,13 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
     
     func loadTableView(){
         
-        var scopeSquad = [[NSObject : AnyObject]]()
+        var scopeSquad = [[AnyHashable: Any]]()
         
-        if let selfData = rootController?.selfData, mySquad = selfData["squad"] as? [NSObject : AnyObject] {
+        if let selfData = rootController?.selfData, let mySquad = selfData["squad"] as? [AnyHashable: Any] {
             
             for (_, value) in mySquad {
                 
-                if let valueToAdd = value as? [NSObject : AnyObject] {
+                if let valueToAdd = value as? [AnyHashable: Any] {
                     
                     scopeSquad.append(valueToAdd)
                     
@@ -173,7 +284,7 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
             }
         }
         
-        scopeSquad.sortInPlace { (a: [NSObject : AnyObject], b: [NSObject : AnyObject]) -> Bool in
+        scopeSquad.sort { (a: [AnyHashable: Any], b: [AnyHashable: Any]) -> Bool in
             
             if a["lastName"] as? String > b["lastName"] as? String {
                 
@@ -195,7 +306,7 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
     
     
     //TableView Delegates
-    func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         if searchBarActive {
             
@@ -209,19 +320,19 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
     }
     
     
-    func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        let cell = tableView.dequeueReusableCellWithIdentifier("sendPostSquadCell", forIndexPath: indexPath) as! SendPostSquadCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "sendPostSquadCell", for: indexPath) as! SendPostSquadCell
         
         cell.handleController = self
         
         if searchBarActive {
             
-            cell.loadData(dataSourceForSearchResult[indexPath.row])
+            cell.loadData(dataSourceForSearchResult[(indexPath as NSIndexPath).row])
             
         } else {
             
-            cell.loadData(squad[indexPath.row])
+            cell.loadData(squad[(indexPath as NSIndexPath).row])
             
         }
         
@@ -232,7 +343,7 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
     
     
     //Actions
-    @IBAction func postToFeed(sender: AnyObject) {
+    @IBAction func postToFeed(_ sender: AnyObject) {
         
         togglePostToFeed()
         
@@ -240,7 +351,7 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
     }
     
     
-    @IBAction func backButton(sender: AnyObject) {
+    @IBAction func backButton(_ sender: AnyObject) {
         
         shouldUpload = false
         uploadingViewOutlet.alpha = 0
@@ -252,7 +363,7 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
             let editor = AdobeUXImageEditorViewController(image: image)
             editor.delegate = rootController?.actionsController
             
-            rootController?.actionsController?.presentViewController(editor, animated: false, completion: {
+            rootController?.actionsController?.present(editor, animated: false, completion: {
                 
                 self.rootController?.toggleHandlePost(nil, videoURL: nil, isImage: true, completion: { (bool) in
                     
@@ -274,32 +385,57 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
         }
     }
     
-    @IBAction func shareAction(sender: AnyObject) {
+    @IBAction func shareAction(_ sender: AnyObject) {
         
-        self.shareOutlet.enabled = false
+        self.shareOutlet.isEnabled = false
         
-        if self.isImage {
+        if postToFacebookSelected {
             
-            self.uploadPost(self.image, videoURL: nil, isImage: self.isImage)
-            
+            if isImage {
+
+                if let selfImage = self.image, let photo = FBSDKSharePhoto(image: selfImage, userGenerated: true) {
+                    
+                    let content = FBSDKSharePhotoContent()
+                    content.photos = [photo]
+                    FBSDKShareDialog.show(from: self, with: content, delegate: self)
+      
+                }
+  
+            } else {
+                
+                if let url = self.exportedVideoURL, let video = FBSDKShareVideo(videoURL: url) {
+                    
+                    let content = FBSDKShareVideoContent()
+                    content.video = video
+                    FBSDKShareDialog.show(from: self, with: content, delegate: self)
+                    
+                }
+            }
+
         } else {
             
-            self.uploadPost(self.image, videoURL: self.exportedVideoURL, isImage: self.isImage)
-            
+            if self.isImage {
+                
+                self.uploadPost(self.image, videoURL: nil, isImage: self.isImage)
+                
+            } else {
+                
+                self.uploadPost(self.image, videoURL: self.exportedVideoURL, isImage: self.isImage)
+                
+            }
         }
-
     }
     
     
-    override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         
         if keyPath == "rate" {
             
-            if let player = object as? AVPlayer, item = player.currentItem {
+            if let player = object as? AVPlayer, let item = player.currentItem {
                 
                 if CMTimeGetSeconds(player.currentTime()) == CMTimeGetSeconds(item.duration) {
                     
-                    player.seekToTime(kCMTimeZero)
+                    player.seek(to: kCMTimeZero)
                     player.play()
                     
                 } else if player.rate == 0 {
@@ -318,14 +454,14 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
         
         if !isImage {
             
-            shareOutlet.enabled = false
+            shareOutlet.isEnabled = false
             convertVideoToLowQualityWithInputURL(videoURL, handler: { (exportSession, outputURL) in
                 
-                if exportSession.status == .Completed {
+                if exportSession.status == .completed {
                     
-                    dispatch_async(dispatch_get_main_queue(), {
+                    DispatchQueue.main.async(execute: {
                         
-                        self.shareOutlet.enabled = true
+                        self.shareOutlet.isEnabled = true
                         self.exportedVideoURL = outputURL
                         
                     })
@@ -344,7 +480,7 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
     }
     
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewWillAppear(_ animated: Bool) {
         
         super.viewDidAppear(true)
         
@@ -363,9 +499,9 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
             
         } else {
             
-            dispatch_async(dispatch_get_main_queue(), {
+            DispatchQueue.main.async(execute: {
                 
-                self.asset = AVAsset(URL: self.videoURL)
+                self.asset = AVAsset(url: self.videoURL)
                 
                 if let asset = self.asset {
                     
@@ -403,13 +539,13 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
     }
     
     
-    func setToFirebase(imageUrl: String?, caption: String?, FIRVideoURL: String?, scopeSelectedSquad: [NSObject:AnyObject]){
+    func setToFirebase(_ imageUrl: String?, caption: String?, FIRVideoURL: String?, scopeSelectedSquad: [AnyHashable: Any]){
 
-        if let userData = self.rootController?.selfData, selfUID = FIRAuth.auth()?.currentUser?.uid {
+        if let userData = self.rootController?.selfData, let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
-            let currentDate = NSDate().timeIntervalSince1970
+            let currentDate = Date().timeIntervalSince1970
             
-            if let firstName = userData["firstName"] as? String, lastName = userData["lastName"] as? String, city = userData["city"] as? String, longitude = userData["longitude"] as? CLLocationDegrees, latitude = userData["latitude"] as? CLLocationDegrees, state = userData["state"] as? String {
+            if let firstName = userData["firstName"] as? String, let lastName = userData["lastName"] as? String, let city = userData["city"] as? String, let longitude = userData["longitude"] as? CLLocationDegrees, let latitude = userData["latitude"] as? CLLocationDegrees, let state = userData["state"] as? String {
                 
                 if shouldUpload {
                     
@@ -417,7 +553,7 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
                     
                     let postChildKey = ref.child("posts").child(city).childByAutoId().key
                     
-                    var postData: [NSObject:AnyObject] = ["userUID":selfUID, "firstName":firstName, "lastName":lastName, "city":city, "timeStamp":currentDate, "isImage":isImage, "postChildKey":postChildKey]
+                    var postData: [AnyHashable: Any] = ["userUID":selfUID, "firstName":firstName, "lastName":lastName, "city":city, "timeStamp":currentDate, "isImage":isImage, "postChildKey":postChildKey]
                     
                     if let url = imageUrl {
                         
@@ -458,12 +594,12 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
                         
                         for (_, value) in scopeSelectedSquad {
                             
-                            if let member = value as? [NSObject : AnyObject] {
+                            if let member = value as? [AnyHashable: Any] {
                                 
                                 if let uid = member["uid"] as? String {
-                                    ref.child("users").child(uid).child("pushToken").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                                    ref.child("users").child(uid).child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
                                         
-                                        if let token = snapshot.value as? String, appDelegate = UIApplication.sharedApplication().delegate as? AppDelegate {
+                                        if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
                                             
                                             if FIRVideoURL != nil {
                                                 
@@ -478,7 +614,7 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
                                         }
                                     })
                                     
-                                    var messageItem: [NSObject : AnyObject] = [
+                                    var messageItem: [AnyHashable: Any] = [
                                         
                                         "senderId" : selfUID,
                                         "timeStamp" : currentDate,
@@ -490,13 +626,13 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
                                         
                                     ]
                                     
-                                    var notificationItem = [NSObject : AnyObject]()
+                                    var notificationItem = [AnyHashable: Any]()
                                     
                                     if let url = FIRVideoURL {
                                         
                                         notificationItem["text"] = "Sent Video!"
                                         
-                                        let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".mov")
+                                        let fileName = ProcessInfo.processInfo.globallyUniqueString + ".mov"
                                         
                                         messageItem["media"] = url
                                         messageItem["key"] = fileName
@@ -507,7 +643,7 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
                                         
                                         notificationItem["text"] = "Sent Photo!"
                                         
-                                        let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".jpeg")
+                                        let fileName = ProcessInfo.processInfo.globallyUniqueString + ".jpeg"
                                         
                                         messageItem["media"] = url
                                         messageItem["key"] = fileName
@@ -516,7 +652,7 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
                                         
                                     }
                                     
-                                    if let firstName = self.rootController?.selfData["firstName"] as? String, lastName = self.rootController?.selfData["lastName"] as? String {
+                                    if let firstName = self.rootController?.selfData["firstName"] as? String, let lastName = self.rootController?.selfData["lastName"] as? String {
                                         
                                         notificationItem["firstName"] = firstName
                                         notificationItem["lastName"] = lastName
@@ -549,14 +685,14 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
                     }
                 }
                 
-                rootController?.vibesFeedController?.globCollectionView.contentOffset = CGPointZero
+                rootController?.vibesFeedController?.globCollectionView.contentOffset = CGPoint.zero
                 
-                dispatch_async(dispatch_get_main_queue(), {
+                DispatchQueue.main.async(execute: {
                     
                     self.rootController?.toggleHandlePost(nil, videoURL: nil, isImage: false, completion: { (bool) in
                         
                         self.uploadingViewOutlet.alpha = 0
-                        self.shareOutlet.enabled = true
+                        self.shareOutlet.isEnabled = true
                         print("handle closed")
                         
                     })
@@ -576,7 +712,7 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
     }
     
     
-    func uploadPost(image: UIImage!, videoURL: NSURL!, isImage: Bool) {
+    func uploadPost(_ image: UIImage!, videoURL: URL!, isImage: Bool) {
         
         let scopeSelectedSquad = selectedSquad
         
@@ -590,16 +726,16 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
         }
         
         
-        UIView.animateWithDuration(0.3) {
+        UIView.animate(withDuration: 0.3, animations: {
             self.uploadingViewOutlet.alpha = 1
-        }
+        }) 
         
         self.imageUploadRequest(image) { (imageUrl, imageUploadRequest) in
             
-            let imageTransferManager = AWSS3TransferManager.defaultS3TransferManager()
+            let imageTransferManager = AWSS3TransferManager.default()
             
-            imageTransferManager.upload(imageUploadRequest).continueWithBlock { (task) -> AnyObject? in
-
+            imageTransferManager?.upload(imageUploadRequest).continue({ (task) -> Any? in
+                
                 if task.error == nil {
                     
                     print("successful image upload")
@@ -610,20 +746,18 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
                             
                             self.videoUploadRequest(videoURL, completion: { (FIRVideoURL, videoUploadRequest) in
                                 
-                                let videoTransferManager = AWSS3TransferManager.defaultS3TransferManager()
+                                let videoTransferManager = AWSS3TransferManager.default()
                                 
-                                videoTransferManager.upload(videoUploadRequest).continueWithBlock({ (task) -> AnyObject? in
+                                videoTransferManager?.upload(videoUploadRequest).continue({ (task) -> AnyObject? in
                                     
                                     print("save thumbnail & video to firebase")
                                     
-                                    dispatch_async(dispatch_get_main_queue(), {
+                                    DispatchQueue.main.async {
                                         
                                         self.setToFirebase(imageUrl, caption: captionString, FIRVideoURL: FIRVideoURL, scopeSelectedSquad: scopeSelectedSquad)
                                         
-                                    })
-                                    
-                                    
-                                    
+                                    }
+
                                     return nil
                                 })
                             })
@@ -632,96 +766,94 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
                             
                             print("save image only to firebase")
                             
-                            dispatch_async(dispatch_get_main_queue(), {
+                            DispatchQueue.main.async {
                                 
                                 self.setToFirebase(imageUrl, caption: captionString, FIRVideoURL: nil, scopeSelectedSquad: scopeSelectedSquad)
                                 
-                            })
+                            }
                         }
                         
                     } else {
                         print("error uploading: \(task.error)")
                         
-                        let alertController = UIAlertController(title: "Sorry", message: "Error uploading profile picture, please try again later", preferredStyle:  UIAlertControllerStyle.Alert)
-                        alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Cancel, handler: nil))
-                        self.presentViewController(alertController, animated: true, completion: nil)
+                        let alertController = UIAlertController(title: "Sorry", message: "Error uploading profile picture, please try again later", preferredStyle:  UIAlertControllerStyle.alert)
+                        alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.cancel, handler: nil))
+                        self.present(alertController, animated: true, completion: nil)
                         
                     }
-                    
-                    
                 }
                 
-                
                 return nil
-            }
+                
+            })
         }
     }
     
     
     
     
-    func videoUploadRequest(videoURL: NSURL?, completion: (url: String, uploadRequest: AWSS3TransferManagerUploadRequest) -> ()) {
+    func videoUploadRequest(_ videoURL: URL?, completion: @escaping (_ url: String, _ uploadRequest: AWSS3TransferManagerUploadRequest) -> ()) {
         
-        let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".mov")
+        let fileName = ProcessInfo.processInfo.globallyUniqueString + ".mov"
         
-        dispatch_async(dispatch_get_main_queue()) {
+        DispatchQueue.main.async {
             
             let uploadRequest = AWSS3TransferManagerUploadRequest()
-            uploadRequest.body = videoURL
-            uploadRequest.key = fileName
-            uploadRequest.bucket = "cityscapebucket"
+            uploadRequest?.body = videoURL
+            uploadRequest?.key = fileName
+            uploadRequest?.bucket = "cityscapebucket"
             
             let amazonVideoURL = "https://s3.amazonaws.com/cityscapebucket/" + fileName
             
-            completion(url: amazonVideoURL, uploadRequest: uploadRequest)
+            completion(amazonVideoURL, uploadRequest!)
             
         }
     }
     
-    func imageUploadRequest(image: UIImage, completion: (url: String, uploadRequest: AWSS3TransferManagerUploadRequest) -> ()) {
+    func imageUploadRequest(_ image: UIImage, completion: @escaping (_ url: String, _ uploadRequest: AWSS3TransferManagerUploadRequest) -> ()) {
         
-        let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".jpeg")
-        let fileURL = NSURL(fileURLWithPath: NSTemporaryDirectory()).URLByAppendingPathComponent("upload").URLByAppendingPathComponent(fileName)
-        let filePath = fileURL.path!
+        let fileName = ProcessInfo.processInfo.globallyUniqueString + ".jpeg"
+        let fileURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("upload").appendingPathComponent(fileName)
+        let filePath = fileURL.path
         
         let imageData = UIImageJPEGRepresentation(image, 0.5)
         
         //SEGMENTATION BUG, IF FAULT 11 - COMMENT OUT AND REWRITE
-        dispatch_async(dispatch_get_main_queue()) {
-            imageData?.writeToFile(filePath, atomically: true)
+        DispatchQueue.main.async {
+            try? imageData?.write(to: URL(fileURLWithPath: filePath), options: [.atomic])
             
             let uploadRequest = AWSS3TransferManagerUploadRequest()
-            uploadRequest.body = fileURL
-            uploadRequest.key = fileName
-            uploadRequest.bucket = "cityscapebucket"
+            uploadRequest?.body = fileURL
+            uploadRequest?.key = fileName
+            uploadRequest?.bucket = "cityscapebucket"
             
             var imageUrl = ""
             
-            if let key = uploadRequest.key {
+            if let key = uploadRequest?.key {
                 imageUrl = "https://s3.amazonaws.com/cityscapebucket/" + key
                 
             }
             
-            completion(url: imageUrl, uploadRequest: uploadRequest)
+            completion(imageUrl, uploadRequest!)
         }
     }
     
     
     //Functions
-    func convertVideoToLowQualityWithInputURL(inputURL: NSURL, handler: (AVAssetExportSession, NSURL) -> Void) {
+    func convertVideoToLowQualityWithInputURL(_ inputURL: URL, handler: @escaping (AVAssetExportSession, URL) -> Void) {
         
         let tempURL = inputURL
         
-        let newAsset: AVURLAsset = AVURLAsset(URL: tempURL)
+        let newAsset: AVURLAsset = AVURLAsset(url: tempURL)
         
         if let exportSession: AVAssetExportSession = AVAssetExportSession(asset: newAsset, presetName: AVAssetExportPresetMediumQuality) {
             
-            let fileName = NSProcessInfo.processInfo().globallyUniqueString.stringByAppendingString(".mov")
-            let fileURL = NSURL(fileURLWithPath: NSTemporaryDirectory()).URLByAppendingPathComponent("upload").URLByAppendingPathComponent(fileName)
+            let fileName = ProcessInfo.processInfo.globallyUniqueString + ".mov"
+            let fileURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("upload").appendingPathComponent(fileName)
             
             exportSession.outputURL = fileURL
             exportSession.outputFileType = AVFileTypeQuickTimeMovie
-            exportSession.exportAsynchronouslyWithCompletionHandler({ () -> Void in
+            exportSession.exportAsynchronously(completionHandler: { () -> Void in
                 
                 handler(exportSession, fileURL)
                 
@@ -732,12 +864,12 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
     }
     func addUploadStuff(){
         
-        let error = NSErrorPointer()
+        let error = NSErrorPointer.init(nilLiteral: ())
         
         do{
-            try NSFileManager.defaultManager().createDirectoryAtURL(NSURL(fileURLWithPath: NSTemporaryDirectory()).URLByAppendingPathComponent("upload"), withIntermediateDirectories: true, attributes: nil)
+            try FileManager.default.createDirectory(at: URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("upload"), withIntermediateDirectories: true, attributes: nil)
         } catch let error1 as NSError {
-            error.memory = error1
+            error?.pointee = error1
             print("Creating upload directory failed. Error: \(error)")
         }
     }
@@ -758,8 +890,8 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
     func clearPlayers(){
         
         view.endEditing(true)
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillHideNotification, object: nil)
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: UIKeyboardWillShowNotification, object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+        NotificationCenter.default.removeObserver(self, name: NSNotification.Name.UIKeyboardWillShow, object: nil)
 
         selectedSquad.removeAll()
         squad.removeAll()
@@ -791,13 +923,13 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
     }
     
     //TextView Delegates
-    func scrollViewWillEndDragging(scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
         
         if velocity.y > 1 {
             
             print("up")
             
-            UIView.animateWithDuration(0.3, animations: {
+            UIView.animate(withDuration: 0.3, animations: {
                 
                 self.contentHeightOutlet.constant = 0
                 self.view.layoutIfNeeded()
@@ -809,7 +941,7 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
             
             print("down")
             
-            UIView.animateWithDuration(0.3, animations: {
+            UIView.animate(withDuration: 0.3, animations: {
                 
                 self.contentHeightOutlet.constant = 132
                 self.view.layoutIfNeeded()
@@ -820,14 +952,15 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
     }
     
     
-    func textViewDidChange(textView: UITextView) {
+    func textViewDidChange(_ textView: UITextView) {
         
         let textCount = textView.text.characters.count
         charactersLeftOutlet.text = "\(textCount)/30 Characters"
         
     }
     
-    func textView(textView: UITextView, shouldChangeTextInRange range: NSRange, replacementText text: String) -> Bool {
+
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         
         if text == "\n" {
             
@@ -838,25 +971,25 @@ class HandlePostController: UIViewController, UITextFieldDelegate, UITableViewDe
         
         return textView.text.characters.count + (text.characters.count - range.length) <= 30
     }
-    
-    
-    
-    
-    
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        postToCurrentCityOutlet.adjustsFontSizeToFitWidth = true
+        
+        facebookButtonViewOutlet.layer.cornerRadius = 5
         postToFeedViewOutlet.layer.cornerRadius = 5
         captionTextView.layer.cornerRadius = 10
         captionTextView.text = nil
         charactersLeftOutlet.text = "0/30 Characters"
         
-        shareOutlet.setTitleColor(UIColor.whiteColor(), forState: .Normal)
-        shareOutlet.setTitleColor(UIColor.lightGrayColor(), forState: .Disabled)
+        shareOutlet.setTitleColor(UIColor.white, for: UIControlState())
+        shareOutlet.setTitleColor(UIColor.lightGray, for: .disabled)
         
         addUploadStuff()
         addDismissKeyboard()
+        
+        
         
         // Do any additional setup after loading the view.
     }

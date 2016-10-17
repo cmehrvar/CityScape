@@ -35,7 +35,7 @@ class SettingsViewController: UIViewController {
     
     
     
-    @IBAction func imMale(sender: AnyObject) {
+    @IBAction func imMale(_ sender: AnyObject) {
         
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
@@ -49,7 +49,7 @@ class SettingsViewController: UIViewController {
     }
     
     
-    @IBAction func imFemale(sender: AnyObject) {
+    @IBAction func imFemale(_ sender: AnyObject) {
         
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
@@ -63,116 +63,149 @@ class SettingsViewController: UIViewController {
     
     
     
-    @IBAction func intoMen(sender: AnyObject) {
+    @IBAction func intoMen(_ sender: AnyObject) {
         
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
             FIRDatabase.database().reference().child("users").child(selfUID).child("interestedIn").setValue(["male"])
             toggleInterestedInColor(1)
+            query()
             
         }
         
     }
     
     
-    @IBAction func intoWomen(sender: AnyObject) {
+    @IBAction func intoWomen(_ sender: AnyObject) {
         
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
             FIRDatabase.database().reference().child("users").child(selfUID).child("interestedIn").setValue(["female"])
             toggleInterestedInColor(2)
+            query()
             
         }
         
     }
     
     
-    @IBAction func intoBoth(sender: AnyObject) {
+    @IBAction func intoBoth(_ sender: AnyObject) {
         
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
             FIRDatabase.database().reference().child("users").child(selfUID).child("interestedIn").setValue(["male", "female"])
             toggleInterestedInColor(3)
+            query()
             
         }
-        
     }
     
     
     
-    @IBAction func deleteAccount(sender: AnyObject) {
+    @IBAction func deleteAccount(_ sender: AnyObject) {
         
         let alertController = NYAlertViewController()
         
         alertController.title = "Delete Account?"
-        alertController.titleColor = UIColor.redColor()
+        alertController.titleColor = UIColor.red
         alertController.message = "This will delete your account along with all its contents. You will lose all made connections and no longer appear visible. Warning, your past account history will not be retrievable. You can always sign back in with Facebook, creating a new account."
-        alertController.messageColor = UIColor.darkGrayColor()
-        alertController.cancelButtonColor = UIColor.lightGrayColor()
-        alertController.cancelButtonTitleColor = UIColor.whiteColor()
-        alertController.buttonColor = UIColor.redColor()
-        alertController.buttonTitleColor = UIColor.whiteColor()
+        alertController.messageColor = UIColor.darkGray
+        alertController.cancelButtonColor = UIColor.lightGray
+        alertController.cancelButtonTitleColor = UIColor.white
+        alertController.buttonColor = UIColor.red
+        alertController.buttonTitleColor = UIColor.white
         
-        alertController.addAction(NYAlertAction(title: "Cancel", style: .Cancel, handler: { (action) in
+        alertController.addAction(NYAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
             
-            self.dismissViewControllerAnimated(true, completion: nil)
+            self.dismiss(animated: true, completion: nil)
             
         }))
         
-        alertController.addAction(NYAlertAction(title: "Delete", style: .Default, handler: { (action) in
+        alertController.addAction(NYAlertAction(title: "Delete", style: .default, handler: { (action) in
             
             if let currentUser = FIRAuth.auth()?.currentUser {
                 
                 let myUID = currentUser.uid
                 
-                self.dismissViewControllerAnimated(true, completion: {
+                self.dismiss(animated: true, completion: {
 
                     let myRef = FIRDatabase.database().reference().child("users").child(myUID)
                     
-                    myRef.observeSingleEventOfType(.Value, withBlock: { (snapshot) in
-                        
-                        
-                        if let myData = snapshot.value as? [NSObject : AnyObject] {
+                    myRef.observeSingleEvent(of: .value, with: { (snapshot) in
+
+                        if let myData = snapshot.value as? [AnyHashable: Any] {
                             
-                            if let mySquad = myData["squad"] as? [NSObject : AnyObject] {
+                            if let mySquad = myData["squad"] as? [AnyHashable: Any] {
                                 
                                 for (_, value) in mySquad {
                                     
-                                    if let uid = value["uid"] as? String {
+                                    if let squadMember = value as? [AnyHashable : Any], let uid = squadMember["uid"] as? String {
+
+                                        FIRDatabase.database().reference().child("users").child(uid).child("notifications").child(myUID).removeValue()
+                                            FIRDatabase.database().reference().child("users").child(uid).child("squad").child(myUID)
+                                                .removeValue()
                                         
-                                        FIRDatabase.database().reference().child("users").child(uid).child("squad").child(myUID)
-                                            .removeValue()
                                     }
                                 }
                             }
                             
-                            if let myMatches = myData["matches"] as? [NSObject : AnyObject] {
+                            if let myMatches = myData["matches"] as? [AnyHashable: Any] {
                                 
                                 for (_, value) in myMatches {
                                     
-                                    if let uid = value ["uid"] as? String {
-                                        
+                                    if let matchMember = value as? [AnyHashable : Any], let uid = matchMember["uid"] as? String {
+
+                                        FIRDatabase.database().reference().child("users").child(uid).child("notifications").child(myUID).removeValue()
                                         FIRDatabase.database().reference().child("users").child(uid).child("matches").child(myUID).removeValue()
                                         
                                     }
                                 }
                             }
                             
-                            if let myGroupChats = myData["groupChats"] as? [NSObject : AnyObject] {
+                            if let myGroupChats = myData["groupChats"] as? [AnyHashable: Any] {
                                 
                                 for (_, chat) in myGroupChats {
                                     
-                                    if let key = chat["key"] as? String, members = chat["members"] as? [String : Bool] {
+                                    if let chatValue = chat as? [AnyHashable : Any] {
                                         
-                                        var newMembers = members
-                                        newMembers.removeValueForKey(myUID)
-                                        
-                                        FIRDatabase.database().reference().child("groupChats").child(key).child("members").setValue(newMembers)
-                                        
-                                        for (member, _) in members {
-                                            FIRDatabase.database().reference().child("users").child(member).child("groupChats").child(key).child("members").setValue(newMembers)
+                                        if let key = chatValue["key"] as? String, let members = chatValue["members"] as? [String : Bool] {
                                             
+                                            var newMembers = members
+                                            newMembers.removeValue(forKey: myUID)
+                                            
+                                        
+                                            
+                                            FIRDatabase.database().reference().child("groupChats").child(key).child("members").setValue(newMembers)
+                                            
+                                            for (member, _) in members {
+                                                
+                                                FIRDatabase.database().reference().child("users").child(member).child("notifications").child(myUID).removeValue()
+                                                
+                                                FIRDatabase.database().reference().child("users").child(member).child("groupChats").child(key).child("members").setValue(newMembers)
+                                                
+                                            }
                                         }
+                                    }
+                                }
+                            }
+                            
+                            if let myPosts = myData["posts"] as? [AnyHashable : Any] {
+                                
+                                for (_, value) in myPosts {
+                                    
+                                    if let post = value as? [AnyHashable : Any], let city = post["city"] as? String, let key = post["postChildKey"] as? String {
+                                        
+                                        FIRDatabase.database().reference().child("posts").child(city).child(key).removeValue()
+                                        FIRDatabase.database().reference().child("allPosts").child(key).removeValue()
+                                        
+                                        FIRDatabase.database().reference().child("posts").child(city).queryLimited(toFirst: 1).observeSingleEvent(of: .value, with: { (snapshot) in
+                                            
+                                            if !snapshot.exists() {
+                                                
+                                                FIRDatabase.database().reference().child("cityLocations").child(city).removeValue()
+                                                
+                                            }
+                                        })
                                     }
                                 }
                             }
@@ -183,7 +216,7 @@ class SettingsViewController: UIViewController {
                             FIRDatabase.database().reference().child("userScores").child(myUID).removeValue()
                             FIRDatabase.database().reference().child("userUIDs").child(myUID).removeValue()
                             
-                            FIRDatabase.database().reference().child("lastCityRank").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                            FIRDatabase.database().reference().child("lastCityRank").observeSingleEvent(of: .value, with: { (snapshot) in
                                 
                                 if let rank = snapshot.value as? Int {
                                     
@@ -191,46 +224,49 @@ class SettingsViewController: UIViewController {
                                     
                                 }
                             })
+
+                            let vc = self.storyboard?.instantiateViewController(withIdentifier: "initial") as! LogInController
                             
-                            currentUser.deleteWithCompletion({ (error) in
+                            self.present(vc, animated: true) {
                                 
-                                if error == nil {
+                                currentUser.delete(completion: { (error) in
                                     
-                                    FBSDKLoginManager().logOut()
-                                    
-                                    do {
-                                        try FIRAuth.auth()?.signOut()
-                                    } catch let signOutError {
-                                        print(signOutError)
-                                    }
-                                    
-                                    let vc = self.storyboard?.instantiateViewControllerWithIdentifier("initial") as! LogInController
-                                    
-                                    self.presentViewController(vc, animated: true) {
+                                    if error == nil {
                                         
+                                        print("user deleted")
+                                        
+                                        FBSDKLoginManager().logOut()
+                                        
+                                        do {
+                                            try FIRAuth.auth()?.signOut()
+                                        } catch let signOutError {
+                                            print(signOutError)
+                                        }
                                     }
-                                }
-                            })
-                        }
+                                })
+                            }
+                         }
                     })
                 })
             }
         }))
         
-        self.presentViewController(alertController, animated: true) {
+        self.present(alertController, animated: true) {
             
             print("alert controller presented")
             
         }
     }
     
-    @IBAction func logOut(sender: AnyObject) {
+    @IBAction func logOut(_ sender: AnyObject) {
         
         if let uid = FIRAuth.auth()?.currentUser?.uid {
             
+            FIRDatabase.database().reference().child("users").child(uid).child("online").setValue(false)
+            
             FBSDKLoginManager().logOut()
             
-            var scopeError: ErrorType?
+            var scopeError: Error?
             
             do {
                 try FIRAuth.auth()?.signOut()
@@ -243,18 +279,18 @@ class SettingsViewController: UIViewController {
             
             if scopeError == nil {
                 
-                let vc = self.storyboard?.instantiateViewControllerWithIdentifier("initial") as! LogInController
+                let vc = self.storyboard?.instantiateViewController(withIdentifier: "initial") as! LogInController
                 
-                presentViewController(vc, animated: true) {
+                present(vc, animated: true) {
                     
-                    FIRDatabase.database().reference().child("users").child(uid).child("online").setValue(false)
+                    
                     
                 }
             }
         }
     }
     
-    @IBAction func contactUs(sender: AnyObject) {
+    @IBAction func contactUs(_ sender: AnyObject) {
         
         rootController?.toggleContactUs({ (bool) in
             
@@ -265,7 +301,7 @@ class SettingsViewController: UIViewController {
         
     }
     
-    @IBAction func back(sender: AnyObject) {
+    @IBAction func back(_ sender: AnyObject) {
         
         rootController?.toggleSettings({ (bool) in
             
@@ -274,80 +310,83 @@ class SettingsViewController: UIViewController {
         })
     }
     
-    func toggleGenderColour(button: Int) {
+    func toggleGenderColour(_ button: Int) {
         
         if button == 1 {
             
-            maleButtonView.backgroundColor = UIColor.whiteColor()
-            maleButtonOutlet.setTitleColor(UIColor(netHex: 0xDF412E), forState: .Normal)
+            maleButtonView.backgroundColor = UIColor.white
+            maleButtonOutlet.setTitleColor(UIColor(netHex: 0xDF412E), for: UIControlState())
             
-            femaleButtonView.backgroundColor = UIColor.clearColor()
-            femaleButtonOutlet.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+            femaleButtonView.backgroundColor = UIColor.clear
+            femaleButtonOutlet.setTitleColor(UIColor.white, for: UIControlState())
             
             
         } else if button == 2 {
             
-            femaleButtonView.backgroundColor = UIColor.whiteColor()
-            femaleButtonOutlet.setTitleColor(UIColor(netHex: 0xDF412E), forState: .Normal)
+            femaleButtonView.backgroundColor = UIColor.white
+            femaleButtonOutlet.setTitleColor(UIColor(netHex: 0xDF412E), for: UIControlState())
             
-            maleButtonView.backgroundColor = UIColor.clearColor()
-            maleButtonOutlet.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+            maleButtonView.backgroundColor = UIColor.clear
+            maleButtonOutlet.setTitleColor(UIColor.white, for: UIControlState())
             
             
         }
     }
     
-    func toggleInterestedInColor(button: Int) {
+    
+    func query(){
         
         self.rootController?.nearbyController?.addedCells.removeAll()
         self.rootController?.nearbyController?.dismissedCells.removeAll()
         self.rootController?.nearbyController?.nearbyUsers.removeAll()
         self.rootController?.nearbyController?.users.removeAll()
         
-        if let myLatitude = self.rootController?.selfData["latitude"] as? CLLocationDegrees, myLongitude = self.rootController?.selfData["longitude"] as? CLLocationDegrees {
+        if let myLatitude = self.rootController?.selfData["latitude"] as? CLLocationDegrees, let myLongitude = self.rootController?.selfData["longitude"] as? CLLocationDegrees {
             
             let myLocation = CLLocation(latitude: myLatitude, longitude: myLongitude)
             
             self.rootController?.nearbyController?.queryNearby(myLocation)
-            
-            
+
         }
-        
-        
+    }
+    
+    
+    func toggleInterestedInColor(_ button: Int) {
+
         if button == 1 {
             
-            intoMenView.backgroundColor = UIColor.whiteColor()
-            intoMenOutlet.setTitleColor(UIColor(netHex: 0xDF412E), forState: .Normal)
+            intoMenView.backgroundColor = UIColor.white
+            intoMenOutlet.setTitleColor(UIColor(netHex: 0xDF412E), for: UIControlState())
             
-            intoWomenView.backgroundColor = UIColor.clearColor()
-            intoWomenOutlet.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+            intoWomenView.backgroundColor = UIColor.clear
+            intoWomenOutlet.setTitleColor(UIColor.white, for: UIControlState())
             
-            intoBothView.backgroundColor = UIColor.clearColor()
-            intoBothOutlet.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+            intoBothView.backgroundColor = UIColor.clear
+            intoBothOutlet.setTitleColor(UIColor.white, for: UIControlState())
             
             
         } else if button == 2 {
             
-            intoMenView.backgroundColor = UIColor.clearColor()
-            intoMenOutlet.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+            intoMenView.backgroundColor = UIColor.clear
+            intoMenOutlet.setTitleColor(UIColor.white, for: UIControlState())
             
-            intoWomenView.backgroundColor = UIColor.whiteColor()
-            intoWomenOutlet.setTitleColor(UIColor(netHex: 0xDF412E), forState: .Normal)
+            intoWomenView.backgroundColor = UIColor.white
+            intoWomenOutlet.setTitleColor(UIColor(netHex: 0xDF412E), for: UIControlState())
             
-            intoBothView.backgroundColor = UIColor.clearColor()
-            intoBothOutlet.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+            intoBothView.backgroundColor = UIColor.clear
+            intoBothOutlet.setTitleColor(UIColor.white, for: UIControlState())
             
             
         } else if button == 3 {
             
-            intoMenView.backgroundColor = UIColor.clearColor()
-            intoMenOutlet.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+            intoMenView.backgroundColor = UIColor.clear
+            intoMenOutlet.setTitleColor(UIColor.white, for: UIControlState())
             
-            intoWomenView.backgroundColor = UIColor.clearColor()
-            intoWomenOutlet.setTitleColor(UIColor.whiteColor(), forState: .Normal)
+            intoWomenView.backgroundColor = UIColor.clear
+            intoWomenOutlet.setTitleColor(UIColor.white, for: UIControlState())
             
-            intoBothView.backgroundColor = UIColor.whiteColor()
-            intoBothOutlet.setTitleColor(UIColor(netHex: 0xDF412E), forState: .Normal)
+            intoBothView.backgroundColor = UIColor.white
+            intoBothOutlet.setTitleColor(UIColor(netHex: 0xDF412E), for: UIControlState())
             
             
         }

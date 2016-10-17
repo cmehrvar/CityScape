@@ -3,73 +3,98 @@ import Foundation
 
 public func timeAgoSince(date: NSDate, showAccronym: Bool) -> String {
     
-    let calendar = NSCalendar.currentCalendar()
+    let calendar = NSCalendar.current
     let now = NSDate()
-    let unitFlags: NSCalendarUnit = [.Second, .Minute, .Hour, .Day, .WeekOfYear, .Month, .Year]
-    let components = calendar.components(unitFlags, fromDate: date, toDate: now, options: [])
+
+    let unitFlags = Set<Calendar.Component>([.second, .minute, .hour, .day, .weekOfYear, .month, .year])
     
-    if components.year >= 2 {
+    let components = calendar.dateComponents(unitFlags, from: date as Date, to: now as Date)
+    
+    if let year = components.year {
         
-        if showAccronym {
-            return "\(components.year)y"
-        } else {
-            return "\(components.year)"
+        if year >= 2 {
+            
+            if showAccronym {
+                return "\(year)y"
+            } else {
+                return "\(year)"
+            }
+        }
+        
+        if year >= 1 {
+            
+            if showAccronym {
+                return "1y"
+            } else {
+                return "1"
+            }
         }
     }
     
-    if components.year >= 1 {
+    if let month = components.month {
         
-        if showAccronym {
-            return "1y"
-        } else {
-            return "1"
+        if month >= 2 {
+            return "\(month)m"
+        }
+        
+        if month >= 1 {
+            return "1m"
         }
     }
     
-    if components.month >= 2 {
-        return "\(components.month)m"
+    if let week = components.weekOfYear {
+        
+        if week >= 2 {
+            return "\(week)w"
+        }
+        
+        if week >= 1 {
+            return "1w"
+        }
     }
     
-    if components.month >= 1 {
-        return "1m"
+    if let day = components.day {
+        
+        if day >= 2 {
+            return "\(day)d"
+        }
+        
+        if day >= 1 {
+            return "1d"
+        }
+        
     }
     
-    if components.weekOfYear >= 2 {
-        return "\(components.weekOfYear)w"
+    if let hour = components.hour {
+        
+        if hour >= 2 {
+            return "\(hour)h"
+        }
+        
+        if hour >= 1 {
+            return "1h"
+        }
+        
+    }
+
+    if let minute = components.minute {
+        
+        if minute >= 2 {
+            return "\(minute)m"
+        }
+        
+        if minute >= 1 {
+            return "1m"
+        }
     }
     
-    if components.weekOfYear >= 1 {
-        return "1w"
-    }
     
-    if components.day >= 2 {
-        return "\(components.day)d"
+    if let seconds = components.second {
+        
+        return "\(seconds)s"
+        
     }
-    
-    if components.day >= 1 {
-        return "1d"
-    }
-    
-    if components.hour >= 2 {
-        return "\(components.hour)h"
-    }
-    
-    if components.hour >= 1 {
-        return "1h"
-    }
-    
-    if components.minute >= 2 {
-        return "\(components.minute)m"
-    }
-    
-    if components.minute >= 1 {
-        return "1m"
-    }
-    
-    if components.second >= 3 {
-        return "\(components.second)s"
-    }
-    
+
     return "0s"
     
 }

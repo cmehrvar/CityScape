@@ -17,9 +17,9 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
     weak var rootController: MainRootController?
 
     //Actions
-    @IBAction func home(sender: AnyObject) {
+    @IBAction func home(_ sender: AnyObject) {
         
-        UIApplication.sharedApplication().statusBarHidden = false
+        UIApplication.shared.isStatusBarHidden = false
         
         rootController?.toggleHome({ (bool) in
             
@@ -29,7 +29,7 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
     }
     
     
-    @IBAction func search(sender: AnyObject) {
+    @IBAction func search(_ sender: AnyObject) {
 
         if let searchRevealed = rootController?.searchRevealed {
             
@@ -59,7 +59,7 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
     }
 
     
-    @IBAction func camera(sender: AnyObject) {
+    @IBAction func camera(_ sender: AnyObject) {
         
         rootController?.showNav(0.3, completion: { (bool) in
             
@@ -73,7 +73,7 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
     }
 
     
-    @IBAction func globe(sender: AnyObject) {
+    @IBAction func globe(_ sender: AnyObject) {
 
         print("globe")
         
@@ -85,9 +85,9 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
     }
     
     
-    @IBAction func profile(sender: AnyObject) {
+    @IBAction func profile(_ sender: AnyObject) {
 
-        UIView.animateWithDuration(0.3, animations: {
+        UIView.animate(withDuration: 0.3, animations: {
             
             if let screenHeight = self.rootController?.view.bounds.height {
                 
@@ -101,12 +101,12 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
 
             }
 
-            }) { (bool) in
+            }, completion: { (bool) in
                 
                 self.rootController?.squadCountRevealed = false
                 self.rootController?.requestsRevealed = false
                 
-        }
+        }) 
         
         
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
@@ -127,14 +127,14 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
     //Functions
     func presentFusumaCamera(){
         
-        UIApplication.sharedApplication().statusBarHidden = true
+        UIApplication.shared.isStatusBarHidden = true
         
         let fusuma = FusumaViewController()
         fusuma.delegate = self
         fusuma.hasVideo = true
-        fusuma.modalTransitionStyle = UIModalTransitionStyle.CrossDissolve
+        fusuma.modalTransitionStyle = UIModalTransitionStyle.crossDissolve
 
-        presentViewController(fusuma, animated: true) {
+        present(fusuma, animated: true) {
             
             self.rootController?.cameraTransitionOutlet.alpha = 1
             
@@ -145,7 +145,7 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
     
     
     //Adobe Delegates
-    func photoEditor(editor: AdobeUXImageEditorViewController, finishedWithImage image: UIImage?) {
+    func photoEditor(_ editor: AdobeUXImageEditorViewController, finishedWith image: UIImage?) {
         
         /*
         let transition: CATransition = CATransition()
@@ -168,9 +168,9 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
         
         
         
-        editor.dismissViewControllerAnimated(false) {
+        editor.dismiss(animated: false) {
             
-            UIApplication.sharedApplication().statusBarHidden = false
+            UIApplication.shared.isStatusBarHidden = false
             
             self.rootController?.toggleHandlePost(image, videoURL: nil, isImage: true, completion: { (bool) in
                 
@@ -184,18 +184,18 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
         print("photo editor chosen")
         
     }
-    func photoEditorCanceled(editor: AdobeUXImageEditorViewController) {
+    func photoEditorCanceled(_ editor: AdobeUXImageEditorViewController) {
         
         let transition: CATransition = CATransition()
         transition.duration = 0.3
         transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
         transition.type = kCATransitionPush
         transition.subtype = kCATransitionFromLeft
-        editor.view.window?.layer.addAnimation((transition), forKey: nil)
+        editor.view.window?.layer.add((transition), forKey: nil)
         
         let scopeRoot = rootController
         
-        editor.dismissViewControllerAnimated(false) {
+        editor.dismiss(animated: false) {
             
             scopeRoot?.cameraTransitionOutlet.alpha = 1
 
@@ -206,12 +206,12 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
     }
     
     //Fusuma Delegates
-    func fusumaImageSelected(image: UIImage) {
+    func fusumaImageSelected(_ image: UIImage) {
         
         print("image selected")
         
     }
-    func fusumaDismissedWithImage(image: UIImage) {
+    func fusumaDismissedWithImage(_ image: UIImage) {
         
         print("fusuma dismissed with image")
         
@@ -220,29 +220,29 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
         transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
         transition.type = kCATransitionPush
         transition.subtype = kCATransitionFromRight
-        self.view.window?.layer.addAnimation((transition), forKey: nil)
+        self.view.window?.layer.add((transition), forKey: nil)
         
         
         let editorController = AdobeUXImageEditorViewController(image: image)
         editorController.delegate = self
         
-        self.presentViewController(editorController, animated: false, completion: nil)
+        self.present(editorController, animated: false, completion: nil)
         
     }
-    func fusumaVideoCompleted(withFileURL fileURL: NSURL) {
+    func fusumaVideoCompleted(withFileURL fileURL: URL) {
         
         let scopeRoot = rootController
         
-        UIApplication.sharedApplication().statusBarHidden = false
+        UIApplication.shared.isStatusBarHidden = false
 
-        let asset = AVURLAsset(URL: fileURL)
+        let asset = AVURLAsset(url: fileURL)
         let imgGenerator = AVAssetImageGenerator(asset: asset)
         imgGenerator.appliesPreferredTrackTransform = true
         
         do {
 
-            let cgImage =  try imgGenerator.copyCGImageAtTime(CMTimeMake(0, 1), actualTime: nil)
-            let uiImage = UIImage(CGImage: cgImage)
+            let cgImage =  try imgGenerator.copyCGImage(at: CMTimeMake(0, 1), actualTime: nil)
+            let uiImage = UIImage(cgImage: cgImage)
             
             scopeRoot?.toggleHandlePost(uiImage, videoURL: fileURL, isImage: false, completion: { (bool) in
                 print("video handled")
@@ -260,16 +260,16 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
     }
     func fusumaCameraRollUnauthorized() {
         
-        let alertController = UIAlertController(title: "Sorry", message: "Camera not authorized", preferredStyle:  UIAlertControllerStyle.Alert)
-        alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.Cancel, handler: nil))
-        self.presentViewController(alertController, animated: true, completion: nil)
+        let alertController = UIAlertController(title: "Sorry", message: "Camera not authorized", preferredStyle:  UIAlertControllerStyle.alert)
+        alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.cancel, handler: nil))
+        self.present(alertController, animated: true, completion: nil)
         
         print("camera unauthorized")
         
     }
     func fusumaClosed() {
         
-        UIApplication.sharedApplication().statusBarHidden = false
+        UIApplication.shared.isStatusBarHidden = false
         
         rootController?.cameraTransitionOutlet.alpha = 0
         

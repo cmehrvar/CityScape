@@ -15,7 +15,7 @@ class ComposeIndicatorView: UIView {
         super.awakeFromNib()
         layer.cornerRadius = 15
         layer.borderWidth = 3
-        layer.borderColor = UIColor.darkGrayColor().CGColor
+        layer.borderColor = UIColor.darkGray.cgColor
         self.clipsToBounds = true
         
     }

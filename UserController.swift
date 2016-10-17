@@ -14,8 +14,8 @@ import FirebaseAuth
 class UserController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UIGestureRecognizerDelegate, UICollectionViewDelegateFlowLayout {
 
     weak var searchController: SearchController?
-    var globUsers = [[NSObject : AnyObject]]()
-    var dataSourceForSearchResult = [[NSObject : AnyObject]]()
+    var globUsers = [[AnyHashable: Any]]()
+    var dataSourceForSearchResult = [[AnyHashable: Any]]()
 
     @IBOutlet weak var globCollectionView: UICollectionView!
 
@@ -30,7 +30,7 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
             
             var index = 0
             
-            ref.observeEventType(.ChildAdded, withBlock: { (snapshot) in
+            ref.observe(.childAdded, with: { (snapshot) in
                 
                 if selfUID != snapshot.key {
                     
@@ -40,13 +40,13 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
                             
                             let scopeIndex = index
                             
-                            self.globUsers.insert([NSObject : AnyObject](), atIndex: scopeIndex)
+                            self.globUsers.insert([AnyHashable: Any](), at: scopeIndex)
                             
                             let userRef = FIRDatabase.database().reference().child("users").child(snapshot.key)
                             
-                            userRef.observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                            userRef.observeSingleEvent(of: .value, with: { (snapshot) in
                                 
-                                if let value = snapshot.value as? [NSObject : AnyObject] {
+                                if let value = snapshot.value as? [AnyHashable: Any] {
                                     
                                     self.globUsers[scopeIndex] = value
                                     self.globCollectionView.reloadData()
@@ -61,13 +61,13 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
                         
                         let scopeIndex = index
                         
-                        self.globUsers.insert([NSObject : AnyObject](), atIndex: scopeIndex)
+                        self.globUsers.insert([AnyHashable: Any](), at: scopeIndex)
                         
                         let userRef = FIRDatabase.database().reference().child("users").child(snapshot.key)
                         
-                        userRef.observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                        userRef.observeSingleEvent(of: .value, with: { (snapshot) in
                             
-                            if let value = snapshot.value as? [NSObject : AnyObject] {
+                            if let value = snapshot.value as? [AnyHashable: Any] {
                                 
                                 self.globUsers[scopeIndex] = value
                                 self.globCollectionView.reloadData()
@@ -84,7 +84,7 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
     }
 
 
-    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
         if let vc = searchController {
 
@@ -105,9 +105,9 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
     }
     
 
-    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("userCell", forIndexPath: indexPath) as! UserCollectionCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "userCell", for: indexPath) as! UserCollectionCell
         
         cell.userController = self
         
@@ -115,10 +115,10 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
             
             if vc.searchBarActive {
                 
-                cell.updateUI(dataSourceForSearchResult[indexPath.row])
+                cell.updateUI(dataSourceForSearchResult[(indexPath as NSIndexPath).row])
                 
             } else {
-                cell.updateUI(globUsers[indexPath.row])
+                cell.updateUI(globUsers[(indexPath as NSIndexPath).row])
             }
         }
         
@@ -126,13 +126,13 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
  
     }
     
-    func collectionView(collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, atIndexPath indexPath: NSIndexPath) -> UICollectionReusableView {
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         
         var reusableView = UICollectionReusableView()
         
         if kind == UICollectionElementKindSectionHeader {
             
-            let cell = collectionView.dequeueReusableSupplementaryViewOfKind(UICollectionElementKindSectionHeader, withReuseIdentifier: "headerCell", forIndexPath: indexPath) as! HeaderCollectionCell
+            let cell = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "headerCell", for: indexPath) as! HeaderCollectionCell
             
             cell.userController = self
             cell.exploreOutlet.adjustsFontSizeToFitWidth = true
@@ -147,7 +147,7 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
 
     
     
-    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         
         let width = self.view.bounds.width
         return CGSize(width: width, height: 100)
@@ -156,7 +156,7 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
     
         
     
-    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
         let width = self.view.bounds.width
         
@@ -166,7 +166,7 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
     
     
     //ScrollView Delegates
-    func scrollViewWillEndDragging(scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
 
         if velocity.y > 0 {
             
@@ -201,7 +201,7 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
         super.viewDidLoad()
         
         let rightSwipeGesture = UISwipeGestureRecognizer(target: self, action: #selector(swipeToCities))
-        rightSwipeGesture.direction = .Right
+        rightSwipeGesture.direction = .right
         rightSwipeGesture.delegate = self
         self.globCollectionView.addGestureRecognizer(rightSwipeGesture)
 
@@ -214,7 +214,7 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
     }
     
     
-    func gestureRecognizer(gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWithGestureRecognizer otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         
         return true
         

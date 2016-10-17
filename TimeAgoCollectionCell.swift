@@ -12,11 +12,11 @@ class TimeAgoCollectionCell: UICollectionViewCell {
 
     @IBOutlet weak var timeAgoOutlet: UILabel!
 
-    func loadData(data: [NSObject : AnyObject]) {
+    func loadData(_ data: [AnyHashable: Any]) {
         
-        if let timeStamp = data["timeStamp"] as? NSTimeInterval {
+        if let timeStamp = data["timeStamp"] as? TimeInterval {
             
-            let timeAgo = timeAgoSince(NSDate(timeIntervalSince1970: timeStamp), showAccronym: true)
+            let timeAgo = timeAgoSince(date: Date(timeIntervalSince1970: timeStamp) as NSDate, showAccronym: true)
             
             timeAgoOutlet.text = timeAgo
             

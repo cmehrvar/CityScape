@@ -11,13 +11,13 @@ pod ‘FBSDKLoginKit’
 pod ‘FBSDKShareKit’
 pod ‘DownPicker’
 pod 'SDWebImage'
-pod ‘AWSCore’
-pod ‘AWSS3’
-pod ‘AWSCognito’
+pod ‘AWSCore’, ‘~> 2.4.10’
+pod ‘AWSS3’, ‘~> 2.4.10’
+pod ‘AWSCognito’, ‘~> 2.4.10’
 pod ‘Firebase’
 pod ‘Firebase/Database’
 pod ‘Firebase/Auth’
-pod ‘Fusuma’
+pod ‘Fusuma’, ‘~> 0.5.3’
 pod 'JSQMessagesViewController'
 pod ‘THLabel’
 pod ‘NVActivityIndicatorView’

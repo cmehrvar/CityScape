@@ -30,7 +30,7 @@ class MessageCell: UITableViewCell {
     @IBOutlet weak var unreadViewOutlet: UIView!
 
     
-    @IBAction func goToMessage(sender: AnyObject) {
+    @IBAction func goToMessage(_ sender: AnyObject) {
         
         let scopeUID = uid
         let scopeChatKey = chatKey
@@ -61,7 +61,7 @@ class MessageCell: UITableViewCell {
         })
     }
     
-    func loadCell(data: [NSObject : AnyObject]) {
+    func loadCell(_ data: [AnyHashable: Any]) {
 
         if let read = data["read"] as? Bool {
             
@@ -82,12 +82,12 @@ class MessageCell: UITableViewCell {
             
             let ref = FIRDatabase.database().reference().child("users").child(uid)
             
-            ref.child("profilePicture").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+            ref.child("profilePicture").observeSingleEvent(of: .value, with: { (snapshot) in
                 
-                if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
+                if let profileString = snapshot.value as? String, let url = URL(string: profileString) {
                     
                     self.profile = profileString
-                    self.profileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                    self.profileOutlet.sd_setImage(with: url, placeholderImage: nil)
 
                 }
             })
@@ -116,15 +116,15 @@ class MessageCell: UITableViewCell {
                         
                         let ref = FIRDatabase.database().reference().child("groupChats").child(key)
                         
-                        ref.child("groupPhoto").observeSingleEventOfType(.Value, withBlock: { (snapshot) in
+                        ref.child("groupPhoto").observeSingleEvent(of: .value, with: { (snapshot) in
                             
                             if snapshot.exists() {
                                 
                                 if self.chatKey == key {
                                     
-                                    if let profileString = snapshot.value as? String, url = NSURL(string: profileString) {
+                                    if let profileString = snapshot.value as? String, let url = URL(string: profileString) {
                                         
-                                        self.profileOutlet.sd_setImageWithURL(url, placeholderImage: nil)
+                                        self.profileOutlet.sd_setImage(with: url, placeholderImage: nil)
                                         
                                     }
                                 }
@@ -145,7 +145,7 @@ class MessageCell: UITableViewCell {
             }
         }
         
-        if let firstName = data["firstName"] as? String, lastName = data["lastName"] as? String {
+        if let firstName = data["firstName"] as? String, let lastName = data["lastName"] as? String {
             
             self.firstName = firstName
             self.lastName = lastName
@@ -169,7 +169,7 @@ class MessageCell: UITableViewCell {
         // Initialization code
     }
 
-    override func setSelected(selected: Bool, animated: Bool) {
+    override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
 
         // Configure the view for the selected state
