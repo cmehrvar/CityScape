@@ -59,6 +59,7 @@ class MainRootController: UIViewController {
     var leaderboardIsRevealed = false
     var contactUsRevealed = false
     var settingsIsRevealed = false
+    var addFromFacebookIsRevealed = false
     
     var vibesLoadedFromSelf = false
     
@@ -105,6 +106,8 @@ class MainRootController: UIViewController {
     @IBOutlet weak var settingsTopConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var settingsBottomConstOutlet: NSLayoutConstraint!
     
+    @IBOutlet weak var facebookTopConstOutlet: NSLayoutConstraint!
+    @IBOutlet weak var facebookBottomConstOutlet: NSLayoutConstraint!
 
     //views
     @IBOutlet weak var closeMenuContainer: UIView!
@@ -126,6 +129,7 @@ class MainRootController: UIViewController {
     @IBOutlet weak var contactUsContainer: UIView!
     @IBOutlet weak var composeChatOutlet: UIButton!
     @IBOutlet weak var settingsContainer: UIView!
+    @IBOutlet weak var addFromFacebookContainer: UIView!
     
 
     //View Controllers
@@ -152,6 +156,7 @@ class MainRootController: UIViewController {
     weak var leaderBoardController: LeaderboardController?
     weak var contactController: ContactUsController?
     weak var settingsController: SettingsViewController?
+    weak var facebookController: AddFromFacebookController?
 
     @IBAction func composeMessage(_ sender: AnyObject) {
         
@@ -1302,6 +1307,9 @@ class MainRootController: UIViewController {
         
         clearVibesPlayers()
         
+        searchController?.userController?.observeUsers()
+        
+        
         self.showNav(0.3) { (bool) in
             
             print("nav shown")
@@ -1546,13 +1554,19 @@ class MainRootController: UIViewController {
                         
                     }
                     
-                    
-                    if let currentStatus = value["currentStatus"] as? String {
+                    if let keyboardShown = self.menuController?.keyboardShown {
                         
-                        self.menuController?.currentStatusTextViewOutlet.text = currentStatus
-                        self.menuController?.charactersOutlet.text = "\(currentStatus.characters.count)/30 Characters"
-                        
+                        if !keyboardShown {
+                            
+                            if let currentStatus = value["currentStatus"] as? String {
+                                
+                                self.menuController?.currentStatusTextViewOutlet.text = currentStatus
+                                self.menuController?.charactersOutlet.text = "\(currentStatus.characters.count)/30 Characters"
+                                
+                            }
+                        } 
                     }
+    
                     
                     if let city = value["city"] as? String {
                         
@@ -1684,19 +1698,6 @@ class MainRootController: UIViewController {
                         self.requestsController?.requests.removeAll()
 
                     }
-                    
-                    if self.searchController?.userController?.globUsers.count == 0 {
-                        
-                        self.searchController?.userController?.observeUsers()
-                        
-                    }
-                    
-                    if self.searchController?.cityController?.globCities.count == 0 {
-                        
-                        self.searchController?.cityController?.observeCities()
-                        
-                    }
-                    
 
                     if self.vibesLoadedFromSelf == false {
                         
@@ -1775,6 +1776,12 @@ class MainRootController: UIViewController {
                     if let squad = value["squad"] as? [AnyHashable: Any] {
                         
                         self.composeChatController?.loadTableView(squad)
+                        
+                    }
+                    
+                    if self.searchController?.cityController?.globCities.count == 0 {
+                        
+                        self.searchController?.cityController?.observeCities()
                         
                     }
 
@@ -2271,6 +2278,13 @@ class MainRootController: UIViewController {
             let settings = segue.destination as? SettingsViewController
             settingsController = settings
             settingsController?.rootController = self
+            
+        } else if segue.identifier == "addFromFacebookSegue" {
+            
+            let facebook = segue.destination as? AddFromFacebookController
+            facebookController = facebook
+            facebookController?.mainRootController = self
+            
             
         }
         

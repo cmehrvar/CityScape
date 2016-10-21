@@ -70,9 +70,11 @@ class LogInController: UIViewController {
                     
                     if error == nil {
                         
+                        print(result?.token.userID)
+                        
                         print("logged in")
                         if FBSDKAccessToken.current() != nil {
-                            
+    
                             UIView.animate(withDuration: 0.3, animations: {
                                 self.loadingView.alpha = 1
                             }) 
@@ -190,6 +192,13 @@ class LogInController: UIViewController {
                                                                         
                                                                         ref.child("lastCityRank").setValue(rank + 1)
                                                                         ref.child("users").child(uid).setValue(userData)
+                                                                        
+                                                                        if let facebookUID = FBSDKAccessToken.current().userID {
+                                                                            
+                                                                            ref.child("facebookUIDs").child(facebookUID).setValue(uid)
+                                                                            
+                                                                        }
+                                                                        
                                                                         ref.child("userScores").child(uid).setValue(0)
                                                                         ref.child("userUIDs").child(uid).setValue(true)
                                                                         
@@ -380,20 +389,14 @@ class LogInController: UIViewController {
      override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
      // Get the new view controller using segue.destinationViewController.
      // Pass the selected object to the new view controller.
-        
-        
+
         if segue.identifier == "termsSegue" {
             
             let terms = segue.destination as! TermsOfServiceController
             termsController = terms
             termsController?.logInController = self
-            //termsController.log
-            
-            
-        }
-        
-        
-        
+ 
+        } 
      }
     
     

@@ -365,7 +365,9 @@ extension FSVideoCameraView {
             if let device = device {
                 
                 try device.lockForConfiguration()
-                
+
+                guard device.hasFlash else {return}
+
                 device.flashMode = AVCaptureFlashMode.off
                 flashButton.setImage(flashOffImage, for: UIControlState())
                 

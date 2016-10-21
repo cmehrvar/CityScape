@@ -54,19 +54,22 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
     //Functions
     func setMenu(){
         
-        if let status = rootController?.selfData["currentStatus"] as? String {
+        if !keyboardShown {
             
-            currentStatusTextViewOutlet.text = status
-            charactersOutlet.text = "\(status.characters.count)/30 Characters"
-
-        } else {
-            
-            currentStatusTextViewOutlet.text = nil
-            charactersOutlet.text = "0/30 Characters"
-            
+            if let status = rootController?.selfData["currentStatus"] as? String {
+                
+                currentStatusTextViewOutlet.text = status
+                charactersOutlet.text = "\(status.characters.count)/30 Characters"
+                
+            } else {
+                
+                currentStatusTextViewOutlet.text = nil
+                charactersOutlet.text = "0/30 Characters"
+                
+            }
         }
         
-        
+
         if let profilePicture = rootController?.selfData["profilePicture"] as? String, let profileURL = URL(string: profilePicture) {
             
             if profileUID == "" {
@@ -324,34 +327,6 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
                 
             })
         })
-        
-        
-        /*
-        var selfUID = ""
-        
-        if let uid = FIRAuth.auth()?.currentUser?.uid {
-            
-            selfUID = uid
-            
-        }
-        
-        FBSDKLoginManager().logOut()
-        
-        do {
-            try FIRAuth.auth()?.signOut()
-        } catch let error {
-            print(error)
-        }
-        
-        let vc = self.storyboard?.instantiateViewControllerWithIdentifier("initial") as! LogInController
-        
-        presentViewController(vc, animated: true) {
-            
-            let ref = FIRDatabase.database().reference().child("users").child(selfUID)
-            ref.updateChildValues(["online" : false])
-            
-        }
- */
     }
     
     func keyboardDidShow(){

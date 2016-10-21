@@ -29,12 +29,9 @@ class SettingsViewController: UIViewController {
     @IBOutlet weak var intoWomenOutlet: UIButton!
     @IBOutlet weak var intoBothView: NavButtonView!
     @IBOutlet weak var intoBothOutlet: UIButton!
-    
-    
+
     @IBOutlet weak var logOutViewOutlet: UIView!
-    
-    
-    
+
     @IBAction func imMale(_ sender: AnyObject) {
         
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
@@ -43,12 +40,8 @@ class SettingsViewController: UIViewController {
             toggleGenderColour(1)
             
         }
-        
-        
-        
     }
-    
-    
+
     @IBAction func imFemale(_ sender: AnyObject) {
         
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
@@ -57,12 +50,8 @@ class SettingsViewController: UIViewController {
             toggleGenderColour(2)
             
         }
-        
     }
-    
-    
-    
-    
+
     @IBAction func intoMen(_ sender: AnyObject) {
         
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
@@ -72,10 +61,8 @@ class SettingsViewController: UIViewController {
             query()
             
         }
-        
     }
-    
-    
+
     @IBAction func intoWomen(_ sender: AnyObject) {
         
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
@@ -85,10 +72,8 @@ class SettingsViewController: UIViewController {
             query()
             
         }
-        
     }
-    
-    
+
     @IBAction func intoBoth(_ sender: AnyObject) {
         
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
@@ -99,9 +84,7 @@ class SettingsViewController: UIViewController {
             
         }
     }
-    
-    
-    
+
     @IBAction func deleteAccount(_ sender: AnyObject) {
         
         let alertController = NYAlertViewController()
@@ -128,129 +111,137 @@ class SettingsViewController: UIViewController {
                 let myUID = currentUser.uid
                 
                 self.dismiss(animated: true, completion: {
-
-                    let myRef = FIRDatabase.database().reference().child("users").child(myUID)
                     
-                    myRef.observeSingleEvent(of: .value, with: { (snapshot) in
-
-                        if let myData = snapshot.value as? [AnyHashable: Any] {
+                    
+                    
+                        
+                        FIRDatabase.database().reference().child("leaders").child(myUID).removeValue()
+                        
+                        let myRef = FIRDatabase.database().reference().child("users").child(myUID)
+                        
+                        myRef.observeSingleEvent(of: .value, with: { (snapshot) in
                             
-                            if let mySquad = myData["squad"] as? [AnyHashable: Any] {
+                            if let myData = snapshot.value as? [AnyHashable: Any] {
                                 
-                                for (_, value) in mySquad {
+                                if let mySquad = myData["squad"] as? [AnyHashable: Any] {
                                     
-                                    if let squadMember = value as? [AnyHashable : Any], let uid = squadMember["uid"] as? String {
-
-                                        FIRDatabase.database().reference().child("users").child(uid).child("notifications").child(myUID).removeValue()
+                                    for (_, value) in mySquad {
+                                        
+                                        if let squadMember = value as? [AnyHashable : Any], let uid = squadMember["uid"] as? String {
+                                            
+                                            FIRDatabase.database().reference().child("users").child(uid).child("notifications").child(myUID).removeValue()
                                             FIRDatabase.database().reference().child("users").child(uid).child("squad").child(myUID)
                                                 .removeValue()
-                                        
+                                            
+                                        }
                                     }
                                 }
-                            }
-                            
-                            if let myMatches = myData["matches"] as? [AnyHashable: Any] {
                                 
-                                for (_, value) in myMatches {
+                                if let myMatches = myData["matches"] as? [AnyHashable: Any] {
                                     
-                                    if let matchMember = value as? [AnyHashable : Any], let uid = matchMember["uid"] as? String {
-
-                                        FIRDatabase.database().reference().child("users").child(uid).child("notifications").child(myUID).removeValue()
-                                        FIRDatabase.database().reference().child("users").child(uid).child("matches").child(myUID).removeValue()
+                                    for (_, value) in myMatches {
                                         
+                                        if let matchMember = value as? [AnyHashable : Any], let uid = matchMember["uid"] as? String {
+                                            
+                                            FIRDatabase.database().reference().child("users").child(uid).child("notifications").child(myUID).removeValue()
+                                            FIRDatabase.database().reference().child("users").child(uid).child("matches").child(myUID).removeValue()
+                                            
+                                        }
                                     }
                                 }
-                            }
-                            
-                            if let myGroupChats = myData["groupChats"] as? [AnyHashable: Any] {
                                 
-                                for (_, chat) in myGroupChats {
+                                if let myGroupChats = myData["groupChats"] as? [AnyHashable: Any] {
                                     
-                                    if let chatValue = chat as? [AnyHashable : Any] {
+                                    for (_, chat) in myGroupChats {
                                         
-                                        if let key = chatValue["key"] as? String, let members = chatValue["members"] as? [String : Bool] {
+                                        if let chatValue = chat as? [AnyHashable : Any] {
                                             
-                                            var newMembers = members
-                                            newMembers.removeValue(forKey: myUID)
-                                            
-                                        
-                                            
-                                            FIRDatabase.database().reference().child("groupChats").child(key).child("members").setValue(newMembers)
-                                            
-                                            for (member, _) in members {
+                                            if let key = chatValue["key"] as? String, let members = chatValue["members"] as? [String : Bool] {
                                                 
-                                                FIRDatabase.database().reference().child("users").child(member).child("notifications").child(myUID).removeValue()
+                                                var newMembers = members
+                                                newMembers.removeValue(forKey: myUID)
                                                 
-                                                FIRDatabase.database().reference().child("users").child(member).child("groupChats").child(key).child("members").setValue(newMembers)
                                                 
+                                                
+                                                FIRDatabase.database().reference().child("groupChats").child(key).child("members").setValue(newMembers)
+                                                
+                                                for (member, _) in members {
+                                                    
+                                                    FIRDatabase.database().reference().child("users").child(member).child("notifications").child(myUID).removeValue()
+                                                    
+                                                    FIRDatabase.database().reference().child("users").child(member).child("groupChats").child(key).child("members").setValue(newMembers)
+                                                    
+                                                }
                                             }
                                         }
                                     }
                                 }
-                            }
-                            
-                            if let myPosts = myData["posts"] as? [AnyHashable : Any] {
                                 
-                                for (_, value) in myPosts {
+                                if let myPosts = myData["posts"] as? [AnyHashable : Any] {
                                     
-                                    if let post = value as? [AnyHashable : Any], let city = post["city"] as? String, let key = post["postChildKey"] as? String {
+                                    for (_, value) in myPosts {
                                         
-                                        FIRDatabase.database().reference().child("posts").child(city).child(key).removeValue()
-                                        FIRDatabase.database().reference().child("allPosts").child(key).removeValue()
-                                        
-                                        FIRDatabase.database().reference().child("posts").child(city).queryLimited(toFirst: 1).observeSingleEvent(of: .value, with: { (snapshot) in
+                                        if let post = value as? [AnyHashable : Any], let city = post["city"] as? String, let key = post["postChildKey"] as? String {
                                             
-                                            if !snapshot.exists() {
+                                            FIRDatabase.database().reference().child("posts").child(city).child(key).removeValue()
+                                            FIRDatabase.database().reference().child("allPosts").child(key).removeValue()
+                                            
+                                            FIRDatabase.database().reference().child("posts").child(city).queryLimited(toFirst: 1).observeSingleEvent(of: .value, with: { (snapshot) in
                                                 
-                                                FIRDatabase.database().reference().child("cityLocations").child(city).removeValue()
-                                                
-                                            }
-                                        })
+                                                if !snapshot.exists() {
+                                                    
+                                                    FIRDatabase.database().reference().child("cityLocations").child(city).removeValue()
+                                                    
+                                                }
+                                            })
+                                        }
                                     }
                                 }
-                            }
-                            
-                            
-                            FIRDatabase.database().reference().child("users").child(myUID).removeValue()
-                            FIRDatabase.database().reference().child("userLocations").child(myUID).removeValue()
-                            FIRDatabase.database().reference().child("userScores").child(myUID).removeValue()
-                            FIRDatabase.database().reference().child("userUIDs").child(myUID).removeValue()
-                            
-                            FIRDatabase.database().reference().child("lastCityRank").observeSingleEvent(of: .value, with: { (snapshot) in
                                 
-                                if let rank = snapshot.value as? Int {
-                                    
-                                    FIRDatabase.database().reference().child("lastCityRank").setValue(rank - 1)
-                                    
-                                }
-                            })
-
-                            let vc = self.storyboard?.instantiateViewController(withIdentifier: "initial") as! LogInController
-                            
-                            self.present(vc, animated: true) {
                                 
-                                currentUser.delete(completion: { (error) in
+                                FIRDatabase.database().reference().child("users").child(myUID).removeValue()
+                                FIRDatabase.database().reference().child("userLocations").child(myUID).removeValue()
+                                FIRDatabase.database().reference().child("userScores").child(myUID).removeValue()
+                                FIRDatabase.database().reference().child("userUIDs").child(myUID).removeValue()
+                                
+                                FIRDatabase.database().reference().child("lastCityRank").observeSingleEvent(of: .value, with: { (snapshot) in
                                     
-                                    if error == nil {
+                                    if let rank = snapshot.value as? Int {
                                         
-                                        print("user deleted")
+                                        FIRDatabase.database().reference().child("lastCityRank").setValue(rank - 1)
                                         
-                                        FBSDKLoginManager().logOut()
-                                        
-                                        do {
-                                            try FIRAuth.auth()?.signOut()
-                                        } catch let signOutError {
-                                            print(signOutError)
-                                        }
                                     }
                                 })
+                                
+                                do {
+                                    try FIRAuth.auth()?.signOut()
+                                } catch let error {
+                                    print(error)
+                                }
+                                
+                                FBSDKLoginManager().logOut()
+                                
+                                let vc = self.storyboard?.instantiateViewController(withIdentifier: "initial") as! LogInController
+                                
+                                self.present(vc, animated: true) {
+                                    
+                                    currentUser.delete(completion: { (error) in
+                                        
+                                        if error == nil {
+                                            
+                                            print("user deleted")
+
+                                        }
+                                    })
+                                }
                             }
-                         }
-                    })
+                        })
+                        
+                    
                 })
             }
         }))
-        
+
         self.present(alertController, animated: true) {
             
             print("alert controller presented")
@@ -346,13 +337,13 @@ class SettingsViewController: UIViewController {
             let myLocation = CLLocation(latitude: myLatitude, longitude: myLongitude)
             
             self.rootController?.nearbyController?.queryNearby(myLocation)
-
+            
         }
     }
     
     
     func toggleInterestedInColor(_ button: Int) {
-
+        
         if button == 1 {
             
             intoMenView.backgroundColor = UIColor.white

@@ -83,6 +83,7 @@
 		A3BB98291D1B63D800BD384F /* ProfileSignUpController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BB98281D1B63D800BD384F /* ProfileSignUpController.swift */; };
 		A3BB982B1D1C5ACD00BD384F /* SignInController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BB982A1D1C5ACD00BD384F /* SignInController.swift */; };
 		A3BB982D1D1C5DC200BD384F /* ForgotPasswordController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3BB982C1D1C5DC200BD384F /* ForgotPasswordController.swift */; };
+		A3C119891DB9B25C0073C8F8 /* AddFromFacebookController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C119881DB9B25C0073C8F8 /* AddFromFacebookController.swift */; };
 		A3C2D1D51D9DF4BA0083D302 /* LikeButtonsCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C2D1D41D9DF4BA0083D302 /* LikeButtonsCollectionCell.swift */; };
 		A3C2D1D71D9DF4DA0083D302 /* IncomingCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C2D1D61D9DF4DA0083D302 /* IncomingCollectionCell.swift */; };
 		A3C2D1D91D9DF4EB0083D302 /* OutgoingCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3C2D1D81D9DF4EB0083D302 /* OutgoingCollectionCell.swift */; };
@@ -243,6 +244,7 @@
 		A3BB98281D1B63D800BD384F /* ProfileSignUpController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileSignUpController.swift; sourceTree = "<group>"; };
 		A3BB982A1D1C5ACD00BD384F /* SignInController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignInController.swift; sourceTree = "<group>"; };
 		A3BB982C1D1C5DC200BD384F /* ForgotPasswordController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ForgotPasswordController.swift; sourceTree = "<group>"; };
+		A3C119881DB9B25C0073C8F8 /* AddFromFacebookController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddFromFacebookController.swift; sourceTree = "<group>"; };
 		A3C2D1D41D9DF4BA0083D302 /* LikeButtonsCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LikeButtonsCollectionCell.swift; sourceTree = "<group>"; };
 		A3C2D1D61D9DF4DA0083D302 /* IncomingCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IncomingCollectionCell.swift; sourceTree = "<group>"; };
 		A3C2D1D81D9DF4EB0083D302 /* OutgoingCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutgoingCollectionCell.swift; sourceTree = "<group>"; };
@@ -518,6 +520,7 @@
 				A35DB7351D79EE8E00409D16 /* ActionsViewController.swift */,
 				A35644F11D7F9F1F00D005A9 /* SnapchatViewController.swift */,
 				A3E5DF481DB2BBA400C72D16 /* SettingsViewController.swift */,
+				A3C119881DB9B25C0073C8F8 /* AddFromFacebookController.swift */,
 			);
 			name = Other;
 			sourceTree = "<group>";
@@ -1267,6 +1270,7 @@
 				A3A31D1B1D9C760000BB0509 /* AddToChatCollectionCell.swift in Sources */,
 				A3C8C24A1D55E64500F703AA /* TopNavBarController.swift in Sources */,
 				A3DA530B1D93384B00FCC91B /* RequestTableViewCell.swift in Sources */,
+				A3C119891DB9B25C0073C8F8 /* AddFromFacebookController.swift in Sources */,
 				A3D11B421D5763A8006884BF /* GFGeoHash.m in Sources */,
 				A3F3B9A01D87198D00313D59 /* SearchController.swift in Sources */,
 				A3FC18951D3412F30031D165 /* DateExtension.swift in Sources */,
@@ -1539,7 +1543,7 @@
 					USE_CSDK_COMPONENTS,
 				);
 				INFOPLIST_FILE = CityScape/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = DormRoom.CityScape;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1586,7 +1590,7 @@
 					USE_CSDK_COMPONENTS,
 				);
 				INFOPLIST_FILE = CityScape/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = DormRoom.CityScape;
 				PRODUCT_NAME = "$(TARGET_NAME)";

@@ -14,6 +14,7 @@ import FBSDKCoreKit
 import AWSCognito
 import AVFoundation
 import NWPusher
+import UserNotifications
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -107,11 +108,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         FIRDatabase.database().persistenceEnabled = true
         
-        if application.responds(to: #selector(application.registerUserNotificationSettings)) {
-            
-            let settings = UIUserNotificationSettings(types: [.alert, .badge, .sound], categories: nil)
-            UIApplication.shared.registerUserNotificationSettings(settings)
-        
+        // iOS 10 support
+        if #available(iOS 10, *) {
+            UNUserNotificationCenter.current().requestAuthorization(options:[.badge, .alert, .sound]){ (granted, error) in }
+            application.registerForRemoteNotifications()
+        }
+            // iOS 9 support
+        else if #available(iOS 9, *) {
+            UIApplication.shared.registerUserNotificationSettings(UIUserNotificationSettings(types: [.badge, .sound, .alert], categories: nil))
+            UIApplication.shared.registerForRemoteNotifications()
+        }
+            // iOS 8 support
+        else if #available(iOS 8, *) {
+            UIApplication.shared.registerUserNotificationSettings(UIUserNotificationSettings(types: [.badge, .sound, .alert], categories: nil))
+            UIApplication.shared.registerForRemoteNotifications()
+        }
+            // iOS 7 support
+        else {  
+            application.registerForRemoteNotifications(matching: [.badge, .sound, .alert])
         }
         
         if let url = Bundle.main.url(forResource: "AtlasProduction", withExtension: ".p12") {
@@ -219,15 +233,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken token: Data) {
-        
-        var pushToken = token.description
-        pushToken = pushToken.replacingOccurrences(of: "<", with: "")
-        pushToken = pushToken.replacingOccurrences(of: ">", with: "")
-        pushToken = pushToken.replacingOccurrences(of: " ", with: "")
-        
+
+        let deviceTokenString = token.reduce("", {$0 + String(format: "%02X", $1)})
+        print("APNs device token: \(deviceTokenString)")
+
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
-            FIRDatabase.database().reference().child("users").child(selfUID).child("pushToken").setValue(pushToken)
+            FIRDatabase.database().reference().child("users").child(selfUID).child("pushToken").setValue(deviceTokenString)
             
             
         }

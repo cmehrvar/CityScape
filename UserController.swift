@@ -12,17 +12,19 @@ import FirebaseDatabase
 import FirebaseAuth
 
 class UserController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UIGestureRecognizerDelegate, UICollectionViewDelegateFlowLayout {
-
+    
     weak var searchController: SearchController?
     var globUsers = [[AnyHashable: Any]]()
+    var globUserIndexes = [String : Int]()
     var dataSourceForSearchResult = [[AnyHashable: Any]]()
-
+    
     @IBOutlet weak var globCollectionView: UICollectionView!
-
+    
     //Functions
     func observeUsers(){
-
+        
         self.globUsers.removeAll()
+        self.globUserIndexes.removeAll()
         
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
@@ -30,64 +32,72 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
             
             var index = 0
             
-            ref.observe(.childAdded, with: { (snapshot) in
+            ref.observeSingleEvent(of: .value, with: { (snapshot) in
                 
-                if selfUID != snapshot.key {
+                if let value = snapshot.value as? [String : Bool] {
                     
-                    if let myReported = self.searchController?.rootController?.selfData["reportedUsers"] as? [String : Bool] {
+                    for (uid, _) in value {
                         
-                        if myReported[snapshot.key] == nil {
+                        if selfUID != uid {
                             
-                            let scopeIndex = index
-                            
-                            self.globUsers.insert([AnyHashable: Any](), at: scopeIndex)
-                            
-                            let userRef = FIRDatabase.database().reference().child("users").child(snapshot.key)
-                            
-                            userRef.observeSingleEvent(of: .value, with: { (snapshot) in
+                            if let myReported = self.searchController?.rootController?.selfData["reportedUsers"] as? [String : Bool] {
                                 
-                                if let value = snapshot.value as? [AnyHashable: Any] {
+                                if myReported[uid] == nil {
                                     
-                                    self.globUsers[scopeIndex] = value
-                                    self.globCollectionView.reloadData()
+                                    let scopeIndex = index
+                                    self.globUserIndexes[uid] = index
+                                    
+                                    self.globUsers.insert([AnyHashable: Any](), at: scopeIndex)
+                                    
+                                    let userRef = FIRDatabase.database().reference().child("users").child(uid)
+                                    
+                                    userRef.observeSingleEvent(of: .value, with: { (snapshot) in
+                                        
+                                        if let value = snapshot.value as? [AnyHashable: Any] {
+                                            
+                                            self.globUsers[scopeIndex] = value
+                                            self.globCollectionView.reloadData()
+                                            
+                                        }
+                                    })
+                                    
+                                    index += 1
                                     
                                 }
-                            })
-                            
-                            index += 1
-
-                        }
-                    } else {
-                        
-                        let scopeIndex = index
-                        
-                        self.globUsers.insert([AnyHashable: Any](), at: scopeIndex)
-                        
-                        let userRef = FIRDatabase.database().reference().child("users").child(snapshot.key)
-                        
-                        userRef.observeSingleEvent(of: .value, with: { (snapshot) in
-                            
-                            if let value = snapshot.value as? [AnyHashable: Any] {
+                            } else {
                                 
-                                self.globUsers[scopeIndex] = value
-                                self.globCollectionView.reloadData()
+                                let scopeIndex = index
+                                self.globUserIndexes[uid] = index
+                                
+                                self.globUsers.insert([AnyHashable: Any](), at: scopeIndex)
+                                
+                                let userRef = FIRDatabase.database().reference().child("users").child(uid)
+                                
+                                userRef.observeSingleEvent(of: .value, with: { (snapshot) in
+                                    
+                                    if let value = snapshot.value as? [AnyHashable: Any] {
+                                        
+                                        self.globUsers[scopeIndex] = value
+                                        self.globCollectionView.reloadData()
+                                        
+                                    }
+                                })
+                                
+                                index += 1
                                 
                             }
-                        })
-                        
-                        index += 1
-                        
+                        }
                     }
                 }
             })
         }
     }
-
-
+    
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
         if let vc = searchController {
-
+            
             if vc.searchBarActive {
                 
                 return dataSourceForSearchResult.count
@@ -99,12 +109,11 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
             }
         }
         
-        
         return 0
         
     }
     
-
+    
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "userCell", for: indexPath) as! UserCollectionCell
@@ -123,7 +132,7 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
         }
         
         return cell
- 
+        
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
@@ -144,7 +153,7 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
         return reusableView
         
     }
-
+    
     
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
@@ -154,7 +163,7 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
         
     }
     
-        
+    
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
@@ -167,7 +176,7 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
     
     //ScrollView Delegates
     func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-
+        
         if velocity.y > 0 {
             
             if globUsers.count > 6 {
@@ -178,7 +187,7 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
                     
                 })
             }
-
+            
         } else if velocity.y < 0 {
             
             searchController?.rootController?.showNav(0.3, completion: { (bool) in
@@ -188,7 +197,7 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
             })
         }
     }
-
+    
     
     func swipeToCities(){
         
@@ -204,10 +213,10 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
         rightSwipeGesture.direction = .right
         rightSwipeGesture.delegate = self
         self.globCollectionView.addGestureRecognizer(rightSwipeGesture)
-
+        
         // Do any additional setup after loading the view.
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -220,15 +229,15 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
         
     }
     
-
+    
     /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
+     // MARK: - Navigation
+     
+     // In a storyboard-based application, you will often want to do a little preparation before navigation
+     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+     // Get the new view controller using segue.destinationViewController.
+     // Pass the selected object to the new view controller.
+     }
+     */
+    
 }
