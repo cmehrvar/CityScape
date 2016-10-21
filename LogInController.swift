@@ -66,18 +66,16 @@ class LogInController: UIViewController {
             self.dismiss(animated: true, completion: {
                 
                 let login: FBSDKLoginManager = FBSDKLoginManager()
-                login.logIn(withReadPermissions: ["email", "user_birthday", "user_relationship_details", "user_work_history", "user_location"], from: self) { (result, error) in
+                login.logIn(withReadPermissions: ["email", "user_birthday", "user_relationship_details", "user_work_history", "user_location", "user_friends"], from: self) { (result, error) in
                     
                     if error == nil {
                         
-                        print(result?.token.userID)
-                        
                         print("logged in")
                         if FBSDKAccessToken.current() != nil {
-    
+
                             UIView.animate(withDuration: 0.3, animations: {
                                 self.loadingView.alpha = 1
-                            }) 
+                            })
                             
                             let credential = FIRFacebookAuthProvider.credential(withAccessToken: FBSDKAccessToken.current().tokenString)
                             
@@ -86,6 +84,36 @@ class LogInController: UIViewController {
                                 if error == nil {
                                     
                                     if let uid = user?.uid {
+
+                                        let businessReq = FBSDKGraphRequest(graphPath: "me/ids_for_business", parameters: nil, httpMethod: "GET")
+                                        
+                                        businessReq?.start(completionHandler: { (connection, result, error) in
+                                            
+                                            if error == nil {
+                                                
+                                                print(result)
+                                                
+                                                if let dictResult = result as? [AnyHashable : Any], let data = dictResult["data"] as? [[AnyHashable : Any]] {
+                                                    
+                                                    for value in data {
+                                                        
+                                                        if let id = value["id"] as? String {
+                                                            
+                                                            FIRDatabase.database().reference().child("facebookUIDs").child(id).setValue(uid)
+                                                            FIRDatabase.database().reference().child("users").child(uid).child("facebookId").setValue(id)
+                                                            
+                                                        }
+                                                    }
+                                                }
+  
+                                            } else {
+                                                
+                                                print(error)
+                                                
+                                            }
+                                            
+                                        })
+                                        
                                         
                                         self.checkIfTaken("users", credential: uid, completion: { (taken) in
                                             
@@ -100,8 +128,8 @@ class LogInController: UIViewController {
                                                             if let graphResult = result as? [AnyHashable : Any] {
                                                                 
                                                                 var userData = [AnyHashable: Any]()
-                                                                
-                                                                print(graphResult["picture"])
+
+                                                                print(graphResult)
                                                                 
                                                                 if let birthday = graphResult["birthday"] as? String {
                                                                     
@@ -119,6 +147,8 @@ class LogInController: UIViewController {
                                                                         
                                                                     }
                                                                 }
+                                                                
+                                                                print(graphResult)
                                                                 
                                                                 if let email = graphResult["email"] as? String {
                                                                     userData["email"] = email
@@ -193,11 +223,6 @@ class LogInController: UIViewController {
                                                                         ref.child("lastCityRank").setValue(rank + 1)
                                                                         ref.child("users").child(uid).setValue(userData)
                                                                         
-                                                                        if let facebookUID = FBSDKAccessToken.current().userID {
-                                                                            
-                                                                            ref.child("facebookUIDs").child(facebookUID).setValue(uid)
-                                                                            
-                                                                        }
                                                                         
                                                                         ref.child("userScores").child(uid).setValue(0)
                                                                         ref.child("userUIDs").child(uid).setValue(true)
@@ -207,31 +232,12 @@ class LogInController: UIViewController {
                                                                         self.present(vc, animated: true, completion: {
                                                                             
                                                                             vc.setStage()
-                                                                            
-                                                                            if let city = userData["city"] as? String {
-                                                                                
-                                                                                vc.vibesFeedController?.currentCity = city
-                                                                                vc.vibesFeedController?.observeCurrentCityPosts()
-                                                                                
-                                                                            }
-                                                                            
-                                                                            
-                                                                            
+                   
                                                                             vc.loadSelfData({ (userData) in
                                                                                 
                                                                                 print("first time selfData loaded")
                                                                                 
-                                                                                if userData["interestedIn"] == nil {
-                                                                                    
-                                                                                    vc.askInterestedIn()
-                                                                                    
-                                                                                } else {
-                                                                                    
-                                                                                    vc.nearbyController?.requestWhenInUseAuthorization()
-                                                                                    vc.nearbyController?.updateLocation()
-                                                                                    
-                                                                                }
-                                                                                
+                                                                                                                                                                
                                                                             })
                                                                             
                                                                             vc.toggleNearby({ (bool) in

@@ -33,6 +33,13 @@ class InitialController: UIViewController {
                         print("self data loaded")
                         
                     })
+                    
+                    vc.toggleNearby({ (bool) in
+                        
+                        print("nearby toggled")
+                        
+                    })
+                    
                 })
 
             } else {

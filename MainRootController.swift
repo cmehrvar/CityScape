@@ -172,6 +172,37 @@ class MainRootController: UIViewController {
     
     
     //Toggle Functions
+    func toggleAddFromFacebook(completion: @escaping (Bool) -> ()) {
+        
+        var offset: CGFloat = 0
+        
+        if addFromFacebookIsRevealed {
+            
+            offset = self.view.bounds.height
+            
+        } else {
+
+            facebookController?.loadFacebookFriends()
+
+        }
+        
+        addFromFacebookIsRevealed = !addFromFacebookIsRevealed
+        
+        UIView.animate(withDuration: 0.3, animations: {
+            
+            self.facebookTopConstOutlet.constant = offset
+            self.facebookBottomConstOutlet.constant = -offset
+            
+            self.view.layoutIfNeeded()
+            
+            }) { (bool) in
+                
+                completion(bool)
+                
+        }
+    }
+    
+    
     func toggleSettings(_ completion: @escaping (Bool) -> ()) {
         
         var offset: CGFloat = 0
@@ -1079,11 +1110,11 @@ class MainRootController: UIViewController {
         
     }
     
-    
     func toggleSnapchat(_ givenPosts: [[AnyHashable: Any]]?, startingi: Int?, completion: @escaping (Bool) -> ()){
         
+        snapchatRevealed = true
+        
         vibesFeedController?.videoWithSound = ""
-        //vibesFeedController?.globCollectionView.reloadData()
         
         //GET RID OF SNAPS
         snapchatController?.posts.removeAll()
@@ -1121,60 +1152,34 @@ class MainRootController: UIViewController {
         }
 
         snapchatController?.snapchatChatController?.currentPostKey = ""
-        
-        if !snapchatRevealed {
+
+        if let snapController = snapchatController, let chatController = snapController.snapchatChatController {
             
-            UIApplication.shared.isStatusBarHidden = true
+            NotificationCenter.default.addObserver(chatController, selector: #selector(chatController.hideKeyboard), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
             
-            if let snapController = snapchatController, let chatController = snapController.snapchatChatController {
-                
-                NotificationCenter.default.addObserver(chatController, selector: #selector(chatController.hideKeyboard), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
-                
-                NotificationCenter.default.addObserver(chatController, selector: #selector(chatController.showKeyboard), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
-                
-            }
-            
-            print("handle snaps on reveal")
-            
-        } else {
-            
-            //GET RID OF SNAPS
-            
-            print("handle snaps on close")
-            
-            if let snapController = snapchatController, let chatController = snapController.snapchatChatController {
-                
-                NotificationCenter.default.removeObserver(chatController, name: NSNotification.Name.UIKeyboardWillShow, object: nil)
-                NotificationCenter.default.removeObserver(chatController, name: NSNotification.Name.UIKeyboardWillHide, object: nil)
-                
-            }
-            
-            
-            print("handle closing snaps")
+            NotificationCenter.default.addObserver(chatController, selector: #selector(chatController.showKeyboard), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
             
         }
-        
-        snapchatRevealed = !snapchatRevealed
-        
-        let revealed = snapchatRevealed
-        
-        if revealed {
+
+        if let given = givenPosts, let givenIndex = startingi {
             
-            if let given = givenPosts, let givenIndex = startingi {
+            self.snapchatController?.posts = given as [[NSObject : AnyObject]]
+            
+            self.snapchatController?.loadPrimary("left", i: givenIndex - 1, completion: { (complete) in
                 
-                self.snapchatController?.posts = given as [[NSObject : AnyObject]]
-  
-                self.snapchatController?.loadPrimary("left", i: givenIndex - 1, completion: { (complete) in
+                print("start content loaded")
+                
+                DispatchQueue.main.async {
                     
-                    print("start content loaded")
+                    UIApplication.shared.isStatusBarHidden = true
                     
                     UIView.animate(withDuration: 0.3, animations: {
-                        
+  
                         self.snapchatContainerOutlet.alpha = 1
                         self.view.layoutIfNeeded()
                         
                         }, completion: { (bool) in
-                            
+
                             self.snapchatController?.screenIsCircle = false
                             self.snapchatController?.isPanning = false
                             self.snapchatController?.longPressEnabled = false
@@ -1192,12 +1197,17 @@ class MainRootController: UIViewController {
                             self.snapHeightConstOutlet.constant = self.view.bounds.height
                             
                     })
-                })
+                }
+            })
+            
+            
+        } else {
+            
+            self.snapchatController?.observePosts(100, completion: { (bool) in
                 
-                
-            } else {
-                
-                self.snapchatController?.observePosts(100, completion: { (bool) in
+                DispatchQueue.main.async {
+                    
+                    UIApplication.shared.isStatusBarHidden = true
                     
                     UIView.animate(withDuration: 0.3, animations: {
                         
@@ -1205,7 +1215,7 @@ class MainRootController: UIViewController {
                         self.view.layoutIfNeeded()
                         
                         }, completion: { (bool) in
-                            
+
                             self.snapchatController?.screenIsCircle = false
                             self.snapchatController?.isPanning = false
                             self.snapchatController?.longPressEnabled = false
@@ -1224,34 +1234,7 @@ class MainRootController: UIViewController {
                             completion(bool)
                             
                     })
-                })
-            }
-            
-        } else {
-            
-            UIView.animate(withDuration: 0.3, animations: {
-                
-                self.snapchatContainerOutlet.alpha = 0
-                self.view.layoutIfNeeded()
-                
-                }, completion: { (bool) in
-                    
-                    self.snapchatController?.screenIsCircle = false
-                    self.snapchatController?.isPanning = false
-                    self.snapchatController?.longPressEnabled = false
-                    
-                    self.snapchatController?.hideChat()
-                    
-                    self.snapXOutlet.constant = 0
-                    self.snapYOutlet.constant = 0
-                    
-                    self.snapchatController?.view.layer.cornerRadius = 0
-                    
-                    self.snapWidthConstOutlet.constant = self.view.bounds.width
-                    self.snapHeightConstOutlet.constant = self.view.bounds.height
-                    
-                    completion(bool)
-                    
+                }
             })
         }
     }
@@ -2078,6 +2061,10 @@ class MainRootController: UIViewController {
             
             self.settingsTopConstOutlet.constant = screenHeight
             self.settingsBottomConstOutlet.constant = -screenHeight
+            
+            self.facebookTopConstOutlet.constant = screenHeight
+            self.facebookBottomConstOutlet.constant = -screenHeight
+            
 
             self.menuWidthConstOutlet.constant = screenWidth * 0.8
             self.leadingMenu.constant = -(screenWidth * 0.8)
@@ -2087,9 +2074,7 @@ class MainRootController: UIViewController {
             
             self.vibesLeading.constant = screenWidth
             self.vibesTrailing.constant = -screenWidth
-            
-            
-            
+
             self.bottomNavController?.toggleColour(1)
             
             self.topChatContainerOutlet.alpha = 1
@@ -2104,6 +2089,7 @@ class MainRootController: UIViewController {
             self.leaderboardContainerOutlet.alpha = 1
             self.contactUsContainer.alpha = 1
             self.settingsContainer.alpha = 1
+            self.addFromFacebookContainer.alpha = 1
             
             self.snapchatContainerOutlet.alpha = 0
             self.searchContainerOutlet.alpha = 0
@@ -2123,8 +2109,12 @@ class MainRootController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainRootController = self
+        if let appDelegate = UIApplication.shared.delegate as? AppDelegate {
+            
+            appDelegate.mainRootController = self
+            
+        }
+        
         
         // Do any additional setup after loading the view.
     }

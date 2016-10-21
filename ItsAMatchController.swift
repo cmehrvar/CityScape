@@ -17,7 +17,6 @@ class ItsAMatchController: UIViewController {
     @IBOutlet weak var itsAOutlet: UILabel!
     @IBOutlet weak var matchOutlet: UILabel!
     @IBOutlet weak var likesYouOutlet: UILabel!
-    @IBOutlet weak var profilesViewHeightOutlet: NSLayoutConstraint!
     @IBOutlet weak var myProfileOutlet: MatchProfileViews!
     @IBOutlet weak var yourProfileOutlet: MatchProfileViews!
     @IBOutlet weak var buttonHeightConstOutlet: NSLayoutConstraint!
@@ -57,8 +56,6 @@ class ItsAMatchController: UIViewController {
         
         let screenWidth = self.view.bounds.width
         let screenHeight = self.view.bounds.height
-        
-        self.profilesViewHeightOutlet.constant = screenWidth / 2.5
         
         self.buttonHeightConstOutlet.constant = screenHeight / 10
         

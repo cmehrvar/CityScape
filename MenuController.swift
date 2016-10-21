@@ -34,6 +34,7 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
     @IBOutlet weak var charactersOutlet: UILabel!
     @IBOutlet weak var cityRankOutlet: UILabel!
     @IBOutlet weak var dismissKeyboardViewOutlet: UIView!
+    @IBOutlet weak var addFromFacebookViewOutlet: UIView!
     
     
     @IBAction func leaderboard(_ sender: AnyObject) {
@@ -259,6 +260,20 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     
     //Actions
+    @IBAction func goToFacebook(_ sender: AnyObject) {
+        
+        rootController?.toggleMenu({ (bool) in
+            
+            self.rootController?.toggleAddFromFacebook(completion: { (bool) in
+                
+                print("add from facebook shown")
+                
+            })
+        })
+    }
+    
+    
+    
     @IBAction func editProfile(_ sender: AnyObject) {
         
         let cameraProfile = UIImagePickerController()
@@ -371,6 +386,7 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
         
         worldwideViewOutlet.layer.cornerRadius = 12
         settingsViewOutlet.layer.cornerRadius = 12
+        addFromFacebookViewOutlet.layer.cornerRadius = 12
         
         currentStatusTextViewOutlet.layer.cornerRadius = 8
         

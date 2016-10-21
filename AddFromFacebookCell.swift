@@ -1,8 +1,8 @@
 //
-//  SquadTableViewCell.swift
+//  AddFromFacebookCell.swift
 //  CityScape
 //
-//  Created by Cina Mehrvar on 2016-09-21.
+//  Created by Cina Mehrvar on 2016-10-21.
 //  Copyright © 2016 Cina Mehrvar. All rights reserved.
 //
 
@@ -11,8 +11,8 @@ import Firebase
 import FirebaseDatabase
 import FirebaseAuth
 
-class SquadTableViewCell: UITableViewCell {
-    
+class AddFromFacebookCell: UITableViewCell {
+
     var data = [AnyHashable: Any]()
     var firstName = ""
     var lastName = ""
@@ -22,7 +22,7 @@ class SquadTableViewCell: UITableViewCell {
     var uid = ""
     var selfSquad = false
     
-    weak var squadCountController: SquadCountController?
+    weak var addFromFaceookController: AddFromFacebookController?
     
     //Outlets
     @IBOutlet weak var profilePicOutlet: TableViewProfilePicView!
@@ -56,7 +56,7 @@ class SquadTableViewCell: UITableViewCell {
                     myRef.child("squad").child(scopeUID).removeValue()
                     myRef.child("squadRequests").child(scopeUID).removeValue()
                     
-                    self.squadCountController?.globTableViewOutlet.reloadData()
+                    self.addFromFaceookController?.globTableViewOutlet.reloadData()
                     
                 })
                 
@@ -70,7 +70,7 @@ class SquadTableViewCell: UITableViewCell {
                     yourRef.child("squad").child(selfUID).removeValue()
                     yourRef.child("squadRequests").child(selfUID).removeValue()
                     
-                    self.squadCountController?.globTableViewOutlet.reloadData()
+                    self.addFromFaceookController?.globTableViewOutlet.reloadData()
                     
                 })
             }
@@ -84,7 +84,7 @@ class SquadTableViewCell: UITableViewCell {
         }))
         
         
-        self.squadCountController?.present(alertController, animated: true, completion: {
+        self.addFromFaceookController?.present(alertController, animated: true, completion: {
             
             print("alert controller presented")
             
@@ -103,12 +103,12 @@ class SquadTableViewCell: UITableViewCell {
             //Delete Squad?
             print("toggle messages", terminator: "")
             
-            self.squadCountController?.rootController?.toggleChat("squad", key: scopeUID, city: nil, firstName: scopeFirstName, lastName: scopeLastName, profile: profile, completion: { (bool) in
+            self.addFromFaceookController?.mainRootController?.toggleChat("squad", key: scopeUID, city: nil, firstName: scopeFirstName, lastName: scopeLastName, profile: profile, completion: { (bool) in
                 
                 print("chat toggled", terminator: "")
                 
             })
-
+            
         } else if currentSquadInstance == "sentSquad" {
             
             //Cancel send?
@@ -133,7 +133,7 @@ class SquadTableViewCell: UITableViewCell {
                                     ref.child("squadRequests").child(selfUID).removeValue()
                                     ref.child("notifications").child(notKey).removeValue()
                                     
-                                    self.squadCountController?.globTableViewOutlet.reloadData()
+                                    self.addFromFaceookController?.globTableViewOutlet.reloadData()
                                     
                                 })
                             }
@@ -148,7 +148,7 @@ class SquadTableViewCell: UITableViewCell {
                 
             }))
             
-            self.squadCountController?.present(alertController, animated: true, completion: {
+            self.addFromFaceookController?.present(alertController, animated: true, completion: {
                 
                 print("alert controller presented")
                 
@@ -164,7 +164,7 @@ class SquadTableViewCell: UITableViewCell {
             
             alertController.addAction(UIAlertAction(title: "Add to Squad", style: .default, handler: { (action) in
                 
-                if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.squadCountController?.rootController?.selfData, let myFirstName = selfData["firstName"] as? String, let myLastName = selfData["lastName"] as? String {
+                if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.addFromFaceookController?.mainRootController?.selfData, let myFirstName = selfData["firstName"] as? String, let myLastName = selfData["lastName"] as? String {
                     
                     let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
                     
@@ -178,7 +178,7 @@ class SquadTableViewCell: UITableViewCell {
                             ref.child("squad").child(scopeUID).setValue(["firstName" : scopeFirstName, "lastName" : scopeLastName, "uid" : scopeUID])
                             
                             let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
-
+                            
                             yourRef.child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
                                 
                                 if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
@@ -188,7 +188,7 @@ class SquadTableViewCell: UITableViewCell {
                                     
                                 }
                             })
-
+                            
                             
                             let timeInterval = Date().timeIntervalSince1970
                             
@@ -198,7 +198,7 @@ class SquadTableViewCell: UITableViewCell {
                             
                             yourRef.child("squad").child(selfUID).setValue(["firstName" : myFirstName, "lastName" : myLastName, "uid" : selfUID])
                             
-                            self.squadCountController?.globTableViewOutlet.reloadData()
+                            self.addFromFaceookController?.globTableViewOutlet.reloadData()
                             
                         })
                     }
@@ -211,14 +211,14 @@ class SquadTableViewCell: UITableViewCell {
                     
                     let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
                     
-                    if let selfData = self.squadCountController?.rootController?.selfData, let mySquadRequests = selfData["squadRequests"] as? [AnyHashable: Any], let userSquadRequest = mySquadRequests[scopeUID] as? [AnyHashable: Any], let scopeNotificationKey = userSquadRequest["notificationKey"] as? String {
+                    if let selfData = self.addFromFaceookController?.mainRootController?.selfData, let mySquadRequests = selfData["squadRequests"] as? [AnyHashable: Any], let userSquadRequest = mySquadRequests[scopeUID] as? [AnyHashable: Any], let scopeNotificationKey = userSquadRequest["notificationKey"] as? String {
                         
                         DispatchQueue.main.async(execute: {
                             
                             ref.child("notifications").child(scopeNotificationKey).removeValue()
                             ref.child("squadRequests").child(scopeUID).removeValue()
                             
-                            self.squadCountController?.globTableViewOutlet.reloadData()
+                            self.addFromFaceookController?.globTableViewOutlet.reloadData()
                             
                         })
                     }
@@ -231,7 +231,7 @@ class SquadTableViewCell: UITableViewCell {
                 
             }))
             
-            self.squadCountController?.present(alertController, animated: true, completion: {
+            self.addFromFaceookController?.present(alertController, animated: true, completion: {
                 
                 print("alert controller presented")
                 
@@ -249,7 +249,7 @@ class SquadTableViewCell: UITableViewCell {
             
             alertController.addAction(UIAlertAction(title: "Send Request", style: .default, handler: { (action) in
                 
-                if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.squadCountController?.rootController?.selfData, let firstName = selfData["firstName"] as? String, let lastName = selfData["lastName"] as? String {
+                if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.addFromFaceookController?.mainRootController?.selfData, let firstName = selfData["firstName"] as? String, let lastName = selfData["lastName"] as? String {
                     
                     let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
                     
@@ -262,7 +262,7 @@ class SquadTableViewCell: UITableViewCell {
                             
                         }
                     })
-
+                    
                     
                     let timeInterval = Date().timeIntervalSince1970
                     
@@ -281,7 +281,7 @@ class SquadTableViewCell: UITableViewCell {
                         ref.child("squadRequests").child(selfUID).setValue(squadItem)
                         ref.child("notifications").child(notificationKey).setValue(notificationItem)
                         
-                        self.squadCountController?.globTableViewOutlet.reloadData()
+                        self.addFromFaceookController?.globTableViewOutlet.reloadData()
                         
                     })
                 }
@@ -293,7 +293,7 @@ class SquadTableViewCell: UITableViewCell {
                 
             }))
             
-            self.squadCountController?.present(alertController, animated: true, completion: {
+            self.addFromFaceookController?.present(alertController, animated: true, completion: {
                 
                 print("alert controller presented")
                 
@@ -315,7 +315,7 @@ class SquadTableViewCell: UITableViewCell {
             }
         }
         
-        squadCountController?.rootController?.toggleProfile(uid, selfProfile: selfProfile, completion: { (bool) in
+        addFromFaceookController?.mainRootController?.toggleProfile(uid, selfProfile: selfProfile, completion: { (bool) in
             
             print("profile toggled", terminator: "")
             
@@ -333,7 +333,7 @@ class SquadTableViewCell: UITableViewCell {
             
             self.firstName = firstName
             self.lastName = lastName
-
+            
             nameOutlet.text = firstName + " " + lastName
             
         }
@@ -353,10 +353,10 @@ class SquadTableViewCell: UITableViewCell {
                     buttonOutlet.isEnabled = false
                     
                 } else {
-
+                    
                     buttonOutlet.isEnabled = true
                     
-                    if let selfData = squadCountController?.rootController?.selfData {
+                    if let selfData = addFromFaceookController?.mainRootController?.selfData {
                         
                         var inMySquad = false
                         var iSentYou = false
@@ -533,5 +533,5 @@ class SquadTableViewCell: UITableViewCell {
         
         // Configure the view for the selected state
     }
-    
+
 }

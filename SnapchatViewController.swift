@@ -585,23 +585,41 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
         item = nil
         asset = nil
         
-        UIView.animate(withDuration: animationTime, animations: {
+        DispatchQueue.main.async {
             
-            self.rootController?.snapXOutlet.constant = x
-            self.rootController?.snapYOutlet.constant = y
-            
-            self.rootController?.view.layoutIfNeeded()
-            
-            }, completion: { (bool) in
+            UIView.animate(withDuration: animationTime, animations: {
                 
-                self.rootController?.toggleSnapchat(nil, startingi: nil, completion: { (bool) in
+                self.rootController?.snapXOutlet.constant = x
+                self.rootController?.snapYOutlet.constant = y
+                
+                self.rootController?.view.layoutIfNeeded()
+                
+                }, completion: { (bool) in
                     
-                    self.isPanning = false
-                    self.longPressEnabled = false
-                    print("snapchat toggled")
+                    self.rootController?.snapXOutlet.constant = 0
+                    self.rootController?.snapYOutlet.constant = 0
                     
-                })
-        })
+                    if let rootWidth = self.rootController?.view.bounds.width {
+                        
+                        self.rootController?.snapWidthConstOutlet.constant = rootWidth
+                        
+                    }
+                    
+                    if let rootHeight = self.rootController?.view.bounds.height {
+                        
+                        self.rootController?.snapHeightConstOutlet.constant = rootHeight
+                        
+                    }
+                    
+                    self.view.layer.cornerRadius = 0
+                    
+                    self.rootController?.snapchatContainerOutlet.alpha = 0
+                    
+                    print("snapchat close")
+                    
+            
+            })
+        }
     }
     
     

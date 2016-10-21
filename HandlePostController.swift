@@ -752,11 +752,8 @@ class HandlePostController: UIViewController, UITextViewDelegate, UITableViewDel
                                     
                                     print("save thumbnail & video to firebase")
                                     
-                                    DispatchQueue.main.async {
-                                        
-                                        self.setToFirebase(imageUrl, caption: captionString, FIRVideoURL: FIRVideoURL, scopeSelectedSquad: scopeSelectedSquad)
-                                        
-                                    }
+                                    self.setToFirebase(imageUrl, caption: captionString, FIRVideoURL: FIRVideoURL, scopeSelectedSquad: scopeSelectedSquad)
+
 
                                     return nil
                                 })
@@ -766,11 +763,8 @@ class HandlePostController: UIViewController, UITextViewDelegate, UITableViewDel
                             
                             print("save image only to firebase")
                             
-                            DispatchQueue.main.async {
-                                
-                                self.setToFirebase(imageUrl, caption: captionString, FIRVideoURL: nil, scopeSelectedSquad: scopeSelectedSquad)
-                                
-                            }
+                            self.setToFirebase(imageUrl, caption: captionString, FIRVideoURL: nil, scopeSelectedSquad: scopeSelectedSquad)
+
                         }
                         
                     } else {
