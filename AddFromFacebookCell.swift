@@ -148,6 +148,11 @@ class AddFromFacebookCell: UITableViewCell {
                 
             }))
             
+            let popover = alertController.popoverPresentationController
+            popover?.sourceView = self
+            popover?.sourceRect = self.bounds
+            popover?.permittedArrowDirections = UIPopoverArrowDirection.any
+            
             self.addFromFaceookController?.present(alertController, animated: true, completion: {
                 
                 print("alert controller presented")
@@ -231,6 +236,11 @@ class AddFromFacebookCell: UITableViewCell {
                 
             }))
             
+            let popover = alertController.popoverPresentationController
+            popover?.sourceView = self
+            popover?.sourceRect = self.bounds
+            popover?.permittedArrowDirections = UIPopoverArrowDirection.any
+            
             self.addFromFaceookController?.present(alertController, animated: true, completion: {
                 
                 print("alert controller presented")
@@ -292,6 +302,11 @@ class AddFromFacebookCell: UITableViewCell {
                 print("canceled")
                 
             }))
+            
+            let popover = alertController.popoverPresentationController
+            popover?.sourceView = self
+            popover?.sourceRect = self.bounds
+            popover?.permittedArrowDirections = UIPopoverArrowDirection.any
             
             self.addFromFaceookController?.present(alertController, animated: true, completion: {
                 

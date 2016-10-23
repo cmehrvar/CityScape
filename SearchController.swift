@@ -57,13 +57,15 @@ class SearchController: UIViewController, UISearchBarDelegate, UIGestureRecogniz
     //Functions
     func toggleColour(_ button: Int) {
         
+        cityController?.globCollectionView.isScrollEnabled = false
+        userController?.globCollectionView.isScrollEnabled = false
+        
         rootController?.showNav(0.3, completion: { (bool) in
             
             print("nav shown", terminator: "")
             
         })
-        
-        
+
         if button == 1 {
             
             searchBarOutlet.placeholder = "Search for cities worldwide"
@@ -82,6 +84,9 @@ class SearchController: UIViewController, UISearchBarDelegate, UIGestureRecogniz
                 }, completion: { (bool) in
                     
                     self.searchIsCity = true
+                    
+                    self.cityController?.globCollectionView.isScrollEnabled = true
+                    self.userController?.globCollectionView.isScrollEnabled = true
                     
                     
             })
@@ -104,6 +109,9 @@ class SearchController: UIViewController, UISearchBarDelegate, UIGestureRecogniz
                 }, completion: { (bool) in
                     
                     self.searchIsCity = false
+                    
+                    self.cityController?.globCollectionView.isScrollEnabled = true
+                    self.userController?.globCollectionView.isScrollEnabled = true
      
             })
         }

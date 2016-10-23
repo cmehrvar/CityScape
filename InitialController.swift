@@ -19,8 +19,8 @@ class InitialController: UIViewController {
         super.viewDidLoad()
         
         FIRAuth.auth()?.addStateDidChangeListener({ (auth, user) in
-            
-            if user != nil {
+
+            if user != nil && FBSDKAccessToken.current() != nil {
                 
                 let vc = self.storyboard?.instantiateViewController(withIdentifier: "mainRootController") as! MainRootController
                 

@@ -78,11 +78,6 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
     }
 
     
-    
-    
-    
-    
-    
     //CollectionView Delegates
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         

@@ -13,33 +13,35 @@ import FirebaseDatabase
 import FirebaseAuth
 import SDWebImage
 import AVFoundation
+import NYAlertViewController
+
 fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
-  switch (lhs, rhs) {
-  case let (l?, r?):
-    return l < r
-  case (nil, _?):
-    return true
-  default:
-    return false
-  }
+    switch (lhs, rhs) {
+    case let (l?, r?):
+        return l < r
+    case (nil, _?):
+        return true
+    default:
+        return false
+    }
 }
 
 fileprivate func <= <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
-  switch (lhs, rhs) {
-  case let (l?, r?):
-    return l <= r
-  default:
-    return !(rhs < lhs)
-  }
+    switch (lhs, rhs) {
+    case let (l?, r?):
+        return l <= r
+    default:
+        return !(rhs < lhs)
+    }
 }
 
 fileprivate func >= <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
-  switch (lhs, rhs) {
-  case let (l?, r?):
-    return l >= r
-  default:
-    return !(lhs < rhs)
-  }
+    switch (lhs, rhs) {
+    case let (l?, r?):
+        return l >= r
+    default:
+        return !(lhs < rhs)
+    }
 }
 
 
@@ -84,12 +86,12 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     
     var posts = [[AnyHashable: Any]]()
     var addedPosts = [String : Bool]()
-
+    
     var asset: AVAsset?
     var item: AVPlayerItem?
     var player: AVPlayer?
     var layer: AVPlayerLayer?
-
+    
     var currentPostKey = ""
     var currentSquadInstance = ""
     var currentUID = ""
@@ -97,7 +99,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     var firstName = ""
     var lastName = ""
     var profilePic = ""
-
+    
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
         
         if keyPath == "rate" {
@@ -117,15 +119,15 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
             }
         }
     }
-
+    
     //Actions
     @IBAction func toProfile(_ sender: AnyObject) {
         
         let screenHeight = self.view.bounds.height
         let scopeUID = currentUID
-
+        
         self.closeWithDirection(0, y: screenHeight, animationTime: 0.3)
-
+        
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
             var selfProfile = false
@@ -175,32 +177,45 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
             //Cancel send?
             print("cancel send?")
             
-            let alertController = UIAlertController(title: "Unsend squad request to \(firstName + " " + lastName)", message: nil, preferredStyle: .actionSheet)
+            let nyAlertController = NYAlertViewController()
             
-            alertController.addAction(UIAlertAction(title: "Unsend Request", style: .destructive, handler: { (action) in
+            nyAlertController.title = "Unsend squad request to \(firstName + " " + lastName)"
+            nyAlertController.titleColor = UIColor.black
+            nyAlertController.message = nil
+            nyAlertController.backgroundTapDismissalGestureEnabled = true
+            
+            nyAlertController.cancelButtonColor = UIColor.lightGray
+            nyAlertController.cancelButtonTitleColor = UIColor.white
+            nyAlertController.buttonColor = UIColor.red
+            nyAlertController.buttonTitleColor = UIColor.white
+            
+            nyAlertController.addAction(NYAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
                 
-                if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                self.dismiss(animated: true, completion: nil)
+                
+            }))
+            
+            nyAlertController.addAction(NYAlertAction(title: "Unsend Request", style: .default, handler: { (action) in
+                
+                self.dismiss(animated: true, completion: {
                     
-                    DispatchQueue.main.async(execute: {
+                    if let selfUID = FIRAuth.auth()?.currentUser?.uid {
                         
-                        let ref = FIRDatabase.database().reference().child("users").child(scopeUserUID)
-                        
-                        ref.child("squadRequests").child(selfUID).removeValue()
-                        ref.child("notifications").child(selfUID).child("squadRequest").removeValue()
-                        
-                        self.checkSquad(scopeUserUID, selfUID: selfUID)
-                        
-                    })
-                }
+                        DispatchQueue.main.async(execute: {
+                            
+                            let ref = FIRDatabase.database().reference().child("users").child(scopeUserUID)
+                            
+                            ref.child("squadRequests").child(selfUID).removeValue()
+                            ref.child("notifications").child(selfUID).child("squadRequest").removeValue()
+                            
+                            self.checkSquad(scopeUserUID, selfUID: selfUID)
+                            
+                        })
+                    }
+                })
             }))
             
-            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
-                
-                print("canceled")
-                
-            }))
-            
-            self.present(alertController, animated: true, completion: {
+            self.present(nyAlertController, animated: true, completion: {
                 
                 print("alert controller presented")
                 
@@ -212,14 +227,27 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
             //Confrim or Deny
             print("confirm or deny")
             
-            let alertController = UIAlertController(title: "Confirm \(firstName + " " + lastName) to your squad?", message: nil, preferredStyle: .actionSheet)
+            let nyAlertController = NYAlertViewController()
             
-            alertController.addAction(UIAlertAction(title: "Add to Squad", style: .default, handler: { (action) in
+            nyAlertController.title = "Confirm \(firstName + " " + lastName) to your squad?"
+            nyAlertController.titleColor = UIColor.black
+            nyAlertController.message = nil
+            nyAlertController.backgroundTapDismissalGestureEnabled = true
+            
+            nyAlertController.buttonColor = UIColor.lightGray
+            nyAlertController.buttonTitleColor = UIColor.black
+            
+            nyAlertController.cancelButtonColor = UIColor.lightGray
+            nyAlertController.cancelButtonTitleColor = UIColor.white
+            
+            nyAlertController.addAction(NYAlertAction(title: "Add to Squad", style: .default, handler: { (action) in
                 
-                if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.rootController?.selfData, let myFirstName = selfData["firstName"] as? String, let myLastName = selfData["lastName"] as? String {
+                self.dismiss(animated: true, completion: {
                     
-                    let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
-
+                    if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.rootController?.selfData, let myFirstName = selfData["firstName"] as? String, let myLastName = selfData["lastName"] as? String {
+                        
+                        let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
+                        
                         DispatchQueue.main.async(execute: {
                             
                             ref.child("notifications").child(scopeUserUID).child("squadRequest").updateChildValues(["status" : "approved"])
@@ -240,10 +268,10 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                                     
                                 }
                             })
-
+                            
                             
                             let timeInterval = Date().timeIntervalSince1970
-
+                            
                             yourRef.child("notifications").child(selfUID).child("squadRequest").setValue(["firstName" : myFirstName, "lastName" : myLastName, "type" : "addedYou", "timeStamp" : timeInterval, "uid" : selfUID, "read" : false])
                             
                             yourRef.child("squad").child(selfUID).setValue(["firstName" : myFirstName, "lastName" : myLastName, "uid" : selfUID])
@@ -252,96 +280,109 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                             self.checkSquad(self.currentUID, selfUID: selfUID)
                             
                         })
-                    
-                }
+                    }
+                })
             }))
             
-            alertController.addAction(UIAlertAction(title: "Reject \(firstName)", style: .destructive, handler: { (action) in
+            nyAlertController.addAction(NYAlertAction(title: "Reject", style: .default, handler: { (action) in
                 
-                if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                self.dismiss(animated: true, completion: {
                     
-                    let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
+                    if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                        
+                        let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
+                        
+                        DispatchQueue.main.async(execute: {
+                            
+                            ref.child("notifications").child(scopeUserUID).child("squadRequest").removeValue()
+                            ref.child("squadRequests").child(scopeUserUID).removeValue()
+                            
+                            
+                            self.checkSquad(self.currentUID, selfUID: selfUID)
+                            
+                        })
+                    }
                     
-                    DispatchQueue.main.async(execute: {
-                        
-                        ref.child("notifications").child(scopeUserUID).child("squadRequest").removeValue()
-                        ref.child("squadRequests").child(scopeUserUID).removeValue()
-                        
-                        
-                        self.checkSquad(self.currentUID, selfUID: selfUID)
-                        
-                    })
-                }
+                })
             }))
             
-            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
+            nyAlertController.addAction(NYAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
                 
-                print("canceled")
+                self.dismiss(animated: true, completion: nil)
                 
             }))
-            
-            self.present(alertController, animated: true, completion: {
+
+            self.present(nyAlertController, animated: true, completion: {
                 
                 print("alert controller presented")
                 
                 
             })
-            
-            
+
         } else {
             
             //Send a request
             print("send a request")
             
-            let alertController = UIAlertController(title: "Add \(firstName + " " + lastName) to your squad!", message: nil, preferredStyle: .actionSheet)
+            let nyAlertController = NYAlertViewController()
             
-            alertController.addAction(UIAlertAction(title: "Send Request", style: .default, handler: { (action) in
+            nyAlertController.title = "Add \(firstName + " " + lastName) to your squad!"
+            nyAlertController.titleColor = UIColor.black
+            nyAlertController.message = nil
+            nyAlertController.backgroundTapDismissalGestureEnabled = true
+            
+            nyAlertController.cancelButtonColor = UIColor.lightGray
+            nyAlertController.cancelButtonTitleColor = UIColor.white
+            nyAlertController.buttonColor = UIColor.red
+            nyAlertController.buttonTitleColor = UIColor.white
+            
+            nyAlertController.addAction(NYAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
                 
-                if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.rootController?.selfData, let firstName = selfData["firstName"] as? String, let lastName = selfData["lastName"] as? String {
+                self.dismiss(animated: true, completion: nil)
+                
+            }))
+            
+            nyAlertController.addAction(NYAlertAction(title: "Send Request", style: .default, handler: { (action) in
+                
+                self.dismiss(animated: true, completion: {
                     
-                    let yourRef = FIRDatabase.database().reference().child("users").child(scopeUserUID)
-                    
-                    yourRef.child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
+                    if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.rootController?.selfData, let firstName = selfData["firstName"] as? String, let lastName = selfData["lastName"] as? String {
                         
-                        if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
+                        let yourRef = FIRDatabase.database().reference().child("users").child(scopeUserUID)
+                        
+                        yourRef.child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
                             
-                            appDelegate.pushMessage(scopeUserUID, token: token, message: "\(firstName) has sent you a squad request")
-        
-                        }
-                    })
-
-                    let timeInterval = Date().timeIntervalSince1970
-                    
-                    //0 -> Hasn't responded yet, 1 -> Approved, 2 -> Denied
-                    let ref = FIRDatabase.database().reference().child("users").child(scopeUserUID)
-
-                    let squadItem = ["uid" : selfUID, "read" : false, "status": 0, "timeStamp" : timeInterval, "firstName" : firstName, "lastName" : lastName] as [String : Any]
-                    
-                    let notificationItem = ["uid" : selfUID, "read" : false, "status" : "awaitingAction", "type" : "squadRequest", "timeStamp" : timeInterval, "firstName" : firstName, "lastName" : lastName] as [String : Any]
-                    
-                    
-                    DispatchQueue.main.async(execute: {
+                            if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
+                                
+                                appDelegate.pushMessage(scopeUserUID, token: token, message: "\(firstName) has sent you a squad request")
+                                
+                            }
+                        })
                         
-                        ref.child("squadRequests").child(selfUID).setValue(squadItem)
-                        ref.child("notifications").child(selfUID).child("squadRequest").setValue(notificationItem)
+                        let timeInterval = Date().timeIntervalSince1970
                         
-                        self.checkSquad(self.currentUID, selfUID: selfUID)
+                        //0 -> Hasn't responded yet, 1 -> Approved, 2 -> Denied
+                        let ref = FIRDatabase.database().reference().child("users").child(scopeUserUID)
                         
-                    })
-                }
+                        let squadItem = ["uid" : selfUID, "read" : false, "status": 0, "timeStamp" : timeInterval, "firstName" : firstName, "lastName" : lastName] as [String : Any]
+                        
+                        let notificationItem = ["uid" : selfUID, "read" : false, "status" : "awaitingAction", "type" : "squadRequest", "timeStamp" : timeInterval, "firstName" : firstName, "lastName" : lastName] as [String : Any]
+                        
+                        
+                        DispatchQueue.main.async(execute: {
+                            
+                            ref.child("squadRequests").child(selfUID).setValue(squadItem)
+                            ref.child("notifications").child(selfUID).child("squadRequest").setValue(notificationItem)
+                            
+                            self.checkSquad(self.currentUID, selfUID: selfUID)
+                            
+                        })
+                    }
+                })
             }))
             
-            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
-                
-                print("canceled")
-                
-            }))
+            self.present(nyAlertController, animated: true, completion: nil)
             
-            self.present(alertController, animated: true, completion: {
-                
-                print("alert controller presented")
-                
-            })
         }
     }
     
@@ -617,7 +658,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                     
                     print("snapchat close")
                     
-            
+                    
             })
         }
     }
@@ -1019,7 +1060,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
         } else {
             
             var post = [AnyHashable: Any]()
-
+            
             if direction == "left" {
                 
                 print("direction is left")
@@ -1119,7 +1160,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     
     
     func tapHandler(){
-
+        
         print(singlePost)
         
         if let chatEnlarged = snapchatChatController?.chatEnlarged {
@@ -1141,7 +1182,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                     })
                 })
             } else if singlePost {
-
+                
                 closeWithDirection(0, y: self.view.bounds.height, animationTime: 0.3)
                 
             }
@@ -1363,58 +1404,58 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                         print("load video")
                         
                         
+                        
+                        if let urlString = post["videoURL"] as? String, let url = URL(string: urlString) {
                             
-                            if let urlString = post["videoURL"] as? String, let url = URL(string: urlString) {
+                            DispatchQueue.main.async(execute: {
                                 
-                                DispatchQueue.main.async(execute: {
+                                self.asset = AVAsset(url: url)
+                                
+                                if let asset = self.asset {
                                     
-                                    self.asset = AVAsset(url: url)
+                                    self.item = AVPlayerItem(asset: asset)
                                     
-                                    if let asset = self.asset {
+                                    if let item = self.item {
                                         
-                                        self.item = AVPlayerItem(asset: asset)
+                                        self.player = AVPlayer(playerItem: item)
                                         
-                                        if let item = self.item {
-                                            
-                                            self.player = AVPlayer(playerItem: item)
-                                            
-                                        }
-                                        
-                                        if let player = self.player {
-                                            
-                                            player.addObserver(self, forKeyPath: "rate", options: NSKeyValueObservingOptions(), context: nil)
-                                            
-                                            self.layer = AVPlayerLayer(player: player)
-                                            
-                                            if let layer = self.layer {
-                                                
-                                                layer.frame = self.videoOutlet.bounds
-                                                layer.videoGravity = AVLayerVideoGravityResizeAspectFill
-                                                
-                                                self.videoOutlet.layer.addSublayer(layer)
-                                                self.videoOutlet.alpha = 1
-                                                
-                                                player.play()
-                                            }
-                                        }
                                     }
                                     
-                                    print("video downloaded!")
-                                    
-                                })
+                                    if let player = self.player {
+                                        
+                                        player.addObserver(self, forKeyPath: "rate", options: NSKeyValueObservingOptions(), context: nil)
+                                        
+                                        self.layer = AVPlayerLayer(player: player)
+                                        
+                                        if let layer = self.layer {
+                                            
+                                            layer.frame = self.videoOutlet.bounds
+                                            layer.videoGravity = AVLayerVideoGravityResizeAspectFill
+                                            
+                                            self.videoOutlet.layer.addSublayer(layer)
+                                            self.videoOutlet.alpha = 1
+                                            
+                                            player.play()
+                                        }
+                                    }
+                                }
+                                
+                                print("video downloaded!")
+                                
+                            })
                             
                         }
                     }
                 }
                 
                 /*
-                
-                if let caption = post["caption"] as? String {
-                    
-                    captionOutlet.text = caption
-                    
-                }
-                */
+                 
+                 if let caption = post["caption"] as? String {
+                 
+                 captionOutlet.text = caption
+                 
+                 }
+                 */
                 if let firstName = post["firstName"] as? String, let lastName = post["lastName"] as? String {
                     
                     self.firstName = firstName

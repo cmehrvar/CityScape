@@ -51,32 +51,38 @@ class UserImagePostCell: UICollectionViewCell {
                 alertController.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { (action) in
                     
                     print("delete post")
-                    let postRef = FIRDatabase.database().reference().child("posts").child(scopeCity).child(scopeChildKey)
-                    let userRef = FIRDatabase.database().reference().child("users").child(selfUID).child("posts").child(scopeChildKey)
-                    let allPostRef = FIRDatabase.database().reference().child("allPosts").child(scopeChildKey)
                     
-                    DispatchQueue.main.async(execute: {
+                    FIRDatabase.database().reference().child("posts").child(scopeCity).child(scopeChildKey).removeValue()
+                    FIRDatabase.database().reference().child("users").child(selfUID).child("posts").child(scopeChildKey).removeValue()
+                    FIRDatabase.database().reference().child("allPosts").child(scopeChildKey).removeValue()
+                    
+                    FIRDatabase.database().reference().child("posts").child(scopeCity).queryLimited(toLast: 1).observeSingleEvent(of: .value, with: { (snapshot) in
                         
-                        postRef.removeValue()
-                        userRef.removeValue()
-                        allPostRef.removeValue()
-                        
-                        self.profileController?.rootController?.vibesFeedController?.observeCurrentCityPosts()
+                        if !snapshot.exists() {
+                            
+                            FIRDatabase.database().reference().child("cityLocations").child(scopeCity).removeValue()
+                            
+                        }
                         
                     })
+                    
+                    self.profileController?.rootController?.vibesFeedController?.observeCurrentCityPosts()
+
                 }))
             }
         }
-        
-        
         
         alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
             
             print("cancel post", terminator: "")
             
         }))
-        
-        
+
+        let popover = alertController.popoverPresentationController
+        popover?.sourceView = self
+        popover?.sourceRect = self.bounds
+        popover?.permittedArrowDirections = UIPopoverArrowDirection.any
+
         profileController?.present(alertController, animated: true, completion: {
             
             print("alert controller presented", terminator: "")

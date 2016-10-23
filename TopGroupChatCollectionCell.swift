@@ -113,6 +113,11 @@ class TopGroupChatCollectionCell: UICollectionViewCell {
             
         }))
         
+        let popover = alertController.popoverPresentationController
+        popover?.sourceView = self
+        popover?.sourceRect = self.bounds
+        popover?.permittedArrowDirections = UIPopoverArrowDirection.any
+        
         topChatController?.present(alertController, animated: true, completion: {
             
             print("controller presented", terminator: "")

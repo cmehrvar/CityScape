@@ -128,7 +128,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             application.registerForRemoteNotifications(matching: [.badge, .sound, .alert])
         }
         
-        if let url = Bundle.main.url(forResource: "AtlasProduction", withExtension: ".p12") {
+        if let url = Bundle.main.url(forResource: "AtlasDistribution", withExtension: ".p12") {
             
             let data = try? Data(contentsOf: url)
             

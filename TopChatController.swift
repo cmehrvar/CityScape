@@ -705,6 +705,11 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
                 
             }))
             
+            let popover = alertController.popoverPresentationController
+            popover?.sourceView = self.view
+            popover?.sourceRect = self.view.bounds
+            popover?.permittedArrowDirections = UIPopoverArrowDirection.any
+
             self.present(alertController, animated: true, completion: {
                 
                 print("controller presented")
@@ -780,6 +785,11 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
                 print("canceled")
                 
             }))
+            
+            let popover = alertController.popoverPresentationController
+            popover?.sourceView = self.view
+            popover?.sourceRect = self.view.bounds
+            popover?.permittedArrowDirections = UIPopoverArrowDirection.any
             
             self.present(alertController, animated: true, completion: {
                 

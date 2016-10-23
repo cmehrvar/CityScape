@@ -111,10 +111,7 @@ class SettingsViewController: UIViewController {
                 let myUID = currentUser.uid
                 
                 self.dismiss(animated: true, completion: {
-                    
-                    
-                    
-                        
+
                         FIRDatabase.database().reference().child("leaders").child(myUID).removeValue()
                         
                         let myRef = FIRDatabase.database().reference().child("users").child(myUID)

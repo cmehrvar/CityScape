@@ -1584,34 +1584,34 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                                 
                                 if messageArray.count > 0 {
                                     
-                                    firstMessages.insert(messageArray[0], at: 0)
+                                    thirdMessages.append(messageArray[0])
                                     
                                     if messageArray.count > 1 {
                                         
-                                        secondMessages.insert(messageArray[1], at: 0)
+                                        secondMessages.append(messageArray[1])
                                         
                                         if messageArray.count > 2 {
                                             
-                                            thirdMessages.insert(messageArray[2], at: 0)
+                                            firstMessages.append(messageArray[2])
                                             
                                         } else {
                                             
-                                            thirdMessages.insert([AnyHashable: Any](), at: 0)
+                                            firstMessages.append([AnyHashable : Any]())
                                             
                                         }
                                         
                                     } else {
                                         
-                                        secondMessages.insert([AnyHashable: Any](), at: 0)
-                                        thirdMessages.insert([AnyHashable: Any](), at: 0)
+                                        firstMessages.append([AnyHashable : Any]())
+                                        secondMessages.append([AnyHashable : Any]())
                                         
                                     }
                                     
                                 } else {
                                     
-                                    firstMessages.insert([AnyHashable: Any](), at: 0)
-                                    secondMessages.insert([AnyHashable: Any](), at: 0)
-                                    thirdMessages.insert([AnyHashable: Any](), at: 0)
+                                    firstMessages.append([AnyHashable : Any]())
+                                    secondMessages.append([AnyHashable : Any]())
+                                    thirdMessages.append([AnyHashable : Any]())
                                     
                                 }
                             }

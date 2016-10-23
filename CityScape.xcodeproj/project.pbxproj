@@ -24,7 +24,6 @@
 		A318308D1DA6E87900D40C88 /* SendPostSquadCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A318308C1DA6E87900D40C88 /* SendPostSquadCell.swift */; };
 		A32C2C5D1D58E43C0064D707 /* AlertControllerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32C2C5C1D58E43C0064D707 /* AlertControllerView.swift */; };
 		A33193F81DAD95A3002BDE2C /* FooterCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A33193F71DAD95A3002BDE2C /* FooterCollectionCell.swift */; };
-		A339B4261DB3E7990027067D /* AtlasProduction.p12 in Resources */ = {isa = PBXBuildFile; fileRef = A339B4251DB3E7990027067D /* AtlasProduction.p12 */; };
 		A341522F1D94408E00C6DB3C /* TableViewOnlineIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A341522E1D94408E00C6DB3C /* TableViewOnlineIndicatorView.swift */; };
 		A34D2CEE1DB3312900EC6179 /* LeaderboardController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A34D2CED1DB3312900EC6179 /* LeaderboardController.swift */; };
 		A34F266F1D977B90007ABFB9 /* TopChatController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A34F266E1D977B90007ABFB9 /* TopChatController.swift */; };
@@ -42,9 +41,6 @@
 		A353F0D61D1224BC009A2182 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A353F0D41D1224BC009A2182 /* LaunchScreen.storyboard */; };
 		A353F0E11D1224BC009A2182 /* CityScapeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A353F0E01D1224BC009A2182 /* CityScapeTests.swift */; };
 		A353F0EC1D1224BC009A2182 /* CityScapeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A353F0EB1D1224BC009A2182 /* CityScapeUITests.swift */; };
-		A353F0FA1D1226D3009A2182 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A353F0F91D1226D3009A2182 /* GoogleService-Info.plist */; };
-		A353F0FB1D1226D3009A2182 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A353F0F91D1226D3009A2182 /* GoogleService-Info.plist */; };
-		A353F0FC1D1226D3009A2182 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A353F0F91D1226D3009A2182 /* GoogleService-Info.plist */; };
 		A35644F21D7F9F1F00D005A9 /* SnapchatViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35644F11D7F9F1F00D005A9 /* SnapchatViewController.swift */; };
 		A35DB7341D79CAEE00409D16 /* NewVibesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35DB7331D79CAEE00409D16 /* NewVibesController.swift */; };
 		A35DB7361D79EE8E00409D16 /* ActionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35DB7351D79EE8E00409D16 /* ActionsViewController.swift */; };
@@ -73,6 +69,8 @@
 		A393BDAA1D9C6C15002DD80E /* AddToChatController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A393BDA91D9C6C15002DD80E /* AddToChatController.swift */; };
 		A393BDAC1D9C715F002DD80E /* AddToChatCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A393BDAB1D9C715F002DD80E /* AddToChatCell.swift */; };
 		A397371E1D57024300E406D7 /* NearbyMatchCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A397371D1D57024300E406D7 /* NearbyMatchCollectionCell.swift */; };
+		A3A2F30B1DBC09C30090D5C1 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A3A2F30A1DBC09C20090D5C1 /* GoogleService-Info.plist */; };
+		A3A2F30D1DBC0BA80090D5C1 /* atlasDistribution.p12 in Resources */ = {isa = PBXBuildFile; fileRef = A3A2F30C1DBC0BA80090D5C1 /* atlasDistribution.p12 */; };
 		A3A31D1B1D9C760000BB0509 /* AddToChatCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3A31D1A1D9C760000BB0509 /* AddToChatCollectionCell.swift */; };
 		A3A5D2411DAEE7A30030E95F /* ContactUsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3A5D2401DAEE7A30030E95F /* ContactUsController.swift */; };
 		A3A5D2431DAEF49E0030E95F /* background.gif in Resources */ = {isa = PBXBuildFile; fileRef = A3A5D2421DAEF49E0030E95F /* background.gif */; };
@@ -181,7 +179,6 @@
 		A318308C1DA6E87900D40C88 /* SendPostSquadCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendPostSquadCell.swift; sourceTree = "<group>"; };
 		A32C2C5C1D58E43C0064D707 /* AlertControllerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertControllerView.swift; sourceTree = "<group>"; };
 		A33193F71DAD95A3002BDE2C /* FooterCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FooterCollectionCell.swift; sourceTree = "<group>"; };
-		A339B4251DB3E7990027067D /* AtlasProduction.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; path = AtlasProduction.p12; sourceTree = "<group>"; };
 		A339B4271DB3EB310027067D /* CityScape.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = CityScape.entitlements; path = CityScape/CityScape.entitlements; sourceTree = "<group>"; };
 		A341522E1D94408E00C6DB3C /* TableViewOnlineIndicatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TableViewOnlineIndicatorView.swift; sourceTree = "<group>"; };
 		A34D2CED1DB3312900EC6179 /* LeaderboardController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LeaderboardController.swift; sourceTree = "<group>"; };
@@ -206,7 +203,6 @@
 		A353F0E71D1224BC009A2182 /* CityScapeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CityScapeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A353F0EB1D1224BC009A2182 /* CityScapeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CityScapeUITests.swift; sourceTree = "<group>"; };
 		A353F0ED1D1224BC009A2182 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		A353F0F91D1226D3009A2182 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "CityScape/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		A35644F11D7F9F1F00D005A9 /* SnapchatViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SnapchatViewController.swift; sourceTree = "<group>"; };
 		A35DB7331D79CAEE00409D16 /* NewVibesController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewVibesController.swift; sourceTree = "<group>"; };
 		A35DB7351D79EE8E00409D16 /* ActionsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActionsViewController.swift; sourceTree = "<group>"; };
@@ -235,6 +231,8 @@
 		A393BDA91D9C6C15002DD80E /* AddToChatController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddToChatController.swift; sourceTree = "<group>"; };
 		A393BDAB1D9C715F002DD80E /* AddToChatCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddToChatCell.swift; sourceTree = "<group>"; };
 		A397371D1D57024300E406D7 /* NearbyMatchCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NearbyMatchCollectionCell.swift; sourceTree = "<group>"; };
+		A3A2F30A1DBC09C20090D5C1 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		A3A2F30C1DBC0BA80090D5C1 /* atlasDistribution.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; path = atlasDistribution.p12; sourceTree = "<group>"; };
 		A3A31D1A1D9C760000BB0509 /* AddToChatCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddToChatCollectionCell.swift; sourceTree = "<group>"; };
 		A3A5D2401DAEE7A30030E95F /* ContactUsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContactUsController.swift; sourceTree = "<group>"; };
 		A3A5D2421DAEF49E0030E95F /* background.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = background.gif; sourceTree = "<group>"; };
@@ -446,7 +444,7 @@
 			isa = PBXGroup;
 			children = (
 				A339B4271DB3EB310027067D /* CityScape.entitlements */,
-				A339B4251DB3E7990027067D /* AtlasProduction.p12 */,
+				A3A2F30C1DBC0BA80090D5C1 /* atlasDistribution.p12 */,
 				A3DB261F1DAC3E040088063B /* PROXIMA NOVA SOFT W03 SEMIBOLD.TTF */,
 				A3DB26211DAC3E1B0088063B /* PROXIMANOVASOFT-REGULAR.OTF */,
 				A3FC18931D3412AB0031D165 /* Extensions */,
@@ -461,7 +459,7 @@
 				A353F0C91D1224BC009A2182 /* Products */,
 				06C7A9722D182464BCD9096F /* Frameworks */,
 				A353F0D71D1224BC009A2182 /* Info.plist */,
-				A353F0F91D1226D3009A2182 /* GoogleService-Info.plist */,
+				A3A2F30A1DBC09C20090D5C1 /* GoogleService-Info.plist */,
 				A353F0D21D1224BC009A2182 /* Assets.xcassets */,
 				A3D119801D26F12E009D7EAB /* CityScape-Bridging-Header.h */,
 				E8D56D5895A4023023CD5F02 /* Pods */,
@@ -1102,10 +1100,10 @@
 				A3DB26221DAC3E1B0088063B /* PROXIMANOVASOFT-REGULAR.OTF in Resources */,
 				A3DB26201DAC3E040088063B /* PROXIMA NOVA SOFT W03 SEMIBOLD.TTF in Resources */,
 				A353F0D61D1224BC009A2182 /* LaunchScreen.storyboard in Resources */,
-				A339B4261DB3E7990027067D /* AtlasProduction.p12 in Resources */,
-				A353F0FA1D1226D3009A2182 /* GoogleService-Info.plist in Resources */,
 				A353F0D31D1224BC009A2182 /* Assets.xcassets in Resources */,
 				A353F0D11D1224BC009A2182 /* Main.storyboard in Resources */,
+				A3A2F30B1DBC09C30090D5C1 /* GoogleService-Info.plist in Resources */,
+				A3A2F30D1DBC0BA80090D5C1 /* atlasDistribution.p12 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1113,7 +1111,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A353F0FB1D1226D3009A2182 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1121,7 +1118,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A353F0FC1D1226D3009A2182 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1549,10 +1545,10 @@
 				INFOPLIST_FILE = CityScape/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = DormRoom.CityScape;
+				PRODUCT_BUNDLE_IDENTIFIER = com.atlas.seatonlabs;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "cd9e893c-f933-4459-bfb1-ab5db562d774";
-				PROVISIONING_PROFILE_SPECIFIER = AtlasDevelopment;
+				PROVISIONING_PROFILE = "0f951528-3401-4084-963c-b40777c5ce15";
+				PROVISIONING_PROFILE_SPECIFIER = newAtlasDevelopment;
 				SWIFT_OBJC_BRIDGING_HEADER = "CityScape-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
@@ -1596,10 +1592,10 @@
 				INFOPLIST_FILE = CityScape/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = DormRoom.CityScape;
+				PRODUCT_BUNDLE_IDENTIFIER = com.atlas.seatonlabs;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "a31701d3-ff6f-48f3-afc1-a18618506805";
-				PROVISIONING_PROFILE_SPECIFIER = AtlasDistribution;
+				PROVISIONING_PROFILE = "0bfc806e-30d8-4deb-a66e-c16921e3e647";
+				PROVISIONING_PROFILE_SPECIFIER = newAtlasDistribution;
 				SWIFT_OBJC_BRIDGING_HEADER = "CityScape-Bridging-Header.h";
 				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

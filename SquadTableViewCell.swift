@@ -83,7 +83,11 @@ class SquadTableViewCell: UITableViewCell {
             
         }))
         
-        
+        let popover = alertController.popoverPresentationController
+        popover?.sourceView = self
+        popover?.sourceRect = self.bounds
+        popover?.permittedArrowDirections = UIPopoverArrowDirection.any
+
         self.squadCountController?.present(alertController, animated: true, completion: {
             
             print("alert controller presented")
@@ -147,6 +151,11 @@ class SquadTableViewCell: UITableViewCell {
                 print("canceled")
                 
             }))
+            
+            let popover = alertController.popoverPresentationController
+            popover?.sourceView = self
+            popover?.sourceRect = self.bounds
+            popover?.permittedArrowDirections = UIPopoverArrowDirection.any
             
             self.squadCountController?.present(alertController, animated: true, completion: {
                 
@@ -231,14 +240,18 @@ class SquadTableViewCell: UITableViewCell {
                 
             }))
             
+            let popover = alertController.popoverPresentationController
+            popover?.sourceView = self
+            popover?.sourceRect = self.bounds
+            popover?.permittedArrowDirections = UIPopoverArrowDirection.any
+            
             self.squadCountController?.present(alertController, animated: true, completion: {
                 
                 print("alert controller presented")
                 
                 
             })
-            
-            
+
         } else {
             
             //Send a request
@@ -292,6 +305,11 @@ class SquadTableViewCell: UITableViewCell {
                 print("canceled")
                 
             }))
+            
+            let popover = alertController.popoverPresentationController
+            popover?.sourceView = self
+            popover?.sourceRect = self.bounds
+            popover?.permittedArrowDirections = UIPopoverArrowDirection.any
             
             self.squadCountController?.present(alertController, animated: true, completion: {
                 
