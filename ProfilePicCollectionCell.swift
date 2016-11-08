@@ -571,31 +571,46 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
             nyAlertController.message = nil
             
             nyAlertController.titleColor = UIColor.black
-            nyAlertController.buttonColor = UIColor.red
+            nyAlertController.buttonColor = UIColor.lightGray
             nyAlertController.buttonTitleColor = UIColor.white
             nyAlertController.cancelButtonColor = UIColor.lightGray
             nyAlertController.cancelButtonTitleColor = UIColor.white
             
             nyAlertController.backgroundTapDismissalGestureEnabled = true
-            
-            nyAlertController.addAction(NYAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
+
+            if scopeCurrentPicture == 1 || ((scopeCurrentPicture == (scopePictures + 1)) && scopeProfile5 == "")  {
                 
-                self.profileController?.dismiss(animated: true, completion: nil)
+                nyAlertController.buttonColor = UIColor.red
                 
-                print("canceled")
-                
-            }))
-            
-            nyAlertController.addAction(NYAlertAction(title: "Edit Image", style: .default, handler: { (action) in
-                
-                self.profileController?.dismiss(animated: true, completion: {
+                nyAlertController.addAction(NYAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
                     
-                    self.profileController?.presentFusuma(imageToEdit)
+                    self.profileController?.dismiss(animated: true, completion: nil)
                     
-                })
-            }))
-            
-            if scopeCurrentPicture > 1 && scopeCurrentPicture <= scopePictures {
+                    print("canceled")
+                    
+                }))
+                
+                nyAlertController.addAction(NYAlertAction(title: "Edit Image", style: .default, handler: { (action) in
+                    
+                    self.profileController?.dismiss(animated: true, completion: {
+                        
+                        self.profileController?.presentFusuma(imageToEdit)
+                        
+                    })
+                }))
+
+                
+            } else if scopeCurrentPicture > 1 && scopeCurrentPicture <= scopePictures {
+                
+                nyAlertController.addAction(NYAlertAction(title: "Edit Image", style: .default, handler: { (action) in
+                    
+                    self.profileController?.dismiss(animated: true, completion: {
+                        
+                        self.profileController?.presentFusuma(imageToEdit)
+                        
+                    })
+                }))
+
 
                 nyAlertController.addAction(NYAlertAction(title: "Swap with first image", style: .default, handler: { (action) in
                     
@@ -742,8 +757,18 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                         }
                     })
                 }))
-            }
+                
+                nyAlertController.addAction(NYAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
+                    
+                    self.profileController?.dismiss(animated: true, completion: nil)
+                    
+                    print("canceled")
+                    
+                }))
 
+            }
+            
+            
             self.profileController?.present(nyAlertController, animated: true, completion: nil)
             
         }

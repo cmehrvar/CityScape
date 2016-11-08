@@ -71,9 +71,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     @IBOutlet weak var globCollectionView: UICollectionView!
     @IBOutlet weak var vibeFlowLayout: UICollectionViewFlowLayout!
     @IBOutlet weak var noPostsOutlet: UIImageView!
-    
-    
-    
+
     
     func setPlayerTitle(_ postKey: String, cell: UICollectionViewCell) {
         

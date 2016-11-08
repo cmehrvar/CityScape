@@ -31,6 +31,7 @@ class CityCollectionCell: UICollectionViewCell {
         cityController?.searchController?.rootController?.toggleVibes({ (bool) in
             
             self.cityController?.searchController?.rootController?.vibesFeedController?.globCollectionView.setContentOffset(CGPoint.zero, animated: true)
+            self.cityController?.searchController?.rootController?.vibesFeedController?.globCollectionView.reloadData()
             
         })
 

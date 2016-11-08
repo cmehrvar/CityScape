@@ -51,16 +51,6 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
-        if nearbyUsers.count == 0 {
-            
-            self.noNearbyOutlet.alpha = 1
-            
-        } else {
-            
-            self.noNearbyOutlet.alpha = 0
-            
-        }
-        
         return nearbyUsers.count
     }
     
@@ -100,7 +90,7 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         
         if let lastLocation = locations.last {
-            
+
             globLocation = lastLocation
             
             if currentCityLoaded == false {
@@ -124,9 +114,7 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
         let geoCoder = CLGeocoder()
         
         if let uid = FIRAuth.auth()?.currentUser?.uid {
-            
-            queryNearby(scopeLocation)
-            
+
             let userRef = FIRDatabase.database().reference().child("users").child(uid)
             
             userRef.updateChildValues(["latitude" : scopeLocation.coordinate.latitude, "longitude" : scopeLocation.coordinate.longitude])
@@ -139,16 +127,16 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
                         
                         if let city = place.locality  {
                             
-                            userRef.updateChildValues(["city" : city])
+                            let replacedCity = city.replacingOccurrences(of: ".", with: "")
+   
+                            userRef.updateChildValues(["city" : replacedCity])
 
                             if self.rootController?.bottomNavController?.torontoOutlet.text == nil || self.rootController?.bottomNavController?.torontoOutlet.text == "" {
 
-                                self.rootController?.vibesFeedController?.currentCity = city
+                                self.rootController?.vibesFeedController?.currentCity = replacedCity
                                 self.rootController?.vibesFeedController?.observeCurrentCityPosts()
                                 
                             }
-                            
-                            
                         }
                         
                         if let state = place.administrativeArea {
@@ -224,6 +212,8 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
                                         
                                         let userRef = FIRDatabase.database().reference().child("users").child(key)
                                         
+                                        userRef.keepSynced(true)
+                                        
                                         userRef.child("gender").observeSingleEvent(of: .value, with: { (snapshot) in
                                             
                                             var isInterested = false
@@ -245,6 +235,17 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
                                                     self.globCollectionView.reloadData()
                                                     
                                                 }
+                                                
+                                                if self.nearbyUsers.count == 0 {
+                                                    
+                                                    self.noNearbyOutlet.alpha = 1
+                                                    
+                                                } else {
+                                                    
+                                                    self.noNearbyOutlet.alpha = 0
+                                                    
+                                                }
+                                                
                                             }
                                         })
                                     }
@@ -269,6 +270,7 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
                                     self.addedCells[key] = true
                                     
                                     let userRef = FIRDatabase.database().reference().child("users").child(key)
+                                    userRef.keepSynced(true)
                                     
                                     userRef.child("gender").observeSingleEvent(of: .value, with: { (snapshot) in
                                         
@@ -291,6 +293,17 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
                                                 self.globCollectionView.reloadData()
                                                 
                                             }
+                                            
+                                            if self.nearbyUsers.count == 0 {
+                                                
+                                                self.noNearbyOutlet.alpha = 1
+                                                
+                                            } else {
+                                                
+                                                self.noNearbyOutlet.alpha = 0
+                                                
+                                            }
+                                            
                                         }
                                     })
                                 }
@@ -308,22 +321,6 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
         locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
         locationManager.startUpdatingLocation()
         
-    }
-    
-    func checkStatus(){
-        
-        let status = CLLocationManager.authorizationStatus()
-        
-        if status == CLAuthorizationStatus.denied || status == CLAuthorizationStatus.notDetermined {
-            print("denied or not determined")
-
-        } else if status == CLAuthorizationStatus.authorizedWhenInUse {
-            print("enabled")
-            
-            updateLocation()
-    
-            self.timer = Timer.scheduledTimer(timeInterval: 60, target: self, selector: #selector(updateLocationToFirebase), userInfo: nil, repeats: true)
-        }
     }
     
     
@@ -356,6 +353,12 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
         } else if status == CLAuthorizationStatus.notDetermined {
             
             self.locationManager.requestWhenInUseAuthorization()
+            
+        } else if status == CLAuthorizationStatus.authorizedWhenInUse {
+            
+            updateLocation()
+            self.timer = Timer.scheduledTimer(timeInterval: 30, target: self, selector: #selector(updateLocationToFirebase), userInfo: nil, repeats: true)
+            
         }
     }
     
@@ -433,12 +436,21 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
     
     override func viewDidAppear(_ animated: Bool) {
         
-       
         
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        if self.nearbyUsers.count == 0 {
+            
+            self.noNearbyOutlet.alpha = 1
+            
+        } else {
+            
+            self.noNearbyOutlet.alpha = 0
+            
+        }
         
         addGestureRecognizers()
         

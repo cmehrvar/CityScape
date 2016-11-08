@@ -263,7 +263,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                                 
                                 if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
                                     
-                                    appDelegate.pushMessage(scopeUserUID, token: token, message: "\(myFirstName) is now in your squad!")
+                                    appDelegate.pushMessage(uid: scopeUserUID, token: token, message: "\(myFirstName) is now in your squad!")
                                     
                                     
                                 }
@@ -354,7 +354,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                             
                             if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
                                 
-                                appDelegate.pushMessage(scopeUserUID, token: token, message: "\(firstName) has sent you a squad request")
+                                appDelegate.pushMessage(uid: scopeUserUID, token: token, message: "\(firstName) has sent you a squad request")
                                 
                             }
                         })
@@ -1345,6 +1345,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                 self.checkSquad(uid, selfUID: selfUID)
                 
                 let ref = FIRDatabase.database().reference().child("users").child(uid)
+                ref.keepSynced(true)
                 
                 ref.child("profilePicture").observeSingleEvent(of: .value, with: { (snapshot) in
                     
@@ -1385,11 +1386,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                     cityRankOutlet.text = "#" + String(rank)
                     
                 }
-                
-                
-                
-                
-                
+
                 if let imageString = post["imageURL"] as? String, let imageURL = URL(string: imageString) {
                     
                     imageOutlet.sd_setImage(with: imageURL, placeholderImage: nil)
@@ -1402,9 +1399,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                     if !isImage {
                         
                         print("load video")
-                        
-                        
-                        
+
                         if let urlString = post["videoURL"] as? String, let url = URL(string: urlString) {
                             
                             DispatchQueue.main.async(execute: {
@@ -1448,14 +1443,6 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                     }
                 }
                 
-                /*
-                 
-                 if let caption = post["caption"] as? String {
-                 
-                 captionOutlet.text = caption
-                 
-                 }
-                 */
                 if let firstName = post["firstName"] as? String, let lastName = post["lastName"] as? String {
                     
                     self.firstName = firstName

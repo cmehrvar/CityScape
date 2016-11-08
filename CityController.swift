@@ -25,13 +25,11 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
         
         if let selfData = searchController?.rootController?.selfData {
             
-            if let latitude = selfData["latitude"] as? CLLocationDegrees, let longitude = selfData["longitude"] as? CLLocationDegrees {
-                
-                let center = CLLocation(latitude: latitude, longitude: longitude)
                 
                 let ref = FIRDatabase.database().reference().child("cityLocations")
+                ref.keepSynced(true)
                 
-                ref.observe(.value, with: { (snapshot) in
+                ref.observeSingleEvent(of: .value, with: { (snapshot) in
                     
                     if let actualValue = snapshot.value as? [AnyHashable: Any] {
                         
@@ -48,7 +46,9 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
                         
                         let sortedArray = cities.sorted(by: { (a: [AnyHashable: Any], b: [AnyHashable: Any]) -> Bool in
                             
-                            if let latitudeA = a["latitude"] as? CLLocationDegrees, let latitudeB = b["latitude"] as? CLLocationDegrees, let longitudeA = a["longitude"] as? CLLocationDegrees, let longitudeB = b["longitude"] as? CLLocationDegrees {
+                            if let latitudeA = a["latitude"] as? CLLocationDegrees, let latitudeB = b["latitude"] as? CLLocationDegrees, let longitudeA = a["longitude"] as? CLLocationDegrees, let longitudeB = b["longitude"] as? CLLocationDegrees, let myLatitude = self.searchController?.rootController?.selfData["latitude"] as? CLLocationDegrees, let myLongitude = self.searchController?.rootController?.selfData["longitude"] as? CLLocationDegrees {
+                                
+                                let center = CLLocation(latitude: myLatitude, longitude: myLongitude)
                                 
                                 let locA = CLLocation(latitude: latitudeA, longitude: longitudeA)
                                 let locB = CLLocation(latitude: latitudeB, longitude: longitudeB)
@@ -68,12 +68,21 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
                             }
                         })
                         
-                        self.globCities = sortedArray
+                        if sortedArray.count == 0 {
+                            
+                            self.globCities = cities
+                            
+                        } else {
+                            
+                            self.globCities = sortedArray
+                            
+                        }
+
                         self.globCollectionView.reloadData()
                         
                     }
                 })
-            }
+            
         }
     }
 

@@ -202,12 +202,12 @@
                   moduleName = "CityScape"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/cmehrvar/Desktop/CityScape/SettingsViewController.swift"
-                  timestampString = "498940472.131369"
+                  timestampString = "500331226.979458"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "121"
                   endingLineNumber = "121"
-                  offsetFromSymbolStart = "60">
+                  offsetFromSymbolStart = "52">
                </Location>
                <Location
                   shouldBeEnabled = "Yes"
@@ -217,12 +217,12 @@
                   moduleName = "CityScape"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/cmehrvar/Desktop/CityScape/SettingsViewController.swift"
-                  timestampString = "498940472.134838"
+                  timestampString = "500331226.98449"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "121"
                   endingLineNumber = "121"
-                  offsetFromSymbolStart = "677">
+                  offsetFromSymbolStart = "568">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -234,44 +234,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "SettingsViewController.swift"
-            timestampString = "498940469.6797"
+            timestampString = "499120879.604416"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "199"
-            endingLineNumber = "199"
+            startingLineNumber = "203"
+            endingLineNumber = "203"
             landmarkName = "deleteAccount(_:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "LogInController.swift"
-            timestampString = "498726404.247373"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "151"
-            endingLineNumber = "151"
-            landmarkName = "facebookSignIn(_:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "LogInController.swift"
-            timestampString = "498726404.247373"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "132"
-            endingLineNumber = "132"
-            landmarkName = "facebookSignIn(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -298,12 +266,12 @@
                   moduleName = "CityScape"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/cmehrvar/Desktop/CityScape/VideoPostCell.swift"
-                  timestampString = "498940472.171445"
+                  timestampString = "500331227.010138"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "39"
                   endingLineNumber = "39"
-                  offsetFromSymbolStart = "34">
+                  offsetFromSymbolStart = "36">
                </Location>
                <Location
                   shouldBeEnabled = "Yes"
@@ -313,12 +281,12 @@
                   moduleName = "CityScape"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/cmehrvar/Desktop/CityScape/VideoPostCell.swift"
-                  timestampString = "498940472.175655"
+                  timestampString = "500331227.015611"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "41"
                   endingLineNumber = "41"
-                  offsetFromSymbolStart = "21">
+                  offsetFromSymbolStart = "20">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -346,12 +314,12 @@
                   moduleName = "CityScape"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/cmehrvar/Desktop/CityScape/PostUpdateCell.swift"
-                  timestampString = "498940472.181828"
+                  timestampString = "500331227.026119"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "38"
                   endingLineNumber = "38"
-                  offsetFromSymbolStart = "1990">
+                  offsetFromSymbolStart = "1624">
                </Location>
                <Location
                   shouldBeEnabled = "Yes"
@@ -361,12 +329,12 @@
                   moduleName = "CityScape"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/cmehrvar/Desktop/CityScape/PostUpdateCell.swift"
-                  timestampString = "498940472.185083"
+                  timestampString = "500331227.030414"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "40"
                   endingLineNumber = "40"
-                  offsetFromSymbolStart = "21">
+                  offsetFromSymbolStart = "20">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -394,12 +362,12 @@
                   moduleName = "CityScape"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/cmehrvar/Desktop/CityScape/HeaderCollectionCell.swift"
-                  timestampString = "498940472.191187"
+                  timestampString = "500331227.045463"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "22"
                   endingLineNumber = "22"
-                  offsetFromSymbolStart = "95">
+                  offsetFromSymbolStart = "96">
                </Location>
                <Location
                   shouldBeEnabled = "Yes"
@@ -409,12 +377,12 @@
                   moduleName = "CityScape"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/cmehrvar/Desktop/CityScape/HeaderCollectionCell.swift"
-                  timestampString = "498940472.194913"
+                  timestampString = "500331227.050717"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "24"
                   endingLineNumber = "24"
-                  offsetFromSymbolStart = "21">
+                  offsetFromSymbolStart = "20">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -442,12 +410,12 @@
                   moduleName = "CityScape"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/cmehrvar/Desktop/CityScape/HeaderCollectionCell.swift"
-                  timestampString = "498940472.201325"
+                  timestampString = "500331227.060316"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "30"
                   endingLineNumber = "30"
-                  offsetFromSymbolStart = "528">
+                  offsetFromSymbolStart = "516">
                </Location>
                <Location
                   shouldBeEnabled = "Yes"
@@ -457,12 +425,12 @@
                   moduleName = "CityScape"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/cmehrvar/Desktop/CityScape/HeaderCollectionCell.swift"
-                  timestampString = "498940472.204128"
+                  timestampString = "500331227.065706"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
                   startingLineNumber = "32"
                   endingLineNumber = "32"
-                  offsetFromSymbolStart = "21">
+                  offsetFromSymbolStart = "20">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -474,11 +442,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "SettingsViewController.swift"
-            timestampString = "498940525.482971"
+            timestampString = "499120879.604416"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "270"
-            endingLineNumber = "270"
+            startingLineNumber = "277"
+            endingLineNumber = "277"
             landmarkName = "logOut(_:)"
             landmarkType = "7">
             <Locations>
@@ -490,12 +458,12 @@
                   moduleName = "CityScape"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/cmehrvar/Desktop/CityScape/SettingsViewController.swift"
-                  timestampString = "498940525.69806"
+                  timestampString = "500331227.074949"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "270"
-                  endingLineNumber = "270"
-                  offsetFromSymbolStart = "1510">
+                  startingLineNumber = "277"
+                  endingLineNumber = "277"
+                  offsetFromSymbolStart = "1240">
                </Location>
                <Location
                   shouldBeEnabled = "Yes"
@@ -505,12 +473,12 @@
                   moduleName = "CityScape"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/cmehrvar/Desktop/CityScape/SettingsViewController.swift"
-                  timestampString = "498940525.701591"
+                  timestampString = "500331227.08531"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "270"
-                  endingLineNumber = "270"
-                  offsetFromSymbolStart = "2584">
+                  startingLineNumber = "277"
+                  endingLineNumber = "277"
+                  offsetFromSymbolStart = "2204">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -522,11 +490,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "SettingsViewController.swift"
-            timestampString = "498940533.641241"
+            timestampString = "499120879.604416"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "251"
-            endingLineNumber = "251"
+            startingLineNumber = "258"
+            endingLineNumber = "258"
             landmarkName = "logOut(_:)"
             landmarkType = "7">
             <Locations>
@@ -538,12 +506,12 @@
                   moduleName = "CityScape"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/cmehrvar/Desktop/CityScape/SettingsViewController.swift"
-                  timestampString = "498940533.860318"
+                  timestampString = "500331227.094882"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "251"
-                  endingLineNumber = "251"
-                  offsetFromSymbolStart = "19">
+                  startingLineNumber = "258"
+                  endingLineNumber = "258"
+                  offsetFromSymbolStart = "24">
                </Location>
                <Location
                   shouldBeEnabled = "Yes"
@@ -553,14 +521,478 @@
                   moduleName = "CityScape"
                   usesParentBreakpointCondition = "Yes"
                   urlString = "file:///Users/cmehrvar/Desktop/CityScape/SettingsViewController.swift"
-                  timestampString = "498940533.863577"
+                  timestampString = "500331227.09973"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "251"
-                  endingLineNumber = "251"
-                  offsetFromSymbolStart = "439">
+                  startingLineNumber = "258"
+                  endingLineNumber = "258"
+                  offsetFromSymbolStart = "344">
                </Location>
             </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SquadTableViewCell.swift"
+            timestampString = "500063898.884094"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "182"
+            endingLineNumber = "182"
+            landmarkName = "messageSquad(_:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "CityScape.SquadTableViewCell.(messageSquad (Swift.AnyObject) -&gt; ()).(closure #5)"
+                  moduleName = "CityScape"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cmehrvar/Desktop/CityScape/SquadTableViewCell.swift"
+                  timestampString = "500331227.113537"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "182"
+                  endingLineNumber = "182"
+                  offsetFromSymbolStart = "2092">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "CityScape.SquadTableViewCell.(messageSquad (Swift.AnyObject) -&gt; ()).(closure #5)"
+                  moduleName = "CityScape"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cmehrvar/Desktop/CityScape/SquadTableViewCell.swift"
+                  timestampString = "500331227.119145"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "182"
+                  endingLineNumber = "182"
+                  offsetFromSymbolStart = "2368">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SquadTableViewCell.swift"
+            timestampString = "500063898.884094"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "177"
+            endingLineNumber = "177"
+            landmarkName = "messageSquad(_:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "CityScape.SquadTableViewCell.(messageSquad (Swift.AnyObject) -&gt; ()).(closure #5)"
+                  moduleName = "CityScape"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cmehrvar/Desktop/CityScape/SquadTableViewCell.swift"
+                  timestampString = "500331227.128607"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "177"
+                  endingLineNumber = "177"
+                  offsetFromSymbolStart = "72">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "CityScape.SquadTableViewCell.(messageSquad (Swift.AnyObject) -&gt; ()).(closure #5)"
+                  moduleName = "CityScape"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cmehrvar/Desktop/CityScape/SquadTableViewCell.swift"
+                  timestampString = "500331227.134174"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "177"
+                  endingLineNumber = "177"
+                  offsetFromSymbolStart = "428">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SquadTableViewCell.swift"
+            timestampString = "500063898.884094"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "184"
+            endingLineNumber = "184"
+            landmarkName = "messageSquad(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "AddFromFacebookCell.swift"
+            timestampString = "499840470.711539"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "181"
+            endingLineNumber = "181"
+            landmarkName = "messageSquad(_:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "CityScape.AddFromFacebookCell.(messageSquad (Swift.AnyObject) -&gt; ()).(closure #5)"
+                  moduleName = "CityScape"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cmehrvar/Desktop/CityScape/AddFromFacebookCell.swift"
+                  timestampString = "500331227.234153"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "181"
+                  endingLineNumber = "181"
+                  offsetFromSymbolStart = "2248">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "CityScape.AddFromFacebookCell.(messageSquad (Swift.AnyObject) -&gt; ()).(closure #5)"
+                  moduleName = "CityScape"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cmehrvar/Desktop/CityScape/AddFromFacebookCell.swift"
+                  timestampString = "500331227.238699"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "181"
+                  endingLineNumber = "181"
+                  offsetFromSymbolStart = "2500">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "AddFromFacebookCell.swift"
+            timestampString = "499840470.711539"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "175"
+            endingLineNumber = "175"
+            landmarkName = "messageSquad(_:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "CityScape.AddFromFacebookCell.(messageSquad (Swift.AnyObject) -&gt; ()).(closure #5)"
+                  moduleName = "CityScape"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cmehrvar/Desktop/CityScape/AddFromFacebookCell.swift"
+                  timestampString = "500331227.252922"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "175"
+                  endingLineNumber = "175"
+                  offsetFromSymbolStart = "72">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "CityScape.AddFromFacebookCell.(messageSquad (Swift.AnyObject) -&gt; ()).(closure #5)"
+                  moduleName = "CityScape"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cmehrvar/Desktop/CityScape/AddFromFacebookCell.swift"
+                  timestampString = "500331227.256971"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "175"
+                  endingLineNumber = "175"
+                  offsetFromSymbolStart = "428">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "VibeHeaderCollectionCell.swift"
+            timestampString = "499839760.095098"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "104"
+            endingLineNumber = "104"
+            landmarkName = "squadRequest(_:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "CityScape.VibeHeaderCollectionCell.(squadRequest (Swift.AnyObject) -&gt; ()).(closure #5)"
+                  moduleName = "CityScape"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cmehrvar/Desktop/CityScape/VibeHeaderCollectionCell.swift"
+                  timestampString = "500331227.274079"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "104"
+                  endingLineNumber = "104"
+                  offsetFromSymbolStart = "72">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "CityScape.VibeHeaderCollectionCell.(squadRequest (Swift.AnyObject) -&gt; ()).(closure #5)"
+                  moduleName = "CityScape"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cmehrvar/Desktop/CityScape/VibeHeaderCollectionCell.swift"
+                  timestampString = "500331227.279095"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "104"
+                  endingLineNumber = "104"
+                  offsetFromSymbolStart = "428">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "AddFromFacebookCell.swift"
+            timestampString = "499840624.481403"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "220"
+            endingLineNumber = "220"
+            landmarkName = "messageSquad(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "AddFromFacebookCell.swift"
+            timestampString = "499841309.602571"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "386"
+            endingLineNumber = "386"
+            landmarkName = "loadCell(_:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "CityScape.AddFromFacebookCell.loadCell (Swift.Dictionary&lt;Swift.AnyHashable, Any&gt;) -&gt; ()"
+                  moduleName = "CityScape"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cmehrvar/Desktop/CityScape/AddFromFacebookCell.swift"
+                  timestampString = "500331227.291969"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "386"
+                  endingLineNumber = "386"
+                  offsetFromSymbolStart = "4244">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "CityScape.AddFromFacebookCell.loadCell (Swift.Dictionary&lt;Swift.AnyHashable, Any&gt;) -&gt; ()"
+                  moduleName = "CityScape"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cmehrvar/Desktop/CityScape/AddFromFacebookCell.swift"
+                  timestampString = "500331227.297219"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "386"
+                  endingLineNumber = "386"
+                  offsetFromSymbolStart = "4580">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "AddFromFacebookCell.swift"
+            timestampString = "499840764.668256"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "190"
+            endingLineNumber = "190"
+            landmarkName = "messageSquad(_:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "CityScape.AddFromFacebookCell.(messageSquad (Swift.AnyObject) -&gt; ()).(closure #5)"
+                  moduleName = "CityScape"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cmehrvar/Desktop/CityScape/AddFromFacebookCell.swift"
+                  timestampString = "500331227.308841"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "190"
+                  endingLineNumber = "190"
+                  offsetFromSymbolStart = "4916">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "CityScape.AddFromFacebookCell.(messageSquad (Swift.AnyObject) -&gt; ()).(closure #5)"
+                  moduleName = "CityScape"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cmehrvar/Desktop/CityScape/AddFromFacebookCell.swift"
+                  timestampString = "500331227.314231"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "190"
+                  endingLineNumber = "190"
+                  offsetFromSymbolStart = "5280">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "AddFromFacebookCell.swift"
+            timestampString = "499840895.511926"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "192"
+            endingLineNumber = "192"
+            landmarkName = "messageSquad(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "AddFromFacebookCell.swift"
+            timestampString = "499841309.602571"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "392"
+            endingLineNumber = "392"
+            landmarkName = "loadCell(_:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "CityScape.AddFromFacebookCell.loadCell (Swift.Dictionary&lt;Swift.AnyHashable, Any&gt;) -&gt; ()"
+                  moduleName = "CityScape"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cmehrvar/Desktop/CityScape/AddFromFacebookCell.swift"
+                  timestampString = "500331227.327173"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "392"
+                  endingLineNumber = "392"
+                  offsetFromSymbolStart = "4664">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "CityScape.AddFromFacebookCell.loadCell (Swift.Dictionary&lt;Swift.AnyHashable, Any&gt;) -&gt; ()"
+                  moduleName = "CityScape"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/cmehrvar/Desktop/CityScape/AddFromFacebookCell.swift"
+                  timestampString = "500331227.330632"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "392"
+                  endingLineNumber = "392"
+                  offsetFromSymbolStart = "4980">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NearbyController.swift"
+            timestampString = "500330870.038141"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "348"
+            endingLineNumber = "348"
+            landmarkName = "requestWhenInUseAuthorization()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ProfilePicCollectionCell.swift"
+            timestampString = "500070268.144421"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "581"
+            endingLineNumber = "581"
+            landmarkName = "callCamera(_:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

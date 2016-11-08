@@ -405,20 +405,25 @@ class MainRootController: UIViewController {
             
             self.searchRevealed = scopeSearchRevealed
             
-            
             if self.squadCountRevealed || self.requestsRevealed || (self.chatRevealed && self.profileRevealed) {
                 
                 if !self.chatRevealed {
                     
                     UIApplication.shared.isStatusBarHidden = true
+                    self.profileRevealed = true
                     
                 } else {
                     
-                    UIApplication.shared.isStatusBarHidden = false
-                    
+                    if self.profileRevealed {
+                        
+                        UIApplication.shared.isStatusBarHidden = true
+                        
+                    } else {
+                        
+                        UIApplication.shared.isStatusBarHidden = false
+                        
+                    }
                 }
-
-                self.profileRevealed = true
                 
             } else {
                 
@@ -763,6 +768,7 @@ class MainRootController: UIViewController {
             if uid != nil {
                 
                 let ref = FIRDatabase.database().reference()
+                ref.keepSynced(true)
                 
                 ref.child("users").child(uid).observeSingleEvent(of: .value, with: { (snapshot) in
                     
@@ -1514,8 +1520,12 @@ class MainRootController: UIViewController {
 
                 if let value = snapshot.value as? [AnyHashable: Any]{
                     
-                    let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                    appDelegate.selfData = value as [NSObject : AnyObject]
+                    if let appDelegate = UIApplication.shared.delegate as? AppDelegate {
+                        
+                        appDelegate.selfData = value as [NSObject : AnyObject]
+                        
+                    }
+                    
                     self.selfData = value
                     
                     if let currentSnapID = self.snapchatController?.currentUID {
@@ -1553,7 +1563,8 @@ class MainRootController: UIViewController {
                     
                     if let city = value["city"] as? String {
                         
-                        self.vibesFeedController?.currentCity = city
+                        let replacedCity = city.replacingOccurrences(of: ".", with: "")
+                        self.vibesFeedController?.currentCity = replacedCity
                         
                     }
                     
@@ -1685,17 +1696,11 @@ class MainRootController: UIViewController {
                     if self.vibesLoadedFromSelf == false {
                         
                         self.vibesLoadedFromSelf = true
- 
+
                         if value["interestedIn"] != nil {
 
                             self.nearbyController?.requestWhenInUseAuthorization()
                             self.nearbyController?.updateLocation()
-                            
-                            if let vc = self.nearbyController {
-                                
-                                vc.timer = Timer.scheduledTimer(timeInterval: 30, target: vc, selector: #selector(vc.updateLocationToFirebase), userInfo: nil, repeats: true)
-                                
-                            }
 
                         } else {
                             
@@ -1706,14 +1711,12 @@ class MainRootController: UIViewController {
                         self.vibesFeedController?.observeCurrentCityPosts()
                         self.updateOnline()
                         
-                    } else {
+                    }
+                    
+                    if let latitude = value["latitude"] as? CLLocationDegrees, let longitude = value["longitude"] as? CLLocationDegrees {
                         
-                        if let latitude = value["latitude"] as? CLLocationDegrees, let longitude = value["longitude"] as? CLLocationDegrees {
-                            
-                            let location = CLLocation(latitude: latitude, longitude: longitude)
-                            self.nearbyController?.queryNearby(location)
-                            
-                        }
+                        let location = CLLocation(latitude: latitude, longitude: longitude)
+                        self.nearbyController?.queryNearby(location)
                         
                     }
                     
@@ -1815,9 +1818,6 @@ class MainRootController: UIViewController {
         
         if let uid = FIRAuth.auth()?.currentUser?.uid {
             
-            let userLocRef = FIRDatabase.database().reference().child("userLocations")
-            userLocRef.child(uid).updateChildValues(["online" : true])
-            
             let ref = FIRDatabase.database().reference().child("users").child(uid)
             ref.updateChildValues(["online" : true])
             
@@ -1832,9 +1832,6 @@ class MainRootController: UIViewController {
         self.timer.invalidate()
         
         if let uid = FIRAuth.auth()?.currentUser?.uid {
-            
-            let userLocRef = FIRDatabase.database().reference().child("userLocations")
-            userLocRef.child(uid).updateChildValues(["online" : false])
             
             let ref = FIRDatabase.database().reference().child("users").child(uid)
             ref.updateChildValues(["online" : false])
@@ -1869,8 +1866,7 @@ class MainRootController: UIViewController {
                 
                 ref.child("users").child(uid).updateChildValues(["interestedIn" : ["male"]])
                 self.selfData["interestedIn"] = ["male"]
-      
-                self.nearbyController?.checkStatus()
+
                 self.nearbyController?.requestWhenInUseAuthorization()
                 self.nearbyController?.updateLocation()
                 
@@ -1890,8 +1886,7 @@ class MainRootController: UIViewController {
                 
                 ref.child("users").child(uid).updateChildValues(["interestedIn" : ["female"]])
                 self.selfData["interestedIn"] = ["female"]
-                
-                self.nearbyController?.checkStatus()
+    
                 self.nearbyController?.requestWhenInUseAuthorization()
                 self.nearbyController?.updateLocation()
                 
@@ -1911,8 +1906,7 @@ class MainRootController: UIViewController {
                 
                 ref.child("users").child(uid).updateChildValues(["interestedIn" : ["male", "female"]])
                 self.selfData["interestedIn"] = ["male", "female"]
-                
-                self.nearbyController?.checkStatus()
+
                 self.nearbyController?.requestWhenInUseAuthorization()
                 self.nearbyController?.updateLocation()
                 

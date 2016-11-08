@@ -93,16 +93,16 @@ class AddFromFacebookController: UIViewController, UITableViewDataSource, UITabl
                                 let nameComponents = name.components(separatedBy: " ")
                                 
                                 FIRDatabase.database().reference().child("facebookUIDs").child(id).observeSingleEvent(of: .value, with: { (snapshot) in
-                                    
-                                    if let uid = snapshot.value {
-                                        
-                                        var userValue = [AnyHashable : Any]()
-                                        userValue["firstName"] = nameComponents[0]
-                                        userValue["lastName"] = nameComponents[1]
-                                        userValue["uid"] = uid
-                                        self.globUsers.append(userValue)
-                                        self.globTableViewOutlet.reloadData()
-                                        
+  
+                                        if let uid = snapshot.value as? String {
+                                            
+                                            var userValue = [AnyHashable : Any]()
+                                            userValue["firstName"] = nameComponents[0]
+                                            userValue["lastName"] = nameComponents[1]
+                                            userValue["uid"] = uid
+                                            self.globUsers.append(userValue)
+                                            self.globTableViewOutlet.reloadData()
+                                            
                                     }
                                 })
                             }
@@ -134,6 +134,8 @@ class AddFromFacebookController: UIViewController, UITableViewDataSource, UITabl
     
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+        tableView.allowsSelection = false
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "facebookCell", for: indexPath) as! AddFromFacebookCell
         

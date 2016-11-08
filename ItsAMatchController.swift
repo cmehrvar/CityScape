@@ -59,11 +59,11 @@ class ItsAMatchController: UIViewController {
         
         self.buttonHeightConstOutlet.constant = screenHeight / 10
         
-        self.myProfileOutlet.layer.cornerRadius = ((screenWidth / 2.5) - 21) / 2
+        self.myProfileOutlet.layer.cornerRadius = (screenWidth - 120) / 4
         self.myProfileOutlet.layer.borderWidth = 3
         self.myProfileOutlet.layer.borderColor = UIColor.white.cgColor
         
-        self.yourProfileOutlet.layer.cornerRadius = ((screenWidth / 2.5) - 21) / 2
+        self.yourProfileOutlet.layer.cornerRadius = (screenWidth - 120) / 4
         self.yourProfileOutlet.layer.borderWidth = 3
         self.yourProfileOutlet.layer.borderColor = UIColor.white.cgColor
         

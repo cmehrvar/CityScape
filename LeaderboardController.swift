@@ -30,6 +30,8 @@ class LeaderboardController: UIViewController, UITableViewDataSource, UITableVie
         
         let cell = tableView.dequeueReusableCell(withIdentifier: "leaderCell", for: indexPath) as! LeaderboardCell
         
+        cell.leaderController = self
+        
         cell.rankOutlet.text = "#\((indexPath as NSIndexPath).row + 1)"
         
         cell.loadCell(leaders[(indexPath as NSIndexPath).row])
@@ -43,6 +45,7 @@ class LeaderboardController: UIViewController, UITableViewDataSource, UITableVie
     func loadLeaderboard(){
         
         let ref = FIRDatabase.database().reference().child("leaders")
+        ref.keepSynced(true)
         
         ref.observeSingleEvent(of: .value, with:  { (snapshot) in
             

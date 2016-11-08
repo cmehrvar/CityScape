@@ -29,6 +29,7 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
             let ref = FIRDatabase.database().reference().child("userUIDs")
+            ref.keepSynced(true)
             
             var index = 0
             
@@ -72,6 +73,7 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
                                 self.globUsers.insert([AnyHashable: Any](), at: scopeIndex)
                                 
                                 let userRef = FIRDatabase.database().reference().child("users").child(uid)
+                                userRef.keepSynced(true)
                                 
                                 userRef.observeSingleEvent(of: .value, with: { (snapshot) in
                                     

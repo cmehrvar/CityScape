@@ -120,6 +120,12 @@ class SettingsViewController: UIViewController {
                             
                             if let myData = snapshot.value as? [AnyHashable: Any] {
                                 
+                                if let facebookId = myData["facebookId"] as? String {
+                                    
+                                    FIRDatabase.database().reference().child("facebookUIDs").child(facebookId).removeValue()
+                                    
+                                }
+                                
                                 if let mySquad = myData["squad"] as? [AnyHashable: Any] {
                                     
                                     for (_, value) in mySquad {
@@ -157,9 +163,7 @@ class SettingsViewController: UIViewController {
                                                 
                                                 var newMembers = members
                                                 newMembers.removeValue(forKey: myUID)
-                                                
-                                                
-                                                
+           
                                                 FIRDatabase.database().reference().child("groupChats").child(key).child("members").setValue(newMembers)
                                                 
                                                 for (member, _) in members {
@@ -209,6 +213,9 @@ class SettingsViewController: UIViewController {
                                         
                                     }
                                 })
+                                
+                                
+                                
                                 
                                 do {
                                     try FIRAuth.auth()?.signOut()

@@ -168,9 +168,9 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
             
             ref.child("users").child(currentKey).child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
                 
-                if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
+                if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate, let myName = self.senderDisplayName, let messageText = text {
 
-                    appDelegate.pushMessage(scopeUID, token: token, message: "\(self.senderDisplayName): \(text)")
+                    appDelegate.pushMessage(uid: scopeUID, token: token, message: "\(myName): \(messageText)")
                     
                 }
             })
@@ -223,9 +223,9 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                             
                             ref.child("users").child(member).child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
                                 
-                                if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
+                                if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate, let myName = self.senderDisplayName, let groupChatName = self.rootController?.topChatController?.chatTitleOutlet.text, let messageText = text {
                                     
-                                    appDelegate.pushMessage(member, token: token, message: "\(self.senderDisplayName) to \(self.rootController?.topChatController?.chatTitleOutlet.text): \(text)")
+                                    appDelegate.pushMessage(uid: member, token: token, message: "\(myName) to \(groupChatName): \(messageText)")
                                     
                                 }
                             })
@@ -343,9 +343,9 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                             
                             ref.child("users").child(scopeCurrentKey).child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
                                 
-                                if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
+                                if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate, let myName = self.senderDisplayName {
                                     
-                                    appDelegate.pushMessage(scopeCurrentKey, token: token, message: "\(self.senderDisplayName): Sent a photo!")
+                                    appDelegate.pushMessage(uid: scopeCurrentKey, token: token, message: "\(myName): Sent a photo!")
                                     
                                 }
                             })
@@ -399,9 +399,9 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                                             
                                             ref.child("users").child(member).child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
                                                 
-                                                if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
+                                                if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate, let myName = self.senderDisplayName, let groupChatName = self.rootController?.topChatController?.chatTitleOutlet.text {
                                                     
-                                                    appDelegate.pushMessage(member, token: token, message: "\(self.senderDisplayName) to \(self.rootController?.topChatController?.chatTitleOutlet.text): Sent a photo!")
+                                                    appDelegate.pushMessage(uid: member, token: token, message: "\(myName) to \(groupChatName): Sent a photo!")
                                                     
                                                 }
                                             })
@@ -524,9 +524,9 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                                     
                                     ref.child("users").child(scopeCurrentKey).child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
                                         
-                                        if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
+                                        if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate, let myName = self.senderDisplayName {
                                             
-                                            appDelegate.pushMessage(scopeCurrentKey, token: token, message: "\(self.senderDisplayName): Sent a video!")
+                                            appDelegate.pushMessage(uid: scopeCurrentKey, token: token, message: "\(self.senderDisplayName): Sent a video!")
                                             
                                         }
                                     })
@@ -581,7 +581,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                                                         
                                                         if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
                                                             
-                                                            appDelegate.pushMessage(member, token: token, message: "\(self.senderDisplayName) to \(self.rootController?.topChatController?.chatTitleOutlet.text): Sent a video!")
+                                                            appDelegate.pushMessage(uid: member, token: token, message: "\(self.senderDisplayName) to \(self.rootController?.topChatController?.chatTitleOutlet.text): Sent a video!")
                                                             
                                                         }
                                                     })

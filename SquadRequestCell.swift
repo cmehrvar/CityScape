@@ -114,7 +114,7 @@ class SquadRequestCell: UITableViewCell {
             if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.notificationController?.rootController?.selfData, let myFirstName = selfData["firstName"] as? String, let myLastName = selfData["lastName"] as? String {
                 
                 let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
-ref.child("notifications").child(scopeUID).child("squadRequest").updateChildValues(["status" : "approved"])
+                ref.child("notifications").child(scopeUID).child("squadRequest").updateChildValues(["status" : "approved"])
                 ref.child("squadRequests").child(scopeUID).updateChildValues(["status" : 1])
                 
                 ref.child("squad").child(scopeUID).setValue(["firstName" : scopeFirstName, "lastName" : scopeLastName, "uid" : scopeUID])
@@ -125,7 +125,7 @@ ref.child("notifications").child(scopeUID).child("squadRequest").updateChildValu
                     
                     if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
                         
-                        appDelegate.pushMessage(scopeUID, token: token, message: "\(myFirstName) is now in your squad!")
+                        appDelegate.pushMessage(uid: scopeUID, token: token, message: "\(myFirstName) is now in your squad!")
                         
                         
                     }

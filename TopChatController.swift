@@ -719,7 +719,6 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
             
         }else {
             
-            
             //MATCH OR SQUAD
             
             let alertController = UIAlertController(title: "\(firstName + " " + lastName)", message: nil, preferredStyle: .actionSheet)
@@ -804,7 +803,6 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
     //Actions
     @IBAction func cancel(_ sender: AnyObject) {
 
-        //rootController?.chatController.cl
         rootController?.chatController?.clearPlayers()
         
         if let layer = playerLayer {

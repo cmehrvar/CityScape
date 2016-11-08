@@ -87,14 +87,13 @@ class RequestTableViewCell: UITableViewCell {
             
             ref.child("squad").child(scopeUID).setValue(["firstName" : scopeFirstName, "lastName" : scopeLastName, "uid" : scopeUID])
             
-            
             let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
 
             yourRef.child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
                 
                 if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
                     
-                    appDelegate.pushMessage(scopeUID, token: token, message: "\(myFirstName) has sent you a squad request")
+                    appDelegate.pushMessage(uid: scopeUID, token: token, message: "\(myFirstName) is now in your squad!")
                     
                     
                 }
@@ -169,7 +168,7 @@ class RequestTableViewCell: UITableViewCell {
             self.firstName = firstName
             self.lastName = lastName
             
-            nameOutlet.text = firstName 
+            nameOutlet.text = firstName + " " + lastName
             
         }
     }

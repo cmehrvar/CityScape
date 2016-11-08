@@ -84,7 +84,7 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                                             
                                             if let myFirstName = self.nearbyController?.rootController?.selfData["firstName"] as? String, let myLastName = self.nearbyController?.rootController?.selfData["lastName"] as? String {
                                                 
-                                                appDelegate.pushMessage(scopeUID, token: token, message: "You've matched with \(myFirstName) \(myLastName)!")
+                                                appDelegate.pushMessage(uid: scopeUID, token: token, message: "You've matched with \(myFirstName) \(myLastName)!")
                                                 
                                             }
    
@@ -135,59 +135,69 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
     func loadUser(_ uid: String){
         
         if let selfData = nearbyController?.rootController?.selfData, let selfUID = FIRAuth.auth()?.currentUser?.uid {
-            
-            if let userData = self.nearbyController?.users[uid] as? [AnyHashable: Any] {
 
-                if self.uid == uid {
+            self.uid = uid
+            let userDataRef = FIRDatabase.database().reference().child("users").child(uid)
+            
+            userDataRef.observe(.value, with: { (snapshot) in
+                
+                if uid == self.uid {
                     
-                    if let online = userData["online"] as? Bool {
+                    if let userData = snapshot.value as? [AnyHashable : Any] {
                         
-                        if online {
-                            self.onlineOutlet.backgroundColor = UIColor.green
+                        if let online = userData["online"] as? Bool {
+                            
+                            if online {
+                                self.onlineOutlet.backgroundColor = UIColor.green
+                            } else {
+                                self.onlineOutlet.backgroundColor = UIColor.red
+                            }
+                        }
+                        
+                        if let matchStatus = userData["matchStatus"] as? String {
+                            
+                            if matchStatus == "sentMatch" {
+                                
+                                self.matchButtonOutlet.isEnabled = false
+                                self.buttonImageOutlet.image = UIImage(named: "sentMatch")
+                                
+                            }
+                        }
+                        
+                        if let displayName = userData["displayName"] as? String {
+                            
+                            self.nameOutlet.text = displayName
+                            
+                        }
+                        
+                        if let profile = userData["profile"] as? String, let url = URL(string: profile) {
+                            
+                            if self.profileImage.sd_imageURL() != url {
+                                self.profileImage.sd_setImage(with: url, placeholderImage: nil)
+                            }
+                            
+                            self.profilePic = profile
+                            
+                        }
+                        
+                        if let status = userData["status"] as? String {
+                            
+                            self.occupationOutlet.text = status
+                            
                         } else {
-                            self.onlineOutlet.backgroundColor = UIColor.red
-                        }
-                        
-                    }
-                    
-                    
-                    if let matchStatus = userData["matchStatus"] as? String {
-                        
-                        if matchStatus == "sentMatch" {
                             
-                            self.matchButtonOutlet.isEnabled = false
-                            self.buttonImageOutlet.image = UIImage(named: "sentMatch")
+                            self.occupationOutlet.text = ""
                             
                         }
                     }
+
+                } else {
                     
-                    if let displayName = userData["displayName"] as? String {
-                        
-                        self.nameOutlet.text = displayName
-                        
-                    }
-                    
-                    if let profile = userData["profile"] as? String, let url = URL(string: profile) {
-                        
-                        if profileImage.sd_imageURL() != url {
-                            profileImage.sd_setImage(with: url, placeholderImage: nil)
-                        }
-                        
-                        self.profilePic = profile
-                        
-                    }
-                    
-                    if let status = userData["status"] as? String {
-                        
-                        occupationOutlet.text = status
-                        
-                    } else {
-                        
-                        occupationOutlet.text = ""
-                        
-                    }
+                    userDataRef.removeAllObservers()
+
                 }
-            }
+            })
+                
 
             let ref = FIRDatabase.database().reference().child("users").child(uid)
 
@@ -322,8 +332,6 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                                 self.matchButtonOutlet.isEnabled = true
                                 self.buttonImageOutlet.image = UIImage(named: "sendMatch")
 
-                                
-                                
                                 if let userData = self.nearbyController?.users[uid] as? [AnyHashable: Any] {
                                     
                                     var data = userData
@@ -382,8 +390,7 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                 
                 
             })
-            
-            
+
             ref.child("lastName").observeSingleEvent(of: .value, with: { (snapshot) in
                 
                 if self.uid == uid {
@@ -409,9 +416,7 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                 }
                 
                             })
-            
-            
-            
+
             ref.child("currentStatus").observe(.value, with: { (snapshot) in
                 
                 if self.uid == uid {
@@ -466,8 +471,7 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                     }
                 }
             })
-            
-            
+
             ref.child("online").observe(.value, with: { (snapshot) in
                 
                 if self.uid == uid {

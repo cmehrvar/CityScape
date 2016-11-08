@@ -69,8 +69,9 @@
 		A393BDAA1D9C6C15002DD80E /* AddToChatController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A393BDA91D9C6C15002DD80E /* AddToChatController.swift */; };
 		A393BDAC1D9C715F002DD80E /* AddToChatCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A393BDAB1D9C715F002DD80E /* AddToChatCell.swift */; };
 		A397371E1D57024300E406D7 /* NearbyMatchCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A397371D1D57024300E406D7 /* NearbyMatchCollectionCell.swift */; };
+		A3A11A441DCE513A00CA245E /* atlasDistribution.p12 in Resources */ = {isa = PBXBuildFile; fileRef = A3A11A431DCE513A00CA245E /* atlasDistribution.p12 */; };
+		A3A11A461DCE514700CA245E /* atlasDevelopment.p12 in Resources */ = {isa = PBXBuildFile; fileRef = A3A11A451DCE514700CA245E /* atlasDevelopment.p12 */; };
 		A3A2F30B1DBC09C30090D5C1 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = A3A2F30A1DBC09C20090D5C1 /* GoogleService-Info.plist */; };
-		A3A2F30D1DBC0BA80090D5C1 /* atlasDistribution.p12 in Resources */ = {isa = PBXBuildFile; fileRef = A3A2F30C1DBC0BA80090D5C1 /* atlasDistribution.p12 */; };
 		A3A31D1B1D9C760000BB0509 /* AddToChatCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3A31D1A1D9C760000BB0509 /* AddToChatCollectionCell.swift */; };
 		A3A5D2411DAEE7A30030E95F /* ContactUsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3A5D2401DAEE7A30030E95F /* ContactUsController.swift */; };
 		A3A5D2431DAEF49E0030E95F /* background.gif in Resources */ = {isa = PBXBuildFile; fileRef = A3A5D2421DAEF49E0030E95F /* background.gif */; };
@@ -231,8 +232,9 @@
 		A393BDA91D9C6C15002DD80E /* AddToChatController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddToChatController.swift; sourceTree = "<group>"; };
 		A393BDAB1D9C715F002DD80E /* AddToChatCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddToChatCell.swift; sourceTree = "<group>"; };
 		A397371D1D57024300E406D7 /* NearbyMatchCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NearbyMatchCollectionCell.swift; sourceTree = "<group>"; };
+		A3A11A431DCE513A00CA245E /* atlasDistribution.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; path = atlasDistribution.p12; sourceTree = "<group>"; };
+		A3A11A451DCE514700CA245E /* atlasDevelopment.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; path = atlasDevelopment.p12; sourceTree = "<group>"; };
 		A3A2F30A1DBC09C20090D5C1 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		A3A2F30C1DBC0BA80090D5C1 /* atlasDistribution.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; path = atlasDistribution.p12; sourceTree = "<group>"; };
 		A3A31D1A1D9C760000BB0509 /* AddToChatCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddToChatCollectionCell.swift; sourceTree = "<group>"; };
 		A3A5D2401DAEE7A30030E95F /* ContactUsController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContactUsController.swift; sourceTree = "<group>"; };
 		A3A5D2421DAEF49E0030E95F /* background.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = background.gif; sourceTree = "<group>"; };
@@ -444,9 +446,10 @@
 			isa = PBXGroup;
 			children = (
 				A339B4271DB3EB310027067D /* CityScape.entitlements */,
-				A3A2F30C1DBC0BA80090D5C1 /* atlasDistribution.p12 */,
 				A3DB261F1DAC3E040088063B /* PROXIMA NOVA SOFT W03 SEMIBOLD.TTF */,
 				A3DB26211DAC3E1B0088063B /* PROXIMANOVASOFT-REGULAR.OTF */,
+				A3A11A451DCE514700CA245E /* atlasDevelopment.p12 */,
+				A3A11A431DCE513A00CA245E /* atlasDistribution.p12 */,
 				A3FC18931D3412AB0031D165 /* Extensions */,
 				A3D1198A1D271472009D7EAB /* Adobe Frameworks */,
 				A3BB98171D12E66E00BD384F /* Views */,
@@ -1096,6 +1099,7 @@
 			files = (
 				A3D119891D26F5E6009D7EAB /* AdobeCreativeSDKCoreResources.bundle in Resources */,
 				A3A5D2431DAEF49E0030E95F /* background.gif in Resources */,
+				A3A11A461DCE514700CA245E /* atlasDevelopment.p12 in Resources */,
 				A3D119871D26F5BA009D7EAB /* AdobeCreativeSDKImageResources.bundle in Resources */,
 				A3DB26221DAC3E1B0088063B /* PROXIMANOVASOFT-REGULAR.OTF in Resources */,
 				A3DB26201DAC3E040088063B /* PROXIMA NOVA SOFT W03 SEMIBOLD.TTF in Resources */,
@@ -1103,7 +1107,7 @@
 				A353F0D31D1224BC009A2182 /* Assets.xcassets in Resources */,
 				A353F0D11D1224BC009A2182 /* Main.storyboard in Resources */,
 				A3A2F30B1DBC09C30090D5C1 /* GoogleService-Info.plist in Resources */,
-				A3A2F30D1DBC0BA80090D5C1 /* atlasDistribution.p12 in Resources */,
+				A3A11A441DCE513A00CA245E /* atlasDistribution.p12 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1547,8 +1551,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.atlas.seatonlabs;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "0f951528-3401-4084-963c-b40777c5ce15";
-				PROVISIONING_PROFILE_SPECIFIER = newAtlasDevelopment;
+				PROVISIONING_PROFILE = "6c3c0b3e-792e-42bf-a735-2067cc51377f";
+				PROVISIONING_PROFILE_SPECIFIER = "Atlas Development";
 				SWIFT_OBJC_BRIDGING_HEADER = "CityScape-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 3.0;
@@ -1594,8 +1598,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.atlas.seatonlabs;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "0bfc806e-30d8-4deb-a66e-c16921e3e647";
-				PROVISIONING_PROFILE_SPECIFIER = newAtlasDistribution;
+				PROVISIONING_PROFILE = "09715efb-8d3f-4359-8ea9-db98190aabeb";
+				PROVISIONING_PROFILE_SPECIFIER = "Atlas Distribution";
 				SWIFT_OBJC_BRIDGING_HEADER = "CityScape-Bridging-Header.h";
 				SWIFT_VERSION = 3.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

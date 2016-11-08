@@ -18,13 +18,35 @@ import UserNotifications
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
+    
+    let releaseMode = "atlasDistribution"
+    
     var pusher: NWPusher?
-
-    func pushMessage(_ uid: String, token: String, message: String) {
+    
+    func connectPusher(completion: (Bool) -> ()){
+        
+        if let url = Bundle.main.url(forResource: releaseMode, withExtension: ".p12") {
+            
+            let data = try? Data(contentsOf: url)
+            
+            do {
+                
+                try pusher = NWPusher.connect(withPKCS12Data: data, password: "cousinhadI@1", environment: NWEnvironment.auto)
+                
+            } catch let error {
+                
+                print(error)
+                
+            }
+            
+            completion(true)
+        }
+    }
+    
+    func pushMessage(uid: String, token: String, message: String) {
         
         let ref = FIRDatabase.database().reference().child("users").child(uid)
-
+        ref.keepSynced(true)
         ref.child("badgeNumber").observeSingleEvent(of: .value, with: { (snapshot) in
             
             if snapshot.exists() {
@@ -35,16 +57,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     
                     ref.child("badgeNumber").setValue(badgeNumber + 1)
                     
-                    if let scopePusher = self.pusher {
+                    DispatchQueue.main.async {
                         
-                        do {
-
-                            try scopePusher.pushPayload(payload, token: token, identifier: UInt(arc4random()))
+                        if let scopePusher = self.pusher {
                             
-                        } catch let error {
-                            
-                            print(error)
-                            
+                            do {
+                                
+                                try scopePusher.pushPayload(payload, token: token, identifier: UInt(arc4random()))
+                                
+                            } catch let error {
+                                
+                                print(error)
+                                
+                                self.connectPusher(completion: { (bool) in
+                                    
+                                    self.pushMessage(uid: uid, token: token, message: message)
+                                    
+                                })
+                            }
                         }
                     }
                 }
@@ -55,35 +85,44 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 
                 ref.child("badgeNumber").setValue(1)
                 
-                if let scopePusher = self.pusher {
+                DispatchQueue.main.async {
                     
-                    do {
-                        
-                        try scopePusher.pushPayload(payload, token: token, identifier: UInt(arc4random()))
-                        
-                    } catch let error {
-                        
-                        print(error)
-                        
+                    if let scopePusher = self.pusher {
+
+                        do {
+                            
+                            try scopePusher.pushPayload(payload, token: token, identifier: UInt(arc4random()))
+                            
+                        } catch let error {
+                            
+                            print(error)
+                            
+                            self.connectPusher(completion: { (bool) in
+                                
+                                self.pushMessage(uid: uid, token: token, message: message)
+                                
+                            })
+
+                        }
                     }
                 }
             }
         })
     }
-
+    
     var window: UIWindow?
     var selfData = [AnyHashable: Any]()
-    
+
     //ViewControllers
     weak var mainRootController: MainRootController?
     weak var vibeController: NewVibesController?
     weak var nearbyController: NearbyController?
-
+    
     //Constants
     let CLIENT_ID = "a7708df10b6543febd5b42bb9bd18189"
     let CLIENT_SECRET = "a26fee79-6884-47c3-82e1-c7f8e82a2b23"
-
-
+    
+    
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         FIRApp.configure()
         FBSDKProfile.enableUpdates(onAccessTokenChange: true)
@@ -124,41 +163,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             UIApplication.shared.registerForRemoteNotifications()
         }
             // iOS 7 support
-        else {  
+        else {
             application.registerForRemoteNotifications(matching: [.badge, .sound, .alert])
         }
         
-        if let url = Bundle.main.url(forResource: "AtlasDistribution", withExtension: ".p12") {
+        connectPusher { (bool) in
             
-            let data = try? Data(contentsOf: url)
+            print("connected")
             
-            do {
-                
-                try pusher = NWPusher.connect(withPKCS12Data: data, password: "cousinhadI@1", environment: NWEnvironment.auto)
-                
-            } catch let error {
-                
-                print(error)
-                
-            }
-            
-            if pusher != nil {
-                
-                print("good pusher")
-                
-            } else {
-                
-                print("bad pusher")
-                
-            }
         }
-
+        
+        
         application.statusBarStyle = .lightContent
         
         // Override point for customization after application launch.
         return true
     }
-
+    
     func applicationWillResignActive(_ application: UIApplication) {
         
         nearbyController?.invalidateTimer()
@@ -166,40 +187,40 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         mainRootController?.updateOffline()
         mainRootController?.clearVibesPlayers()
         mainRootController?.clearProfilePlayers()
-
+        
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
             FIRDatabase.database().reference().child("users").child(selfUID).child("badgeNumber").setValue(0)
             application.applicationIconBadgeNumber = 0
             
         }
- 
+        
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
     }
-
+    
     func applicationDidEnterBackground(_ application: UIApplication) {
         // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
         // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
     }
-
+    
     func applicationWillEnterForeground(_ application: UIApplication) {
         // Called as part of the transition from the background to the inactive state; here you can undo many of the changes made on entering the background.
         print("foreground")
-                
+        
     }
-
+    
     func applicationDidBecomeActive(_ application: UIApplication) {
         FBSDKAppEvents.activateApp()
         
-        nearbyController?.checkStatus()
-
+        nearbyController?.requestWhenInUseAuthorization()
+        
         mainRootController?.updateOnline()
-
+        
         if vibeController?.currentCity != nil {
             vibeController?.observeCurrentCityPosts()
         }
-
+        
         if selfData["interestedIn"] != nil {
             
             nearbyController?.requestWhenInUseAuthorization()
@@ -215,7 +236,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
     }
-
+    
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
@@ -233,10 +254,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken token: Data) {
-
+        
         let deviceTokenString = token.reduce("", {$0 + String(format: "%02X", $1)})
         print("APNs device token: \(deviceTokenString)")
-
+        
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
             FIRDatabase.database().reference().child("users").child(selfUID).child("pushToken").setValue(deviceTokenString)
@@ -246,7 +267,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-
+        
         print(error)
         
     }

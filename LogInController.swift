@@ -198,7 +198,10 @@ class LogInController: UIViewController {
                                                                     let components = name.components(separatedBy: ", ")
                                                                     
                                                                     if components.count >= 1 {
-                                                                        userData["city"] = components[0]
+                                                                        
+                                                                        let city = components[0]
+                                                                        userData["city"] = city.replacingOccurrences(of: ".", with: "")
+
                                                                     }
                                                                     
                                                                     if components.count == 2 {
@@ -213,7 +216,8 @@ class LogInController: UIViewController {
                                                                 userData["lastActive"] = Date().timeIntervalSince1970
                                                                 
                                                                 let ref = FIRDatabase.database().reference()
-                                                                
+                                                                ref.keepSynced(true)
+               
                                                                 ref.child("lastCityRank").observeSingleEvent(of: .value, with: { (snapshot) in
                                                                     
                                                                     if let rank = snapshot.value as? Int {
@@ -227,26 +231,28 @@ class LogInController: UIViewController {
                                                                         ref.child("userScores").child(uid).setValue(0)
                                                                         ref.child("userUIDs").child(uid).setValue(true)
                                                                         
-                                                                        let vc = self.storyboard?.instantiateViewController(withIdentifier: "mainRootController") as! MainRootController
+                                                                        if let vc = self.storyboard?.instantiateViewController(withIdentifier: "mainRootController") as?  MainRootController {
+                                                                            
+                                                                            self.present(vc, animated: true, completion: {
+                                                                                
+                                                                                vc.setStage()
+                                                                                
+                                                                                vc.loadSelfData({ (userData) in
+                                                                                    
+                                                                                    print("first time selfData loaded")
+                                                                                    
+                                                                                    
+                                                                                })
+                                                                                
+                                                                                vc.toggleNearby({ (bool) in
+                                                                                    
+                                                                                    print("nearby toggled")
+                                                                                    
+                                                                                })
+                                                                            })
+                                                                        }
                                                                         
-                                                                        self.present(vc, animated: true, completion: {
-                                                                            
-                                                                            vc.setStage()
-                   
-                                                                            vc.loadSelfData({ (userData) in
-                                                                                
-                                                                                print("first time selfData loaded")
-                                                                                
-                                                                                                                                                                
-                                                                            })
-                                                                            
-                                                                            vc.toggleNearby({ (bool) in
-                                                                                
-                                                                                print("nearby toggled")
-                                                                                
-                                                                            })
-                                                                        })
-                                                                    }
+                                                                                                                            }
                                                                 })
                                                             }
                                                         }
@@ -256,26 +262,30 @@ class LogInController: UIViewController {
   
                                             } else {
                                                 
-                                                let vc = self.storyboard?.instantiateViewController(withIdentifier: "mainRootController") as! MainRootController
+                                                if let vc = self.storyboard?.instantiateViewController(withIdentifier: "mainRootController") as? MainRootController {
+                                                    
+                                                    self.present(vc, animated: true, completion: {
+                                                        
+                                                        vc.setStage()
+                                                        
+                                                        vc.loadSelfData({ (value) in
+                                                            
+                                                            print("self data loaded")
+                                                            
+                                                            
+                                                        })
+                                                        
+                                                        vc.toggleNearby({ (bool) in
+                                                            
+                                                            print("nearby toggled")
+                                                            
+                                                        })
+                                                    })
+
+                                                    
+                                                }
                                                 
-                                                self.present(vc, animated: true, completion: {
-                                                    
-                                                    vc.setStage()
-                                                    
-                                                    vc.loadSelfData({ (value) in
-                                                        
-                                                        print("self data loaded")
-                                                        
-                                                        
-                                                    })
-                                                    
-                                                    vc.toggleNearby({ (bool) in
-                                                        
-                                                        print("nearby toggled")
-                                                        
-                                                    })
-                                                })
-                                            }
+                                                                                            }
                                         })
                                     }
                                     
@@ -306,6 +316,7 @@ class LogInController: UIViewController {
     func checkIfTaken(_ key: String, credential: String, completion: @escaping (_ taken: Bool) -> ()) {
         
         let ref = FIRDatabase.database().reference()
+        ref.keepSynced(true)
         
         ref.child(key).child(credential).observeSingleEvent(of: .value, with:  { (snapshot) in
             

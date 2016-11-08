@@ -50,6 +50,7 @@ class LeaderboardCell: UITableViewCell {
         self.uid = uid
         
         let ref = FIRDatabase.database().reference().child("users").child(uid)
+        ref.keepSynced(true)
         
         ref.child("profilePicture").observeSingleEvent(of: .value, with: { (snapshot) in
             

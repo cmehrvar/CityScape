@@ -603,11 +603,11 @@ class HandlePostController: UIViewController, UITextViewDelegate, UITableViewDel
                                             
                                             if FIRVideoURL != nil {
                                                 
-                                                appDelegate.pushMessage(uid, token: token, message: "\(firstName) \(lastName): Sent a video!")
+                                                appDelegate.pushMessage(uid: uid, token: token, message: "\(firstName) \(lastName): Sent a video!")
                                                 
                                             } else if imageUrl != nil {
                                                 
-                                                appDelegate.pushMessage(uid, token: token, message: "\(firstName) \(lastName): Sent a photo!")
+                                                appDelegate.pushMessage(uid: uid, token: token, message: "\(firstName) \(lastName): Sent a photo!")
                                                 
                                                 
                                             }
