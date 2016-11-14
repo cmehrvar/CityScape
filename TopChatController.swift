@@ -78,6 +78,8 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
             }
         }
     }
+    
+    var postURL = ""
 
     func loadPost(){
         
@@ -99,6 +101,7 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
                 
                 if let imageString = snapshot.value as? String, let url = URL(string: imageString) {
                     
+                    self.postURL = imageString
                     self.postImageOutlet.sd_setImage(with: url, placeholderImage: nil)
                     
                 }
@@ -127,6 +130,8 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
         ref.child("userUID").observeSingleEvent(of: .value, with: { (snapshot) in
             
             if let uid = snapshot.value as? String {
+                
+                self.uid = uid
                 
                 let userRef = FIRDatabase.database().reference().child("users").child(uid)
                 

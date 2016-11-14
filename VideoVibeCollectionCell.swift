@@ -12,9 +12,11 @@ import NVActivityIndicatorView
 class VideoVibeCollectionCell: UICollectionViewCell {
     
     weak var vibesController: NewVibesController?
+    weak var profileController: ProfileController?
     
     var postKey = ""
     var player = 0
+    var index = 0
     
     @IBOutlet weak var videoThumbnailOutlet: UIImageView!
     @IBOutlet weak var videoOutlet: UIView!
@@ -25,21 +27,42 @@ class VideoVibeCollectionCell: UICollectionViewCell {
     
     
     @IBAction func tapForSound(_ sender: AnyObject) {
+        
+        if let vibes = vibesController {
+            
+            if vibes.videoWithSound == postKey {
+                
+                vibes.videoWithSound = ""
+                vibes.videoPlayers[player]?.isMuted = true
+                soundImageOutlet.image = UIImage(named: "mute")
+                soundLabelOutlet.text = "Tap for sound"
+                
+            } else {
+                
+                vibes.videoWithSound = postKey
+                vibes.videoPlayers[player]?.isMuted = false
+                soundImageOutlet.image = UIImage(named: "unmute")
+                soundLabelOutlet.text = "Tap to mute"
+                
+            }
 
-        if vibesController?.videoWithSound == postKey {
+        } else if let profile = profileController {
             
-            vibesController?.videoWithSound = ""
-            vibesController?.videoPlayers[player]?.isMuted = true
-            soundImageOutlet.image = UIImage(named: "mute")
-            soundLabelOutlet.text = "Tap for sound"
-            
-        } else {
-            
-            vibesController?.videoWithSound = postKey
-            vibesController?.videoPlayers[player]?.isMuted = false
-            soundImageOutlet.image = UIImage(named: "unmute")
-            soundLabelOutlet.text = "Tap to mute"
-            
+            if profile.videoWithSound == postKey {
+                
+                profile.videoWithSound = ""
+                profile.videoPlayers[player]?.isMuted = true
+                soundImageOutlet.image = UIImage(named: "mute")
+                soundLabelOutlet.text = "Tap for sound"
+                
+            } else {
+                
+                profile.videoWithSound = postKey
+                profile.videoPlayers[player]?.isMuted = false
+                soundImageOutlet.image = UIImage(named: "unmute")
+                soundLabelOutlet.text = "Tap to mute"
+                
+            }
         }
     }
     
@@ -48,6 +71,13 @@ class VideoVibeCollectionCell: UICollectionViewCell {
         
         let x = (self.bounds.width / 2) - 100
         let y = (self.bounds.height / 2) - 100
+        
+        for view in videoThumbnailOutlet.subviews {
+            
+            view.removeFromSuperview()
+            
+        }
+
         
         
         let frame = CGRect(x: x, y: y, width: 200, height: 200)
@@ -77,6 +107,18 @@ class VideoVibeCollectionCell: UICollectionViewCell {
                     
                     vibes.videoPlayersObserved[player] = false
                     playerPlayer.removeObserver(vibes, forKeyPath: "rate")
+                    
+                }
+            }
+            
+        } else if let profile = profileController {
+            
+            if profile.videoPlayersObserved[player] {
+                
+                if let playerPlayer = profile.videoPlayers[player] {
+                    
+                    profile.videoPlayersObserved[player] = false
+                    playerPlayer.removeObserver(profile, forKeyPath: "rate")
                     
                 }
             }

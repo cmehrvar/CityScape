@@ -96,7 +96,7 @@ class AddFromFacebookCell: UITableViewCell {
     
     @IBAction func messageSquad(_ sender: AnyObject) {
         
-        //let scopeUserData = data
+        let scopeUserData = data
         let scopeUID = uid
         let scopeFirstName = firstName
         let scopeLastName = lastName
@@ -121,27 +121,15 @@ class AddFromFacebookCell: UITableViewCell {
             
             alertController.addAction(UIAlertAction(title: "Unsend Request", style: .destructive, handler: { (action) in
                 
-                if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                if let userUID = scopeUserData["uid"] as? String, let selfUID = FIRAuth.auth()?.currentUser?.uid {
                     
-                    let ref = FIRDatabase.database().reference().child("users").child(scopeUID)
+                    let ref = FIRDatabase.database().reference().child("users").child(userUID)
                     
-                    ref.child("squadRequests").child(selfUID).observeSingleEvent(of: .value, with: { (snapshot) in
-                        
-                        if let mySquadRequest = snapshot.value as? [AnyHashable: Any] {
-                            
-                            if let notKey = mySquadRequest["notificationKey"] as? String {
-                                
-                                DispatchQueue.main.async(execute: {
-                                    
-                                    ref.child("squadRequests").child(selfUID).removeValue()
-                                    ref.child("notifications").child(notKey).removeValue()
-                                    
-                                    self.addFromFaceookController?.globTableViewOutlet.reloadData()
-                                    
-                                })
-                            }
-                        }
-                    })
+                    ref.child("squadRequests").child(selfUID).removeValue()
+                    ref.child("notifications").child(selfUID).child("squadRequest").removeValue()
+                    
+                    self.addFromFaceookController?.globTableViewOutlet.reloadData()
+                    
                 }
             }))
             
@@ -172,74 +160,48 @@ class AddFromFacebookCell: UITableViewCell {
             
             alertController.addAction(UIAlertAction(title: "Add to Squad", style: .default, handler: { (action) in
                 
-                if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.addFromFaceookController?.mainRootController?.selfData, let myFirstName = selfData["firstName"] as? String, let myLastName = selfData["lastName"] as? String {
-                    
+                if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.addFromFaceookController?.mainRootController?.selfData, let myFirstName = selfData["firstName"] as? String, let myLastName = selfData["lastName"] as? String, let scopeUID = scopeUserData["uid"] as? String {
+
                     let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
+                    ref.child("notifications").child(scopeUID).child("squadRequest").updateChildValues(["status" : "approved"])
+                    ref.child("squadRequests").child(scopeUID).updateChildValues(["status" : 1])
                     
-                    print(selfData)
+                    ref.child("squad").child(scopeUID).setValue(["firstName" : scopeFirstName, "lastName" : scopeLastName, "uid" : scopeUID])
                     
-                    if let mySquadRequests = selfData["squadRequests"] as? [AnyHashable: Any], let userSquadRequest = mySquadRequests[scopeUID] as? [AnyHashable: Any], let scopeNotificationKey = userSquadRequest["notificationKey"] as? String {
+                    let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
+                    
+                    yourRef.child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
                         
-                        let squadData = ["firstName" : scopeFirstName, "lastName" : scopeLastName, "uid" : scopeUID]
-                        
-                        ref.child("notifications").child(scopeNotificationKey).updateChildValues(["status" : "approved"])
-                        ref.child("squadRequests").child(scopeUID).removeValue()
-                        
-                        ref.child("squad").child(scopeUID).setValue(squadData)
-                        
-                        if let selfData = self.addFromFaceookController?.mainRootController?.selfData, let mySquad = selfData["squad"] as? [NSObject : AnyObject] {
+                        if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
                             
-                            var squad = mySquad
-                            squad.updateValue(squadData as AnyObject, forKey: scopeUID as NSObject)
-                            self.addFromFaceookController?.mainRootController?.selfData["squad"] = squad
+                            appDelegate.pushMessage(uid: scopeUID, token: token, message: "\(myFirstName) is now in your squad!")
+                            
                             
                         }
-                        
-                        
-                        let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
-                        
-                        yourRef.child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
-                            
-                            if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
-                                
-                                appDelegate.pushMessage(uid: scopeUID, token: token, message: "\(myFirstName) is now in your squad!")
-                                
-                                
-                            }
-                        })
-                        
-                        
-                        let timeInterval = Date().timeIntervalSince1970
-                        
-                        let key = yourRef.child("notifications").childByAutoId().key
-                        
-                        yourRef.child("notifications").child(key).setValue(["firstName" : myFirstName, "lastName" : myLastName, "type" : "addedYou", "timeStamp" : timeInterval, "uid" : selfUID, "read" : false, "notificationKey" : key])
-                        
-                        yourRef.child("squad").child(selfUID).setValue(["firstName" : myFirstName, "lastName" : myLastName, "uid" : selfUID])
-                        
-                        self.addFromFaceookController?.globTableViewOutlet.reloadData()
-
-                    }
+                    })
+                    
+                    
+                    let timeInterval = Date().timeIntervalSince1970
+                    
+                    yourRef.child("notifications").child(selfUID).child("squadRequest").setValue(["firstName" : myFirstName, "lastName" : myLastName, "type" : "addedYou", "timeStamp" : timeInterval, "uid" : selfUID, "read" : false])
+                    
+                    yourRef.child("squad").child(selfUID).setValue(["firstName" : myFirstName, "lastName" : myLastName, "uid" : selfUID])
+                    
+                    self.addFromFaceookController?.globTableViewOutlet.reloadData()
+                    
+                    
                 }
             }))
             
             alertController.addAction(UIAlertAction(title: "Reject \(firstName)", style: .destructive, handler: { (action) in
                 
-                if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                if let selfUID = FIRAuth.auth()?.currentUser?.uid, let scopeUID = scopeUserData["uid"] as? String {
                     
                     let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
                     
-                    if let selfData = self.addFromFaceookController?.mainRootController?.selfData, let mySquadRequests = selfData["squadRequests"] as? [AnyHashable: Any], let userSquadRequest = mySquadRequests[scopeUID] as? [AnyHashable: Any], let scopeNotificationKey = userSquadRequest["notificationKey"] as? String {
-                        
-                        DispatchQueue.main.async(execute: {
-                            
-                            ref.child("notifications").child(scopeNotificationKey).removeValue()
-                            ref.child("squadRequests").child(scopeUID).removeValue()
-                            
-                            self.addFromFaceookController?.globTableViewOutlet.reloadData()
-                            
-                        })
-                    }
+                    ref.child("notifications").child(scopeUID).child("squadRequest").removeValue()
+                    ref.child("squadRequests").child(scopeUID).removeValue()
+                    
                 }
             }))
             
@@ -272,10 +234,10 @@ class AddFromFacebookCell: UITableViewCell {
             
             alertController.addAction(UIAlertAction(title: "Send Request", style: .default, handler: { (action) in
                 
-                if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.addFromFaceookController?.mainRootController?.selfData, let firstName = selfData["firstName"] as? String, let lastName = selfData["lastName"] as? String {
+                if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.addFromFaceookController?.mainRootController?.selfData, let firstName = selfData["firstName"] as? String, let lastName = selfData["lastName"] as? String, let scopeUID = scopeUserData["uid"] as? String {
                     
                     let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
-  
+                    yourRef.keepSynced(true)
                     yourRef.child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
                         
                         if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
@@ -285,27 +247,22 @@ class AddFromFacebookCell: UITableViewCell {
                             
                         }
                     })
-
+                    
+                    
                     let timeInterval = Date().timeIntervalSince1970
                     
                     //0 -> Hasn't responded yet, 1 -> Approved, 2 -> Denied
                     let ref = FIRDatabase.database().reference().child("users").child(scopeUID)
                     
-                    let notificationKey = ref.child("notifications").childByAutoId().key
+                    let squadItem = ["uid" : selfUID, "read" : false, "status": 0, "timeStamp" : timeInterval, "firstName" : firstName, "lastName" : lastName] as [String : Any]
                     
-                    let squadItem = ["uid" : selfUID, "read" : false, "status": 0, "timeStamp" : timeInterval, "firstName" : firstName, "lastName" : lastName, "notificationKey" : notificationKey] as [String : Any]
+                    let notificationItem = ["uid" : selfUID, "read" : false, "status" : "awaitingAction", "type" : "squadRequest", "timeStamp" : timeInterval, "firstName" : firstName, "lastName" : lastName] as [String : Any]
                     
-                    let notificationItem = ["uid" : selfUID, "read" : false, "status" : "awaitingAction", "type" : "squadRequest", "timeStamp" : timeInterval, "firstName" : firstName, "lastName" : lastName, "notificationKey" : notificationKey] as [String : Any]
+                    ref.child("squadRequests").child(selfUID).setValue(squadItem)
+                    ref.child("notifications").child(selfUID).child("squadRequest").setValue(notificationItem)
                     
+                    self.addFromFaceookController?.globTableViewOutlet.reloadData()
                     
-                    DispatchQueue.main.async(execute: {
-                        
-                        ref.child("squadRequests").child(selfUID).setValue(squadItem)
-                        ref.child("notifications").child(notificationKey).setValue(notificationItem)
-                        
-                        self.addFromFaceookController?.globTableViewOutlet.reloadData()
-                        
-                    })
                 }
             }))
             
@@ -352,6 +309,8 @@ class AddFromFacebookCell: UITableViewCell {
     
     //Functions
     func loadCell(_ data: [AnyHashable: Any]) {
+        
+        self.data = data
         
         nameOutlet.adjustsFontSizeToFitWidth = true
         nameOutlet.baselineAdjustment = .alignCenters

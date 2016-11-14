@@ -22,6 +22,8 @@ class PostUpdateCell: UITableViewCell {
     @IBOutlet weak var likeIconOutlet: UIImageView!
     @IBOutlet weak var postOutlet: UIImageView!
     @IBOutlet weak var unreadViewOutlet: UIView!
+    @IBOutlet weak var likeButtonWidthConst: NSLayoutConstraint!
+    @IBOutlet weak var textOutlet: UILabel!
     
     
 
@@ -81,7 +83,19 @@ class PostUpdateCell: UITableViewCell {
             
             if let buttonType = data["button"] as? String {
                 
+                likeButtonWidthConst.constant = 20
+                
                 likeIconOutlet.image = UIImage(named: "grey" + buttonType)
+                
+            } else {
+                
+                if let text = data["text"] as? String {
+                    
+                    textOutlet.text = text
+                    
+                }
+                
+                likeButtonWidthConst.constant = 0
                 
             }
             

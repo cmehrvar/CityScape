@@ -42,12 +42,23 @@ class OutMediaCollectionCell: UICollectionViewCell {
                 
                 userRef.child("profilePicture").observeSingleEvent(of: .value, with: { (snapshot) in
                     
-                    if self.key == key {
+                    if !snapshot.exists() {
                         
-                        if let profileString = snapshot.value as? String, let url = URL(string: profileString) {
+                        if self.key == key {
                             
-                            self.profileOutlet.sd_setImage(with: url, placeholderImage: nil)
+                            self.profileOutlet.image = UIImage(named: "appIcon")
                             
+                        }
+                        
+                    } else {
+                        
+                        if self.key == key {
+                            
+                            if let profileString = snapshot.value as? String, let url = URL(string: profileString) {
+                                
+                                self.profileOutlet.sd_setImage(with: url, placeholderImage: nil)
+                                
+                            }
                         }
                     }
                 })

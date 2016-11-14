@@ -22,6 +22,8 @@
 		A308748B1D8E23BD005ECD3A /* ImagePostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A308748A1D8E23BC005ECD3A /* ImagePostCell.swift */; };
 		A312C26B1D347AE600F272F0 /* MemoryLeak.swift in Sources */ = {isa = PBXBuildFile; fileRef = A312C26A1D347AE600F272F0 /* MemoryLeak.swift */; };
 		A318308D1DA6E87900D40C88 /* SendPostSquadCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A318308C1DA6E87900D40C88 /* SendPostSquadCell.swift */; };
+		A32B85E11DD3817C006C20F6 /* ViewModeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32B85E01DD3817C006C20F6 /* ViewModeCell.swift */; };
+		A32B85E31DD64565006C20F6 /* ProfileListHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32B85E21DD64565006C20F6 /* ProfileListHeaderCell.swift */; };
 		A32C2C5D1D58E43C0064D707 /* AlertControllerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A32C2C5C1D58E43C0064D707 /* AlertControllerView.swift */; };
 		A33193F81DAD95A3002BDE2C /* FooterCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A33193F71DAD95A3002BDE2C /* FooterCollectionCell.swift */; };
 		A341522F1D94408E00C6DB3C /* TableViewOnlineIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A341522E1D94408E00C6DB3C /* TableViewOnlineIndicatorView.swift */; };
@@ -178,6 +180,8 @@
 		A308748A1D8E23BC005ECD3A /* ImagePostCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImagePostCell.swift; sourceTree = "<group>"; };
 		A312C26A1D347AE600F272F0 /* MemoryLeak.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MemoryLeak.swift; sourceTree = "<group>"; };
 		A318308C1DA6E87900D40C88 /* SendPostSquadCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendPostSquadCell.swift; sourceTree = "<group>"; };
+		A32B85E01DD3817C006C20F6 /* ViewModeCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewModeCell.swift; sourceTree = "<group>"; };
+		A32B85E21DD64565006C20F6 /* ProfileListHeaderCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileListHeaderCell.swift; sourceTree = "<group>"; };
 		A32C2C5C1D58E43C0064D707 /* AlertControllerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertControllerView.swift; sourceTree = "<group>"; };
 		A33193F71DAD95A3002BDE2C /* FooterCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FooterCollectionCell.swift; sourceTree = "<group>"; };
 		A339B4271DB3EB310027067D /* CityScape.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = CityScape.entitlements; path = CityScape/CityScape.entitlements; sourceTree = "<group>"; };
@@ -645,6 +649,8 @@
 				A308748A1D8E23BC005ECD3A /* ImagePostCell.swift */,
 				A3DA52F81D91AF8D00FCC91B /* VideoPostCell.swift */,
 				A3DA52FA1D92C73F00FCC91B /* StatusCell.swift */,
+				A32B85E01DD3817C006C20F6 /* ViewModeCell.swift */,
+				A32B85E21DD64565006C20F6 /* ProfileListHeaderCell.swift */,
 			);
 			name = Cells;
 			sourceTree = "<group>";
@@ -1283,6 +1289,7 @@
 				A38289CB1D2B433B00C17F48 /* CommentController.swift in Sources */,
 				A3D11B431D5763A8006884BF /* GFGeoHashQuery.m in Sources */,
 				A308747B1D8CB683005ECD3A /* SquadRequestCell.swift in Sources */,
+				A32B85E31DD64565006C20F6 /* ProfileListHeaderCell.swift in Sources */,
 				A3C2D1D71D9DF4DA0083D302 /* IncomingCollectionCell.swift in Sources */,
 				A3D119731D262290009D7EAB /* HandlePostController.swift in Sources */,
 				A3D11B2E1D575499006884BF /* NearbyOnline.swift in Sources */,
@@ -1328,6 +1335,7 @@
 				A36A426E1D61C5A60062E9AD /* BottomNavController.swift in Sources */,
 				A36A427C1D61F8970062E9AD /* ProfileCoverCollectionCell.swift in Sources */,
 				A34F266F1D977B90007ABFB9 /* TopChatController.swift in Sources */,
+				A32B85E11DD3817C006C20F6 /* ViewModeCell.swift in Sources */,
 				A35DB7361D79EE8E00409D16 /* ActionsViewController.swift in Sources */,
 				A30874851D8DF426005ECD3A /* SelfSquadRankCell.swift in Sources */,
 				A3BB981D1D136CB600BD384F /* LogInController.swift in Sources */,

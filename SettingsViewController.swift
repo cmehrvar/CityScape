@@ -334,7 +334,7 @@ class SettingsViewController: UIViewController {
         self.rootController?.nearbyController?.addedCells.removeAll()
         self.rootController?.nearbyController?.dismissedCells.removeAll()
         self.rootController?.nearbyController?.nearbyUsers.removeAll()
-        self.rootController?.nearbyController?.users.removeAll()
+        //self.rootController?.nearbyController?.users.removeAll()
         
         if let myLatitude = self.rootController?.selfData["latitude"] as? CLLocationDegrees, let myLongitude = self.rootController?.selfData["longitude"] as? CLLocationDegrees {
             

@@ -22,9 +22,7 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
     var nearbyUsers = [String]()
     var addedCells = [String:Bool]()
     var dismissedCells = [String:Bool]()
-    
-    var users = [AnyHashable: Any]()
-    
+
     var globLocation: CLLocation!
 
     var timer = Timer()
@@ -86,6 +84,8 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
         }
     }
     
+    var nearbyQueried = false
+    
     //Location Manager Delegates
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         
@@ -93,24 +93,27 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
 
             globLocation = lastLocation
             
+            if !nearbyQueried {
+                
+                nearbyQueried = true
+                queryNearby(lastLocation)
+                
+            }
+  
             if currentCityLoaded == false {
   
                 currentCityLoaded = true
                 updateLocationToFirebase()
-                
+
             }
         }
     }
-    
-    
+
     //Functions
     func updateLocationToFirebase(){
         
         guard let scopeLocation = globLocation else {return}
-        
-        let ref = FIRDatabase.database().reference().child("userLocations")
-        
-        let geoFire = GeoFire(firebaseRef: ref)
+
         let geoCoder = CLGeocoder()
         
         if let uid = FIRAuth.auth()?.currentUser?.uid {
@@ -157,16 +160,12 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
                 }
             }
             
-            geoFire?.setLocation(CLLocation(latitude: scopeLocation.coordinate.latitude, longitude: scopeLocation.coordinate.longitude), forKey: uid, withCompletionBlock: { (error) in
+            
+            if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.rootController?.selfData, let myGender = selfData["gender"] as? String {
                 
-                if error == nil {
-                    print("succesfully updated location")
-                    
-                    
-                } else {
-                    print(error)
-                }
-            })
+                FIRDatabase.database().reference().child("userLocations").child(selfUID).updateChildValues(["gender" : myGender, "l" : [scopeLocation.coordinate.latitude, scopeLocation.coordinate.longitude]])
+                
+            }
         }
     }
     
@@ -176,143 +175,157 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
     func queryNearby(_ center: CLLocation){
         
         let ref = FIRDatabase.database().reference().child("userLocations")
-        let geoFire = GeoFire(firebaseRef: ref)
-        
-        if let radius = rootController?.selfData["nearbyRadius"] as? Double {
+        ref.keepSynced(true)
+        ref.observeSingleEvent(of: .value, with: { (snapshot) in
             
-            let circleQuery = geoFire?.query(at: center, withRadius: radius)
-            
-            circleQuery?.observe(.keyEntered) { (scopeKey, location) in
-   
-                if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+            if let value = snapshot.value as? [AnyHashable : Any] {
+                
+                var locations = [[AnyHashable : Any]]()
+                
+                for (key, locationValue) in value {
 
-                    if scopeKey != selfUID {
+                    if let locationUID = key as? String, let dictLocationValue = locationValue as? [AnyHashable : Any], let gender = dictLocationValue["gender"] as? String, let location = dictLocationValue["l"] as? [CLLocationDegrees] {
                         
-                        if let key = scopeKey {
+                        let latitude = location[0]
+                        let longitude = location[1]
+                        
+                        if let myReported = self.rootController?.selfData["reportedUsers"] as? [String : Bool] {
                             
-                            if let myReported = self.rootController?.selfData["reportedUsers"] as? [String : Bool] {
-                                
-                                if myReported[key] == nil {
-                                    
-                                    var add = true
-                                    
-                                    if self.dismissedCells[key] != nil {
-                                        
-                                        add = false
-                                        
-                                    } else if self.addedCells[key] != nil {
-                                        
-                                        add = false
-                                        
-                                    }
-                                    
-                                    if add {
-                                        
-                                        self.addedCells[key] = true
-                                        
-                                        let userRef = FIRDatabase.database().reference().child("users").child(key)
-                                        
-                                        userRef.keepSynced(true)
-                                        
-                                        userRef.child("gender").observeSingleEvent(of: .value, with: { (snapshot) in
-                                            
-                                            var isInterested = false
-                                            
-                                            if let interestedIn = self.rootController?.selfData["interestedIn"] as? [String], let userGender = snapshot.value as? String {
-                                                
-                                                for interest in interestedIn {
-                                                    
-                                                    if interest == userGender {
-                                                        
-                                                        isInterested = true
-                                                        
-                                                    }
-                                                }
-                                                
-                                                if isInterested {
-                                                    
-                                                    self.nearbyUsers.append(key)
-                                                    self.globCollectionView.reloadData()
-                                                    
-                                                }
-                                                
-                                                if self.nearbyUsers.count == 0 {
-                                                    
-                                                    self.noNearbyOutlet.alpha = 1
-                                                    
-                                                } else {
-                                                    
-                                                    self.noNearbyOutlet.alpha = 0
-                                                    
-                                                }
-                                                
-                                            }
-                                        })
-                                    }
-                                }
-                                
-                            } else {
+                            if myReported[locationUID] == nil {
                                 
                                 var add = true
                                 
-                                if self.dismissedCells[key] != nil {
+                                if self.dismissedCells[locationUID] != nil {
                                     
                                     add = false
                                     
-                                } else if self.addedCells[key] != nil {
+                                } /*else if self.addedCells[locationUID] != nil {
                                     
                                     add = false
                                     
-                                }
+                                }*/
                                 
                                 if add {
                                     
-                                    self.addedCells[key] = true
+                                    //self.addedCells[locationUID] = true
                                     
-                                    let userRef = FIRDatabase.database().reference().child("users").child(key)
-                                    userRef.keepSynced(true)
+                                    var isInterested = false
                                     
-                                    userRef.child("gender").observeSingleEvent(of: .value, with: { (snapshot) in
+                                    if let interestedIn = self.rootController?.selfData["interestedIn"] as? [String] {
                                         
-                                        var isInterested = false
+                                        for interest in interestedIn {
+                                            
+                                            if interest == gender {
+                                                
+                                                isInterested = true
+                                                
+                                            }
+                                        }
                                         
-                                        if let interestedIn = self.rootController?.selfData["interestedIn"] as? [String], let userGender = snapshot.value as? String {
-                                            
-                                            for interest in interestedIn {
-                                                
-                                                if interest == userGender {
-                                                    
-                                                    isInterested = true
-                                                    
-                                                }
-                                            }
-                                            
-                                            if isInterested {
-                                                
-                                                self.nearbyUsers.append(key)
-                                                self.globCollectionView.reloadData()
-                                                
-                                            }
-                                            
-                                            if self.nearbyUsers.count == 0 {
-                                                
-                                                self.noNearbyOutlet.alpha = 1
-                                                
-                                            } else {
-                                                
-                                                self.noNearbyOutlet.alpha = 0
-                                                
-                                            }
+                                        if isInterested {
+       
+                                            let point = CLLocation(latitude: latitude, longitude: longitude)
+                                            let locationData: [AnyHashable : Any] = ["uid" : locationUID, "point" : point]
+                                            locations.append(locationData)
                                             
                                         }
-                                    })
+                                    }
+                                }
+                            }
+                            
+                        } else {
+                            
+                            var add = true
+                            
+                            if self.dismissedCells[locationUID] != nil {
+                                
+                                add = false
+                                
+                            }
+                            
+                                /*
+                            else if self.addedCells[locationUID] != nil {
+                                
+                                print(self.addedCells)
+                                
+                                add = false
+                                
+                            }
+                            */
+                            if add {
+                                
+                                //self.addedCells[locationUID] = true
+                                
+                                var isInterested = false
+                                
+                                if let interestedIn = self.rootController?.selfData["interestedIn"] as? [String] {
+                                    
+                                    for interest in interestedIn {
+                                        
+                                        if interest == gender {
+                                            
+                                            isInterested = true
+                                            
+                                        }
+                                    }
+                                    
+                                    if isInterested {
+
+                                        let point = CLLocation(latitude: latitude, longitude: longitude)
+                                        let locationData: [AnyHashable : Any] = ["uid" : locationUID, "point" : point]
+                                        locations.append(locationData)
+  
+                                    }
                                 }
                             }
                         }
                     }
                 }
+
+                locations.sort(by: { (a: [AnyHashable : Any], b: [AnyHashable : Any]) -> Bool in
+                    
+                    if let aPoint = a["point"] as? CLLocation, let bPoint = b["point"] as? CLLocation {
+                        
+                        if aPoint.distance(from: center) > bPoint.distance(from: center) {
+                            
+                            return false
+                            
+                        } else {
+                            
+                            return true
+                            
+                        }
+                    }
+                    
+                    return false
+                    
+                })
+                
+                var scopeNearbyUsers = [String]()
+                
+                for locationValue in locations {
+                    
+                    if let uid = locationValue["uid"] as? String {
+                        
+                        scopeNearbyUsers.append(uid)
+                        
+                    }
+                }
+                
+                self.nearbyUsers = scopeNearbyUsers
+                self.globCollectionView.reloadData()
+                
+                if self.nearbyUsers.count == 0 {
+                    
+                    self.noNearbyOutlet.alpha = 1
+                    
+                } else {
+                    
+                    self.noNearbyOutlet.alpha = 0
+                    
+                }
             }
-        }
+        })
     }
     
     func updateLocation(){
@@ -408,6 +421,28 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
     
     
     //ScrollViewDelegates
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        
+        rootController?.alpha0actionBar()
+
+    }
+
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        
+        rootController?.alpha1actionBar()
+        
+    }
+    
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        
+        if !decelerate {
+            
+            rootController?.alpha1actionBar()
+            
+        } 
+    }
+    
+
     func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
         
         if velocity.y > 0 {

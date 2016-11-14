@@ -74,29 +74,24 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                             if let myUID = FIRAuth.auth()?.currentUser?.uid {
                                 
                                 let ref = FIRDatabase.database().reference()
-                                ref.child("users").child(myUID).child("sentMatches").child(scopeUID).setValue(false)
+                                ref.keepSynced(true)
+                                
+                                ref.child("users").child(scopeUID).child("sentMatches").child(myUID).setValue(false)
                                 
                                 if scopeUsentMe {
-                                    
-                                    ref.child("users").child(scopeUID).child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
-                                        
-                                        if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
-                                            
-                                            if let myFirstName = self.nearbyController?.rootController?.selfData["firstName"] as? String, let myLastName = self.nearbyController?.rootController?.selfData["lastName"] as? String {
-                                                
-                                                appDelegate.pushMessage(uid: scopeUID, token: token, message: "You've matched with \(myFirstName) \(myLastName)!")
-                                                
-                                            }
-   
-                                        }
-                                    })
 
-                                    
                                     ref.child("users").child(myUID).child("matchesDisplayed").child(scopeUID).setValue(false)
                                     ref.child("users").child(scopeUID).child("matchesDisplayed").child(myUID).setValue(false)
                                     
+                                    
+                                    
                                     print("create match")
                                     
+                                } else {
+                                    
+                                    self.matchButtonOutlet.isEnabled = false
+                                    self.buttonImageOutlet.image = UIImage(named: "sentMatch")
+
                                 }
                             }
                     })
@@ -134,371 +129,172 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
     //Functions
     func loadUser(_ uid: String){
         
-        if let selfData = nearbyController?.rootController?.selfData, let selfUID = FIRAuth.auth()?.currentUser?.uid {
-
-            self.uid = uid
-            let userDataRef = FIRDatabase.database().reference().child("users").child(uid)
+        self.uid = uid
+        
+        let ref = FIRDatabase.database().reference().child("users").child(uid)
+        
+        ref.observe(.value, with: { (snapshot) in
             
-            userDataRef.observe(.value, with: { (snapshot) in
+            if uid == self.uid {
                 
-                if uid == self.uid {
+                if let userData = snapshot.value as? [AnyHashable : Any] {
                     
-                    if let userData = snapshot.value as? [AnyHashable : Any] {
-                        
-                        if let online = userData["online"] as? Bool {
-                            
-                            if online {
-                                self.onlineOutlet.backgroundColor = UIColor.green
-                            } else {
-                                self.onlineOutlet.backgroundColor = UIColor.red
-                            }
-                        }
-                        
-                        if let matchStatus = userData["matchStatus"] as? String {
-                            
-                            if matchStatus == "sentMatch" {
-                                
-                                self.matchButtonOutlet.isEnabled = false
-                                self.buttonImageOutlet.image = UIImage(named: "sentMatch")
-                                
-                            }
-                        }
-                        
-                        if let displayName = userData["displayName"] as? String {
-                            
-                            self.nameOutlet.text = displayName
-                            
-                        }
-                        
-                        if let profile = userData["profile"] as? String, let url = URL(string: profile) {
-                            
-                            if self.profileImage.sd_imageURL() != url {
-                                self.profileImage.sd_setImage(with: url, placeholderImage: nil)
-                            }
-                            
-                            self.profilePic = profile
-                            
-                        }
-                        
-                        if let status = userData["status"] as? String {
-                            
-                            self.occupationOutlet.text = status
-                            
-                        } else {
-                            
-                            self.occupationOutlet.text = ""
-                            
-                        }
-                    }
-
-                } else {
-                    
-                    userDataRef.removeAllObservers()
-
-                }
-            })
-                
-
-            let ref = FIRDatabase.database().reference().child("users").child(uid)
-
-            if let myMatches = selfData["matches"] as? [AnyHashable: Any] {
-                
-                if myMatches[uid] != nil {
-                    
-                    yourAMatch = true
-                    
-                } else {
-                    
-                    yourAMatch = false
-                    
-                }
-                
-            } else {
-                
-                yourAMatch = false
-                
-            }
-            
-            if yourAMatch {
-                
-                // YOUR A MATCH!!!
-
-                matchButtonOutlet.isEnabled = true
-                buttonImageOutlet.image = UIImage(named: "enabledMessage")
-                
-            } else {
-                
-                ref.child("sentMatches").observe(.value, with: { (snapshot) in
-                    
-                    var scopeYouSentMe = false
-                    var scopeISentYou = false
-                    
-                    if self.uid == uid {
-                        
-                        if let yourSentMatches = snapshot.value as? [String : Bool] {
-                            
-                            if yourSentMatches[selfUID] != nil {
-                                
-                                //You sent me
-                                
-                                self.youSentMe = true
-                                scopeYouSentMe = true
-                                
-                            } else {
-                                
-                                //You did not send me
-                                self.youSentMe = false
-                                scopeYouSentMe = false
-                                
-                            }
-                            
-                        }
-                        else {
-                            
-                            self.youSentMe = false
-                            scopeYouSentMe = false
-                            
-                        }
-                        
-                        if scopeYouSentMe {
-                            
-                            //YOU SENT ME!!!
-                            
-                            if let userData = self.nearbyController?.users[uid] as? [AnyHashable: Any] {
-                                
-                                var data = userData
-                                data.updateValue("youSentMe", forKey: "matchStatus")
-                                self.nearbyController?.users[uid] = data
-                                
-                            } else {
-                                
-                                self.nearbyController?.users.updateValue(["matchStatus" : "youSentMe"], forKey: uid)
-                                
-                            }
-
-                            self.matchButtonOutlet.isEnabled = true
-                            self.buttonImageOutlet.image = UIImage(named: "sendMatch")
-                            
-
-                        } else {
-                            
-                            if let mySentMatches = selfData["sentMatches"] as? [String : Bool] {
-                                
-                                if mySentMatches[uid] != nil {
-                                    
-                                    //I've sent you!!
-                                    self.iSentYou = true
-                                    scopeISentYou = true
-                                    
-                                } else {
-                                    
-                                    self.iSentYou = false
-                                    scopeISentYou = false
-                                    //I haven't sent you!!!
-                                    
-                                }
-                                
-                            } else {
-                                
-                                self.iSentYou = false
-                                scopeISentYou = false
-                                //I have not sent anyone
-                                
-                            }
-                            
-                            if scopeISentYou {
-    
-                                
-                                if let userData = self.nearbyController?.users[uid] as? [AnyHashable: Any] {
-                                    
-                                    var data = userData
-                                    data.updateValue("sentMatch", forKey: "matchStatus")
-                                    self.nearbyController?.users[uid] = data
-                                    
-                                } else {
-                                    
-                                    self.nearbyController?.users.updateValue(["matchStatus" : "sentMatch"], forKey: uid)
-                                    
-                                }
-                                
-                                //I SENT YOU!!!
-                                self.matchButtonOutlet.isEnabled = false
-                                self.buttonImageOutlet.image = UIImage(named: "sentMatch")
-                                
-                            } else {
-                                
-                                
-                                //NEITHER OF US HAVE SENT :(
-                                self.matchButtonOutlet.isEnabled = true
-                                self.buttonImageOutlet.image = UIImage(named: "sendMatch")
-
-                                if let userData = self.nearbyController?.users[uid] as? [AnyHashable: Any] {
-                                    
-                                    var data = userData
-                                    data.updateValue("sendMatch", forKey: "matchStatus")
-                                    self.nearbyController?.users[uid] = data
-                                    
-                                } else {
-                                    
-                                    self.nearbyController?.users.updateValue(["matchStatus" : "sendMatch"], forKey: uid)
-                                    
-                                }
-                            }
-                        }
-                    }
-                })
-            }
-            
-            ref.child("firstName").observeSingleEvent(of: .value, with: { (snapshot) in
-                
-                if self.uid == uid {
-                    
-                    if let name = snapshot.value as? String {
-                        
-                        self.firstName = name
-                        
-                        ref.child("age").observeSingleEvent(of: .value, with: { (snapshot) in
-                            
-                            if let age = snapshot.value as? TimeInterval {
-                                
-                                let date = Date(timeIntervalSince1970: age)
-
-                                let displayName = name + ", " + timeAgoSince(date: date as NSDate, showAccronym: false)
-                                
-                                
-                                if let userData = self.nearbyController?.users[uid] as? [AnyHashable: Any] {
-                                    
-                                    var data = userData
-                                    data.updateValue(displayName, forKey: "displayName")
-                                    self.nearbyController?.users[uid] = data
-                                    
-                                } else {
-                                    
-                                    self.nearbyController?.users.updateValue(["displayName" : displayName], forKey: uid)
-                                    
-                                }
-                                
-                                
-                                self.nameOutlet.text = displayName
-                                self.nameOutlet.lineBreakMode = .byWordWrapping
-                                
-                            }
-                        })
-                    }
-                    
-                }
-                
-                
-            })
-
-            ref.child("lastName").observeSingleEvent(of: .value, with: { (snapshot) in
-                
-                if self.uid == uid {
-                    
-                    if let lastName = snapshot.value as? String {
-                        
-                        self.lastName = lastName
-                        
-                        if let userData = self.nearbyController?.users[uid] as? [AnyHashable: Any] {
-                            
-                            var data = userData
-                            data.updateValue(lastName, forKey: "lastName")
-                            self.nearbyController?.users[uid] = data
-                            
-                        } else {
-                            
-                            self.nearbyController?.users.updateValue(["lastName" : lastName], forKey: uid)
-                            
-                        }
-                    }
-
-                    
-                }
-                
-                            })
-
-            ref.child("currentStatus").observe(.value, with: { (snapshot) in
-                
-                if self.uid == uid {
-                    
-                    if let status = snapshot.value as? String {
-                        
-                        self.occupationOutlet.text = status
-                        
-                        if let userData = self.nearbyController?.users[uid] as? [AnyHashable: Any] {
-                            
-                            var data = userData
-                            data.updateValue(status, forKey: "status")
-                            self.nearbyController?.users[uid] = data
-                            
-                        } else {
-                            
-                            self.nearbyController?.users.updateValue(["status" : status], forKey: uid)
-                            
-                        }
- 
-                    } else {
-                        
-                        self.occupationOutlet.text = ""
-                        
-                    }
-                }
-            })
-            
-            ref.child("profilePicture").observe(.value, with: { (snapshot) in
-                
-                if self.uid == uid {
-                    
-                    if let profile = snapshot.value as? String, let url = URL(string: profile) {
-                        
-                        self.profilePic = profile
-                        
-                        if self.profileImage.sd_imageURL() != url {
-                            self.profileImage.sd_setImage(with: url, placeholderImage: nil)
-                        }
-
-                        if let userData = self.nearbyController?.users[uid] as? [AnyHashable: Any] {
-                            
-                            var data = userData
-                            data.updateValue(profile, forKey: "profile")
-                            self.nearbyController?.users[uid] = data
-                            
-                        } else {
-                            
-                            self.nearbyController?.users.updateValue(["profile" : profile], forKey: uid)
-                            
-                        }
-                    }
-                }
-            })
-
-            ref.child("online").observe(.value, with: { (snapshot) in
-                
-                if self.uid == uid {
-                    
-                    if let online = snapshot.value as? Bool {
+                    if let online = userData["online"] as? Bool {
                         
                         if online {
                             self.onlineOutlet.backgroundColor = UIColor.green
                         } else {
                             self.onlineOutlet.backgroundColor = UIColor.red
                         }
-
-                        if let userData = self.nearbyController?.users[uid] as? [AnyHashable: Any] {
+                    }
+                    
+                    if let displayName = userData["displayName"] as? String {
+                        
+                        self.nameOutlet.text = displayName
+                        
+                    }
+                    
+                    if let age = userData["age"] as? TimeInterval, let firstName = userData["firstName"] as? String, let lastName = userData["lastName"] as? String {
+                        
+                        let date = Date(timeIntervalSince1970: age)
+                        
+                        let displayName = firstName + ", " + timeAgoSince(date: date as NSDate, showAccronym: false)
+                        
+                        self.firstName = firstName
+                        self.lastName = lastName
+                        
+                        self.nameOutlet.text = displayName
+                        self.nameOutlet.lineBreakMode = .byWordWrapping
+                        
+                    }
+                    
+                    if let profile = userData["profilePicture"] as? String, let url = URL(string: profile) {
+                        
+                        if self.profileImage.sd_imageURL() != url {
+                            self.profileImage.sd_setImage(with: url, placeholderImage: nil)
+                        }
+                        
+                        self.profilePic = profile
+                        
+                    }
+                    
+                    if let status = userData["status"] as? String {
+                        
+                        self.occupationOutlet.text = status
+                        
+                    } else {
+                        
+                        self.occupationOutlet.text = ""
+                        
+                    }
+                    
+                    var scopeYourAMatch = false
+                    
+                    if let yourMatches = userData["matches"] as? [AnyHashable : Any], let myUID = FIRAuth.auth()?.currentUser?.uid {
+                        
+                        if yourMatches[myUID] != nil {
                             
-                            var data = userData
-                            data.updateValue(online, forKey: "online")
-                            self.nearbyController?.users[uid] = data
+                            scopeYourAMatch = true
                             
                         } else {
                             
-                            self.nearbyController?.users.updateValue(["online" : online], forKey: uid)
+                            scopeYourAMatch = false
                             
+                        }
+                        
+                        
+                    } else {
+                        
+                        scopeYourAMatch = false
+                        
+                    }
+                    
+                    self.yourAMatch = scopeYourAMatch
+                    
+                    if scopeYourAMatch {
+                        
+                        // YOUR A MATCH!!!
+                        
+                        self.matchButtonOutlet.isEnabled = true
+                        self.buttonImageOutlet.image = UIImage(named: "enabledMessage")
+                        
+                    } else {
+                        
+                        var scopeYouSentMe = false
+                        var scopeISentYou = false
+                        
+                        if let yourSentMatches = userData["sentMatches"] as? [String : Bool] {
+                            
+                            if let myUID = FIRAuth.auth()?.currentUser?.uid {
+                                
+                                if yourSentMatches[myUID] != nil {
+                                    
+                                    //You sent me
+                                    scopeISentYou = true
+                                    
+                                }
+                            }
+                        }
+                        
+                        
+                        if scopeISentYou && !scopeYourAMatch {
+                            
+                            self.matchButtonOutlet.isEnabled = false
+                            self.buttonImageOutlet.image = UIImage(named: "sentMatch")
+                            
+                        }
+                        
+                        self.iSentYou = scopeISentYou
+                        
+                        if let myUid = FIRAuth.auth()?.currentUser?.uid {
+                            
+                            let mySentMatchesRef = FIRDatabase.database().reference().child("users").child(myUid).child("sentMatches")
+                            
+                            mySentMatchesRef.observe(.value, with: { (snapshot) in
+                                
+                                if scopeYourAMatch {
+                                    
+                                    self.matchButtonOutlet.isEnabled = true
+                                    self.buttonImageOutlet.image = UIImage(named: "enabledMessage")
+                                    
+                                } else if scopeISentYou {
+                                    
+                                    self.matchButtonOutlet.isEnabled = false
+                                    self.buttonImageOutlet.image = UIImage(named: "sentMatch")
+                                    
+                                } else {
+                                    
+                                    self.matchButtonOutlet.isEnabled = true
+                                    self.buttonImageOutlet.image = UIImage(named: "sendMatch")
+                                    
+                                }
+                                
+                                if let mySentMatches = snapshot.value as? [String : Bool] {
+                                    
+                                    if mySentMatches[uid] != nil {
+                                        
+                                        scopeYouSentMe = true
+                                        
+                                    } else {
+                                        
+                                        scopeYouSentMe = false
+                                        
+                                    }
+                                    
+                                } else {
+                                    
+                                    scopeYouSentMe = false
+                                    
+                                }
+                                
+                                self.youSentMe = scopeYouSentMe
+                                
+                            })
                         }
                     }
                 }
-            })
-        }
+            }
+        })
     }
     
     

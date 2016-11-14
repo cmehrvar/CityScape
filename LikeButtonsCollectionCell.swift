@@ -14,6 +14,7 @@ import FirebaseAuth
 class LikeButtonsCollectionCell: UICollectionViewCell {
     
     weak var vibesController: NewVibesController?
+    weak var profileController: ProfileController?
     
     var uid = ""
     var image = ""

@@ -546,6 +546,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                         setPlayerTitle(key, cell: cell)
                         
                         cell.vibesController = self
+                        cell.profileController = nil
                         
                         cell.videoThumbnailOutlet.sd_setImage(with: imageUrl, completed: { (image, error, cache, url) in
                             
@@ -565,6 +566,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "buttonsCell", for: indexPath) as! LikeButtonsCollectionCell
             
             cell.vibesController = self
+            cell.profileController = nil
             cell.loadData(newPosts[(indexPath as NSIndexPath).section])
             
             return cell
@@ -875,6 +877,8 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
             
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "goToChatCell", for: indexPath) as! GoToChatCell
             cell.vibesController = self
+            cell.profileController = nil
+            cell.index = indexPath.section
             cell.loadData(newPosts[(indexPath as NSIndexPath).section])
            
             return cell
@@ -1150,7 +1154,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
             
             if (indexPath as NSIndexPath).section == newPosts.count - 1 {
                 
-                return CGSize(width: width, height: 80)
+                return CGSize(width: width, height: 130)
                 
             } else {
                 
@@ -1187,6 +1191,28 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     func collectionView(_ collectionView: UICollectionView, didEndDisplayingSupplementaryView view: UICollectionReusableView, forElementOfKind elementKind: String, at indexPath: IndexPath) {
         
         endedDisplaying = (indexPath as NSIndexPath).section
+        
+    }
+    
+    
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        
+        rootController?.alpha0actionBar()
+        
+    }
+    
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        
+        if !decelerate {
+            
+            rootController?.alpha1actionBar()
+            
+        }
+    }
+    
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        
+        rootController?.alpha1actionBar()
         
     }
     

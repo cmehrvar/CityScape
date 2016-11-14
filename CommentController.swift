@@ -94,7 +94,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
     }
     
     
-    
+    var postUid = ""
     
     //Did press send button
     override func didPressSend(_ button: UIButton!, withMessageText text: String!, senderId: String!, senderDisplayName: String!, date: Date!) {
@@ -133,7 +133,29 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
             
         } else if typeOfChat == "posts" {
             
+            notificationItem["type"] = "postComment"
+            notificationItem["postChildKey"] = currentKey
+            
+            if let city = rootController?.topChatController?.postCity {
+                
+                notificationItem["city"] = city
+                
+            }
+            
+            if let postUrl = rootController?.topChatController?.postURL {
+                
+                notificationItem["image"] = postUrl
+                
+            }
+            
+            if let userUid = rootController?.topChatController?.uid {
+                
+                self.postUid = userUid
+                
+            }
+
             messageItem["postChildKey"] = currentKey
+            
             
         }
         
@@ -154,7 +176,14 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
         
         notificationItem["read"] = false
         notificationItem["timeStamp"] = timeStamp
-        notificationItem["type"] = typeOfChat
+        
+        if typeOfChat != "posts" {
+            
+            notificationItem["type"] = typeOfChat
+            
+        }
+        
+        
         
         let message = JSQMessage(senderId: senderId, senderDisplayName: senderDisplayName, date: date, text: text)
         
@@ -240,6 +269,16 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
             
             ref.child(passedRef).child("messages").childByAutoId().setValue(messageItem)
             
+            if let myUid = FIRAuth.auth()?.currentUser?.uid {
+                
+                if myUid != self.postUid {
+                    
+                    notificationItem["senderUid"] = myUid
+                    
+                    ref.child("users").child(postUid).child("notifications").child(myUid).child("postComment").setValue(notificationItem)
+                    
+                }
+            }
         }
         
         JSQSystemSoundPlayer.jsq_playMessageSentSound()
@@ -316,7 +355,28 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                             
                         } else if scopeType == "posts" {
                             
-                            messageItem["postChildKey"] = scopeCurrentKey
+                            notificationItem["type"] = "postComment"
+                            notificationItem["postChildKey"] = scopeCurrentKey
+                            
+                            if let city = self.rootController?.topChatController?.postCity {
+                                
+                                notificationItem["city"] = city
+                                
+                            }
+                            
+                            if let postUrl = self.rootController?.topChatController?.postURL {
+                                
+                                notificationItem["image"] = postUrl
+                                
+                            }
+                            
+                            if let userUid = self.rootController?.topChatController?.uid {
+                                
+                                self.postUid = userUid
+                                
+                            }
+                            
+                            messageItem["postChildKey"] = self.currentKey
                             
                         }
                         
@@ -417,6 +477,17 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                             
                             ref.child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
                             
+                            if let myUid = FIRAuth.auth()?.currentUser?.uid {
+                                
+                                if myUid != self.postUid {
+                                    
+                                    notificationItem["senderUid"] = myUid
+                                    
+                                    ref.child("users").child(self.postUid).child("notifications").child(myUid).child("postComment").setValue(notificationItem)
+                                    
+                                }
+                                
+                            }
                         }
                         
                         JSQSystemSoundPlayer.jsq_playMessageSentSound()
@@ -497,7 +568,30 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                                     
                                 } else if scopeType == "posts" {
                                     
-                                    messageItem["postChildKey"] = scopeCurrentKey
+                                    notificationItem["type"] = "postComment"
+                                    notificationItem["postChildKey"] = self.currentKey
+                                    
+                                    
+                                    if let city = self.rootController?.topChatController?.postCity {
+                                        
+                                        notificationItem["city"] = city
+                                        
+                                    }
+                                    
+                                    
+                                    if let postUrl = self.rootController?.topChatController?.postURL {
+                                        
+                                        notificationItem["image"] = postUrl
+                                        
+                                    }
+                                    
+                                    if let userUid = self.rootController?.topChatController?.uid {
+                                        
+                                        self.postUid = userUid
+                                        
+                                    }
+                                    
+                                    messageItem["postChildKey"] = self.currentKey
                                     
                                 }
                                 
@@ -597,6 +691,17 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
                                     
                                     ref.child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
                                     
+                                    if let myUid = FIRAuth.auth()?.currentUser?.uid {
+                                        
+                                        if myUid != self.postUid {
+                                            
+                                            notificationItem["senderUid"] = myUid
+                                            
+                                            ref.child("users").child(self.postUid).child("notifications").child(myUid).child("postComment").setValue(notificationItem)
+                                            
+                                        }
+                                        
+                                    }
                                 }
                                 
                                 JSQSystemSoundPlayer.jsq_playMessageSentSound()

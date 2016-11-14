@@ -121,6 +121,106 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     //Actions
+    @IBAction func report(_ sender: AnyObject) {
+        
+        let scopeUID = currentUID
+        
+        let alertController = NYAlertViewController()
+        
+        alertController.title = "Report \(firstName) \(lastName)?"
+        alertController.message = "This will remove \(firstName) from your squad and delete \(firstName) from your matches. You will no longer see content generated from \(firstName). Warning, this cannot be undone."
+        
+        alertController.backgroundTapDismissalGestureEnabled = true
+        
+        alertController.alertViewBackgroundColor = UIColor.white
+        
+        alertController.titleColor = UIColor.black
+        alertController.messageColor = UIColor.darkGray
+        
+        alertController.cancelButtonColor = UIColor.lightGray
+        alertController.cancelButtonTitleColor = UIColor.white
+        
+        alertController.buttonColor = UIColor.red
+        alertController.buttonTitleColor = UIColor.white
+        
+        alertController.addAction(NYAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
+            
+            print("cancel", terminator: "")
+            
+            self.dismiss(animated: true, completion: nil)
+            
+        }))
+        
+        
+        alertController.addAction(NYAlertAction(title: "Report", style: .default, handler: { (action) in
+            
+            print("report user", terminator: "")
+            
+            self.dismiss(animated: true, completion: {
+                
+                if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                    
+                    let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
+                    let myRef = FIRDatabase.database().reference().child("users").child(selfUID)
+                    
+                    myRef.child("reportedUsers").child(scopeUID).setValue(true)
+                    
+                    yourRef.child("squad").child(selfUID).removeValue()
+                    yourRef.child("matches").child(selfUID).removeValue()
+                    yourRef.child("notifications").child(selfUID).removeValue()
+                    yourRef.child("squadRequests").child(selfUID).removeValue()
+                    
+                    myRef.child("squad").child(scopeUID).removeValue()
+                    myRef.child("matches").child(scopeUID).removeValue()
+                    myRef.child("notifications").child(scopeUID).removeValue()
+                    myRef.child("squadRequests").child(scopeUID).removeValue()
+                    
+                    
+                    if let myReported = self.rootController?.selfData["reportedUsers"] as? [String : Bool] {
+                        
+                        var temp = myReported
+                        temp.updateValue(true, forKey: scopeUID)
+                        self.rootController?.selfData.updateValue(temp, forKey: "reportedUsers")
+                        
+                    }
+                    
+                    self.rootController?.searchController?.userController?.observeUsers()
+                    
+                    self.rootController?.nearbyController?.nearbyUsers.removeAll()
+                    self.rootController?.nearbyController?.addedCells.removeAll()
+                    self.rootController?.nearbyController?.addedCells.removeAll()
+                    self.rootController?.nearbyController?.dismissedCells.removeAll()
+                    
+                    if let myLocation = self.rootController?.nearbyController?.globLocation {
+                        
+                        self.rootController?.nearbyController?.queryNearby(myLocation)
+                        
+                    }
+                    
+                    self.rootController?.clearVibesPlayers()
+                    self.rootController?.vibesFeedController?.globCollectionView.contentOffset = CGPoint.zero
+                    self.rootController?.vibesFeedController?.observePosts()
+                    
+                    let width = self.view.bounds.width
+                    let height = self.view.bounds.height
+                    
+                    self.closeWithDirection(0, y: -height, animationTime: 0.3)
+                    
+                }
+            })
+        }))
+        
+        
+        self.present(alertController, animated: true, completion: {
+            
+            print("presented", terminator: "")
+            
+        })
+    }
+    
+    
+    
+    
     @IBAction func toProfile(_ sender: AnyObject) {
         
         let screenHeight = self.view.bounds.height
@@ -235,9 +335,9 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
             nyAlertController.backgroundTapDismissalGestureEnabled = true
             
             nyAlertController.buttonColor = UIColor.lightGray
-            nyAlertController.buttonTitleColor = UIColor.black
+            nyAlertController.buttonTitleColor = UIColor.white
             
-            nyAlertController.cancelButtonColor = UIColor.lightGray
+            nyAlertController.cancelButtonColor = UIColor.red
             nyAlertController.cancelButtonTitleColor = UIColor.white
             
             nyAlertController.addAction(NYAlertAction(title: "Add to Squad", style: .default, handler: { (action) in
@@ -245,41 +345,39 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                 self.dismiss(animated: true, completion: {
                     
                     if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.rootController?.selfData, let myFirstName = selfData["firstName"] as? String, let myLastName = selfData["lastName"] as? String {
-                        
+
                         let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
+                        ref.child("notifications").child(scopeUserUID).child("squadRequest").updateChildValues(["status" : "approved"])
+                        ref.child("squadRequests").child(scopeUserUID).updateChildValues(["status" : 1])
                         
-                        DispatchQueue.main.async(execute: {
+                        ref.child("squad").child(scopeUserUID).setValue(["firstName" : scopeFirstName, "lastName" : scopeLastName, "uid" : scopeUserUID])
+                        
+                        let yourRef = FIRDatabase.database().reference().child("users").child(scopeUserUID)
+                        
+                        yourRef.child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
                             
-                            ref.child("notifications").child(scopeUserUID).child("squadRequest").updateChildValues(["status" : "approved"])
-                            ref.child("squadRequests").child(scopeUserUID).removeValue()
-                            
-                            ref.child("squad").child(scopeUserUID).setValue(["firstName" : scopeFirstName, "lastName" : scopeLastName, "uid" : scopeUserUID])
-                            
-                            let yourRef = FIRDatabase.database().reference().child("users").child(scopeUserUID)
-                            
-                            
-                            
-                            yourRef.child("pushToken").observeSingleEvent(of: .value, with: { (snapshot) in
+                            if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
                                 
-                                if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
-                                    
-                                    appDelegate.pushMessage(uid: scopeUserUID, token: token, message: "\(myFirstName) is now in your squad!")
-                                    
-                                    
-                                }
-                            })
-                            
-                            
-                            let timeInterval = Date().timeIntervalSince1970
-                            
-                            yourRef.child("notifications").child(selfUID).child("squadRequest").setValue(["firstName" : myFirstName, "lastName" : myLastName, "type" : "addedYou", "timeStamp" : timeInterval, "uid" : selfUID, "read" : false])
-                            
-                            yourRef.child("squad").child(selfUID).setValue(["firstName" : myFirstName, "lastName" : myLastName, "uid" : selfUID])
-                            
-                            
-                            self.checkSquad(self.currentUID, selfUID: selfUID)
-                            
+                                appDelegate.pushMessage(uid: scopeUserUID, token: token, message: "\(myFirstName) is now in your squad!")
+                                
+                                
+                            }
                         })
+                        
+                        
+                        let timeInterval = Date().timeIntervalSince1970
+                        
+                        yourRef.child("notifications").child(selfUID).child("squadRequest").setValue(["firstName" : myFirstName, "lastName" : myLastName, "type" : "addedYou", "timeStamp" : timeInterval, "uid" : selfUID, "read" : false])
+                        
+                        yourRef.child("squad").child(selfUID).setValue(["firstName" : myFirstName, "lastName" : myLastName, "uid" : selfUID])
+
+                    }
+                    
+                    
+                    if let myUID = FIRAuth.auth()?.currentUser?.uid {
+                        
+                        self.checkSquad(scopeUserUID, selfUID: myUID)
+                        
                     }
                 })
             }))
@@ -400,18 +498,39 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                 
                 for (_, someValue) in value {
                     
-                    if let valueToAdd = someValue as? [AnyHashable: Any] {
+                    if let valueToAdd = someValue as? [AnyHashable: Any], let uid = valueToAdd["userUID"] as? String {
                         
-                        if self.mostRecentTimeInterval == nil {
-                            scopePosts.append(valueToAdd)
-                        } else {
+                        if let myReported = self.rootController?.selfData["reportedUsers"] as? [AnyHashable : Any] {
                             
-                            if let postTimeStamp = valueToAdd["timeStamp"] as? TimeInterval {
+                            if myReported[uid] == nil {
                                 
-                                if postTimeStamp <= self.mostRecentTimeInterval {
+                                if self.mostRecentTimeInterval == nil {
                                     scopePosts.append(valueToAdd)
+                                } else {
+                                    
+                                    if let postTimeStamp = valueToAdd["timeStamp"] as? TimeInterval {
+                                        
+                                        if postTimeStamp <= self.mostRecentTimeInterval {
+                                            scopePosts.append(valueToAdd)
+                                        }
+                                    }
                                 }
                             }
+                        } else {
+                            
+                            if self.mostRecentTimeInterval == nil {
+                                scopePosts.append(valueToAdd)
+                            } else {
+                                
+                                if let postTimeStamp = valueToAdd["timeStamp"] as? TimeInterval {
+                                    
+                                    if postTimeStamp <= self.mostRecentTimeInterval {
+                                        scopePosts.append(valueToAdd)
+                                    }
+                                }
+                            }
+
+                            
                         }
                     }
                 }

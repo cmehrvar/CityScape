@@ -15,23 +15,23 @@ import AWSS3
 import AVFoundation
 import SDWebImage
 fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
-  switch (lhs, rhs) {
-  case let (l?, r?):
-    return l < r
-  case (nil, _?):
-    return true
-  default:
-    return false
-  }
+    switch (lhs, rhs) {
+    case let (l?, r?):
+        return l < r
+    case (nil, _?):
+        return true
+    default:
+        return false
+    }
 }
 
 fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
-  switch (lhs, rhs) {
-  case let (l?, r?):
-    return l > r
-  default:
-    return rhs < lhs
-  }
+    switch (lhs, rhs) {
+    case let (l?, r?):
+        return l > r
+    default:
+        return rhs < lhs
+    }
 }
 
 
@@ -42,11 +42,17 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
     var userData = [AnyHashable: Any]()
     var userPosts = [[AnyHashable: Any]]()
     
+    var globFirstMessages = [[AnyHashable : Any]]()
+    var globSecondMessages = [[AnyHashable : Any]]()
+    var globThirdMessages = [[AnyHashable : Any]]()
+    
     var videoAssets = [String : AVAsset]()
     var videoPlayers = [AVPlayer?]()
     var videoPlayersObserved = [Bool]()
     var videoLayers = [AVPlayerLayer?]()
     var videoKeys = [String?]()
+    
+    var gridView = true
     
     var selfProfile = false
     
@@ -62,6 +68,8 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
     
     var currentUID = ""
     var profile1 = ""
+    
+    var videoWithSound = ""
     
     //Outlets
     @IBOutlet weak var globCollectionCell: UICollectionView!
@@ -165,7 +173,7 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
             })
         }
     }
-
+    
     func fusumaImageSelected(_ image: UIImage) {
         
         print("image selected")
@@ -190,7 +198,7 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
     }
     
     func fusumaClosed() {
-
+        
         rootController?.cameraTransitionOutlet.alpha = 0
         
     }
@@ -235,6 +243,9 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                     self.userData = selfData
                     
                     var scopePosts = [[AnyHashable: Any]]()
+                    var scopeFirstMessages = [[AnyHashable : Any]]()
+                    var scopeSecondMessages = [[AnyHashable : Any]]()
+                    var scopeThirdMessages = [[AnyHashable : Any]]()
                     
                     if let posts = selfData["posts"] as? [AnyHashable: Any] {
                         
@@ -257,8 +268,121 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                         }
                     })
                     
+                    for _ in scopePosts {
+                        
+                        scopeFirstMessages.append([AnyHashable : Any]())
+                        scopeSecondMessages.append([AnyHashable : Any]())
+                        scopeThirdMessages.append([AnyHashable : Any]())
+                        
+                    }
+                    
+                    self.globFirstMessages = scopeFirstMessages
+                    self.globSecondMessages = scopeSecondMessages
+                    self.globThirdMessages = scopeThirdMessages
+                    
                     self.userPosts = scopePosts
                     
+                    self.globCollectionCell.reloadData()
+
+                    for i in 0..<scopePosts.count {
+                        
+                        let post = scopePosts[i]
+                        
+                        print(post)
+                        scopeFirstMessages.append([AnyHashable : Any]())
+                        scopeSecondMessages.append([AnyHashable : Any]())
+                        scopeThirdMessages.append([AnyHashable : Any]())
+   
+                        if let city = post["city"] as? String, let postChildKey = post["postChildKey"] as? String {
+                            
+                            let ref = FIRDatabase.database().reference().child("posts").child(city).child(postChildKey).child("messages")
+                            ref.keepSynced(true)
+                            ref.observeSingleEvent(of: .value, with: { (snapshot) in
+
+                                if let allMessages = snapshot.value as? [AnyHashable : Any] {
+                                    
+                                    var sortedMessages = allMessages.sorted(by: { (a: (key: AnyHashable, value: Any), b: (key: AnyHashable, value: Any)) -> Bool in
+                                        
+                                        if let a = a.value as? [AnyHashable : Any], let b = b.value as? [AnyHashable : Any] {
+                                            
+                                            if a["timeStamp"] as? TimeInterval > b["timeStamp"] as? TimeInterval {
+                                                
+                                                return true
+                                                
+                                            }
+                                        }
+                                        
+                                        return false
+
+                                    })
+                                    
+                                    if sortedMessages.count == 1 {
+                                        
+                                        if let firstMessage = sortedMessages[0].value as? [AnyHashable : Any] {
+                                            
+                                            scopeThirdMessages[i] = firstMessage
+                                            
+                                        }
+                                        
+                                    }
+                                    
+                                    if sortedMessages.count == 2 {
+                                        
+                                        if let firstMessage = sortedMessages[0].value as? [AnyHashable : Any] {
+                                            
+                                            scopeThirdMessages[i] = firstMessage
+                                            
+                                        }
+                                        
+                                        
+                                        if let secondMessage = sortedMessages[1].value as? [AnyHashable : Any] {
+                                            
+                                            scopeSecondMessages[i] = secondMessage
+                                            
+                                        }
+                                    }
+                                    
+                                    if sortedMessages.count > 2 {
+                                        
+                                        if let firstMessage = sortedMessages[0].value as? [AnyHashable : Any] {
+                                            
+                                            scopeThirdMessages[i] = firstMessage
+                                            
+                                        }
+                                        
+                                        
+                                        if let secondMessage = sortedMessages[1].value as? [AnyHashable : Any] {
+                                            
+                                            scopeSecondMessages[i] = secondMessage
+                                            
+                                        }
+                                        
+                                        
+                                        if let thirdMessage = sortedMessages[2].value as? [AnyHashable : Any] {
+                                            
+                                            scopeFirstMessages[i] = thirdMessage
+                                            
+                                        }
+                                    }
+                                    
+                                    self.globFirstMessages = scopeFirstMessages
+                                    self.globSecondMessages = scopeSecondMessages
+                                    self.globThirdMessages = scopeThirdMessages
+                                    
+                                    self.globCollectionCell.reloadData()
+                                    self.globFirstMessages = scopeFirstMessages
+                                    self.globSecondMessages = scopeSecondMessages
+                                    self.globThirdMessages = scopeThirdMessages
+                                    
+                                    self.globCollectionCell.reloadData()
+                                }
+                            })
+                        }
+                        
+                    }
+  
+                    self.userPosts = scopePosts
+
                     self.globCollectionCell.reloadData()
                     
                 }
@@ -266,6 +390,7 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
             } else {
                 
                 let ref = FIRDatabase.database().reference().child("users").child(uid)
+                
                 
                 ref.observe(.value, with: { (snapshot) in
                     
@@ -276,6 +401,10 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                             self.userData = value
                             
                             var scopePosts = [[AnyHashable: Any]]()
+                            
+                            var scopeFirstMessages = [[AnyHashable : Any]]()
+                            var scopeSecondMessages = [[AnyHashable : Any]]()
+                            var scopeThirdMessages = [[AnyHashable : Any]]()
                             
                             if let posts = value["posts"] as? [AnyHashable: Any] {
                                 
@@ -300,9 +429,109 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                                 
                             })
                             
+                            for _ in scopePosts {
+                                
+                                scopeFirstMessages.append([AnyHashable : Any]())
+                                scopeSecondMessages.append([AnyHashable : Any]())
+                                scopeThirdMessages.append([AnyHashable : Any]())
+                                
+                            }
+                            
+                            self.globFirstMessages = scopeFirstMessages
+                            self.globSecondMessages = scopeSecondMessages
+                            self.globThirdMessages = scopeThirdMessages
+                            
                             self.userPosts = scopePosts
                             
                             self.globCollectionCell.reloadData()
+                            
+                            for i in 0..<scopePosts.count {
+ 
+                                let post = scopePosts[i]
+ 
+                                if let city = post["city"] as? String, let postChildKey = post["postChildKey"] as? String {
+                                    
+                                    let ref = FIRDatabase.database().reference().child("posts").child(city).child(postChildKey).child("messages")
+                                    ref.keepSynced(true)
+                                    ref.observeSingleEvent(of: .value, with: { (snapshot) in
+                                        
+                                        if let allMessages = snapshot.value as? [AnyHashable : Any] {
+                                            
+                                            var sortedMessages = allMessages.sorted(by: { (a: (key: AnyHashable, value: Any), b: (key: AnyHashable, value: Any)) -> Bool in
+                                                
+                                                if let a = a.value as? [AnyHashable : Any], let b = b.value as? [AnyHashable : Any] {
+                                                    
+                                                    if a["timeStamp"] as? TimeInterval > b["timeStamp"] as? TimeInterval {
+                                                        
+                                                        return true
+                                                        
+                                                    }
+                                                }
+                                                
+                                                return false
+                                                
+                                            })
+                                            
+                                            if sortedMessages.count == 1 {
+                                                
+                                                if let firstMessage = sortedMessages[0].value as? [AnyHashable : Any] {
+                                                    
+                                                    scopeThirdMessages[i] = firstMessage
+                                                    
+                                                }
+                                                
+                                            }
+                                            
+                                            if sortedMessages.count == 2 {
+                                                
+                                                if let firstMessage = sortedMessages[0].value as? [AnyHashable : Any] {
+                                                    
+                                                    scopeThirdMessages[i] = firstMessage
+                                                    
+                                                }
+
+                                                
+                                                if let secondMessage = sortedMessages[1].value as? [AnyHashable : Any] {
+                                                    
+                                                    scopeSecondMessages[i] = secondMessage
+                                                    
+                                                }
+                                            }
+                                            
+                                            if sortedMessages.count > 2 {
+                                                
+                                                if let firstMessage = sortedMessages[0].value as? [AnyHashable : Any] {
+                                                    
+                                                    scopeThirdMessages[i] = firstMessage
+                                                    
+                                                }
+                                                
+                                                
+                                                if let secondMessage = sortedMessages[1].value as? [AnyHashable : Any] {
+                                                    
+                                                    scopeSecondMessages[i] = secondMessage
+                                                    
+                                                }
+
+                                                
+                                                if let thirdMessage = sortedMessages[2].value as? [AnyHashable : Any] {
+                                                    
+                                                    scopeFirstMessages[i] = thirdMessage
+                                                    
+                                                }
+                                            }
+     
+                                            self.globFirstMessages = scopeFirstMessages
+                                            self.globSecondMessages = scopeSecondMessages
+                                            self.globThirdMessages = scopeThirdMessages
+                                            
+                                            self.globCollectionCell.reloadData()
+                                        }
+                                    })
+                                }
+                            }
+
+                            
                             
                         } else {
                             ref.removeAllObservers()
@@ -312,10 +541,8 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
             }
         }
     }
-    
-    
-    
-    func setPlayerTitle(_ postKey: String, cell: UserVideoPostCell) {
+
+    func setPlayerTitle(_ postKey: String, cell: UICollectionViewCell) {
         
         var playerForCell = 0
         
@@ -338,8 +565,16 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
         }
         
         videoKeys[playerForCell] = postKey
-        cell.player = playerForCell
         
+        if let userCell = cell as? UserVideoPostCell {
+            
+            userCell.player = playerForCell
+            
+        } else if let videoCell = cell as? VideoVibeCollectionCell {
+            
+            videoCell.player = playerForCell
+            
+        }
     }
     
     
@@ -361,12 +596,50 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                     
                 }
                 
-                
-                
                 DispatchQueue.main.async(execute: {
+                    
+                    self.videoLayers[playerNumber] = AVPlayerLayer(player: player)
+                    self.videoLayers[playerNumber]?.videoGravity = AVLayerVideoGravityResizeAspectFill
+                    self.videoLayers[playerNumber]?.frame = videoCell.bounds
+                    
+                    if let layer = self.videoLayers[playerNumber] {
                         
-                       self.videoLayers[playerNumber] = AVPlayerLayer(player: player)
-                       self.videoLayers[playerNumber]?.videoGravity = AVLayerVideoGravityResizeAspectFill
+                        videoCell.videoOutlet.layer.addSublayer(layer)
+                        
+                    }
+                    
+                    player.isMuted = true
+                    player.play()
+                    
+                    
+                })
+                
+            } else {
+                
+                var asset: AVAsset?
+                
+                if let loadedAsset = videoAssets[postKey] {
+                    
+                    asset = loadedAsset
+                    
+                } else if let urlString = userPosts[index]["videoURL"] as? String, let url = URL(string: urlString) {
+                    
+                    asset = AVAsset(url: url)
+                    
+                }
+                
+                if let actualAsset = asset {
+                    
+                    DispatchQueue.main.async(execute: {
+                        
+                        let playerItem = AVPlayerItem(asset: actualAsset)
+                        self.videoKeys[playerNumber] = postKey
+                        self.videoPlayers[playerNumber] = AVPlayer(playerItem: playerItem)
+                        self.videoPlayers[playerNumber]?.addObserver(self, forKeyPath: "rate", options: NSKeyValueObservingOptions(), context: nil)
+                        self.videoPlayersObserved[playerNumber] = true
+                        
+                        self.videoLayers[playerNumber] = AVPlayerLayer(player: self.videoPlayers[playerNumber])
+                        self.videoLayers[playerNumber]?.videoGravity = AVLayerVideoGravityResizeAspectFill
                         self.videoLayers[playerNumber]?.frame = videoCell.bounds
                         
                         if let layer = self.videoLayers[playerNumber] {
@@ -375,56 +648,234 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                             
                         }
                         
-                        player.isMuted = true
-                        player.play()
+                        self.videoPlayers[playerNumber]?.isMuted = true
+                        self.videoPlayers[playerNumber]?.play()
                         
-                    
-                })
+                    })
+                }
+            }
+            
+        }
+        
+        var shouldAdd = false
+        
+        var key = ""
+        var playerNumber = 0
+        
+        if let postVideo = cell as? VideoVibeCollectionCell {
+            
+            postVideo.createIndicator()
+            shouldAdd = true
+            key = postVideo.postKey
+            playerNumber = postVideo.player
+            
+        }
+        
+        if let inVideo = cell as? InMediaCollectionCell {
+            
+            if !inVideo.isImage {
                 
-            } else {
+                shouldAdd = true
+                key = inVideo.key
+                playerNumber = inVideo.player
                 
-                    var asset: AVAsset?
+            }
+            
+        }
+        
+        if let outVideo = cell as? OutMediaCollectionCell {
+            
+            if !outVideo.isImage {
+                
+                shouldAdd = true
+                key = outVideo.key
+                playerNumber = outVideo.player
+                
+            }
+        }
+        
+        if shouldAdd {
+            
+            if let player = videoPlayers[playerNumber] {
+                
+                if !videoPlayersObserved[playerNumber] {
                     
-                    if let loadedAsset = videoAssets[postKey] {
-                        
-                        asset = loadedAsset
-                        
-                    } else if let urlString = userPosts[index]["videoURL"] as? String, let url = URL(string: urlString) {
-                        
-                        asset = AVAsset(url: url)
-                        
-                    }
+                    player.addObserver(self, forKeyPath: "rate", options: NSKeyValueObservingOptions(), context: nil)
+                    videoPlayersObserved[playerNumber] = true
                     
-                    if let actualAsset = asset {
+                }
+                
+                DispatchQueue.main.async(execute: {
+
+                    self.videoLayers[playerNumber] = AVPlayerLayer(player: player)
+                    
+                    if let layer = self.videoLayers[playerNumber] {
                         
-                        DispatchQueue.main.async(execute: {
+                        layer.videoGravity = AVLayerVideoGravityResizeAspectFill
+                        
+                        if let postVideo = cell as? VideoVibeCollectionCell {
                             
-                            let playerItem = AVPlayerItem(asset: actualAsset)
-                            self.videoKeys[playerNumber] = postKey
-                            self.videoPlayers[playerNumber] = AVPlayer(playerItem: playerItem)
-                            self.videoPlayers[playerNumber]?.addObserver(self, forKeyPath: "rate", options: NSKeyValueObservingOptions(), context: nil)
-                            self.videoPlayersObserved[playerNumber] = true
+                            layer.frame = postVideo.bounds
                             
-                            self.videoLayers[playerNumber] = AVPlayerLayer(player: self.videoPlayers[playerNumber])
-                            self.videoLayers[playerNumber]?.videoGravity = AVLayerVideoGravityResizeAspectFill
-                            self.videoLayers[playerNumber]?.frame = videoCell.bounds
+                            postVideo.videoOutlet.layer.addSublayer(layer)
                             
-                            if let layer = self.videoLayers[playerNumber] {
+                            if postVideo.postKey == self.videoWithSound {
                                 
-                                videoCell.videoOutlet.layer.addSublayer(layer)
+                                postVideo.soundImageOutlet.image = UIImage(named: "unmute")
+                                postVideo.soundLabelOutlet.text = "Tap to mute"
+                                player.isMuted = false
+                                
+                            } else {
+                                
+                                postVideo.soundImageOutlet.image = UIImage(named: "mute")
+                                postVideo.soundLabelOutlet.text = "Tap for sound"
+                                player.isMuted = true
                                 
                             }
                             
-                            self.videoPlayers[playerNumber]?.isMuted = true
-                            self.videoPlayers[playerNumber]?.play()
+                        } else if let inVideo = cell as? InMediaCollectionCell {
                             
-                        })
+                            if !inVideo.isImage {
+                                
+                                layer.frame = inVideo.bounds
+                                inVideo.videoOutlet.layer.addSublayer(layer)
+                                player.isMuted = true
+                                
+                            }
+                            
+                        } else if let outVideo = cell as? OutMediaCollectionCell {
+                            
+                            if !outVideo.isImage {
+                                
+                                layer.frame = outVideo.bounds
+                                player.isMuted = true
+                                outVideo.videoOutlet.layer.addSublayer(layer)
+                                
+                            }
+                        }
+                        
+                        player.play()
+                        
+                    }
+                })
+            } else {
+                
+                var asset: AVAsset?
+                
+                if let loadedAsset = videoAssets[key] {
+                    
+                    asset = loadedAsset
+                    
+                } else {
+                    
+                    if cell is VideoVibeCollectionCell {
+                        
+                        if let urlString = userPosts[(indexPath as NSIndexPath).section - 1]["videoURL"] as? String, let url = URL(string: urlString) {
+                            
+                            asset = AVAsset(url: url)
+                            
+                        }
+                        
+                    } else if cell is InMediaCollectionCell || cell is OutMediaCollectionCell {
+                        
+                        if (indexPath as NSIndexPath).row == 4 {
+                            
+                            if let urlString = globFirstMessages[(indexPath as NSIndexPath).section - 1]["media"] as? String, let url = URL(string: urlString) {
+                                
+                                asset = AVAsset(url: url)
+                                
+                            }
+                            
+                        } else if (indexPath as NSIndexPath).row == 5 {
+                            
+                            if let urlString = globSecondMessages[(indexPath as NSIndexPath).section - 1]["media"] as? String, let url = URL(string: urlString) {
+                                
+                                asset = AVAsset(url: url)
+                                
+                            }
+                            
+                            
+                        } else if (indexPath as NSIndexPath).row == 6 {
+                            
+                            if let urlString = globThirdMessages[(indexPath as NSIndexPath).section - 1]["media"] as? String, let url = URL(string: urlString) {
+                                
+                                asset = AVAsset(url: url)
+                                
+                            }
+                        }
                     }
                 }
-
+                
+                if let actualAsset = asset {
+                    
+                    DispatchQueue.main.async(execute: {
+                        
+                        let playerItem = AVPlayerItem(asset: actualAsset)
+                        self.videoKeys[playerNumber] = key
+                        self.videoPlayers[playerNumber] = AVPlayer(playerItem: playerItem)
+                        
+                        if let player = self.videoPlayers[playerNumber] {
+                            
+                            player.addObserver(self, forKeyPath: "rate", options: NSKeyValueObservingOptions(), context: nil)
+                            self.videoPlayersObserved[playerNumber] = true
+                            
+                            self.videoLayers[playerNumber] = AVPlayerLayer(player: self.videoPlayers[playerNumber])
+                            
+                            if let layer = self.videoLayers[playerNumber] {
+                                
+                                layer.videoGravity = AVLayerVideoGravityResizeAspectFill
+                                
+                                if let postVideo = cell as? VideoVibeCollectionCell {
+                                    
+                                    self.videoLayers[playerNumber]?.frame = postVideo.bounds
+                                    
+                                    if postVideo.postKey == self.videoWithSound {
+                                        
+                                        postVideo.soundImageOutlet.image = UIImage(named: "unmute")
+                                        postVideo.soundLabelOutlet.text = "Tap to mute"
+                                        player.isMuted = false
+                                        
+                                    } else {
+                                        
+                                        postVideo.soundImageOutlet.image = UIImage(named: "mute")
+                                        postVideo.soundLabelOutlet.text = "Tap for sound"
+                                        player.isMuted = true
+                                        
+                                    }
+                                    
+                                    postVideo.videoOutlet.layer.addSublayer(layer)
+                                    
+                                } else if let inVideo = cell as? InMediaCollectionCell {
+                                    
+                                    if !inVideo.isImage {
+                                        
+                                        layer.frame = inVideo.bounds
+                                        inVideo.videoOutlet.layer.addSublayer(layer)
+                                        player.isMuted = true
+                                        
+                                    }
+                                    
+                                } else if let outVideo = cell as? OutMediaCollectionCell {
+                                    
+                                    if !outVideo.isImage {
+                                        
+                                        layer.frame = outVideo.bounds
+                                        outVideo.videoOutlet.layer.addSublayer(layer)
+                                        player.isMuted = true
+                                        
+                                    }
+                                }
+                                
+                                player.play()
+                                
+                            }
+                        }
+                    })
+                }
+            }
         }
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, didEndDisplaying cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         
         if !userPosts.isEmpty {
@@ -437,7 +888,9 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                     
                     if let visibleVideo = visibleCell as? UserVideoPostCell {
                         
-                        if visibleVideo.postChildKey == self.userPosts[videoCell.index]["postChildKey"] as? String {
+                        let index = visibleVideo.index
+                        
+                        if visibleVideo.postChildKey == self.userPosts[index]["postChildKey"] as? String {
                             
                             isVisible = true
                             
@@ -475,158 +928,745 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                     }
                 }
             }
+ 
+            var shouldRemove = false
+            
+            var isVisible = false
+            
+            for visibleCell in collectionView.visibleCells {
+                
+                if let visibleVideo = visibleCell as? VideoVibeCollectionCell {
+                    
+                    let index = visibleVideo.index
+                    
+                    if visibleVideo.postKey == self.userPosts[index]["postChildKey"] as? String {
+                        
+                        isVisible = true
+                        
+                    }
+                    
+                } else {
+                    
+                    if let visibleVideo = visibleCell as? InMediaCollectionCell {
+                        
+                        if !visibleVideo.isImage {
+                            
+                            if (indexPath as NSIndexPath).row == 4 {
+                                
+                                if visibleVideo.key == self.globFirstMessages[(indexPath as NSIndexPath).section - 1]["key"] as? String {
+                                    
+                                    isVisible = true
+                                    
+                                }
+                                
+                                
+                            } else if (indexPath as NSIndexPath).row == 5 {
+                                
+                                if visibleVideo.key == self.globSecondMessages[(indexPath as NSIndexPath).section - 1]["key"] as? String {
+                                    
+                                    isVisible = true
+                                    
+                                }
+                                
+                            } else if (indexPath as NSIndexPath).row == 6 {
+                                
+                                if visibleVideo.key == self.globThirdMessages[(indexPath as NSIndexPath).section - 1]["key"] as? String {
+                                    
+                                    isVisible = true
+                                    
+                                }
+                            }
+                        }
+                        
+                    } else if let visibleVideo = visibleCell as? OutMediaCollectionCell {
+                        
+                        if !visibleVideo.isImage {
+                            
+                            if (indexPath as NSIndexPath).row == 4 {
+                                
+                                if visibleVideo.key == self.globFirstMessages[(indexPath as NSIndexPath).section - 1]["key"] as? String {
+                                    
+                                    isVisible = true
+                                    
+                                }
+                                
+                            } else if (indexPath as NSIndexPath).row == 5 {
+                                
+                                if visibleVideo.key == self.globSecondMessages[(indexPath as NSIndexPath).section - 1]["key"] as? String {
+                                    
+                                    isVisible = true
+                                    
+                                }
+                                
+                            } else if (indexPath as NSIndexPath).row == 6 {
+                                
+                                if visibleVideo.key == self.globThirdMessages[(indexPath as NSIndexPath).section - 1]["key"] as? String {
+                                    
+                                    isVisible = true
+                                    
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            var playerNumber = 0
+            
+            if let videoCell = cell as? VideoVibeCollectionCell {
+                
+                shouldRemove = true
+                playerNumber = videoCell.player
+                
+            } else if let inCell = cell as? InMediaCollectionCell {
+                
+                if !inCell.isImage {
+                    
+                    shouldRemove = true
+                    playerNumber = inCell.player
+                    
+                }
+                
+            } else if let outCell = cell as? OutMediaCollectionCell {
+                
+                if !outCell.isImage {
+                    
+                    shouldRemove = true
+                    playerNumber = outCell.player
+                    
+                }
+            }
+            
+            if let player = videoPlayers[playerNumber] {
+                
+                if videoPlayersObserved[playerNumber] && shouldRemove {
+                    
+                    player.removeObserver(self, forKeyPath: "rate")
+                    videoPlayersObserved[playerNumber] = false
+                    
+                }
+            }
+            
+            if !isVisible && shouldRemove {
+                
+                if let videoCell = cell as? VideoVibeCollectionCell {
+                    
+                    for view in videoCell.videoThumbnailOutlet.subviews  {
+                        
+                        view.removeFromSuperview()
+                        
+                    }
+                    
+                    if let subLayers = videoCell.videoOutlet.layer.sublayers {
+                        
+                        for layer in subLayers {
+                            
+                            layer.removeFromSuperlayer()
+                            
+                        }
+                    }
+                    
+                } else if let videoCell = cell as? InMediaCollectionCell {
+                    
+                    if !videoCell.isImage  {
+                        
+                        if let subLayers = videoCell.videoOutlet.layer.sublayers {
+                            
+                            for layer in subLayers {
+                                
+                                layer.removeFromSuperlayer()
+                                
+                            }
+                        }
+                    }
+                    
+                } else if let videoCell = cell as? OutMediaCollectionCell {
+                    
+                    if !videoCell.isImage  {
+                        
+                        if let subLayers = videoCell.videoOutlet.layer.sublayers {
+                            
+                            for layer in subLayers {
+                                
+                                layer.removeFromSuperlayer()
+                                
+                            }
+                        }
+                    }
+                }
+                
+                videoLayers[playerNumber]?.removeFromSuperlayer()
+                videoLayers[playerNumber] = nil
+                videoKeys[playerNumber] = nil
+                videoPlayers[playerNumber]?.pause()
+                videoPlayers[playerNumber] = nil
+                
+            }
         }
     }
     
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         
-        if (indexPath as NSIndexPath).row == 0 {
+        if indexPath.section == 0 {
             
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "statusCell", for: indexPath) as! StatusCell
-            cell.loadCell(userData)
-            return cell
-            
-        } else if (indexPath as NSIndexPath).row == 1 {
-            
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "profilePicCell", for: indexPath) as! ProfilePicCollectionCell
-            
-            let screenWidth = self.view.bounds.width
-            cell.profileController = self
-            cell.currentPicture = currentPicture
-            cell.loadImages(userData, screenWidth: screenWidth)
-            return cell
-            
-        }  else if (indexPath as NSIndexPath).row == 2 {
-            
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "nameCell", for: indexPath) as! ProfileInfoCollectionCell
-            
-            if selfProfile {
+            if (indexPath as NSIndexPath).row == 0 {
                 
-                cell.squadButtonOutlet.alpha = 0
-                cell.messageButtonOutlet.alpha = 0
-                
-            } else {
-                
-                cell.squadButtonOutlet.alpha = 1
-                cell.messageButtonOutlet.alpha = 1
-                
-            }
-            
-            cell.profileController = self
-            cell.loadData(userData)
-            
-            cell.nameOutlet.adjustsFontSizeToFitWidth = true
-            cell.cityOutlet.adjustsFontSizeToFitWidth = true
-            
-            return cell
-            
-        } else if (indexPath as NSIndexPath).row == 3 {
-            
-            if selfProfile {
-                
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "selfRankSquadCell", for: indexPath)
-                    as! SelfSquadRankCell
-                
-                cell.profileController = self
-                cell.loadData(userData)
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "statusCell", for: indexPath) as! StatusCell
+                cell.loadCell(userData)
                 return cell
                 
-            } else {
+            } else if (indexPath as NSIndexPath).row == 1 {
                 
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "notSelfRankSquadCell", for: indexPath) as! NotSelfSquadRankCell
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "profilePicCell", for: indexPath) as! ProfilePicCollectionCell
                 
+                let screenWidth = self.view.bounds.width
                 cell.profileController = self
-                cell.loadData(userData)
-                
+                cell.currentPicture = currentPicture
+                cell.loadImages(userData, screenWidth: screenWidth)
                 return cell
                 
-            }
-            
-        } else if !selfProfile && (indexPath as NSIndexPath).row == 4 {
-            
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "activeDistanceCell", for: indexPath) as! ActiveDistanceCell
-            cell.profileController = self
-            cell.loadData(userData)
-            return cell
-            
-        } else {
-            
-            var index = (indexPath as NSIndexPath).row
-            
-            if selfProfile {
+            }  else if (indexPath as NSIndexPath).row == 2 {
                 
-                index -= 4
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "nameCell", for: indexPath) as! ProfileInfoCollectionCell
                 
-            } else {
-                
-                index -= 5
-                
-            }
-            
-            if let isImage = userPosts[index]["isImage"] as? Bool{
-                
-                if isImage {
+                if selfProfile {
                     
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "userImagePostCell", for: indexPath) as! UserImagePostCell
+                    cell.squadButtonOutlet.alpha = 0
+                    cell.messageButtonOutlet.alpha = 0
+                    
+                } else {
+                    
+                    cell.squadButtonOutlet.alpha = 1
+                    cell.messageButtonOutlet.alpha = 1
+                    
+                }
+                
+                cell.profileController = self
+                cell.loadData(userData)
+                
+                cell.nameOutlet.adjustsFontSizeToFitWidth = true
+                cell.cityOutlet.adjustsFontSizeToFitWidth = true
+                
+                return cell
+                
+            } else if (indexPath as NSIndexPath).row == 3 {
+                
+                if selfProfile {
+                    
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "selfRankSquadCell", for: indexPath)
+                        as! SelfSquadRankCell
                     
                     cell.profileController = self
-                    
-                    cell.posts = userPosts as [[NSObject : AnyObject]]
-                    cell.index = index
-                    cell.loadCell(userPosts[index])
-                    
+                    cell.loadData(userData)
                     return cell
                     
                 } else {
                     
-                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "userVideoPostCell", for: indexPath) as! UserVideoPostCell
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "notSelfRankSquadCell", for: indexPath) as! NotSelfSquadRankCell
                     
                     cell.profileController = self
+                    cell.loadData(userData)
                     
-                    if let key = userPosts[index]["postChildKey"] as? String {
+                    return cell
+                    
+                }
+                
+            } else if !selfProfile && (indexPath as NSIndexPath).row == 4  {
+                
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "activeDistanceCell", for: indexPath) as! ActiveDistanceCell
+                cell.profileController = self
+                cell.loadData(userData)
+                return cell
+                
+            } else if (selfProfile && (indexPath as NSIndexPath).row == 4) || (!selfProfile && (indexPath as NSIndexPath).row == 5) {
+                
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "viewModeCell", for: indexPath) as! ViewModeCell
+                
+                cell.profileController = self
+                cell.setViewMode()
+                
+                return cell
+                
+            }
+            
+        } else {
+            
+            if gridView {
+                
+                let index = (indexPath as NSIndexPath).row
+                
+                if let isImage = userPosts[index]["isImage"] as? Bool{
+                    
+                    if isImage {
                         
-                        setPlayerTitle(key, cell: cell)
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "userImagePostCell", for: indexPath) as! UserImagePostCell
                         
-                    }
-                    
-                    cell.loadCell(userPosts[index])
-                    
-                    cell.posts = userPosts as [[NSObject : AnyObject]]
-                    cell.index = index
-                    
-                    cell.imageOutlet.layer.cornerRadius = 10
-                    cell.imageOutlet.clipsToBounds = true
-                    cell.videoOutlet.layer.cornerRadius = 10
-                    cell.videoOutlet.clipsToBounds = true
-                    
-                    if let imageUrlString = userPosts[index]["imageURL"] as? String, let imageUrl = URL(string: imageUrlString) {
+                        cell.profileController = self
                         
-                        cell.imageOutlet.sd_setImage(with: imageUrl, completed: { (image, error, cache, url) in
-                            
-                            print("done loading video thumbnail")
-                            
-                        })
-                        
+                        cell.posts = userPosts as [[NSObject : AnyObject]]
+                        cell.index = index
+                        cell.loadCell(userPosts[index])
                         
                         return cell
                         
+                    } else {
+                        
+                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "userVideoPostCell", for: indexPath) as! UserVideoPostCell
+                        
+                        cell.profileController = self
+                        
+                        if let key = userPosts[index]["postChildKey"] as? String {
+                            
+                            setPlayerTitle(key, cell: cell)
+                            
+                        }
+                        
+                        cell.loadCell(userPosts[index])
+                        
+                        cell.posts = userPosts as [[NSObject : AnyObject]]
+                        cell.index = index
+                        
+                        cell.imageOutlet.layer.cornerRadius = 10
+                        cell.imageOutlet.clipsToBounds = true
+                        cell.videoOutlet.layer.cornerRadius = 10
+                        cell.videoOutlet.clipsToBounds = true
+                        
+                        if let imageUrlString = userPosts[index]["imageURL"] as? String, let imageUrl = URL(string: imageUrlString) {
+                            
+                            cell.imageOutlet.sd_setImage(with: imageUrl, completed: { (image, error, cache, url) in
+                                
+                                print("done loading video thumbnail")
+                                
+                            })
+                            
+                            
+                            return cell
+                            
+                        }
                     }
                 }
+                
+            } else {
+ 
+                if (indexPath as NSIndexPath).row == 0 {
+                    
+                    if let isImage = userPosts[(indexPath as NSIndexPath).section - 1]["isImage"] as? Bool {
+                        
+                        if isImage {
+                            
+                            if let urlString = userPosts[(indexPath as NSIndexPath).section - 1]["imageURL"] as? String, let url = URL(string: urlString){
+                                
+                                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "imageCell", for: indexPath) as! ImageVibeCollectionCell
+                                cell.createIndicator()
+                                cell.loadImage(url)
+                                cell.addPinchRecognizer()
+                                return cell
+                            }
+                            
+                        } else {
+                            
+                            if let  imageUrlString = userPosts[(indexPath as NSIndexPath).section - 1]["imageURL"] as? String, let imageUrl = URL(string: imageUrlString), let key = userPosts[(indexPath as NSIndexPath).section - 1]["postChildKey"] as? String {
+                                
+                                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "videoCell", for: indexPath) as! VideoVibeCollectionCell
+                                
+                                cell.soundOutlet.layer.cornerRadius = 5
+                                cell.postKey = key
+                                cell.index = indexPath.section - 1
+                                
+                                setPlayerTitle(key, cell: cell)
+                                
+                                cell.profileController = self
+                                cell.vibesController = nil
+                                
+                                cell.videoThumbnailOutlet.sd_setImage(with: imageUrl, completed: { (image, error, cache, url) in
+                                    
+                                    print("done loading video thumbnail")
+                                    
+                                })
+                                
+                                return cell
+                                
+                            }
+                        }
+                    }
+                    
+                    
+                } else if (indexPath as NSIndexPath).row == 1 {
+                    
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "buttonsCell", for: indexPath) as! LikeButtonsCollectionCell
+                    
+                    cell.profileController = self
+                    cell.vibesController = nil
+                    cell.loadData(userPosts[(indexPath as NSIndexPath).section - 1])
+                    
+                    return cell
+                    
+                } else if (indexPath as NSIndexPath).row == 2 {
+                    
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "captionCell", for: indexPath) as! CaptionCell
+                    cell.loadData(userPosts[(indexPath as NSIndexPath).section - 1])
+                    return cell
+                    
+                } else if (indexPath as NSIndexPath).row == 3 {
+                    
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "timeAgoCell", for: indexPath) as! TimeAgoCollectionCell
+                    cell.loadData(userPosts[(indexPath as NSIndexPath).section - 1])
+                    return cell
+                    
+                } else if (indexPath as NSIndexPath).row == 4 {
+                    
+                    //if incoming -> inCell, else outCell
+                    
+                    if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                        
+                        if let senderId = globFirstMessages[(indexPath as NSIndexPath).section - 1]["senderId"] as? String {
+                            
+                            var selfMessage = false
+                            
+                            if senderId == selfUID {
+                                
+                                selfMessage = true
+                                
+                            }
+                            
+                            if let isMedia = globFirstMessages[(indexPath as NSIndexPath).section - 1]["isMedia"] as? Bool {
+                                
+                                if !isMedia {
+                                    
+                                    if !selfMessage {
+                                        
+                                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "inMessageCell", for: indexPath) as! IncomingCollectionCell
+                                        
+                                        if let secondId = globSecondMessages[(indexPath as NSIndexPath).section - 1]["senderId"] as? String {
+                                            
+                                            if secondId == senderId {
+                                                
+                                                cell.loadData(false, data: globFirstMessages[(indexPath as NSIndexPath).section - 1])
+                                                
+                                            } else {
+                                                
+                                                cell.loadData(true, data: globFirstMessages[(indexPath as NSIndexPath).section - 1])
+                                                
+                                            }
+                                            
+                                        } else {
+                                            
+                                            cell.loadData(true, data: globFirstMessages[(indexPath as NSIndexPath).section - 1])
+                                            
+                                        }
+                                        
+                                        return cell
+                                        
+                                        
+                                    } else {
+                                        
+                                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "outMessageCell", for: indexPath) as! OutgoingCollectionCell
+                                        
+                                        cell.loadData(globFirstMessages[(indexPath as NSIndexPath).section - 1])
+                                        return cell
+                                        
+                                    }
+                                    
+                                } else {
+                                    
+                                    if !selfMessage {
+                                        
+                                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "inMediaCell", for: indexPath) as! InMediaCollectionCell
+                                        
+                                        
+                                        if let secondId = globSecondMessages[(indexPath as NSIndexPath).section - 1]["senderId"] as? String {
+                                            
+                                            if secondId == senderId {
+                                                
+                                                cell.loadCell(false, message: globFirstMessages[(indexPath as NSIndexPath).section - 1])
+                                                
+                                            } else {
+                                                
+                                                cell.loadCell(true, message: globFirstMessages[(indexPath as NSIndexPath).section - 1])
+                                                
+                                            }
+                                            
+                                        } else {
+                                            
+                                            cell.loadCell(true, message: globFirstMessages[(indexPath as NSIndexPath).section - 1])
+                                            
+                                        }
+                                        
+                                        if let key = globFirstMessages[(indexPath as NSIndexPath).section - 1]["key"] as? String {
+                                            
+                                            setPlayerTitle(key, cell: cell)
+                                            
+                                        }
+                                        
+                                        return cell
+                                        
+                                    } else {
+                                        
+                                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "outMediaCell", for: indexPath) as! OutMediaCollectionCell
+                                        
+                                        cell.loadCell(globFirstMessages[(indexPath as NSIndexPath).section - 1])
+                                        
+                                        if let key = globFirstMessages[(indexPath as NSIndexPath).section - 1]["key"] as? String {
+                                            
+                                            setPlayerTitle(key, cell: cell)
+                                            
+                                        }
+                                        
+                                        return cell
+                                        
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                } else if (indexPath as NSIndexPath).row == 5 {
+                    
+                    if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                        
+                        if let senderId = globSecondMessages[(indexPath as NSIndexPath).section - 1]["senderId"] as? String {
+                            
+                            var selfMessage = false
+                            
+                            if senderId == selfUID {
+                                
+                                selfMessage = true
+                                
+                            }
+                            
+                            if let isMedia = globSecondMessages[(indexPath as NSIndexPath).section - 1]["isMedia"] as? Bool {
+                                
+                                if !isMedia {
+                                    
+                                    if !selfMessage {
+                                        
+                                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "inMessageCell", for: indexPath) as! IncomingCollectionCell
+                                        
+                                        if let thirdId = globThirdMessages[(indexPath as NSIndexPath).section - 1]["senderId"] as? String {
+                                            
+                                            if thirdId == senderId {
+                                                
+                                                cell.loadData(false, data: globSecondMessages[(indexPath as NSIndexPath).section - 1])
+                                                
+                                            } else {
+                                                
+                                                cell.loadData(true, data: globSecondMessages[(indexPath as NSIndexPath).section - 1])
+                                                
+                                            }
+                                        } else {
+                                            
+                                            cell.loadData(true, data: globSecondMessages[(indexPath as NSIndexPath).section - 1])
+                                            
+                                        }
+                                        
+                                        if let key = globSecondMessages[(indexPath as NSIndexPath).section - 1]["key"] as? String {
+                                            
+                                            setPlayerTitle(key, cell: cell)
+                                            
+                                        }
+                                        
+                                        return cell
+                                        
+                                    } else {
+                                        
+                                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "outMessageCell", for: indexPath) as! OutgoingCollectionCell
+                                        
+                                        cell.loadData(globSecondMessages[(indexPath as NSIndexPath).section - 1])
+                                        
+                                        if let key = globSecondMessages[(indexPath as NSIndexPath).section - 1]["key"] as? String {
+                                            
+                                            setPlayerTitle(key, cell: cell)
+                                            
+                                        }
+                                        
+                                        return cell
+                                        
+                                    }
+                                    
+                                } else {
+                                    
+                                    if !selfMessage {
+                                        
+                                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "inMediaCell", for: indexPath) as! InMediaCollectionCell
+                                        
+                                        if let thirdId = globThirdMessages[(indexPath as NSIndexPath).section - 1]["senderId"] as? String {
+                                            
+                                            if thirdId == senderId {
+                                                
+                                                cell.loadCell(false, message: globSecondMessages[(indexPath as NSIndexPath).section - 1])
+                                                
+                                            } else {
+                                                
+                                                cell.loadCell(true, message: globSecondMessages[(indexPath as NSIndexPath).section - 1])
+                                                
+                                            }
+                                            
+                                        } else {
+                                            
+                                            cell.loadCell(true, message: globSecondMessages[(indexPath as NSIndexPath).section - 1])
+                                            
+                                        }
+                                        
+                                        if let key = globSecondMessages[(indexPath as NSIndexPath).section - 1]["key"] as? String {
+                                            
+                                            setPlayerTitle(key, cell: cell)
+                                            
+                                        }
+                                        
+                                        return cell
+                                        
+                                    } else {
+                                        
+                                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "outMediaCell", for: indexPath) as! OutMediaCollectionCell
+                                        
+                                        cell.loadCell(globSecondMessages[(indexPath as NSIndexPath).section - 1])
+                                        
+                                        if let key = globSecondMessages[(indexPath as NSIndexPath).section - 1]["key"] as? String {
+                                            
+                                            setPlayerTitle(key, cell: cell)
+                                            
+                                        }
+                                        
+                                        return cell
+                                        
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                } else if (indexPath as NSIndexPath).row == 6 {
+                    
+                    if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                        
+                        if let senderId = globThirdMessages[(indexPath as NSIndexPath).section - 1]["senderId"] as? String {
+                            
+                            var selfMessage = false
+                            
+                            if senderId == selfUID {
+                                
+                                selfMessage = true
+                                
+                            }
+                            
+                            if let isMedia = globThirdMessages[(indexPath as NSIndexPath).section - 1]["isMedia"] as? Bool {
+                                
+                                if !isMedia {
+                                    
+                                    if !selfMessage {
+                                        
+                                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "inMessageCell", for: indexPath) as! IncomingCollectionCell
+                                        cell.loadData(true, data: globThirdMessages[(indexPath as NSIndexPath).section - 1])
+                                        return cell
+                                        
+                                    } else {
+                                        
+                                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "outMessageCell", for: indexPath) as! OutgoingCollectionCell
+                                        cell.loadData(globThirdMessages[(indexPath as NSIndexPath).section - 1])
+                                        return cell
+                                        
+                                    }
+                                    
+                                } else {
+                                    
+                                    if !selfMessage {
+                                        
+                                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "inMediaCell", for: indexPath) as! InMediaCollectionCell
+                                        
+                                        cell.loadCell(true, message: globThirdMessages[(indexPath as NSIndexPath).section - 1])
+                                        
+                                        if let key = globThirdMessages[(indexPath as NSIndexPath).section - 1]["key"] as? String {
+                                            
+                                            setPlayerTitle(key, cell: cell)
+                                            
+                                        }
+                                        
+                                        return cell
+                                        
+                                    } else {
+                                        
+                                        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "outMediaCell", for: indexPath) as! OutMediaCollectionCell
+                                        
+                                        cell.loadCell(globThirdMessages[(indexPath as NSIndexPath).section - 1])
+                                        
+                                        if let key = globThirdMessages[(indexPath as NSIndexPath).section - 1]["key"] as? String {
+                                            
+                                            setPlayerTitle(key, cell: cell)
+                                            
+                                        }
+                                        
+                                        return cell
+                                        
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                } else if (indexPath as NSIndexPath).row == 7 {
+                    
+                    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "goToChatCell", for: indexPath) as! GoToChatCell
+                    cell.profileController = self
+                    cell.vibesController = nil
+                    cell.index = indexPath.section - 1
+                    cell.loadData(userPosts[(indexPath as NSIndexPath).section - 1])
+                    
+                    return cell
+                    
+                }
+                
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "inMessageCell", for: indexPath) as! IncomingCollectionCell
+                
+                return cell
             }
         }
         
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "userImagePostCell", for: indexPath) as! UserImagePostCell
-        return cell
-        
+        return UICollectionViewCell()
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
-        if selfProfile {
-            return userPosts.count + 4
+        if section == 0 {
+            
+            if selfProfile && userPosts.count == 0 {
+                
+                return 4
+                
+            } else if (!selfProfile && userPosts.count == 0) || (selfProfile && userPosts.count > 0) {
+                
+                return 5
+                
+            } else {
+                
+                return 6
+                
+            }
+            
         } else {
-            return userPosts.count + 5
+            
+            if gridView {
+                
+                return userPosts.count
+                
+            } else {
+                
+                return 8
+                
+            }
+        }
+    }
+    
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        
+        if gridView {
+            
+            return 2
+            
+        } else {
+            
+            return (userPosts.count + 1)
+            
         }
     }
     
@@ -635,63 +1675,311 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
         
         let width = self.view.bounds.width
         
-        if (indexPath as NSIndexPath).row == 0 {
+        if indexPath.section == 0 {
             
-            if let status = userData["currentStatus"] as? String {
+            if (indexPath as NSIndexPath).row == 0 {
                 
-                if status != "" {
+                if let status = userData["currentStatus"] as? String {
                     
-                    return CGSize(width: width, height: 44)
-                    
-                }
-            }
-            
-            return CGSize(width: width, height: 0)
-            
-        } else if (indexPath as NSIndexPath).row == 1 {
-            
-            return CGSize(width: width, height: width)
-            
-            
-        } else if (indexPath as NSIndexPath).row == 2 {
-            
-            if self.selfProfile {
-                
-                return CGSize(width: width, height: 90)
-                
-            } else {
-                
-                if let occupation = userData["occupation"] as? String {
-                    
-                    if occupation != "" {
+                    if status != "" {
                         
-                        return CGSize(width: width, height: 90)
+                        return CGSize(width: width, height: 44)
+                        
+                    }
+                }
+                
+                return CGSize(width: width, height: 0)
+                
+            } else if (indexPath as NSIndexPath).row == 1 {
+                
+                return CGSize(width: width, height: width)
+                
+                
+            } else if (indexPath as NSIndexPath).row == 2 {
+                
+                if self.selfProfile {
+                    
+                    return CGSize(width: width, height: 90)
+                    
+                } else {
+                    
+                    if let occupation = userData["occupation"] as? String {
+                        
+                        if occupation != "" {
+                            
+                            return CGSize(width: width, height: 90)
+                            
+                        }
                         
                     }
                     
+                    return CGSize(width: width, height: 67)
+                    
                 }
                 
+            } else if (indexPath as NSIndexPath).row == 3  {
                 
-                //THIS WILL NEED TO BE CHANGED
+                return CGSize(width: width, height: 60)
                 
+            } else if (indexPath as NSIndexPath).row == 4 && !selfProfile {
                 
-                return CGSize(width: width, height: 67)
+                return CGSize(width: width, height: 45)
+                
+            } else  {
+                
+                return CGSize(width: width, height: 50)
                 
             }
             
-        } else if (indexPath as NSIndexPath).row == 3  {
-            
-            return CGSize(width: width, height: 60)
-            
-        } else if (indexPath as NSIndexPath).row == 4 && !selfProfile {
-            
-            return CGSize(width: width, height: 34)
-            
         } else {
             
-            let thirdWidth = width * 0.33
-            return CGSize(width: thirdWidth, height: thirdWidth)
-            
+            if gridView {
+                
+                let thirdWidth = width * 0.33
+                return CGSize(width: thirdWidth, height: thirdWidth)
+                
+            } else {
+                
+                if (indexPath as NSIndexPath).row == 0 {
+                    
+                    return CGSize(width: width, height: width)
+                    
+                } else if (indexPath as NSIndexPath).row == 1 {
+                    
+                    return CGSize(width: width, height: 65)
+                    
+                } else if (indexPath as NSIndexPath).row == 2 {
+                    
+                    if userPosts[(indexPath as NSIndexPath).section - 1]["caption"] as? String != "" {
+                        
+                        return CGSize(width: width, height: 33)
+                        
+                    } else {
+                        
+                        return CGSize(width: width, height: 0)
+                        
+                    }
+                    
+                } else if (indexPath as NSIndexPath).row == 3 {
+                    
+                    return CGSize(width: width, height: 25)
+                    
+                } else if (indexPath as NSIndexPath).row == 4 {
+                    
+                    if let senderId = globFirstMessages[(indexPath as NSIndexPath).section - 1]["senderId"] as? String, let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                        
+                        var selfMessage = false
+                        
+                        if senderId == selfUID {
+                            
+                            selfMessage = true
+                            
+                        }
+                        
+                        if let isMedia = globFirstMessages[(indexPath as NSIndexPath).section - 1]["isMedia"] as? Bool {
+                            
+                            if !isMedia {
+                                
+                                if !selfMessage {
+                                    
+                                    if let secondId = globSecondMessages[(indexPath as NSIndexPath).section - 1]["senderId"] as? String {
+                                        
+                                        if secondId == senderId {
+                                            
+                                            return CGSize(width: width, height: 38)
+                                            
+                                        } else {
+                                            
+                                            return CGSize(width: width, height: 52)
+                                            
+                                        }
+                                        
+                                    } else {
+                                        
+                                        return CGSize(width: width, height: 52)
+                                        
+                                    }
+                                    
+                                    
+                                    
+                                } else {
+                                    
+                                    return CGSize(width: width, height: 38)
+                                    
+                                }
+                                
+                            } else {
+                                
+                                if !selfMessage {
+                                    
+                                    if let secondId = globSecondMessages[(indexPath as NSIndexPath).section - 1]["senderID"] as? String {
+                                        
+                                        if secondId == senderId {
+                                            
+                                            return CGSize(width: width, height: 108)
+                                            
+                                        } else {
+                                            
+                                            return CGSize(width: width, height: 120)
+                                            
+                                        }
+                                        
+                                    } else {
+                                        
+                                        return CGSize(width: width, height: 120)
+                                        
+                                    }
+                                    
+                                } else {
+                                    
+                                    return CGSize(width: width, height: 108)
+                                    
+                                    
+                                }
+                            }
+                        }
+                        
+                    } else {
+                        
+                        return CGSize(width: width, height: 0)
+                        
+                    }
+                    
+                } else if (indexPath as NSIndexPath).row == 5 {
+                    
+                    if let senderId = globSecondMessages[(indexPath as NSIndexPath).section - 1]["senderId"] as? String, let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                        
+                        var selfMessage = false
+                        
+                        if senderId == selfUID {
+                            
+                            selfMessage = true
+                            
+                        }
+                        
+                        if let isMedia = globSecondMessages[(indexPath as NSIndexPath).section - 1]["isMedia"] as? Bool {
+                            
+                            if !isMedia {
+                                
+                                if !selfMessage {
+                                    
+                                    if let thirdId = globThirdMessages[(indexPath as NSIndexPath).section - 1]["senderId"] as? String {
+                                        
+                                        if thirdId == senderId {
+                                            return CGSize(width: width, height: 38)
+                                            
+                                        } else {
+                                            
+                                            return CGSize(width: width, height: 52)
+                                            
+                                        }
+                                    } else {
+                                        
+                                        return CGSize(width: width, height: 52)
+                                        
+                                    }
+                                    
+                                } else {
+                                    
+                                    return CGSize(width: width, height: 38)
+                                    
+                                }
+                                
+                            } else {
+                                
+                                if !selfMessage {
+                                    
+                                    if let thirdId = globThirdMessages[(indexPath as NSIndexPath).section - 1]["senderId"] as? String {
+                                        
+                                        if thirdId == senderId {
+                                            return CGSize(width: width, height: 108)
+                                            
+                                        } else {
+                                            
+                                            return CGSize(width: width, height: 120)
+                                            
+                                        }
+                                        
+                                    } else {
+                                        
+                                        return CGSize(width: width, height: 120)
+                                        
+                                    }
+                                    
+                                } else {
+                                    
+                                    return CGSize(width: width, height: 108)
+                                    
+                                }
+                            }
+                        }
+                    } else {
+                        
+                        return CGSize(width: width, height: 0)
+                        
+                    }
+                    
+                } else if (indexPath as NSIndexPath).row == 6 {
+                    
+                    if let senderId = globThirdMessages[(indexPath as NSIndexPath).section - 1]["senderId"] as? String, let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                        
+                        var selfMessage = false
+                        
+                        if senderId == selfUID {
+                            
+                            selfMessage = true
+                            
+                        }
+                        
+                        if let isMedia = globThirdMessages[(indexPath as NSIndexPath).section - 1]["isMedia"] as? Bool {
+                            
+                            if !isMedia {
+                                
+                                if !selfMessage {
+                                    
+                                    return CGSize(width: width, height: 52)
+                                    
+                                } else {
+                                    
+                                    return CGSize(width: width, height: 38)
+                                    
+                                }
+                                
+                            } else {
+                                
+                                if !selfMessage {
+                                    
+                                    return CGSize(width: width, height: 120)
+                                    
+                                } else {
+                                    
+                                    return CGSize(width: width, height: 108)
+                                    
+                                }
+                            }
+                        }
+                    } else {
+                        
+                        return CGSize(width: width, height: 0)
+                        
+                    }
+                    
+                } else if (indexPath as NSIndexPath).row == 7 {
+                    
+                    if (indexPath as NSIndexPath).section == userPosts.count {
+                        
+                        return CGSize(width: width, height: 80)
+                        
+                    } else {
+                        
+                        return CGSize(width: width, height: 36)
+                        
+                    }
+                }
+                
+                return CGSize.zero
+                
+            }
         }
     }
     

@@ -12,6 +12,9 @@ import FirebaseDatabase
 import FirebaseAuth
 import CoreLocation
 import SDWebImage
+import Fusuma
+import AVFoundation
+
 fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
   switch (lhs, rhs) {
   case let (l?, r?):
@@ -33,7 +36,7 @@ fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
 }
 
 
-class MainRootController: UIViewController {
+class MainRootController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewControllerDelegate {
     
     var selfData = [AnyHashable: Any]()
     
@@ -130,6 +133,8 @@ class MainRootController: UIViewController {
     @IBOutlet weak var composeChatOutlet: UIButton!
     @IBOutlet weak var settingsContainer: UIView!
     @IBOutlet weak var addFromFacebookContainer: UIView!
+    @IBOutlet weak var cameraButtonIcon: UIButton!
+    @IBOutlet weak var actionsContainer: UIView!
     
 
     //View Controllers
@@ -169,6 +174,175 @@ class MainRootController: UIViewController {
             })
         }
     }
+    
+    @IBAction func callCamera(_ sender: AnyObject) {
+        
+        showNav(0.3, completion: { (bool) in
+            
+            self.clearVibesPlayers()
+            
+            print("camera")
+            
+            self.presentFusumaCamera()
+            
+        })
+    }
+    
+    func presentFusumaCamera(){
+        
+        UIApplication.shared.isStatusBarHidden = true
+        
+        let fusuma = FusumaViewController()
+        fusuma.delegate = self
+        fusuma.hasVideo = true
+        fusuma.modalTransitionStyle = UIModalTransitionStyle.crossDissolve
+        
+        present(fusuma, animated: true) {
+            
+            self.cameraTransitionOutlet.alpha = 1
+            
+            self.view.layoutIfNeeded()
+            
+        }
+    }
+    
+    //Adobe Delegates
+    func photoEditor(_ editor: AdobeUXImageEditorViewController, finishedWith image: UIImage?) {
+
+        editor.dismiss(animated: false) {
+            
+            UIApplication.shared.isStatusBarHidden = false
+            
+            self.toggleHandlePost(image, videoURL: nil, isImage: true, completion: { (bool) in
+                
+                self.cameraTransitionOutlet.alpha = 0
+                print("handle post toggled")
+                
+            })
+            
+        }
+        
+        print("photo editor chosen")
+        
+    }
+    func photoEditorCanceled(_ editor: AdobeUXImageEditorViewController) {
+        
+        let transition: CATransition = CATransition()
+        transition.duration = 0.3
+        transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+        transition.type = kCATransitionPush
+        transition.subtype = kCATransitionFromLeft
+        editor.view.window?.layer.add((transition), forKey: nil)
+        
+        editor.dismiss(animated: false) {
+            
+            self.cameraTransitionOutlet.alpha = 1
+            
+            self.presentFusumaCamera()
+        }
+        print("photo editor cancelled")
+        
+    }
+    
+    //Fusuma Delegates
+    func fusumaImageSelected(_ image: UIImage) {
+        
+        print("image selected")
+        
+    }
+    
+    func fusumaDismissedWithImage(_ image: UIImage) {
+        
+        print("fusuma dismissed with image")
+        
+        let transition: CATransition = CATransition()
+        transition.duration = 0.3
+        transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+        transition.type = kCATransitionPush
+        transition.subtype = kCATransitionFromRight
+        self.view.window?.layer.add((transition), forKey: nil)
+        
+        
+        let editorController = AdobeUXImageEditorViewController(image: image)
+        editorController.delegate = self
+        
+        self.present(editorController, animated: false, completion: nil)
+        
+    }
+    
+    func fusumaVideoCompleted(withFileURL fileURL: URL) {
+
+        UIApplication.shared.isStatusBarHidden = false
+        
+        let asset = AVURLAsset(url: fileURL)
+        let imgGenerator = AVAssetImageGenerator(asset: asset)
+        imgGenerator.appliesPreferredTrackTransform = true
+        
+        do {
+            
+            let cgImage =  try imgGenerator.copyCGImage(at: CMTimeMake(0, 1), actualTime: nil)
+            let uiImage = UIImage(cgImage: cgImage)
+            
+            self.toggleHandlePost(uiImage, videoURL: fileURL, isImage: false, completion: { (bool) in
+                print("video handled")
+                self.cameraTransitionOutlet.alpha = 0
+            })
+            
+            
+        } catch let error {
+            print(error)
+        }
+        
+        print("fusuma video completed")
+        
+        
+    }
+    
+    func fusumaCameraRollUnauthorized() {
+        
+        let alertController = UIAlertController(title: "Sorry", message: "Camera not authorized", preferredStyle:  UIAlertControllerStyle.alert)
+        alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.cancel, handler: nil))
+        self.present(alertController, animated: true, completion: nil)
+        
+        print("camera unauthorized")
+        
+    }
+    
+    func fusumaClosed() {
+        
+        UIApplication.shared.isStatusBarHidden = false
+        
+        self.cameraTransitionOutlet.alpha = 0
+        
+    }
+    
+    func alpha0actionBar(){
+        
+        UIView.animate(withDuration: 0.3) { 
+            
+            self.actionsContainer.alpha = 0
+            self.cameraButtonIcon.alpha = 0
+            self.view.layoutIfNeeded()
+            
+        }
+        
+    }
+    
+    
+    func alpha1actionBar(){
+        
+        UIView.animate(withDuration: 0.3) {
+            
+            self.actionsContainer.alpha = 1
+            self.cameraButtonIcon.alpha = 1
+            self.view.layoutIfNeeded()
+            
+        }
+        
+    }
+
+    
+    
     
     
     //Toggle Functions
@@ -455,8 +629,23 @@ class MainRootController: UIViewController {
                     
                 }
             }
+            
+            if self.profileRevealed {
+
+                if let profileUID = self.profileController?.userData["uid"] as? String {
+                    
+                    self.profileController?.retrieveUserData(profileUID)
+                    
+                }
+            }
 
             self.chatRevealed = false
+            
+            if let location = self.nearbyController?.globLocation {
+                
+                self.nearbyController?.queryNearby(location)
+                
+            }
             
             completion(complete)
             
@@ -465,6 +654,12 @@ class MainRootController: UIViewController {
 
     
     func toggleNearby(_ completion: @escaping (Bool) -> ()) {
+        
+        if let location = self.nearbyController?.globLocation {
+            
+            self.nearbyController?.queryNearby(location)
+            
+        }
         
         DispatchQueue.main.async {
             
@@ -856,15 +1051,21 @@ class MainRootController: UIViewController {
     }
     
     func closeMatch(_ uid: String, profile: String, firstName: String, lastName: String, keepPlaying: Bool, completion: (Bool) -> ()){
-        
+
         if let myUID = FIRAuth.auth()?.currentUser?.uid {
             
             let ref = FIRDatabase.database().reference()
             let activityTime = Date().timeIntervalSince1970
             
-            let matchData: [AnyHashable: Any] = ["uid" : uid, "lastActivity" : activityTime, "firstName" : firstName, "lastName" : lastName]
+            let yourMatchData: [AnyHashable: Any] = ["uid" : uid, "lastActivity" : activityTime, "firstName" : firstName, "lastName" : lastName]
             
-            ref.child("users").child(myUID).child("matches").child(uid).updateChildValues(matchData)
+            if let myFirstName = selfData["firstName"] as? String, let myLastName = selfData["lastName"] as? String {
+                
+                let myMatchData: [AnyHashable : Any] = ["uid" : myUID, "lastActivity" : activityTime, "firstName" : myFirstName, "lastName" : myLastName]
+                ref.child("users").child(uid).child("matches").child(myUID).updateChildValues(myMatchData)
+            }
+
+            ref.child("users").child(myUID).child("matches").child(uid).updateChildValues(yourMatchData)
             ref.child("users").child(myUID).child("matchesDisplayed").updateChildValues([uid : true])
             
             var notificationItem = [AnyHashable: Any]()
@@ -884,7 +1085,7 @@ class MainRootController: UIViewController {
                 self.view.layoutIfNeeded()
                 
                 }, completion: { (bool) in
-                    
+
                     if keepPlaying {
                         
                         print("back to last screen")
@@ -1298,6 +1499,10 @@ class MainRootController: UIViewController {
         
         searchController?.userController?.observeUsers()
         
+        searchController?.searchBarOutlet.text = nil
+        searchController?.searchBarActive = false
+        searchController?.userController?.globCollectionView.reloadData()
+        searchController?.cityController?.globCollectionView.reloadData()
         
         self.showNav(0.3) { (bool) in
             
@@ -1713,13 +1918,6 @@ class MainRootController: UIViewController {
                         
                     }
                     
-                    if let latitude = value["latitude"] as? CLLocationDegrees, let longitude = value["longitude"] as? CLLocationDegrees {
-                        
-                        let location = CLLocation(latitude: latitude, longitude: longitude)
-                        self.nearbyController?.queryNearby(location)
-                        
-                    }
-                    
                     if let interestedIn = value["interestedIn"] as? [String] {
                         
                         if interestedIn.count > 1 {
@@ -1771,9 +1969,10 @@ class MainRootController: UIViewController {
                         
                     }
 
-                    self.nearbyController?.globCollectionView.reloadData()
                     self.profileController?.globCollectionCell.reloadData()
                     self.squadCountController?.globTableViewOutlet.reloadData()
+                    self.facebookController?.globTableViewOutlet.reloadData()
+                    
                     
                     completion(value)
                     
@@ -1783,11 +1982,14 @@ class MainRootController: UIViewController {
     }
     
     func checkForMatches(){
+  
+        
+        var uidToShow: String?
+        
+        print(selfData["matchesDisplayed"])
         
         if let displayed = selfData["matchesDisplayed"] as? [String : Bool] {
-            
-            var uidToShow: String?
-            
+
             for (key, value) in displayed {
                 
                 if value == false {
@@ -1797,13 +1999,86 @@ class MainRootController: UIViewController {
                 }
             }
             
-            if uidToShow != nil {
+            if let uid = uidToShow {
+                
+                let userPushRef = FIRDatabase.database().reference().child("users").child(uid).child("pushToken")
+                userPushRef.keepSynced(true)
+                
+                userPushRef.observeSingleEvent(of: .value, with: { (snapshot) in
+                    
+                    if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
+                        
+                        if let myFirstName = self.selfData["firstName"] as? String, let myLastName = self.selfData["lastName"] as? String {
+                            
+                            appDelegate.pushMessage(uid: uid, token: token, message: "You've matched with \(myFirstName) \(myLastName)!")
+                            
+                        }
+                    }
+                })
+
                 
                 self.revealMatch(uidToShow, completion: { (bool) in
                     
                     print("match shown")
                     
                 })
+            }
+        }
+        
+        if uidToShow == nil {
+            
+            if let mySentMatches = selfData["sentMatches"] as? [String : Bool] {
+                
+                for (key, value) in mySentMatches {
+                    
+                    if !value {
+                        
+                        if let myUID = FIRAuth.auth()?.currentUser?.uid {
+                            
+                            let ref = FIRDatabase.database().reference().child("users").child(key).child("sentMatches").child(myUID)
+                            ref.keepSynced(true)
+                            
+                            ref.observeSingleEvent(of: .value, with: { (snapshot) in
+                                
+                                if snapshot.exists() {
+                                    
+                                    let userPushRef = FIRDatabase.database().reference().child("users").child(key).child("pushToken")
+                                    userPushRef.keepSynced(true)
+                                    
+                                    userPushRef.observeSingleEvent(of: .value, with: { (snapshot) in
+                                        
+                                        if let token = snapshot.value as? String, let appDelegate = UIApplication.shared.delegate as? AppDelegate {
+                                            
+                                            if let myFirstName = self.selfData["firstName"] as? String, let myLastName = self.selfData["lastName"] as? String {
+                                                
+                                                appDelegate.pushMessage(uid: key, token: token, message: "You've matched with \(myFirstName) \(myLastName)!")
+                                                
+                                            }
+                                        }
+                                    })
+                                    
+                                    let usersLocRef = FIRDatabase.database().reference().child("users")
+                                    usersLocRef.keepSynced(true)
+                                    
+                                    usersLocRef.child(key).child("matchesDisplayed").child(myUID).observeSingleEvent(of: .value, with: { (snapshot) in
+                                        
+                                        if !snapshot.exists() {
+                                            
+                                            usersLocRef.child(key).child("matchesDisplayed").updateChildValues([myUID : false])
+                                        }
+                                        
+                                    })
+     
+                                    usersLocRef.child(myUID).child("matchesDisplayed").child(key).setValue(false)
+                                    
+                                    
+                                    usersLocRef.child(myUID).child("sentMatches").updateChildValues([key : true])
+                                    
+                                }
+                            })
+                        }
+                    }
+                }
             }
         }
     }

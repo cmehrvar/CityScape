@@ -150,6 +150,12 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
             
             reusableView = cell
             
+        } else if kind == UICollectionElementKindSectionFooter {
+            
+            let cell = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionElementKindSectionFooter, withReuseIdentifier: "footerCell", for: indexPath) as! FooterCollectionCell
+            
+            reusableView = cell
+            
         }
         
         return reusableView
@@ -177,6 +183,27 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
     
     
     //ScrollView Delegates
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        
+        searchController?.rootController?.alpha0actionBar()
+        
+    }
+    
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        
+        if !decelerate {
+            
+            searchController?.rootController?.alpha1actionBar()
+            
+        }
+    }
+    
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        
+        searchController?.rootController?.alpha1actionBar()
+        
+    }
+
     func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
         
         if velocity.y > 0 {

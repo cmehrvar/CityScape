@@ -52,11 +52,19 @@ class NotificationController: UIViewController, UITableViewDelegate, UITableView
                                     
                                 }
                                 
-                            }else {
+                            } else if type == "postComment" {
                                 
+                                if let userUID = globNotifications[indexPath.row]["senderUid"] as? String {
+                                    
+                                    ref.child(userUID).child("postComment").child("read").setValue(true)
+                                    
+                                }
+ 
+                            } else {
+
                                 if let userUID = globNotifications[(indexPath as NSIndexPath).row]["uid"] as? String {
                                     
-                                    if type == "addedYou" {
+                                    if type == "squadRequest" || type == "addedYou" {
                                         
                                         ref.child(userUID).child("squadRequest").child("read").setValue(true)
                                         
@@ -105,13 +113,19 @@ class NotificationController: UIViewController, UITableViewDelegate, UITableView
                 
                 
                 return cell
-            } else if type == "post" {
+            } else if type == "post" || type == "postComment" {
                 
                 let cell = tableView.dequeueReusableCell(withIdentifier: "postUpdateCell", for: indexPath) as! PostUpdateCell
                 cell.notificationController = self
                 cell.profileOutlet.layer.cornerRadius = ((60 - (8*2)) / 2)
                 cell.loadCell(globNotifications[(indexPath as NSIndexPath).row])
                 return cell
+            } else if type == "postComment" {
+                
+                
+                //PRESENT POST COMMENT CELL
+                
+                
             }
             
         }

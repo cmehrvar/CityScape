@@ -15,6 +15,10 @@ import FirebaseAuth
 class GoToChatCell: UICollectionViewCell {
     
     weak var vibesController: NewVibesController?
+    weak var profileController: ProfileController?
+    
+    var index = 0
+    
     var city = ""
     var postKey = ""
     var userUID = ""
@@ -29,11 +33,22 @@ class GoToChatCell: UICollectionViewCell {
     
     @IBAction func revealChat(_ sender: AnyObject) {
         
-        vibesController?.rootController?.toggleChat("posts", key: postKey, city: city, firstName: nil, lastName: nil, profile: nil, completion: { (bool) in
+        if let vibes = vibesController {
             
-            print("chat toggled", terminator: "")
+            vibes.rootController?.toggleChat("posts", key: postKey, city: city, firstName: nil, lastName: nil, profile: nil, completion: { (bool) in
+                
+                print("chat toggled", terminator: "")
+                
+            })
             
-        })
+        } else if let profile = profileController {
+            
+            profile.rootController?.toggleChat("posts", key: postKey, city: city, firstName: nil, lastName: nil, profile: nil, completion: { (bool) in
+                
+                print("chat toggled", terminator: "")
+                
+            })
+        }
     }
 
     @IBAction func report(_ sender: AnyObject) {
@@ -80,14 +95,15 @@ class GoToChatCell: UICollectionViewCell {
                     
                     myRef.child("reportedUsers").child(scopeUID).setValue(true)
                     
-                    yourRef.child("squad").child(scopeUID).removeValue()
-                    yourRef.child("matches").child(scopeUID).removeValue()
-                    yourRef.child("notifications").child(scopeUID).removeValue()
+                    yourRef.child("squad").child(selfUID).removeValue()
+                    yourRef.child("matches").child(selfUID).removeValue()
+                    yourRef.child("notifications").child(selfUID).removeValue()
+                    yourRef.child("squadRequests").child(selfUID).removeValue()
                     
                     myRef.child("squad").child(scopeUID).removeValue()
                     myRef.child("matches").child(scopeUID).removeValue()
                     myRef.child("notifications").child(scopeUID).removeValue()
-                    
+                    myRef.child("squadRequests").child(scopeUID).removeValue()
                     
                     if let myReported = self.vibesController?.rootController?.selfData["reportedUsers"] as? [String : Bool] {
                         
@@ -143,18 +159,21 @@ class GoToChatCell: UICollectionViewCell {
         
         if let uid = data["userUID"] as? String {
             
-            if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+            if let selfUID = FIRAuth.auth()?.currentUser?.uid  {
                 
-                if uid == selfUID {
+                if vibesController != nil {
                     
-                    self.reportIcon.image = nil
-                    self.reportOutlet.isEnabled = false
-                    
-                } else {
-                    
-                    self.reportIcon.image = UIImage(named: "reportIcon")
-                    self.reportOutlet.isEnabled = true
-                    
+                    if uid == selfUID {
+                        
+                        self.reportIcon.image = nil
+                        self.reportOutlet.isEnabled = false
+                        
+                    } else {
+                        
+                        self.reportIcon.image = UIImage(named: "reportIcon")
+                        self.reportOutlet.isEnabled = true
+                        
+                    } 
                 }
             }
 
@@ -174,14 +193,30 @@ class GoToChatCell: UICollectionViewCell {
             
         }
         
-        if data["messages"] != nil {
+        if let profile = profileController {
             
-            buttonOutlet.setTitle("Reveal chat", for: UIControlState())
+            if profile.globThirdMessages[index]["firstName"] == nil {
+                
+                buttonOutlet.setTitle("Start the conversation!", for: UIControlState())
+                
+            } else {
+                
+                buttonOutlet.setTitle("Reveal chat", for: UIControlState())
+                
+            }
+        }
+        
+        if let vibes = vibesController {
             
-        } else {
-            
-            buttonOutlet.setTitle("Start the conversation!", for: UIControlState())
-            
+            if vibes.globThirdMessages[index]["firstName"] == nil {
+                
+                buttonOutlet.setTitle("Start the conversation!", for: UIControlState())
+                
+            } else {
+                
+                buttonOutlet.setTitle("Reveal chat", for: UIControlState())
+                
+            }
         }
     }
     
@@ -190,5 +225,4 @@ class GoToChatCell: UICollectionViewCell {
             contentView.frame = bounds
         }
     }
-
 }
