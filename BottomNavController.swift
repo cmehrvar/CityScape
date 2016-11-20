@@ -140,18 +140,15 @@ class BottomNavController: UIViewController {
     }
     
     
-    
-    override func viewDidAppear(_ animated: Bool) {
-        
-        torontoOutlet.adjustsFontSizeToFitWidth = true
-        torontoOutlet.baselineAdjustment = .none
-        
-    }
+
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
-                
+        
+        torontoOutlet.adjustsFontSizeToFitWidth = true
+        torontoOutlet.baselineAdjustment = .none
+        
         nearbyButtonOutlet.adjustsImageWhenHighlighted = false
         messagesButtonOutlet.adjustsImageWhenHighlighted = false
 

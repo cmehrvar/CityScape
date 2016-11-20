@@ -42,6 +42,31 @@ class TopNavBarController: UIViewController {
     
     @IBAction func logoToHome(_ sender: AnyObject) {
         
+        if let currentTab = rootController?.currentTab {
+            
+            if currentTab == 1 {
+                
+                rootController?.nearbyController?.globCollectionView.setContentOffset(CGPoint.zero, animated: true)
+                
+                if let lastLocation = rootController?.nearbyController?.globLocation {
+                    
+                    rootController?.nearbyController?.queryNearby(lastLocation)
+                    
+                }
+                
+            } else if currentTab == 2 {
+                
+                rootController?.vibesFeedController?.globCollectionView.setContentOffset(CGPoint.zero, animated: true)
+                rootController?.vibesFeedController?.globCollectionView.reloadData()
+                
+            } else if currentTab == 3 {
+                
+                rootController?.messagesController?.globTableView.setContentOffset(CGPoint.zero, animated: true)
+                rootController?.messagesController?.globTableView.reloadData()
+                
+            }
+        }
+
         rootController?.toggleHome({ (bool) in
             
             print("home toggled", terminator: "")

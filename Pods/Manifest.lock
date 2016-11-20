@@ -43,7 +43,6 @@ PODS:
     - FirebaseAnalytics (~> 3.2)
   - FirebaseInstanceID (1.0.8)
   - FLAnimatedImage (1.0.12)
-  - Fusuma (0.5.3)
   - GoogleInterchangeUtilities (1.2.1):
     - GoogleSymbolUtilities (~> 1.0)
   - GoogleNetworkingUtilities (1.2.1):
@@ -77,7 +76,6 @@ DEPENDENCIES:
   - Firebase/Auth
   - Firebase/Database
   - FLAnimatedImage
-  - Fusuma (~> 0.5.3)
   - JSQMessagesViewController
   - NVActivityIndicatorView
   - NWPusher
@@ -100,7 +98,6 @@ SPEC CHECKSUMS:
   FirebaseDatabase: 59bea2e7dfd81b3b8b2f8e396caf1a52c2ced6f7
   FirebaseInstanceID: ba1e640935235e5fac39dfa816fe7660e72e1a8a
   FLAnimatedImage: 4a0b56255d9b05f18b6dd7ee06871be5d3b89e31
-  Fusuma: 02ffb3a9943792519f2c0972263b750acb550a49
   GoogleInterchangeUtilities: def8415a862effc67d549d5b5b0b9c7a2f97d4de
   GoogleNetworkingUtilities: 3e83269048cfb498dc7ec83ab36813360965c74f
   GoogleParsingUtilities: 30b3896f9ee167dc78747f013d3de157ced1cadf
@@ -114,6 +111,6 @@ SPEC CHECKSUMS:
   SDWebImage: 35f9627a3e44b4f292a8a8ce6a531fa488239b91
   THLabel: 1a23e71d7738abfeacaf22ab409b981209b105ae
 
-PODFILE CHECKSUM: 90490e3f44f5dab1cc0b4aabe9d82ce43f6fc0ca
+PODFILE CHECKSUM: fb6fbeeef1b9d44cdf7060bfbf7ad8727eaf3036
 
 COCOAPODS: 1.0.1

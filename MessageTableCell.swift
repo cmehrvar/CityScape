@@ -222,8 +222,6 @@ class MessageTableCell: UITableViewCell {
         // Initialization code
         
         onlineIndicatorOutlet.layer.cornerRadius = 8
-        onlineIndicatorOutlet.layer.borderWidth = 2
-        onlineIndicatorOutlet.layer.borderColor = UIColor.white.cgColor
         
     }
     

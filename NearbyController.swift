@@ -161,9 +161,9 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
             }
             
             
-            if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.rootController?.selfData, let myGender = selfData["gender"] as? String {
+            if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.rootController?.selfData, let myGender = selfData["gender"] as? String, let myInterests = selfData["interestedIn"] as? [String] {
                 
-                FIRDatabase.database().reference().child("userLocations").child(selfUID).updateChildValues(["gender" : myGender, "l" : [scopeLocation.coordinate.latitude, scopeLocation.coordinate.longitude]])
+                FIRDatabase.database().reference().child("userLocations").child(selfUID).updateChildValues(["gender" : myGender, "interests" : myInterests, "l" : [scopeLocation.coordinate.latitude, scopeLocation.coordinate.longitude]])
                 
             }
         }
@@ -184,97 +184,106 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
                 
                 for (key, locationValue) in value {
 
-                    if let locationUID = key as? String, let dictLocationValue = locationValue as? [AnyHashable : Any], let gender = dictLocationValue["gender"] as? String, let location = dictLocationValue["l"] as? [CLLocationDegrees] {
+                    if let locationUID = key as? String, let dictLocationValue = locationValue as? [AnyHashable : Any], let yourGender = dictLocationValue["gender"] as? String, let location = dictLocationValue["l"] as? [CLLocationDegrees], let yourInterests = dictLocationValue["interests"] as? [String] {
                         
                         let latitude = location[0]
                         let longitude = location[1]
                         
-                        if let myReported = self.rootController?.selfData["reportedUsers"] as? [String : Bool] {
+                        if let myUID = FIRAuth.auth()?.currentUser?.uid {
                             
-                            if myReported[locationUID] == nil {
+                            if locationUID != myUID {
                                 
-                                var add = true
-                                
-                                if self.dismissedCells[locationUID] != nil {
+                                if let myReported = self.rootController?.selfData["reportedUsers"] as? [String : Bool] {
                                     
-                                    add = false
-                                    
-                                } /*else if self.addedCells[locationUID] != nil {
-                                    
-                                    add = false
-                                    
-                                }*/
-                                
-                                if add {
-                                    
-                                    //self.addedCells[locationUID] = true
-                                    
-                                    var isInterested = false
-                                    
-                                    if let interestedIn = self.rootController?.selfData["interestedIn"] as? [String] {
+                                    if myReported[locationUID] == nil {
                                         
-                                        for interest in interestedIn {
+                                        var add = true
+                                        
+                                        if self.dismissedCells[locationUID] != nil {
                                             
-                                            if interest == gender {
+                                            add = false
+                                            
+                                        }
+                                        
+                                        if add {
+                                            
+                                            var iWantYou = false
+                                            var youWantMe = false
+                                            
+                                            if let myInterests = self.rootController?.selfData["interestedIn"] as? [String], let myGender = self.rootController?.selfData["gender"] as? String {
                                                 
-                                                isInterested = true
+                                                for myInterest in myInterests {
+                                                    
+                                                    if myInterest == yourGender {
+                                                        
+                                                        iWantYou = true
+                                                        
+                                                    }
+                                                }
+                                                
+                                                for yourInterest in yourInterests {
+                                                    
+                                                    if yourInterest == myGender {
+                                                        
+                                                        youWantMe = true
+                                                        
+                                                    }
+                                                }
+                                                
+                                                if iWantYou && youWantMe {
+                                                    
+                                                    let point = CLLocation(latitude: latitude, longitude: longitude)
+                                                    let locationData: [AnyHashable : Any] = ["uid" : locationUID, "point" : point]
+                                                    locations.append(locationData)
+                                                    
+                                                }
+                                            }
+                                        }
+                                    }
+                                    
+                                } else {
+                                    
+                                    var add = true
+                                    
+                                    if self.dismissedCells[locationUID] != nil {
+                                        
+                                        add = false
+                                        
+                                    }
+                                    
+                                    if add {
+                                        
+                                        var iWantYou = false
+                                        var youWantMe = false
+                                        
+                                        if let myInterests = self.rootController?.selfData["interestedIn"] as? [String], let myGender = self.rootController?.selfData["gender"] as? String {
+                                            
+                                            for myInterest in myInterests {
+                                                
+                                                if myInterest == yourGender {
+                                                    
+                                                    iWantYou = true
+                                                    
+                                                }
+                                            }
+                                            
+                                            for yourInterest in yourInterests {
+                                                
+                                                if yourInterest == myGender {
+                                                    
+                                                    youWantMe = true
+                                                    
+                                                }
+                                            }
+                                            
+                                            if iWantYou && youWantMe {
+                                                
+                                                let point = CLLocation(latitude: latitude, longitude: longitude)
+                                                let locationData: [AnyHashable : Any] = ["uid" : locationUID, "point" : point]
+                                                locations.append(locationData)
                                                 
                                             }
                                         }
-                                        
-                                        if isInterested {
-       
-                                            let point = CLLocation(latitude: latitude, longitude: longitude)
-                                            let locationData: [AnyHashable : Any] = ["uid" : locationUID, "point" : point]
-                                            locations.append(locationData)
-                                            
-                                        }
-                                    }
-                                }
-                            }
-                            
-                        } else {
-                            
-                            var add = true
-                            
-                            if self.dismissedCells[locationUID] != nil {
-                                
-                                add = false
-                                
-                            }
-                            
-                                /*
-                            else if self.addedCells[locationUID] != nil {
-                                
-                                print(self.addedCells)
-                                
-                                add = false
-                                
-                            }
-                            */
-                            if add {
-                                
-                                //self.addedCells[locationUID] = true
-                                
-                                var isInterested = false
-                                
-                                if let interestedIn = self.rootController?.selfData["interestedIn"] as? [String] {
-                                    
-                                    for interest in interestedIn {
-                                        
-                                        if interest == gender {
-                                            
-                                            isInterested = true
-                                            
-                                        }
-                                    }
-                                    
-                                    if isInterested {
-
-                                        let point = CLLocation(latitude: latitude, longitude: longitude)
-                                        let locationData: [AnyHashable : Any] = ["uid" : locationUID, "point" : point]
-                                        locations.append(locationData)
-  
                                     }
                                 }
                             }

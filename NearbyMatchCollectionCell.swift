@@ -178,7 +178,7 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
                         
                     }
                     
-                    if let status = userData["status"] as? String {
+                    if let status = userData["currentStatus"] as? String {
                         
                         self.occupationOutlet.text = status
                         

@@ -137,7 +137,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         AWSNetworkingConfiguration().timeoutIntervalForResource = 15
         
-        AdobeUXAuthManager.shared().setAuthenticationParametersWithClientID(CLIENT_ID, withClientSecret: CLIENT_SECRET)
+        //AdobeUXAuthManager.shared().setAuthenticationParametersWithClientID(CLIENT_ID, withClientSecret: CLIENT_SECRET)
         
         do {
             try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryAmbient)

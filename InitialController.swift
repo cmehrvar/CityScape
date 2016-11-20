@@ -20,7 +20,6 @@ class InitialController: UIViewController {
         
         FIRAuth.auth()?.addStateDidChangeListener({ (auth, user) in
 
-            
             if user != nil && FBSDKAccessToken.current() != nil {
                 
                 let vc = self.storyboard?.instantiateViewController(withIdentifier: "mainRootController") as! MainRootController
@@ -53,53 +52,11 @@ class InitialController: UIViewController {
                     print(error)
                 }
                 
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "initial") as! LogInController
-                self.present(vc, animated: true, completion: nil)
-                
-            }
-
-                
-            
-            
-            
-            /*
-            if user != nil && FBSDKAccessToken.current() != nil {
-                
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "mainRootController") as! MainRootController
-                
-                self.present(vc, animated: true, completion: {
-
-                    vc.setStage()
+                if let vc = self.storyboard?.instantiateViewController(withIdentifier: "initial") as? LogInController {
+                    self.present(vc, animated: true, completion: nil)
                     
-                    vc.loadSelfData({ (value) in
-                        
-                        print("self data loaded")
-                        
-                    })
-                    
-                    vc.toggleNearby({ (bool) in
-                        
-                        print("nearby toggled")
-                        
-                    })
-                    
-                })
-
-            } else {
-                
-                FBSDKLoginManager().logOut()
-                
-                do {
-                    try FIRAuth.auth()?.signOut()
-                } catch let error {
-                    print(error)
                 }
-                
-                let vc = self.storyboard?.instantiateViewController(withIdentifier: "initial") as! LogInController
-                self.present(vc, animated: true, completion: nil)
-                
             }
- */
         })
         
         

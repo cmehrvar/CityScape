@@ -12,20 +12,16 @@ import Firebase
 import FirebaseDatabase
 import FirebaseAuth
 import SDWebImage
-import Fusuma
 import AWSS3
 import AWSCore
 import AWSCognito
-//import Player
 
-class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRecognizerDelegate {
+class CommentController: JSQMessagesViewController, UIGestureRecognizerDelegate {
     
     weak var rootController: MainRootController?
     
     var maxContentOffset = CGFloat()
-    
-    //JSQData
-    //var videoPlayers = [String : Player]()
+
     var passedRef = ""
     var typeOfChat = ""
     var currentKey = ""
@@ -290,7 +286,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
     //Did press accessory button
     override func didPressAccessoryButton(_ sender: UIButton!) {
         
-        presentFusumaCamera()
+        //presentFusumaCamera()
         
         
     }
@@ -726,6 +722,7 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
         }
     }
     
+    /*
     func presentFusumaCamera(){
         
         UIApplication.shared.isStatusBarHidden = true
@@ -752,6 +749,8 @@ class CommentController: JSQMessagesViewController, FusumaDelegate, UIGestureRec
         
     }
     
+ */
+ 
     func beganTyping(){
         
         let ref = FIRDatabase.database().reference()

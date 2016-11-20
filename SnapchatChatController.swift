@@ -12,13 +12,12 @@ import Firebase
 import FirebaseDatabase
 import FirebaseAuth
 import SDWebImage
-import Fusuma
 import AWSS3
 import AWSCore
 import AWSCognito
 //import Player
 
-class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, UIGestureRecognizerDelegate {
+class SnapchatChatController: JSQMessagesViewController, UIGestureRecognizerDelegate {
     
     weak var snapchatController: SnapchatViewController?
     
@@ -149,7 +148,7 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, UIGestu
     //Did press accessory button
     override func didPressAccessoryButton(_ sender: UIButton!) {
         
-        presentFusumaCamera()
+        //presentFusumaCamera()
         
         
     }
@@ -277,6 +276,7 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, UIGestu
         }
     }
     
+    /*
     func presentFusumaCamera(){
         
         let fusuma = FusumaViewController()
@@ -300,7 +300,7 @@ class SnapchatChatController: JSQMessagesViewController, FusumaDelegate, UIGestu
         print("camera unauthorized")
         
     }
-    
+    */
     func beganTyping(){
         
         let ref = FIRDatabase.database().reference()

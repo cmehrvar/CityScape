@@ -105,10 +105,6 @@
 		A3D119791D26F0B0009D7EAB /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A3D119781D26F0B0009D7EAB /* SystemConfiguration.framework */; };
 		A3D1197B1D26F0BC009D7EAB /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A3D1197A1D26F0BB009D7EAB /* libc++.tbd */; };
 		A3D1197D1D26F0C3009D7EAB /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A3D1197C1D26F0C3009D7EAB /* libz.tbd */; };
-		A3D1197F1D26F10E009D7EAB /* AdobeCreativeSDKCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A3D1197E1D26F10E009D7EAB /* AdobeCreativeSDKCore.framework */; };
-		A3D119841D26F27E009D7EAB /* AdobeCreativeSDKImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A3D119831D26F27E009D7EAB /* AdobeCreativeSDKImage.framework */; };
-		A3D119871D26F5BA009D7EAB /* AdobeCreativeSDKImageResources.bundle in Resources */ = {isa = PBXBuildFile; fileRef = A3D119861D26F5BA009D7EAB /* AdobeCreativeSDKImageResources.bundle */; };
-		A3D119891D26F5E6009D7EAB /* AdobeCreativeSDKCoreResources.bundle in Resources */ = {isa = PBXBuildFile; fileRef = A3D119881D26F5E6009D7EAB /* AdobeCreativeSDKCoreResources.bundle */; };
 		A3D11B2E1D575499006884BF /* NearbyOnline.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3D11B2D1D575499006884BF /* NearbyOnline.swift */; };
 		A3D11B3F1D5763A8006884BF /* GeoFire.m in Sources */ = {isa = PBXBuildFile; fileRef = A3D11B361D5763A8006884BF /* GeoFire.m */; };
 		A3D11B401D5763A8006884BF /* GFQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = A3D11B381D5763A8006884BF /* GFQuery.m */; };
@@ -137,6 +133,7 @@
 		A3E8AF491D8A29C400C60A08 /* CityController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E8AF481D8A29C400C60A08 /* CityController.swift */; };
 		A3E8AF4B1D8A29DF00C60A08 /* UserController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E8AF4A1D8A29DF00C60A08 /* UserController.swift */; };
 		A3E8AF4D1D8A2B6100C60A08 /* UserCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E8AF4C1D8A2B6100C60A08 /* UserCollectionCell.swift */; };
+		A3E94C0D1DDCDD500084374A /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3E94C0C1DDCDD500084374A /* CameraViewController.swift */; };
 		A3F3B9A01D87198D00313D59 /* SearchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3F3B99F1D87198D00313D59 /* SearchController.swift */; };
 		A3F3B9A21D8730EC00313D59 /* CityCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3F3B9A11D8730EC00313D59 /* CityCollectionCell.swift */; };
 		A3F3B9A41D87934A00313D59 /* HeaderCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3F3B9A31D87934A00313D59 /* HeaderCollectionCell.swift */; };
@@ -270,11 +267,7 @@
 		A3D119781D26F0B0009D7EAB /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		A3D1197A1D26F0BB009D7EAB /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		A3D1197C1D26F0C3009D7EAB /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
-		A3D1197E1D26F10E009D7EAB /* AdobeCreativeSDKCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AdobeCreativeSDKCore.framework; sourceTree = "<group>"; };
 		A3D119801D26F12E009D7EAB /* CityScape-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CityScape-Bridging-Header.h"; sourceTree = "<group>"; };
-		A3D119831D26F27E009D7EAB /* AdobeCreativeSDKImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AdobeCreativeSDKImage.framework; sourceTree = "<group>"; };
-		A3D119861D26F5BA009D7EAB /* AdobeCreativeSDKImageResources.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = AdobeCreativeSDKImageResources.bundle; path = AdobeCreativeSDKImage.framework/Versions/A/Resources/AdobeCreativeSDKImageResources.bundle; sourceTree = "<group>"; };
-		A3D119881D26F5E6009D7EAB /* AdobeCreativeSDKCoreResources.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = AdobeCreativeSDKCoreResources.bundle; sourceTree = "<group>"; };
 		A3D11B2D1D575499006884BF /* NearbyOnline.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NearbyOnline.swift; sourceTree = "<group>"; };
 		A3D11B301D576351006884BF /* GeoFire.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoFire.h; sourceTree = "<group>"; };
 		A3D11B311D576351006884BF /* GFQuery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GFQuery.h; sourceTree = "<group>"; };
@@ -312,6 +305,7 @@
 		A3E8AF481D8A29C400C60A08 /* CityController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CityController.swift; sourceTree = "<group>"; };
 		A3E8AF4A1D8A29DF00C60A08 /* UserController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserController.swift; sourceTree = "<group>"; };
 		A3E8AF4C1D8A2B6100C60A08 /* UserCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserCollectionCell.swift; sourceTree = "<group>"; };
+		A3E94C0C1DDCDD500084374A /* CameraViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
 		A3F3B99F1D87198D00313D59 /* SearchController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchController.swift; sourceTree = "<group>"; };
 		A3F3B9A11D8730EC00313D59 /* CityCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CityCollectionCell.swift; sourceTree = "<group>"; };
 		A3F3B9A31D87934A00313D59 /* HeaderCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HeaderCollectionCell.swift; sourceTree = "<group>"; };
@@ -332,9 +326,7 @@
 				A3D1197D1D26F0C3009D7EAB /* libz.tbd in Frameworks */,
 				A3D1197B1D26F0BC009D7EAB /* libc++.tbd in Frameworks */,
 				A3D119791D26F0B0009D7EAB /* SystemConfiguration.framework in Frameworks */,
-				A3D1197F1D26F10E009D7EAB /* AdobeCreativeSDKCore.framework in Frameworks */,
 				A3D119771D26F0AA009D7EAB /* MobileCoreServices.framework in Frameworks */,
-				A3D119841D26F27E009D7EAB /* AdobeCreativeSDKImage.framework in Frameworks */,
 				5D86ED9AFC6D01CC02949724 /* Pods_CityScape.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -455,7 +447,6 @@
 				A3A11A451DCE514700CA245E /* atlasDevelopment.p12 */,
 				A3A11A431DCE513A00CA245E /* atlasDistribution.p12 */,
 				A3FC18931D3412AB0031D165 /* Extensions */,
-				A3D1198A1D271472009D7EAB /* Adobe Frameworks */,
 				A3BB98171D12E66E00BD384F /* Views */,
 				A3BB98161D12E65300BD384F /* ViewControllers */,
 				A3BB98151D12E64300BD384F /* Storyboards */,
@@ -563,6 +554,7 @@
 		A36A42701D61CEFA0062E9AD /* CameraStuff */ = {
 			isa = PBXGroup;
 			children = (
+				A3E94C0C1DDCDD500084374A /* CameraViewController.swift */,
 				A3D119721D262290009D7EAB /* HandlePostController.swift */,
 				A318308C1DA6E87900D40C88 /* SendPostSquadCell.swift */,
 			);
@@ -819,17 +811,6 @@
 			name = Chat;
 			sourceTree = "<group>";
 		};
-		A3D1198A1D271472009D7EAB /* Adobe Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				A3D119881D26F5E6009D7EAB /* AdobeCreativeSDKCoreResources.bundle */,
-				A3D119861D26F5BA009D7EAB /* AdobeCreativeSDKImageResources.bundle */,
-				A3D1197E1D26F10E009D7EAB /* AdobeCreativeSDKCore.framework */,
-				A3D119831D26F27E009D7EAB /* AdobeCreativeSDKImage.framework */,
-			);
-			name = "Adobe Frameworks";
-			sourceTree = "<group>";
-		};
 		A3D11B2F1D576342006884BF /* GeoFire */ = {
 			isa = PBXGroup;
 			children = (
@@ -1052,7 +1033,7 @@
 			attributes = {
 				LastSwiftMigration = 0730;
 				LastSwiftUpdateCheck = 0730;
-				LastUpgradeCheck = 0800;
+				LastUpgradeCheck = 0810;
 				ORGANIZATIONNAME = "Cina Mehrvar";
 				TargetAttributes = {
 					A353F0C71D1224BC009A2182 = {
@@ -1103,10 +1084,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A3D119891D26F5E6009D7EAB /* AdobeCreativeSDKCoreResources.bundle in Resources */,
 				A3A5D2431DAEF49E0030E95F /* background.gif in Resources */,
 				A3A11A461DCE514700CA245E /* atlasDevelopment.p12 in Resources */,
-				A3D119871D26F5BA009D7EAB /* AdobeCreativeSDKImageResources.bundle in Resources */,
 				A3DB26221DAC3E1B0088063B /* PROXIMANOVASOFT-REGULAR.OTF in Resources */,
 				A3DB26201DAC3E040088063B /* PROXIMA NOVA SOFT W03 SEMIBOLD.TTF in Resources */,
 				A353F0D61D1224BC009A2182 /* LaunchScreen.storyboard in Resources */,
@@ -1361,6 +1340,7 @@
 				A3CA89621D284AB200590516 /* TableViewProfilePic.swift in Sources */,
 				A3BB982B1D1C5ACD00BD384F /* SignInController.swift in Sources */,
 				A35DB73B1D7BB3FA00409D16 /* ImageVibeCollectionCell.swift in Sources */,
+				A3E94C0D1DDCDD500084374A /* CameraViewController.swift in Sources */,
 				A3BB98291D1B63D800BD384F /* ProfileSignUpController.swift in Sources */,
 				A3BB98191D12E67E00BD384F /* TextFields.swift in Sources */,
 				A32C2C5D1D58E43C0064D707 /* AlertControllerView.swift in Sources */,

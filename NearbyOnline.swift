@@ -15,8 +15,6 @@ class NearbyOnline: UIView {
         super.awakeFromNib()
         
         self.layer.cornerRadius = 6
-        self.layer.borderColor = UIColor.white.cgColor
-        self.layer.borderWidth = 1.5
         self.clipsToBounds = true
         
     }

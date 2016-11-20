@@ -54,11 +54,6 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>Fusuma.xcscheme</key>
-		<dict>
-			<key>isShown</key>
-			<false/>
-		</dict>
 		<key>JSQMessagesViewController.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -122,11 +117,6 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>1B31F16537E47C10B7DCC947CE0409E6</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
 		<key>1ED4DFAAD25E1999D0244868457A351E</key>
 		<dict>
 			<key>primary</key>
@@ -147,12 +137,12 @@
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>6EDC37F3FA92533C6AC3562458AA91F1</key>
+		<key>602C94A81A21670C8035E527640535DC</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>7380ABD049E12DCFEC9B9E1D2D52C627</key>
+		<key>6EDC37F3FA92533C6AC3562458AA91F1</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -167,22 +157,22 @@
 			<key>primary</key>
 			<true/>
 		</dict>
+		<key>94148AE40C282FA2C1F566CA70134091</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>9D0F2E5EA1B46A5D72FFD42B0B39DBBC</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
+		<key>A5A9E8E936FB1B47EE87BC832EFDC61E</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>A8D6C169B703F406C4B4E2AEED7E7D13</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>B23429EC7D01FF349DE5C15D3300FF93</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>B6DA1BDD83124C63F006EF628720357D</key>
 		<dict>
 			<key>primary</key>
 			<true/>

@@ -358,31 +358,11 @@ class HandlePostController: UIViewController, UITextViewDelegate, UITableViewDel
         
         clearPlayers()
         
-        if isImage {
+        rootController?.toggleHandlePost(nil, videoURL: nil, isImage: true, completion: { (bool) in
             
-            let editor = AdobeUXImageEditorViewController(image: image)
-            editor.delegate = rootController?.actionsController
+            print("handle post toggled")
             
-            rootController?.actionsController?.present(editor, animated: false, completion: {
-                
-                self.rootController?.toggleHandlePost(nil, videoURL: nil, isImage: true, completion: { (bool) in
-                    
-                    print("handle post toggled")
-                    
-                })
-            })
-            
-        } else {
-            
-            self.rootController?.cameraTransitionOutlet.alpha = 1
-            self.rootController?.actionsController?.presentFusumaCamera()
-            
-            self.rootController?.toggleHandlePost(nil, videoURL: nil, isImage: true, completion: { (bool) in
-                
-                print("handle post toggled")
-                
-            })
-        }
+        })
     }
     
     @IBAction func shareAction(_ sender: AnyObject) {
@@ -931,7 +911,7 @@ class HandlePostController: UIViewController, UITextViewDelegate, UITableViewDel
             })
             
             
-        } else if velocity.y < -1 {
+        } else if velocity.y < 0 {
             
             print("down")
             

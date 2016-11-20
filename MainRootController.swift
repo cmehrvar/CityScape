@@ -12,7 +12,6 @@ import FirebaseDatabase
 import FirebaseAuth
 import CoreLocation
 import SDWebImage
-import Fusuma
 import AVFoundation
 
 fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
@@ -36,7 +35,7 @@ fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
 }
 
 
-class MainRootController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewControllerDelegate {
+class MainRootController: UIViewController {
     
     var selfData = [AnyHashable: Any]()
     
@@ -63,6 +62,7 @@ class MainRootController: UIViewController, FusumaDelegate, AdobeUXImageEditorVi
     var contactUsRevealed = false
     var settingsIsRevealed = false
     var addFromFacebookIsRevealed = false
+    var cameraRevealed = false
     
     var vibesLoadedFromSelf = false
     
@@ -135,6 +135,7 @@ class MainRootController: UIViewController, FusumaDelegate, AdobeUXImageEditorVi
     @IBOutlet weak var addFromFacebookContainer: UIView!
     @IBOutlet weak var cameraButtonIcon: UIButton!
     @IBOutlet weak var actionsContainer: UIView!
+    @IBOutlet weak var cameraContainer: UIView!
     
 
     //View Controllers
@@ -162,6 +163,7 @@ class MainRootController: UIViewController, FusumaDelegate, AdobeUXImageEditorVi
     weak var contactController: ContactUsController?
     weak var settingsController: SettingsViewController?
     weak var facebookController: AddFromFacebookController?
+    weak var cameraController: CameraViewController?
 
     @IBAction func composeMessage(_ sender: AnyObject) {
         
@@ -183,11 +185,16 @@ class MainRootController: UIViewController, FusumaDelegate, AdobeUXImageEditorVi
             
             print("camera")
             
-            self.presentFusumaCamera()
-            
+            self.toggleCamera(completion: { (bool) in
+                
+                print("camera presented")
+                
+            })            
         })
     }
     
+    
+    /*
     func presentFusumaCamera(){
         
         UIApplication.shared.isStatusBarHidden = true
@@ -207,6 +214,8 @@ class MainRootController: UIViewController, FusumaDelegate, AdobeUXImageEditorVi
     }
     
     //Adobe Delegates
+    
+    
     func photoEditor(_ editor: AdobeUXImageEditorViewController, finishedWith image: UIImage?) {
 
         editor.dismiss(animated: false) {
@@ -245,6 +254,8 @@ class MainRootController: UIViewController, FusumaDelegate, AdobeUXImageEditorVi
     }
     
     //Fusuma Delegates
+    
+    
     func fusumaImageSelected(_ image: UIImage) {
         
         print("image selected")
@@ -315,9 +326,10 @@ class MainRootController: UIViewController, FusumaDelegate, AdobeUXImageEditorVi
         self.cameraTransitionOutlet.alpha = 0
         
     }
-    
+    */
     func alpha0actionBar(){
         
+        /*
         UIView.animate(withDuration: 0.3) { 
             
             self.actionsContainer.alpha = 0
@@ -325,12 +337,13 @@ class MainRootController: UIViewController, FusumaDelegate, AdobeUXImageEditorVi
             self.view.layoutIfNeeded()
             
         }
-        
+        */
     }
     
     
     func alpha1actionBar(){
         
+        /*
         UIView.animate(withDuration: 0.3) {
             
             self.actionsContainer.alpha = 1
@@ -338,14 +351,56 @@ class MainRootController: UIViewController, FusumaDelegate, AdobeUXImageEditorVi
             self.view.layoutIfNeeded()
             
         }
+ */
         
     }
 
-    
-    
-    
-    
     //Toggle Functions
+    func toggleCamera(completion: @escaping (Bool) -> ()){
+        
+        var cameraAlpha: CGFloat = 0
+        UIApplication.shared.isStatusBarHidden = false
+        
+        cameraController?.cameraButtonOutlet.setTitleColor(UIColor.init(netHex: 0x077AFF), for: .normal)
+        cameraController?.videoButtonOutlet.setTitleColor(UIColor.white, for: .normal)
+        
+        cameraController?.captureImage = true
+        cameraController?.isRecording = false
+        cameraController?.videoTimeViewOutlet.alpha = 0
+        cameraController?.tapToTakeOutlet.text = "Tap to take a photo!"
+        cameraController?.flipCameraButtonOutlet.alpha = 1
+        cameraController?.videoTimeLabelOutlet.text = "10s"
+        
+        cameraController?.captureButtonOutlet.setImage(UIImage(named: "cameraIcon"), for: .normal)
+        
+        if !cameraRevealed {
+            
+            cameraAlpha = 1
+
+            //UIApplication.shared.isStatusBarHidden = true
+            
+        } else {
+            
+            //UIApplication.shared.isStatusBarHidden = false
+
+        }
+
+        cameraRevealed = !cameraRevealed
+        
+        UIView.animate(withDuration: 0.3, animations: {
+            
+            self.cameraContainer.alpha = cameraAlpha
+        
+            self.view.layoutIfNeeded()
+            
+        }) { (bool) in
+            
+            self.cameraController?.initializeCamera()
+            completion(bool)
+            
+        }
+    }
+
     func toggleAddFromFacebook(completion: @escaping (Bool) -> ()) {
         
         var offset: CGFloat = 0
@@ -478,23 +533,7 @@ class MainRootController: UIViewController, FusumaDelegate, AdobeUXImageEditorVi
         self.snapchatController?.view.endEditing(true)
         
         self.vibesFeedController?.navHidden = false
-        
-        if !chatRevealed {
-            
-            if self.currentTab == 1 {
-                self.nearbyController?.globCollectionView.setContentOffset(CGPoint.zero, animated: true)
-            } else if self.currentTab == 2 {
-                self.vibesFeedController?.globCollectionView.reloadData()
-                self.vibesFeedController?.globCollectionView.setContentOffset(CGPoint.zero, animated: true)
-            } else if self.currentTab == 3 {
-                
-                self.messagesController?.globTableView.setContentOffset(CGPoint.zero, animated: true)
-                
-            }
-        } 
-        
-        
-        
+
         var searchAlpha: CGFloat = 0
         var scopeSearchRevealed = false
         
@@ -641,12 +680,15 @@ class MainRootController: UIViewController, FusumaDelegate, AdobeUXImageEditorVi
 
             self.chatRevealed = false
             
-            if let location = self.nearbyController?.globLocation {
+            if self.currentTab != 1 {
                 
-                self.nearbyController?.queryNearby(location)
-                
+                if let location = self.nearbyController?.globLocation {
+                    
+                    self.nearbyController?.queryNearby(location)
+                    
+                }
             }
-            
+ 
             completion(complete)
             
         }) 
@@ -1151,7 +1193,7 @@ class MainRootController: UIViewController, FusumaDelegate, AdobeUXImageEditorVi
                 
                 topChatController?.type = "matches"
                 
-                topChatHeightConstOutlet.constant = 100
+                topChatHeightConstOutlet.constant = 85
                 topChatController?.singleTitleViewOutlet.alpha = 1
                 topChatController?.groupTopViewOutlet.alpha = 0
                 topChatController?.postTopViewOutlet.alpha = 0
@@ -1170,7 +1212,7 @@ class MainRootController: UIViewController, FusumaDelegate, AdobeUXImageEditorVi
                 
                 topChatController?.type = "squad"
                 
-                topChatHeightConstOutlet.constant = 100
+                topChatHeightConstOutlet.constant = 85
                 topChatController?.singleTitleViewOutlet.alpha = 1
                 topChatController?.groupTopViewOutlet.alpha = 0
                 topChatController?.postTopViewOutlet.alpha = 0
@@ -1188,7 +1230,7 @@ class MainRootController: UIViewController, FusumaDelegate, AdobeUXImageEditorVi
                 topChatController?.loadGroup()
                 topChatController?.globCollectionViewOutlet.setContentOffset(CGPoint.zero, animated: true)
                 
-                topChatHeightConstOutlet.constant = 236
+                topChatHeightConstOutlet.constant = 184
                 topChatController?.singleTitleViewOutlet.alpha = 0
                 topChatController?.groupTopViewOutlet.alpha = 1
                 topChatController?.postTopViewOutlet.alpha = 0
@@ -1205,7 +1247,7 @@ class MainRootController: UIViewController, FusumaDelegate, AdobeUXImageEditorVi
                     
                     topChatController?.loadPost()
                     
-                    topChatHeightConstOutlet.constant = 138
+                    topChatHeightConstOutlet.constant = 123
                     topChatController?.singleTitleViewOutlet.alpha = 0
                     topChatController?.groupTopViewOutlet.alpha = 0
                     topChatController?.postTopViewOutlet.alpha = 1
@@ -1498,6 +1540,7 @@ class MainRootController: UIViewController, FusumaDelegate, AdobeUXImageEditorVi
         clearVibesPlayers()
         
         searchController?.userController?.observeUsers()
+        searchController?.cityController?.observeCities()
         
         searchController?.searchBarOutlet.text = nil
         searchController?.searchBarActive = false
@@ -1590,7 +1633,7 @@ class MainRootController: UIViewController, FusumaDelegate, AdobeUXImageEditorVi
         
         UIView.animate(withDuration: 0.3, animations: {
             
-            self.topNavConstOutlet.constant = -115
+            self.topNavConstOutlet.constant = -100
             self.view.layoutIfNeeded()
             
         }, completion: { (complete) in
@@ -1604,7 +1647,7 @@ class MainRootController: UIViewController, FusumaDelegate, AdobeUXImageEditorVi
         
         UIView.animate(withDuration: 0.3, animations: {
             
-            self.bottomNavConstOutlet.constant = -50
+            self.bottomNavConstOutlet.constant = -40
             
             self.view.layoutIfNeeded()
             
@@ -1982,12 +2025,9 @@ class MainRootController: UIViewController, FusumaDelegate, AdobeUXImageEditorVi
     }
     
     func checkForMatches(){
-  
-        
+
         var uidToShow: String?
-        
-        print(selfData["matchesDisplayed"])
-        
+
         if let displayed = selfData["matchesDisplayed"] as? [String : Bool] {
 
             for (key, value) in displayed {
@@ -2544,6 +2584,12 @@ class MainRootController: UIViewController, FusumaDelegate, AdobeUXImageEditorVi
             facebookController = facebook
             facebookController?.mainRootController = self
             
+            
+        } else if segue.identifier == "cameraSegue" {
+            
+            let camera = segue.destination as? CameraViewController
+            cameraController = camera
+            cameraController?.rootController = self
             
         }
         

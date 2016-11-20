@@ -9,10 +9,9 @@
 import UIKit
 import Firebase
 import FirebaseAuth
-import Fusuma
 import AVFoundation
 
-class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEditorViewControllerDelegate {
+class ActionsViewController: UIViewController {
     
     weak var rootController: MainRootController?
 
@@ -21,6 +20,31 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
         
         UIApplication.shared.isStatusBarHidden = false
         
+        if let currentTab = rootController?.currentTab {
+            
+            if currentTab == 1 {
+                
+                rootController?.nearbyController?.globCollectionView.setContentOffset(CGPoint.zero, animated: true)
+                
+                if let lastLocation = rootController?.nearbyController?.globLocation {
+                    
+                    rootController?.nearbyController?.queryNearby(lastLocation)
+                    
+                }
+                
+            } else if currentTab == 2 {
+                
+                rootController?.vibesFeedController?.globCollectionView.setContentOffset(CGPoint.zero, animated: true)
+                rootController?.vibesFeedController?.globCollectionView.reloadData()
+                
+            } else if currentTab == 3 {
+                
+                rootController?.messagesController?.globTableView.setContentOffset(CGPoint.zero, animated: true)
+                rootController?.messagesController?.globTableView.reloadData()
+                
+            }
+        }
+
         rootController?.toggleHome({ (bool) in
             
             print("home toggled")
@@ -39,12 +63,6 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
                     
                     print("search revealed")
                     
-                    /*
-                    self.rootController?.toggleHome({ (bool) in
-                        
-                        
-                    })
-                    */
                 })
 
             } else {
@@ -58,19 +76,7 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
         }
     }
 
-    
-    @IBAction func camera(_ sender: AnyObject) {
-        
-        rootController?.showNav(0.3, completion: { (bool) in
-            
-            self.rootController?.clearVibesPlayers()
-            
-            print("camera")
-            
-            self.presentFusumaCamera()
-            
-        })
-    }
+
 
     
     @IBAction func globe(_ sender: AnyObject) {
@@ -125,6 +131,7 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
     
     
     //Functions
+    /*
     func presentFusumaCamera(){
         
         UIApplication.shared.isStatusBarHidden = true
@@ -274,7 +281,7 @@ class ActionsViewController: UIViewController, FusumaDelegate, AdobeUXImageEdito
         rootController?.cameraTransitionOutlet.alpha = 0
         
     }
-
+*/
 
     override func viewDidLoad() {
         super.viewDidLoad()

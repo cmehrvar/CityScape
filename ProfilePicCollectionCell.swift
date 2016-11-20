@@ -594,7 +594,11 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                     
                     self.profileController?.dismiss(animated: true, completion: {
                         
-                        self.profileController?.presentFusuma(imageToEdit)
+                        
+                        
+                        //PRESENT CAMERA
+                        
+                        
                         
                     })
                 }))
@@ -606,7 +610,10 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                     
                     self.profileController?.dismiss(animated: true, completion: {
                         
-                        self.profileController?.presentFusuma(imageToEdit)
+                        
+                        //PRESENT FUSUMA
+                        
+                        
                         
                     })
                 }))

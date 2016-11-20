@@ -23,67 +23,65 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
     //Functions
     func observeCities(){
         
-        if let selfData = searchController?.rootController?.selfData {
+        globCities.removeAll()
+        dataSourceForSearchResult.removeAll()
+        
+        let ref = FIRDatabase.database().reference().child("cityLocations")
+        ref.keepSynced(true)
+        
+        ref.observeSingleEvent(of: .value, with: { (snapshot) in
             
+            if let actualValue = snapshot.value as? [AnyHashable: Any] {
                 
-                let ref = FIRDatabase.database().reference().child("cityLocations")
-                ref.keepSynced(true)
+                var cities = [[AnyHashable: Any]]()
                 
-                ref.observeSingleEvent(of: .value, with: { (snapshot) in
+                for (_, value) in actualValue {
                     
-                    if let actualValue = snapshot.value as? [AnyHashable: Any] {
+                    if let city = value as? [AnyHashable: Any] {
                         
-                        var cities = [[AnyHashable: Any]]()
+                        cities.append(city)
                         
-                        for (_, value) in actualValue {
+                    }
+                }
+                
+                let sortedArray = cities.sorted(by: { (a: [AnyHashable: Any], b: [AnyHashable: Any]) -> Bool in
+                    
+                    if let latitudeA = a["latitude"] as? CLLocationDegrees, let latitudeB = b["latitude"] as? CLLocationDegrees, let longitudeA = a["longitude"] as? CLLocationDegrees, let longitudeB = b["longitude"] as? CLLocationDegrees, let myLatitude = self.searchController?.rootController?.selfData["latitude"] as? CLLocationDegrees, let myLongitude = self.searchController?.rootController?.selfData["longitude"] as? CLLocationDegrees {
+                        
+                        let center = CLLocation(latitude: myLatitude, longitude: myLongitude)
+                        
+                        let locA = CLLocation(latitude: latitudeA, longitude: longitudeA)
+                        let locB = CLLocation(latitude: latitudeB, longitude: longitudeB)
+                        
+                        if center.distance(from: locA) > center.distance(from: locB) {
                             
-                            if let city = value as? [AnyHashable: Any] {
-                                
-                                cities.append(city)
-                                
-                            }
-                        }
-                        
-                        let sortedArray = cities.sorted(by: { (a: [AnyHashable: Any], b: [AnyHashable: Any]) -> Bool in
-                            
-                            if let latitudeA = a["latitude"] as? CLLocationDegrees, let latitudeB = b["latitude"] as? CLLocationDegrees, let longitudeA = a["longitude"] as? CLLocationDegrees, let longitudeB = b["longitude"] as? CLLocationDegrees, let myLatitude = self.searchController?.rootController?.selfData["latitude"] as? CLLocationDegrees, let myLongitude = self.searchController?.rootController?.selfData["longitude"] as? CLLocationDegrees {
-                                
-                                let center = CLLocation(latitude: myLatitude, longitude: myLongitude)
-                                
-                                let locA = CLLocation(latitude: latitudeA, longitude: longitudeA)
-                                let locB = CLLocation(latitude: latitudeB, longitude: longitudeB)
-                                
-                                if center.distance(from: locA) > center.distance(from: locB) {
-                                    
-                                    return false
-                                    
-                                } else {
-                                    
-                                    return true
-                                    
-                                }
-                                
-                            } else {
-                                return false
-                            }
-                        })
-                        
-                        if sortedArray.count == 0 {
-                            
-                            self.globCities = cities
+                            return false
                             
                         } else {
                             
-                            self.globCities = sortedArray
+                            return true
                             
                         }
-
-                        self.globCollectionView.reloadData()
                         
+                    } else {
+                        return false
                     }
                 })
-            
-        }
+                
+                if sortedArray.count == 0 {
+                    
+                    self.globCities = cities
+                    
+                } else {
+                    
+                    self.globCities = sortedArray
+                    
+                }
+                
+                self.globCollectionView.reloadData()
+                
+            }
+        })
     }
 
     

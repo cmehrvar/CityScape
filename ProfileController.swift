@@ -10,7 +10,6 @@ import UIKit
 import Firebase
 import FirebaseDatabase
 import FirebaseAuth
-import Fusuma
 import AWSS3
 import AVFoundation
 import SDWebImage
@@ -35,7 +34,7 @@ fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
 }
 
 
-class ProfileController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, FusumaDelegate {
+class ProfileController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout{
     
     //Variables
     weak var rootController: MainRootController?
@@ -136,7 +135,7 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
         }
     }
     
-    
+    /*
     func fusumaDismissedWithImage(_ image: UIImage) {
         
         print("fusuma dismissed with image")
@@ -218,7 +217,7 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
             
         }
     }
-    
+    */
     func addUploadStuff(){
         
         let error = NSErrorPointer.init(nilLiteral: ())

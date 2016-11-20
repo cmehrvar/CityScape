@@ -90,7 +90,7 @@ class NotificationController: UIViewController, UITableViewDelegate, UITableView
                 
                 cell.notificationController = self
                 
-                cell.profilePictureOutlet.layer.cornerRadius = ((60 - (8*2)) / 2)
+                cell.profilePictureOutlet.layer.cornerRadius = (CGFloat((60 - (8*2)) / 2))
                 cell.loadCell(globNotifications[(indexPath as NSIndexPath).row])
                 return cell
                 
@@ -99,14 +99,14 @@ class NotificationController: UIViewController, UITableViewDelegate, UITableView
                 let cell = tableView.dequeueReusableCell(withIdentifier: "messageCell", for: indexPath) as! MessageCell
                 
                 cell.notificationController = self
-                cell.profileOutlet.layer.cornerRadius = ((60 - (8*2)) / 2)
+                cell.profileOutlet.layer.cornerRadius = (CGFloat((60 - (8*2)) / 2))
                 cell.loadCell(globNotifications[(indexPath as NSIndexPath).row])
                 return cell
                 
             } else if type == "likesYou" {
                 
                 let cell = tableView.dequeueReusableCell(withIdentifier: "likeCell", for: indexPath) as! LikeCell
-                cell.profileOutlet.layer.cornerRadius = ((60 - (8*2)) / 2)
+                cell.profileOutlet.layer.cornerRadius = (CGFloat((60 - (8*2)) / 2))
                 
                 cell.notificationController = self
                 cell.loadData(globNotifications[(indexPath as NSIndexPath).row])
@@ -117,17 +117,10 @@ class NotificationController: UIViewController, UITableViewDelegate, UITableView
                 
                 let cell = tableView.dequeueReusableCell(withIdentifier: "postUpdateCell", for: indexPath) as! PostUpdateCell
                 cell.notificationController = self
-                cell.profileOutlet.layer.cornerRadius = ((60 - (8*2)) / 2)
+                cell.profileOutlet.layer.cornerRadius = (CGFloat((60 - (8*2)) / 2))
                 cell.loadCell(globNotifications[(indexPath as NSIndexPath).row])
                 return cell
-            } else if type == "postComment" {
-                
-                
-                //PRESENT POST COMMENT CELL
-                
-                
             }
-            
         }
         
         return UITableViewCell()

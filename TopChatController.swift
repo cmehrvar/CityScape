@@ -12,11 +12,10 @@ import FirebaseDatabase
 import FirebaseAuth
 import NYAlertViewController
 import SDWebImage
-import Fusuma
 import AWSS3
 import AVFoundation
 
-class TopChatController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UITextFieldDelegate, FusumaDelegate {
+class TopChatController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UITextFieldDelegate {
     
     var asset: AVAsset?
     var item: AVPlayerItem?
@@ -341,6 +340,7 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
         })
     }
     
+    /*
     
     func presentFusuma(){
         
@@ -455,7 +455,7 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
         rootController?.cameraTransitionOutlet.alpha = 0
         
     }
-    
+    */
     
     func imageUploadRequest(_ image: UIImage, completion: @escaping (_ url: String, _ uploadRequest: AWSS3TransferManagerUploadRequest) -> ()) {
         
@@ -624,7 +624,7 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
                 
                 //Edit Chat Photo
                 self.dismiss(animated: true, completion: {
-                    self.presentFusuma()
+                   // self.presentFusuma()
                 })
                 
             }))

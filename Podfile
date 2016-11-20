@@ -17,7 +17,6 @@ pod ‘AWSCognito’, ‘~> 2.4.10’
 pod ‘Firebase’
 pod ‘Firebase/Database’
 pod ‘Firebase/Auth’
-pod ‘Fusuma’, ‘~> 0.5.3’
 pod 'JSQMessagesViewController'
 pod ‘THLabel’
 pod ‘NVActivityIndicatorView’

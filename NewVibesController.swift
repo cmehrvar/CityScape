@@ -932,7 +932,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
             
         } else if (indexPath as NSIndexPath).row == 1 {
             
-            return CGSize(width: width, height: 65)
+            return CGSize(width: width, height: 55)
             
         } else if (indexPath as NSIndexPath).row == 2 {
             
