@@ -283,6 +283,14 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
         
     }
     
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        
+        let width = self.view.bounds.width
+        let view = UIView(frame: CGRect(x: 0, y: 0, width: width, height: 60))
+        return view
+        
+    }
+    
 
     
     //Collection View Delegates
@@ -310,8 +318,6 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
         cell.profileOutlet.layer.cornerRadius = (((diameter - 20) / 2) - 1)
         
         cell.indicatorOutlet.layer.cornerRadius = 8
-        cell.indicatorOutlet.layer.borderWidth = 2
-        cell.indicatorOutlet.layer.borderColor = UIColor.white.cgColor
         
         cell.messagesController = self
         
@@ -357,6 +363,8 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
     
     func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
 
+        /*
+        
         print(velocity.y)
         
         if velocity.y > 1 {
@@ -378,6 +386,7 @@ class MessagesController: UIViewController, UICollectionViewDelegate, UICollecti
                 
             })
         }
+ */
     }
     
 

@@ -10,6 +10,7 @@ import UIKit
 import Firebase
 import FirebaseDatabase
 import FirebaseAuth
+import NYAlertViewController
 
 class AddFromFacebookCell: UITableViewCell {
 
@@ -41,9 +42,27 @@ class AddFromFacebookCell: UITableViewCell {
         
         let scopeUID = uid
         
-        let alertController = UIAlertController(title: "Delete \(firstName + " " + lastName) from your squad?", message: nil, preferredStyle: .actionSheet)
+        let alertController = NYAlertViewController()
         
-        alertController.addAction(UIAlertAction(title: "Delete \(firstName)", style: .destructive, handler: { (action) in
+        alertController.title = "\(firstName + " " + lastName)"
+        alertController.titleColor = UIColor.black
+        
+        alertController.message = "Remove \(firstName + " " + lastName) from your squad?"
+        alertController.messageColor = UIColor.black
+        
+        alertController.buttonColor = UIColor.red
+        alertController.buttonTitleColor = UIColor.white
+        
+        alertController.cancelButtonColor = UIColor.lightGray
+        alertController.cancelButtonTitleColor = UIColor.white
+        
+        alertController.addAction(NYAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
+            
+            self.addFromFaceookController?.dismiss(animated: true, completion: nil)
+            
+        }))
+        
+        alertController.addAction(NYAlertAction(title:  "Delete \(firstName)", style: .default, handler: { (action) in
             
             if let selfUID = FIRAuth.auth()?.currentUser?.uid {
                 
@@ -53,7 +72,7 @@ class AddFromFacebookCell: UITableViewCell {
                 myRef.child("notifications").child(scopeUID).child("squadRequest").removeValue()
                 myRef.child("squad").child(scopeUID).removeValue()
                 myRef.child("squadRequests").child(scopeUID).removeValue()
-
+                
                 let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
                 
                 yourRef.child("notifications").child(selfUID).child("squad").removeValue()
@@ -73,20 +92,16 @@ class AddFromFacebookCell: UITableViewCell {
                     self.addFromFaceookController?.mainRootController?.selfData["squadRequests"] = mySquadRequests
                     
                 }
- 
+                
                 self.addFromFaceookController?.globTableViewOutlet.reloadData()
-
+                
             }
-        }))
-        
-        
-        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
             
-            print("canceled")
+            self.addFromFaceookController?.dismiss(animated: true, completion: nil)
+
             
         }))
-        
-        
+
         self.addFromFaceookController?.present(alertController, animated: true, completion: {
             
             print("alert controller presented")
@@ -96,8 +111,8 @@ class AddFromFacebookCell: UITableViewCell {
     
     @IBAction func messageSquad(_ sender: AnyObject) {
         
-        let scopeUserData = data
         let scopeUID = uid
+        let scopeUserData = data
         let scopeFirstName = firstName
         let scopeLastName = lastName
         
@@ -106,9 +121,10 @@ class AddFromFacebookCell: UITableViewCell {
             //Delete Squad?
             print("toggle messages", terminator: "")
             
-            self.addFromFaceookController?.mainRootController?.toggleChat("squad", key: scopeUID, city: nil, firstName: scopeFirstName, lastName: scopeLastName, profile: profile, completion: { (bool) in
+            self.addFromFaceookController?.mainRootController?.toggleChat("squad", key: uid, city: nil, firstName: firstName, lastName: lastName, profile: profile, completion: { (bool) in
                 
                 print("chat toggled", terminator: "")
+                
                 
             })
             
@@ -117,32 +133,59 @@ class AddFromFacebookCell: UITableViewCell {
             //Cancel send?
             print("cancel send?", terminator: "")
             
-            let alertController = UIAlertController(title: "Unsend squad request to \(firstName + " " + lastName)", message: nil, preferredStyle: .actionSheet)
+            let alertController = NYAlertViewController()
             
-            alertController.addAction(UIAlertAction(title: "Unsend Request", style: .destructive, handler: { (action) in
+            alertController.title = "\(firstName + " " + lastName)"
+            alertController.titleColor = UIColor.black
+            
+            alertController.message = "Unsend squad request to \(firstName + " " + lastName)"
+            alertController.messageColor = UIColor.black
+            
+            alertController.buttonColor = UIColor.red
+            alertController.buttonTitleColor = UIColor.white
+            
+            alertController.cancelButtonColor = UIColor.lightGray
+            alertController.cancelButtonTitleColor = UIColor.white
+            
+            if let imageToAdd = profilePicOutlet.image {
                 
-                if let userUID = scopeUserData["uid"] as? String, let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                DispatchQueue.main.async(execute: {
+                    
+                    let imageView = UIImageView(image: imageToAdd)
+                    imageView.clipsToBounds = true
+                    imageView.addConstraint(NSLayoutConstraint(item: imageView, attribute: .height, relatedBy: .equal, toItem: imageView, attribute: .width, multiplier: 1, constant: 0))
+                    
+                    imageView.contentMode = .scaleAspectFill
+                    
+                    alertController.alertViewContentView = imageView
+                    
+                })
+            }
+            
+            alertController.addAction(NYAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
+                
+                self.addFromFaceookController?.dismiss(animated: true, completion: nil)
+                
+            }))
+            
+            alertController.addAction(NYAlertAction(title: "Unsend", style: .default, handler: { (action) in
+                
+                if let userUID = scopeUserData["userUID"] as? String, let selfUID = FIRAuth.auth()?.currentUser?.uid {
                     
                     let ref = FIRDatabase.database().reference().child("users").child(userUID)
                     
-                    ref.child("squadRequests").child(selfUID).removeValue()
-                    ref.child("notifications").child(selfUID).child("squadRequest").removeValue()
-                    
-                    self.addFromFaceookController?.globTableViewOutlet.reloadData()
-                    
+                    DispatchQueue.main.async(execute: {
+                        
+                        ref.child("squadRequests").child(selfUID).removeValue()
+                        ref.child("notifications").child(selfUID).child("squadRequest").removeValue()
+                        
+                        self.addFromFaceookController?.globTableViewOutlet.reloadData()
+                        
+                        self.addFromFaceookController?.dismiss(animated: true, completion: nil)
+                        
+                    })
                 }
             }))
-            
-            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
-                
-                print("canceled")
-                
-            }))
-            
-            let popover = alertController.popoverPresentationController
-            popover?.sourceView = self
-            popover?.sourceRect = self.bounds
-            popover?.permittedArrowDirections = UIPopoverArrowDirection.any
             
             self.addFromFaceookController?.present(alertController, animated: true, completion: {
                 
@@ -153,15 +196,41 @@ class AddFromFacebookCell: UITableViewCell {
             
         } else if currentSquadInstance == "confirmSquad" {
             
-            //Confrim or Deny
-            print("confirm or deny", terminator: "")
+            print("cancel send?", terminator: "")
             
-            let alertController = UIAlertController(title: "Confirm \(firstName + " " + lastName) to your squad?", message: nil, preferredStyle: .actionSheet)
+            let alertController = NYAlertViewController()
             
-            alertController.addAction(UIAlertAction(title: "Add to Squad", style: .default, handler: { (action) in
+            alertController.title = "\(firstName + " " + lastName)"
+            alertController.titleColor = UIColor.black
+            
+            alertController.message = "\(firstName + " " + lastName) has requested to be in your squad. Wanna let em in?"
+            alertController.messageColor = UIColor.black
+            
+            alertController.buttonColor = UIColor.red
+            alertController.buttonTitleColor = UIColor.white
+            
+            alertController.cancelButtonColor = UIColor.lightGray
+            alertController.cancelButtonTitleColor = UIColor.white
+            
+            if let imageToAdd = profilePicOutlet.image {
+                
+                DispatchQueue.main.async(execute: {
+                    
+                    let imageView = UIImageView(image: imageToAdd)
+                    imageView.clipsToBounds = true
+                    imageView.addConstraint(NSLayoutConstraint(item: imageView, attribute: .height, relatedBy: .equal, toItem: imageView, attribute: .width, multiplier: 1, constant: 0))
+                    
+                    imageView.contentMode = .scaleAspectFill
+                    
+                    alertController.alertViewContentView = imageView
+                    
+                })
+            }
+            
+            alertController.addAction(NYAlertAction(title: "Add to Squad", style: .default, handler: { (action) in
                 
                 if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.addFromFaceookController?.mainRootController?.selfData, let myFirstName = selfData["firstName"] as? String, let myLastName = selfData["lastName"] as? String, let scopeUID = scopeUserData["uid"] as? String {
-
+                    
                     let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
                     ref.child("notifications").child(scopeUID).child("squadRequest").updateChildValues(["status" : "approved"])
                     ref.child("squadRequests").child(scopeUID).updateChildValues(["status" : 1])
@@ -189,52 +258,85 @@ class AddFromFacebookCell: UITableViewCell {
                     
                     self.addFromFaceookController?.globTableViewOutlet.reloadData()
                     
+                    self.addFromFaceookController?.dismiss(animated: true, completion: nil)
                     
                 }
             }))
             
-            alertController.addAction(UIAlertAction(title: "Reject \(firstName)", style: .destructive, handler: { (action) in
+            alertController.addAction(NYAlertAction(title: "Reject", style: .cancel, handler: { (action) in
                 
-                if let selfUID = FIRAuth.auth()?.currentUser?.uid, let scopeUID = scopeUserData["uid"] as? String {
+                if let selfUID = FIRAuth.auth()?.currentUser?.uid, let scopeUID = scopeUserData["userUID"] as? String {
                     
                     let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
                     
-                    ref.child("notifications").child(scopeUID).child("squadRequest").removeValue()
-                    ref.child("squadRequests").child(scopeUID).removeValue()
-                    
+                    DispatchQueue.main.async(execute: {
+                        
+                        ref.child("notifications").child(scopeUID).child("squadRequest").removeValue()
+                        ref.child("squadRequests").child(scopeUID).removeValue()
+                        
+                        self.addFromFaceookController?.dismiss(animated: true, completion: nil)
+                        self.addFromFaceookController?.globTableViewOutlet.reloadData()
+                        
+                    })
                 }
             }))
             
-            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
+            alertController.addAction(NYAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
                 
-                print("canceled")
+                self.addFromFaceookController?.dismiss(animated: true, completion: nil)
                 
             }))
             
-            let popover = alertController.popoverPresentationController
-            popover?.sourceView = self
-            popover?.sourceRect = self.bounds
-            popover?.permittedArrowDirections = UIPopoverArrowDirection.any
             
             self.addFromFaceookController?.present(alertController, animated: true, completion: {
                 
                 print("alert controller presented")
                 
-                
             })
-            
             
         } else {
             
-            //Send a request
-            print(currentSquadInstance, terminator: "")
-            print("send a request", terminator: "")
+            //Cancel send?
+            print("cancel send?", terminator: "")
             
-            let alertController = UIAlertController(title: "Add \(firstName + " " + lastName) to your squad!", message: nil, preferredStyle: .actionSheet)
+            let alertController = NYAlertViewController()
             
-            alertController.addAction(UIAlertAction(title: "Send Request", style: .default, handler: { (action) in
+            alertController.title = "\(firstName + " " + lastName)"
+            alertController.titleColor = UIColor.black
+            
+            alertController.message = "Wanna add to \(firstName + " " + lastName) your squad?"
+            alertController.messageColor = UIColor.black
+            
+            alertController.buttonColor = UIColor.red
+            alertController.buttonTitleColor = UIColor.white
+            
+            alertController.cancelButtonColor = UIColor.lightGray
+            alertController.cancelButtonTitleColor = UIColor.white
+            
+            if let imageToAdd = profilePicOutlet.image {
                 
-                if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.addFromFaceookController?.mainRootController?.selfData, let firstName = selfData["firstName"] as? String, let lastName = selfData["lastName"] as? String, let scopeUID = scopeUserData["uid"] as? String {
+                DispatchQueue.main.async(execute: {
+                    
+                    let imageView = UIImageView(image: imageToAdd)
+                    imageView.clipsToBounds = true
+                    imageView.addConstraint(NSLayoutConstraint(item: imageView, attribute: .height, relatedBy: .equal, toItem: imageView, attribute: .width, multiplier: 1, constant: 0))
+                    
+                    imageView.contentMode = .scaleAspectFill
+                    
+                    alertController.alertViewContentView = imageView
+                    
+                })
+            }
+            
+            alertController.addAction(NYAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
+                
+                self.addFromFaceookController?.dismiss(animated: true, completion: nil)
+                
+            }))
+            
+            alertController.addAction(NYAlertAction(title: "Send Request", style: .default, handler: { (action) in
+                
+                if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.addFromFaceookController?.mainRootController?.selfData, let firstName = selfData["firstName"] as? String, let lastName = selfData["lastName"] as? String, let scopeUID = scopeUserData["userUID"] as? String {
                     
                     let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
                     yourRef.keepSynced(true)
@@ -261,21 +363,11 @@ class AddFromFacebookCell: UITableViewCell {
                     ref.child("squadRequests").child(selfUID).setValue(squadItem)
                     ref.child("notifications").child(selfUID).child("squadRequest").setValue(notificationItem)
                     
+                    self.addFromFaceookController?.dismiss(animated: true, completion: nil)
                     self.addFromFaceookController?.globTableViewOutlet.reloadData()
                     
                 }
             }))
-            
-            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
-                
-                print("canceled")
-                
-            }))
-            
-            let popover = alertController.popoverPresentationController
-            popover?.sourceView = self
-            popover?.sourceRect = self.bounds
-            popover?.permittedArrowDirections = UIPopoverArrowDirection.any
             
             self.addFromFaceookController?.present(alertController, animated: true, completion: {
                 
@@ -490,7 +582,7 @@ class AddFromFacebookCell: UITableViewCell {
                             
                         } else {
                             
-                            self.onlineIndicator.alpha = 1
+                            self.onlineIndicator.alpha = 0.75
                             
                             if online {
                                 

@@ -281,7 +281,15 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
         cameraProfile.delegate = self
         cameraProfile.allowsEditing = false
         
-        let alertController = UIAlertController(title: "Smile!", message: "Take a pic or choose from gallery?", preferredStyle:  UIAlertControllerStyle.alert)
+        let alertController = UIAlertController(title: "Edit profile picture", message: "Take a pic or choose from gallery?", preferredStyle:  UIAlertControllerStyle.alert)
+        
+        alertController.addAction(UIAlertAction(title: "Gallery", style: UIAlertActionStyle.default, handler: { (UIAlertAction) -> Void in
+            
+            cameraProfile.sourceType = UIImagePickerControllerSourceType.photoLibrary
+            
+            self.present(cameraProfile, animated: true, completion: nil)
+            
+        }))
         
         alertController.addAction(UIAlertAction(title: "Camera", style: UIAlertActionStyle.default, handler: { (UIAlertAction) -> Void in
             
@@ -293,13 +301,7 @@ class MenuController: UIViewController, UIImagePickerControllerDelegate, UINavig
             
         }))
         
-        alertController.addAction(UIAlertAction(title: "Gallery", style: UIAlertActionStyle.default, handler: { (UIAlertAction) -> Void in
-            
-            cameraProfile.sourceType = UIImagePickerControllerSourceType.photoLibrary
-            
-            self.present(cameraProfile, animated: true, completion: nil)
-            
-        }))
+        
         
         self.present(alertController, animated: true, completion: nil)
         

@@ -10,6 +10,7 @@ import UIKit
 import Firebase
 import FirebaseDatabase
 import FirebaseAuth
+import NYAlertViewController
 
 class SquadTableViewCell: UITableViewCell {
     
@@ -41,53 +42,82 @@ class SquadTableViewCell: UITableViewCell {
         
         let scopeUID = uid
         
-        let alertController = UIAlertController(title: "Delete \(firstName + " " + lastName) from your squad?", message: nil, preferredStyle: .actionSheet)
+        let alertController = NYAlertViewController()
         
-        alertController.addAction(UIAlertAction(title: "Delete \(firstName)", style: .destructive, handler: { (action) in
+        alertController.title = "\(firstName + " " + lastName)"
+        alertController.titleColor = UIColor.black
+        
+        alertController.message = "Remove \(firstName + " " + lastName) from your squad?"
+        alertController.messageColor = UIColor.black
+        
+        alertController.buttonColor = UIColor.red
+        alertController.buttonTitleColor = UIColor.white
+        
+        alertController.cancelButtonColor = UIColor.lightGray
+        alertController.cancelButtonTitleColor = UIColor.white
+        
+        if let imageToAdd = profilePicOutlet.image {
+            
+            DispatchQueue.main.async(execute: {
+                
+                let imageView = UIImageView(image: imageToAdd)
+                imageView.clipsToBounds = true
+                imageView.addConstraint(NSLayoutConstraint(item: imageView, attribute: .height, relatedBy: .equal, toItem: imageView, attribute: .width, multiplier: 1, constant: 0))
+                
+                imageView.contentMode = .scaleAspectFill
+                
+                alertController.alertViewContentView = imageView
+                
+            })
+        }
+
+        
+        alertController.addAction(NYAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
+            
+            self.squadCountController?.dismiss(animated: true, completion: nil)
+            
+        }))
+        
+        alertController.addAction(NYAlertAction(title:  "Delete \(firstName)", style: .default, handler: { (action) in
             
             if let selfUID = FIRAuth.auth()?.currentUser?.uid {
                 
                 let myRef = FIRDatabase.database().reference().child("users").child(selfUID)
                 
-                DispatchQueue.main.async(execute: {
-                    
-                    myRef.child("notifications").child(scopeUID).child("squad").removeValue()
-                    myRef.child("notifications").child(scopeUID).child("squadRequest").removeValue()
-                    myRef.child("squad").child(scopeUID).removeValue()
-                    myRef.child("squadRequests").child(scopeUID).removeValue()
-                    
-                    self.squadCountController?.globTableViewOutlet.reloadData()
-                    
-                })
-                
+                myRef.child("notifications").child(scopeUID).child("squad").removeValue()
+                myRef.child("notifications").child(scopeUID).child("squadRequest").removeValue()
+                myRef.child("squad").child(scopeUID).removeValue()
+                myRef.child("squadRequests").child(scopeUID).removeValue()
                 
                 let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
                 
-                DispatchQueue.main.async(execute: {
+                yourRef.child("notifications").child(selfUID).child("squad").removeValue()
+                yourRef.child("notifications").child(selfUID).child("squadRequest").removeValue()
+                yourRef.child("squad").child(selfUID).removeValue()
+                yourRef.child("squadRequests").child(selfUID).removeValue()
+                
+                if let selfData = self.squadCountController?.rootController?.selfData {
                     
-                    yourRef.child("notifications").child(selfUID).child("squad").removeValue()
-                    yourRef.child("notifications").child(selfUID).child("squadRequest").removeValue()
-                    yourRef.child("squad").child(selfUID).removeValue()
-                    yourRef.child("squadRequests").child(selfUID).removeValue()
+                    var mySquad = selfData["squad"] as? [NSObject : AnyObject]
+                    var mySquadRequests = selfData["squadRequests"] as? [NSObject : AnyObject]
                     
-                    self.squadCountController?.globTableViewOutlet.reloadData()
+                    mySquad?.removeValue(forKey: scopeUID as NSObject)
+                    mySquadRequests?.removeValue(forKey: scopeUID as NSObject)
                     
-                })
+                    self.squadCountController?.rootController?.selfData["squad"] = mySquad
+                    self.squadCountController?.rootController?.selfData["squadRequests"] = mySquadRequests
+                    
+                }
+                
+                self.squadCountController?.globTableViewOutlet.reloadData()
+                
             }
-        }))
-        
-        
-        alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
             
-            print("canceled")
+            self.squadCountController?.dismiss(animated: true, completion: nil)
+            
             
         }))
         
-        let popover = alertController.popoverPresentationController
-        popover?.sourceView = self
-        popover?.sourceRect = self.bounds
-        popover?.permittedArrowDirections = UIPopoverArrowDirection.any
-
         self.squadCountController?.present(alertController, animated: true, completion: {
             
             print("alert controller presented")
@@ -97,8 +127,8 @@ class SquadTableViewCell: UITableViewCell {
     
     @IBAction func messageSquad(_ sender: AnyObject) {
         
-        let scopeUserData = data
         let scopeUID = uid
+        let scopeUserData = data
         let scopeFirstName = firstName
         let scopeLastName = lastName
         
@@ -107,56 +137,71 @@ class SquadTableViewCell: UITableViewCell {
             //Delete Squad?
             print("toggle messages", terminator: "")
             
-            self.squadCountController?.rootController?.toggleChat("squad", key: scopeUID, city: nil, firstName: scopeFirstName, lastName: scopeLastName, profile: profile, completion: { (bool) in
+            self.squadCountController?.rootController?.toggleChat("squad", key: uid, city: nil, firstName: firstName, lastName: lastName, profile: profile, completion: { (bool) in
                 
                 print("chat toggled", terminator: "")
                 
+                
             })
-
+            
         } else if currentSquadInstance == "sentSquad" {
             
             //Cancel send?
             print("cancel send?", terminator: "")
             
-            let alertController = UIAlertController(title: "Unsend squad request to \(firstName + " " + lastName)", message: nil, preferredStyle: .actionSheet)
+            let alertController = NYAlertViewController()
             
-            alertController.addAction(UIAlertAction(title: "Unsend Request", style: .destructive, handler: { (action) in
+            alertController.title = "\(firstName + " " + lastName)"
+            alertController.titleColor = UIColor.black
+            
+            alertController.message = "Unsend squad request to \(firstName + " " + lastName)"
+            alertController.messageColor = UIColor.black
+            
+            alertController.buttonColor = UIColor.red
+            alertController.buttonTitleColor = UIColor.white
+            
+            alertController.cancelButtonColor = UIColor.lightGray
+            alertController.cancelButtonTitleColor = UIColor.white
+            
+            if let imageToAdd = profilePicOutlet.image {
                 
-                if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                DispatchQueue.main.async(execute: {
                     
-                    let ref = FIRDatabase.database().reference().child("users").child(scopeUID)
-                    ref.keepSynced(true)
+                    let imageView = UIImageView(image: imageToAdd)
+                    imageView.clipsToBounds = true
+                    imageView.addConstraint(NSLayoutConstraint(item: imageView, attribute: .height, relatedBy: .equal, toItem: imageView, attribute: .width, multiplier: 1, constant: 0))
                     
-                    ref.child("squadRequests").child(selfUID).observeSingleEvent(of: .value, with: { (snapshot) in
+                    imageView.contentMode = .scaleAspectFill
+                    
+                    alertController.alertViewContentView = imageView
+                    
+                })
+            }
+            
+            alertController.addAction(NYAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
+                
+                self.squadCountController?.dismiss(animated: true, completion: nil)
+                
+            }))
+            
+            alertController.addAction(NYAlertAction(title: "Unsend", style: .default, handler: { (action) in
+                
+                if let userUID = scopeUserData["userUID"] as? String, let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                    
+                    let ref = FIRDatabase.database().reference().child("users").child(userUID)
+                    
+                    DispatchQueue.main.async(execute: {
                         
-                        if let mySquadRequest = snapshot.value as? [AnyHashable: Any] {
-                            
-                            if let notKey = mySquadRequest["notificationKey"] as? String {
-                                
-                                DispatchQueue.main.async(execute: {
-                                    
-                                    ref.child("squadRequests").child(selfUID).removeValue()
-                                    ref.child("notifications").child(notKey).removeValue()
-                                    
-                                    self.squadCountController?.globTableViewOutlet.reloadData()
-                                    
-                                })
-                            }
-                        }
+                        ref.child("squadRequests").child(selfUID).removeValue()
+                        ref.child("notifications").child(selfUID).child("squadRequest").removeValue()
+                        
+                        self.squadCountController?.globTableViewOutlet.reloadData()
+                        
+                        self.squadCountController?.dismiss(animated: true, completion: nil)
+                        
                     })
                 }
             }))
-            
-            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
-                
-                print("canceled")
-                
-            }))
-            
-            let popover = alertController.popoverPresentationController
-            popover?.sourceView = self
-            popover?.sourceRect = self.bounds
-            popover?.permittedArrowDirections = UIPopoverArrowDirection.any
             
             self.squadCountController?.present(alertController, animated: true, completion: {
                 
@@ -167,15 +212,41 @@ class SquadTableViewCell: UITableViewCell {
             
         } else if currentSquadInstance == "confirmSquad" {
             
-            //Confrim or Deny
-            print("confirm or deny", terminator: "")
+            print("cancel send?", terminator: "")
             
-            let alertController = UIAlertController(title: "Confirm \(firstName + " " + lastName) to your squad?", message: nil, preferredStyle: .actionSheet)
+            let alertController = NYAlertViewController()
             
-            alertController.addAction(UIAlertAction(title: "Add to Squad", style: .default, handler: { (action) in
+            alertController.title = "\(firstName + " " + lastName)"
+            alertController.titleColor = UIColor.black
+            
+            alertController.message = "\(firstName + " " + lastName) has requested to be in your squad. Wanna let em in?"
+            alertController.messageColor = UIColor.black
+            
+            alertController.buttonColor = UIColor.red
+            alertController.buttonTitleColor = UIColor.white
+            
+            alertController.cancelButtonColor = UIColor.lightGray
+            alertController.cancelButtonTitleColor = UIColor.white
+            
+            if let imageToAdd = profilePicOutlet.image {
+                
+                DispatchQueue.main.async(execute: {
+                    
+                    let imageView = UIImageView(image: imageToAdd)
+                    imageView.clipsToBounds = true
+                    imageView.addConstraint(NSLayoutConstraint(item: imageView, attribute: .height, relatedBy: .equal, toItem: imageView, attribute: .width, multiplier: 1, constant: 0))
+                    
+                    imageView.contentMode = .scaleAspectFill
+                    
+                    alertController.alertViewContentView = imageView
+                    
+                })
+            }
+            
+            alertController.addAction(NYAlertAction(title: "Add to Squad", style: .default, handler: { (action) in
                 
                 if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.squadCountController?.rootController?.selfData, let myFirstName = selfData["firstName"] as? String, let myLastName = selfData["lastName"] as? String, let scopeUID = scopeUserData["uid"] as? String {
-
+                    
                     let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
                     ref.child("notifications").child(scopeUID).child("squadRequest").updateChildValues(["status" : "approved"])
                     ref.child("squadRequests").child(scopeUID).updateChildValues(["status" : 1])
@@ -202,60 +273,86 @@ class SquadTableViewCell: UITableViewCell {
                     yourRef.child("squad").child(selfUID).setValue(["firstName" : myFirstName, "lastName" : myLastName, "uid" : selfUID])
                     
                     self.squadCountController?.globTableViewOutlet.reloadData()
-
+                    
+                    self.squadCountController?.dismiss(animated: true, completion: nil)
+                    
                 }
             }))
             
-            alertController.addAction(UIAlertAction(title: "Reject \(firstName)", style: .destructive, handler: { (action) in
+            alertController.addAction(NYAlertAction(title: "Reject", style: .cancel, handler: { (action) in
                 
-                if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                if let selfUID = FIRAuth.auth()?.currentUser?.uid, let scopeUID = scopeUserData["userUID"] as? String {
                     
                     let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
                     
-                    
-                    if let selfData = self.squadCountController?.rootController?.selfData, let mySquadRequests = selfData["squadRequests"] as? [AnyHashable: Any], let userSquadRequest = mySquadRequests[scopeUID] as? [AnyHashable: Any], let scopeNotificationKey = userSquadRequest["notificationKey"] as? String {
+                    DispatchQueue.main.async(execute: {
                         
-                        DispatchQueue.main.async(execute: {
-                            
-                            ref.child("notifications").child(scopeNotificationKey).removeValue()
-                            ref.child("squadRequests").child(scopeUID).removeValue()
-                            
-                            self.squadCountController?.globTableViewOutlet.reloadData()
-                            
-                        })
-                    }
+                        ref.child("notifications").child(scopeUID).child("squadRequest").removeValue()
+                        ref.child("squadRequests").child(scopeUID).removeValue()
+                        
+                        self.squadCountController?.globTableViewOutlet.reloadData()
+                        self.squadCountController?.dismiss(animated: true, completion: nil)
+                        
+                    })
                 }
             }))
             
-            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
+            alertController.addAction(NYAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
                 
-                print("canceled")
+                self.squadCountController?.dismiss(animated: true, completion: nil)
                 
             }))
             
-            let popover = alertController.popoverPresentationController
-            popover?.sourceView = self
-            popover?.sourceRect = self.bounds
-            popover?.permittedArrowDirections = UIPopoverArrowDirection.any
             
             self.squadCountController?.present(alertController, animated: true, completion: {
                 
                 print("alert controller presented")
                 
-                
             })
-
+            
         } else {
             
-            //Send a request
-            print(currentSquadInstance, terminator: "")
-            print("send a request", terminator: "")
+            //Cancel send?
+            print("cancel send?", terminator: "")
             
-            let alertController = UIAlertController(title: "Add \(firstName + " " + lastName) to your squad!", message: nil, preferredStyle: .actionSheet)
+            let alertController = NYAlertViewController()
             
-            alertController.addAction(UIAlertAction(title: "Send Request", style: .default, handler: { (action) in
+            alertController.title = "\(firstName + " " + lastName)"
+            alertController.titleColor = UIColor.black
+            
+            alertController.message = "Wanna add to \(firstName + " " + lastName) your squad?"
+            alertController.messageColor = UIColor.black
+            
+            alertController.buttonColor = UIColor.red
+            alertController.buttonTitleColor = UIColor.white
+            
+            alertController.cancelButtonColor = UIColor.lightGray
+            alertController.cancelButtonTitleColor = UIColor.white
+            
+            if let imageToAdd = profilePicOutlet.image {
                 
-                if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.squadCountController?.rootController?.selfData, let firstName = selfData["firstName"] as? String, let lastName = selfData["lastName"] as? String, let scopeUID = scopeUserData["uid"] as? String {
+                DispatchQueue.main.async(execute: {
+                    
+                    let imageView = UIImageView(image: imageToAdd)
+                    imageView.clipsToBounds = true
+                    imageView.addConstraint(NSLayoutConstraint(item: imageView, attribute: .height, relatedBy: .equal, toItem: imageView, attribute: .width, multiplier: 1, constant: 0))
+                    
+                    imageView.contentMode = .scaleAspectFill
+                    
+                    alertController.alertViewContentView = imageView
+                    
+                })
+            }
+            
+            alertController.addAction(NYAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
+                
+                self.squadCountController?.dismiss(animated: true, completion: nil)
+                
+            }))
+            
+            alertController.addAction(NYAlertAction(title: "Send Request", style: .default, handler: { (action) in
+                
+                if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.squadCountController?.rootController?.selfData, let firstName = selfData["firstName"] as? String, let lastName = selfData["lastName"] as? String, let scopeUID = scopeUserData["userUID"] as? String {
                     
                     let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
                     yourRef.keepSynced(true)
@@ -282,22 +379,11 @@ class SquadTableViewCell: UITableViewCell {
                     ref.child("squadRequests").child(selfUID).setValue(squadItem)
                     ref.child("notifications").child(selfUID).child("squadRequest").setValue(notificationItem)
                     
+                    self.squadCountController?.dismiss(animated: true, completion: nil)
                     self.squadCountController?.globTableViewOutlet.reloadData()
-
+                    
                 }
-                
             }))
-            
-            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
-                
-                print("canceled")
-                
-            }))
-            
-            let popover = alertController.popoverPresentationController
-            popover?.sourceView = self
-            popover?.sourceRect = self.bounds
-            popover?.permittedArrowDirections = UIPopoverArrowDirection.any
             
             self.squadCountController?.present(alertController, animated: true, completion: {
                 
@@ -513,7 +599,7 @@ class SquadTableViewCell: UITableViewCell {
                             
                         } else {
                             
-                            self.onlineIndicator.alpha = 1
+                            self.onlineIndicator.alpha = 0.75
                             
                             if online {
                                 

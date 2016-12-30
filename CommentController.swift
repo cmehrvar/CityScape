@@ -285,13 +285,15 @@ class CommentController: JSQMessagesViewController, UIGestureRecognizerDelegate 
     
     //Did press accessory button
     override func didPressAccessoryButton(_ sender: UIButton!) {
-        
-        //presentFusumaCamera()
-        
-        
+
+        self.rootController?.toggleCamera(type: typeOfChat, chatType: "chat", completion: { (bool) in
+            
+            print("camera presented")
+            
+        })
     }
     
-    
+    /*
     //Fusuma Delegates
     func fusumaImageSelected(_ image: UIImage) {
         
@@ -750,7 +752,7 @@ class CommentController: JSQMessagesViewController, UIGestureRecognizerDelegate 
     }
     
  */
- 
+ */
     func beganTyping(){
         
         let ref = FIRDatabase.database().reference()

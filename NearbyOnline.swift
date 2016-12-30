@@ -14,7 +14,7 @@ class NearbyOnline: UIView {
         
         super.awakeFromNib()
         
-        self.layer.cornerRadius = 6
+        self.layer.cornerRadius = 7
         self.clipsToBounds = true
         
     }

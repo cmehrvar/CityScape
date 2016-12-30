@@ -122,6 +122,8 @@ class AddToChatCell: UITableViewCell {
 
     func loadCell(_ data: [AnyHashable: Any]) {
         
+        onlineIndicatorOutlet.alpha = 0.75
+        
         self.userData = data
         nameOutlet.adjustsFontSizeToFitWidth = true
         nameOutlet.baselineAdjustment = .alignCenters

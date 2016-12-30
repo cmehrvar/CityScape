@@ -131,6 +131,12 @@ class NearbyMatchCollectionCell: UICollectionViewCell {
         
         self.uid = uid
         
+        self.nameOutlet.adjustsFontSizeToFitWidth = true
+        self.nameOutlet.baselineAdjustment = .alignCenters
+        
+        self.occupationOutlet.adjustsFontSizeToFitWidth = true
+        self.occupationOutlet.baselineAdjustment = .alignBaselines
+        
         let ref = FIRDatabase.database().reference().child("users").child(uid)
         
         ref.observe(.value, with: { (snapshot) in

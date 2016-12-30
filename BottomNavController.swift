@@ -19,7 +19,6 @@ class BottomNavController: UIViewController {
     @IBOutlet weak var messagesViewOutlet: NavButtonView!
     @IBOutlet weak var nearbyButtonOutlet: UIButton!
     @IBOutlet weak var torontoOutlet: UILabel!
-    @IBOutlet weak var vibesOutlet: UILabel!
     @IBOutlet weak var vibesButtonOutlet: UIButton!
     @IBOutlet weak var messagesButtonOutlet: UIButton!
 
@@ -107,7 +106,6 @@ class BottomNavController: UIViewController {
             
             vibesViewOutlet.backgroundColor = UIColor.clear
             torontoOutlet.textColor = UIColor.white
-            vibesOutlet.textColor = UIColor.white
             
             messagesViewOutlet.backgroundColor = UIColor.clear
             messagesButtonOutlet.setTitleColor(UIColor.white, for: UIControlState())
@@ -119,7 +117,6 @@ class BottomNavController: UIViewController {
             
             vibesViewOutlet.backgroundColor = UIColor.white
             torontoOutlet.textColor = UIColor(netHex: 0xDF412E)
-            vibesOutlet.textColor = UIColor(netHex: 0xDF412E)
             
             messagesViewOutlet.backgroundColor = UIColor.clear
             messagesButtonOutlet.setTitleColor(UIColor.white, for: UIControlState())
@@ -131,7 +128,6 @@ class BottomNavController: UIViewController {
             
             vibesViewOutlet.backgroundColor = UIColor.clear
             torontoOutlet.textColor = UIColor.white
-            vibesOutlet.textColor = UIColor.white
             
             messagesViewOutlet.backgroundColor = UIColor.white
             messagesButtonOutlet.setTitleColor(UIColor(netHex: 0xDF412E), for: UIControlState())

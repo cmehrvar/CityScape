@@ -13,7 +13,7 @@ import FirebaseAuth
 
 class OutMediaCollectionCell: UICollectionViewCell {
 
-    @IBOutlet weak var profileOutlet: TopChatProfileView!
+    @IBOutlet weak var profileOutlet: UIImageView!
     @IBOutlet weak var imageOutlet: UIImageView!
     @IBOutlet weak var videoOutlet: UIView!
     
@@ -22,6 +22,8 @@ class OutMediaCollectionCell: UICollectionViewCell {
     var key = ""
     
     func loadCell(_ message: [AnyHashable: Any]) {
+        
+        self.profileOutlet.layer.cornerRadius = 17
         
         imageOutlet.layer.borderWidth = 1
         videoOutlet.layer.borderWidth = 1

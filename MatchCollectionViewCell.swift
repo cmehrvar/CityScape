@@ -28,9 +28,7 @@ class MatchCollectionViewCell: UICollectionViewCell {
 
     //Actions
     @IBAction func openChat(_ sender: AnyObject) {
-        
-        
-        
+
         let scopeUID = uid
         let scopeFirstname = firstName
         let scopeLastname = lastName
@@ -41,8 +39,6 @@ class MatchCollectionViewCell: UICollectionViewCell {
             print("chat toggled", terminator: "")
             
         })
-        
-        
     }
     
 
@@ -50,10 +46,7 @@ class MatchCollectionViewCell: UICollectionViewCell {
     func loadCell(_ data: [AnyHashable: Any]){
         
         nameOutlet.adjustsFontSizeToFitWidth = true
-        
-        
-        
-        
+
         if let uid = data["uid"] as? String {
             
             self.uid = uid

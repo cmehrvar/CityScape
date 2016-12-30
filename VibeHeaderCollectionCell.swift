@@ -10,8 +10,9 @@ import UIKit
 import Firebase
 import FirebaseAuth
 import FirebaseDatabase
+import NYAlertViewController
 
-class VibeHeaderCollectionCell: UICollectionViewCell {
+class VibeHeaderCollectionCell: UICollectionReusableView {
     
     weak var vibesController: NewVibesController?
 
@@ -29,6 +30,9 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
     @IBOutlet weak var nameOutlet: UILabel!
     @IBOutlet weak var squadIndicatorOutlet: UIImageView!
     @IBOutlet weak var squadRequestButtonOutlet: UIButton!
+    @IBOutlet weak var onlineIndicatorOutlet: UIView!
+    @IBOutlet weak var cityOutlet: UILabel!
+    
 
     //Action
     @IBAction func squadRequest(_ sender: AnyObject) {
@@ -55,12 +59,47 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
             //Cancel send?
             print("cancel send?", terminator: "")
             
-            let alertController = UIAlertController(title: "Unsend squad request to \(firstName + " " + lastName)", message: nil, preferredStyle: .actionSheet)
+            let alertController = NYAlertViewController()
             
-            alertController.addAction(UIAlertAction(title: "Unsend Request", style: .destructive, handler: { (action) in
+            alertController.title = "\(firstName + " " + lastName)"
+            alertController.titleColor = UIColor.black
+            
+            alertController.message = "Unsend squad request to \(firstName + " " + lastName)"
+            alertController.messageColor = UIColor.black
+            
+            alertController.buttonColor = UIColor.red
+            alertController.buttonTitleColor = UIColor.white
+            
+            alertController.cancelButtonColor = UIColor.lightGray
+            alertController.cancelButtonTitleColor = UIColor.white
+            
+            if let imageToAdd = profilePicOutlet.image {
+                
+                DispatchQueue.main.async(execute: {
+                    
+                    let imageView = UIImageView(image: imageToAdd)
+                    imageView.clipsToBounds = true
+                    imageView.addConstraint(NSLayoutConstraint(item: imageView, attribute: .height, relatedBy: .equal, toItem: imageView, attribute: .width, multiplier: 1, constant: 0))
+                    
+                    imageView.contentMode = .scaleAspectFill
+                    
+                    alertController.alertViewContentView = imageView
+                    
+                })
+            }
+            
+            alertController.addAction(NYAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
+                
+                self.vibesController?.dismiss(animated: true, completion: nil)
+                
+            }))
+            
+            alertController.addAction(NYAlertAction(title: "Unsend", style: .default, handler: { (action) in
+                
+                
                 
                 if let userUID = scopeUserData["userUID"] as? String, let selfUID = FIRAuth.auth()?.currentUser?.uid {
-
+                    
                     let ref = FIRDatabase.database().reference().child("users").child(userUID)
                     
                     DispatchQueue.main.async(execute: {
@@ -70,39 +109,56 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
                         
                         self.vibesController?.globCollectionView.reloadData()
                         
+                        self.vibesController?.dismiss(animated: true, completion: nil)
+                        
                     })
                 }
             }))
-            
-            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
-                
-                print("canceled")
 
-            }))
-            
-            let popover = alertController.popoverPresentationController
-            popover?.sourceView = self
-            popover?.sourceRect = self.bounds
-            popover?.permittedArrowDirections = UIPopoverArrowDirection.any
-            
             self.vibesController?.present(alertController, animated: true, completion: {
                 
                 print("alert controller presented")
-
+                
             })
-            
+
             
         } else if currentSquadInstance == "confirmSquad" {
             
-            //Confrim or Deny
-            print("confirm or deny", terminator: "")
+            print("cancel send?", terminator: "")
             
-            let alertController = UIAlertController(title: "Confirm \(firstName + " " + lastName) to your squad?", message: nil, preferredStyle: .actionSheet)
+            let alertController = NYAlertViewController()
             
-            alertController.addAction(UIAlertAction(title: "Add to Squad", style: .default, handler: { (action) in
+            alertController.title = "\(firstName + " " + lastName)"
+            alertController.titleColor = UIColor.black
+            
+            alertController.message = "\(firstName + " " + lastName) has requested to be in your squad. Wanna let em in?"
+            alertController.messageColor = UIColor.black
+            
+            alertController.buttonColor = UIColor.red
+            alertController.buttonTitleColor = UIColor.white
+            
+            alertController.cancelButtonColor = UIColor.lightGray
+            alertController.cancelButtonTitleColor = UIColor.white
+            
+            if let imageToAdd = profilePicOutlet.image {
+                
+                DispatchQueue.main.async(execute: {
+                    
+                    let imageView = UIImageView(image: imageToAdd)
+                    imageView.clipsToBounds = true
+                    imageView.addConstraint(NSLayoutConstraint(item: imageView, attribute: .height, relatedBy: .equal, toItem: imageView, attribute: .width, multiplier: 1, constant: 0))
+                    
+                    imageView.contentMode = .scaleAspectFill
+                    
+                    alertController.alertViewContentView = imageView
+                    
+                })
+            }
+            
+            alertController.addAction(NYAlertAction(title: "Add to Squad", style: .default, handler: { (action) in
                 
                 if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.vibesController?.rootController?.selfData, let myFirstName = selfData["firstName"] as? String, let myLastName = selfData["lastName"] as? String, let scopeUID = scopeUserData["uid"] as? String {
- 
+                    
                     let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
                     ref.child("notifications").child(scopeUID).child("squadRequest").updateChildValues(["status" : "approved"])
                     ref.child("squadRequests").child(scopeUID).updateChildValues(["status" : 1])
@@ -130,57 +186,84 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
                     
                     self.vibesController?.globCollectionView.reloadData()
                     
+                    self.vibesController?.dismiss(animated: true, completion: nil)
                     
                 }
-                
             }))
-            
-            alertController.addAction(UIAlertAction(title: "Reject \(firstName)", style: .destructive, handler: { (action) in
 
+            alertController.addAction(NYAlertAction(title: "Reject", style: .cancel, handler: { (action) in
+                
                 if let selfUID = FIRAuth.auth()?.currentUser?.uid, let scopeUID = scopeUserData["userUID"] as? String {
                     
                     let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
-
-                        DispatchQueue.main.async(execute: {
-                            
-                            ref.child("notifications").child(scopeUID).child("squadRequest").removeValue()
-                            ref.child("squadRequests").child(scopeUID).removeValue()
-                            
-                            self.vibesController?.globCollectionView.reloadData()
-                            
-                        })
                     
+                    DispatchQueue.main.async(execute: {
+                        
+                        ref.child("notifications").child(scopeUID).child("squadRequest").removeValue()
+                        ref.child("squadRequests").child(scopeUID).removeValue()
+                        
+                        self.vibesController?.globCollectionView.reloadData()
+                        self.vibesController?.dismiss(animated: true, completion: nil)
+                        
+                    })
                 }
             }))
             
-            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
+            alertController.addAction(NYAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
                 
-                print("canceled")
+                self.vibesController?.dismiss(animated: true, completion: nil)
                 
             }))
             
-            let popover = alertController.popoverPresentationController
-            popover?.sourceView = self
-            popover?.sourceRect = self.bounds
-            popover?.permittedArrowDirections = UIPopoverArrowDirection.any
             
             self.vibesController?.present(alertController, animated: true, completion: {
                 
                 print("alert controller presented")
                 
-                
             })
-            
-            
+
         } else {
             
-            //Send a request
-            print("send a request", terminator: "")
+            //Cancel send?
+            print("cancel send?", terminator: "")
             
-            let alertController = UIAlertController(title: "Add \(firstName + " " + lastName) to your squad!", message: nil, preferredStyle: .actionSheet)
+            let alertController = NYAlertViewController()
             
-            alertController.addAction(UIAlertAction(title: "Send Request", style: .default, handler: { (action) in
-
+            alertController.title = "\(firstName + " " + lastName)"
+            alertController.titleColor = UIColor.black
+            
+            alertController.message = "Wanna add to \(firstName + " " + lastName) your squad?"
+            alertController.messageColor = UIColor.black
+            
+            alertController.buttonColor = UIColor.red
+            alertController.buttonTitleColor = UIColor.white
+            
+            alertController.cancelButtonColor = UIColor.lightGray
+            alertController.cancelButtonTitleColor = UIColor.white
+            
+            if let imageToAdd = profilePicOutlet.image {
+                
+                DispatchQueue.main.async(execute: {
+                    
+                    let imageView = UIImageView(image: imageToAdd)
+                    imageView.clipsToBounds = true
+                    imageView.addConstraint(NSLayoutConstraint(item: imageView, attribute: .height, relatedBy: .equal, toItem: imageView, attribute: .width, multiplier: 1, constant: 0))
+                    
+                    imageView.contentMode = .scaleAspectFill
+                    
+                    alertController.alertViewContentView = imageView
+                    
+                })
+            }
+            
+            alertController.addAction(NYAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
+                
+                self.vibesController?.dismiss(animated: true, completion: nil)
+                
+            }))
+            
+            alertController.addAction(NYAlertAction(title: "Send Request", style: .default, handler: { (action) in
+                
                 if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.vibesController?.rootController?.selfData, let firstName = selfData["firstName"] as? String, let lastName = selfData["lastName"] as? String, let scopeUID = scopeUserData["userUID"] as? String {
                     
                     let yourRef = FIRDatabase.database().reference().child("users").child(scopeUID)
@@ -207,22 +290,13 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
                     
                     ref.child("squadRequests").child(selfUID).setValue(squadItem)
                     ref.child("notifications").child(selfUID).child("squadRequest").setValue(notificationItem)
-
+                    
+                    self.vibesController?.dismiss(animated: true, completion: nil)
+                    
                     self.vibesController?.globCollectionView.reloadData()
                     
                 }
             }))
-
-            alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
-                
-                print("canceled")
-                
-            }))
-            
-            let popover = alertController.popoverPresentationController
-            popover?.sourceView = self
-            popover?.sourceRect = self.bounds
-            popover?.permittedArrowDirections = UIPopoverArrowDirection.any
             
             self.vibesController?.present(alertController, animated: true, completion: {
                 
@@ -254,7 +328,23 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
 
     func loadCell(_ data: [AnyHashable: Any]) {
         
+        self.onlineIndicatorOutlet.layer.cornerRadius = 5
+        
         self.data = data
+        
+        if vibesController?.rootController?.bottomNavController?.torontoOutlet.text == "The World" {
+            
+            if let city = data["city"] as? String {
+                
+                cityOutlet.text = city
+                
+            }
+
+        } else {
+            
+            cityOutlet.text = ""
+            
+        }
 
         profilePicOutlet.image = nil
         
@@ -406,8 +496,18 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
                 
                 if self.uid == uid {
                     
-                    //DO SOMETHING WITH ONLINE
-                    
+                    if let online = snapshot.value as? Bool {
+                        
+                        if online {
+                            
+                            self.onlineIndicatorOutlet.backgroundColor = UIColor.green
+
+                        } else {
+                            
+                            self.onlineIndicatorOutlet.backgroundColor = UIColor.red
+     
+                        }
+                    }
                 }
             })
         }
@@ -432,11 +532,5 @@ class VibeHeaderCollectionCell: UICollectionViewCell {
         squadIndicatorOutlet.image = nil
  
     }
-    
-    
-    override var bounds: CGRect {
-        didSet {
-            contentView.frame = bounds
-        }
-    }
+
 }

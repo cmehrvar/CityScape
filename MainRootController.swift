@@ -15,23 +15,23 @@ import SDWebImage
 import AVFoundation
 
 fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
-  switch (lhs, rhs) {
-  case let (l?, r?):
-    return l < r
-  case (nil, _?):
-    return true
-  default:
-    return false
-  }
+    switch (lhs, rhs) {
+    case let (l?, r?):
+        return l < r
+    case (nil, _?):
+        return true
+    default:
+        return false
+    }
 }
 
 fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
-  switch (lhs, rhs) {
-  case let (l?, r?):
-    return l > r
-  default:
-    return rhs < lhs
-  }
+    switch (lhs, rhs) {
+    case let (l?, r?):
+        return l > r
+    default:
+        return rhs < lhs
+    }
 }
 
 
@@ -42,7 +42,7 @@ class MainRootController: UIViewController {
     var locationFromFirebase = false
     
     var homeIsVisible = true
-
+    
     var menuIsRevealed = false
     var nearbyIsRevealed = false
     var vibesIsRevealed = false
@@ -66,12 +66,14 @@ class MainRootController: UIViewController {
     
     var vibesLoadedFromSelf = false
     
+    var navIsShown = true
+    
     var currentTab = 0
     
     var timer = Timer()
-
+    
     //OUTLETS
-
+    
     //constraints
     @IBOutlet weak var topNavCenter: NSLayoutConstraint!
     @IBOutlet weak var vibesTrailing: NSLayoutConstraint!
@@ -105,13 +107,14 @@ class MainRootController: UIViewController {
     @IBOutlet weak var leaderboardBottomOutlet: NSLayoutConstraint!
     @IBOutlet weak var contactTopOutlet: NSLayoutConstraint!
     @IBOutlet weak var contactBottomOutlet: NSLayoutConstraint!
+    @IBOutlet weak var cameraContainerCenterOutlet: NSLayoutConstraint!
     
     @IBOutlet weak var settingsTopConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var settingsBottomConstOutlet: NSLayoutConstraint!
     
     @IBOutlet weak var facebookTopConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var facebookBottomConstOutlet: NSLayoutConstraint!
-
+    
     //views
     @IBOutlet weak var closeMenuContainer: UIView!
     @IBOutlet weak var handlePostContainer: UIView!
@@ -137,7 +140,7 @@ class MainRootController: UIViewController {
     @IBOutlet weak var actionsContainer: UIView!
     @IBOutlet weak var cameraContainer: UIView!
     
-
+    
     //View Controllers
     weak var actionsController: ActionsViewController?
     weak var topNavController: TopNavBarController?
@@ -164,7 +167,7 @@ class MainRootController: UIViewController {
     weak var settingsController: SettingsViewController?
     weak var facebookController: AddFromFacebookController?
     weak var cameraController: CameraViewController?
-
+    
     @IBAction func composeMessage(_ sender: AnyObject) {
         
         toggleHome { (bool) in
@@ -185,178 +188,20 @@ class MainRootController: UIViewController {
             
             print("camera")
             
-            self.toggleCamera(completion: { (bool) in
+            self.toggleCamera(type: "feed", chatType: "", completion: { (bool) in
                 
                 print("camera presented")
                 
-            })            
+            })
         })
     }
     
     
-    /*
-    func presentFusumaCamera(){
-        
-        UIApplication.shared.isStatusBarHidden = true
-        
-        let fusuma = FusumaViewController()
-        fusuma.delegate = self
-        fusuma.hasVideo = true
-        fusuma.modalTransitionStyle = UIModalTransitionStyle.crossDissolve
-        
-        present(fusuma, animated: true) {
-            
-            self.cameraTransitionOutlet.alpha = 1
-            
-            self.view.layoutIfNeeded()
-            
-        }
-    }
     
-    //Adobe Delegates
-    
-    
-    func photoEditor(_ editor: AdobeUXImageEditorViewController, finishedWith image: UIImage?) {
-
-        editor.dismiss(animated: false) {
-            
-            UIApplication.shared.isStatusBarHidden = false
-            
-            self.toggleHandlePost(image, videoURL: nil, isImage: true, completion: { (bool) in
-                
-                self.cameraTransitionOutlet.alpha = 0
-                print("handle post toggled")
-                
-            })
-            
-        }
-        
-        print("photo editor chosen")
-        
-    }
-    func photoEditorCanceled(_ editor: AdobeUXImageEditorViewController) {
-        
-        let transition: CATransition = CATransition()
-        transition.duration = 0.3
-        transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
-        transition.type = kCATransitionPush
-        transition.subtype = kCATransitionFromLeft
-        editor.view.window?.layer.add((transition), forKey: nil)
-        
-        editor.dismiss(animated: false) {
-            
-            self.cameraTransitionOutlet.alpha = 1
-            
-            self.presentFusumaCamera()
-        }
-        print("photo editor cancelled")
-        
-    }
-    
-    //Fusuma Delegates
-    
-    
-    func fusumaImageSelected(_ image: UIImage) {
-        
-        print("image selected")
-        
-    }
-    
-    func fusumaDismissedWithImage(_ image: UIImage) {
-        
-        print("fusuma dismissed with image")
-        
-        let transition: CATransition = CATransition()
-        transition.duration = 0.3
-        transition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
-        transition.type = kCATransitionPush
-        transition.subtype = kCATransitionFromRight
-        self.view.window?.layer.add((transition), forKey: nil)
-        
-        
-        let editorController = AdobeUXImageEditorViewController(image: image)
-        editorController.delegate = self
-        
-        self.present(editorController, animated: false, completion: nil)
-        
-    }
-    
-    func fusumaVideoCompleted(withFileURL fileURL: URL) {
-
-        UIApplication.shared.isStatusBarHidden = false
-        
-        let asset = AVURLAsset(url: fileURL)
-        let imgGenerator = AVAssetImageGenerator(asset: asset)
-        imgGenerator.appliesPreferredTrackTransform = true
-        
-        do {
-            
-            let cgImage =  try imgGenerator.copyCGImage(at: CMTimeMake(0, 1), actualTime: nil)
-            let uiImage = UIImage(cgImage: cgImage)
-            
-            self.toggleHandlePost(uiImage, videoURL: fileURL, isImage: false, completion: { (bool) in
-                print("video handled")
-                self.cameraTransitionOutlet.alpha = 0
-            })
-            
-            
-        } catch let error {
-            print(error)
-        }
-        
-        print("fusuma video completed")
-        
-        
-    }
-    
-    func fusumaCameraRollUnauthorized() {
-        
-        let alertController = UIAlertController(title: "Sorry", message: "Camera not authorized", preferredStyle:  UIAlertControllerStyle.alert)
-        alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.cancel, handler: nil))
-        self.present(alertController, animated: true, completion: nil)
-        
-        print("camera unauthorized")
-        
-    }
-    
-    func fusumaClosed() {
-        
-        UIApplication.shared.isStatusBarHidden = false
-        
-        self.cameraTransitionOutlet.alpha = 0
-        
-    }
-    */
-    func alpha0actionBar(){
-        
-        /*
-        UIView.animate(withDuration: 0.3) { 
-            
-            self.actionsContainer.alpha = 0
-            self.cameraButtonIcon.alpha = 0
-            self.view.layoutIfNeeded()
-            
-        }
-        */
-    }
-    
-    
-    func alpha1actionBar(){
-        
-        /*
-        UIView.animate(withDuration: 0.3) {
-            
-            self.actionsContainer.alpha = 1
-            self.cameraButtonIcon.alpha = 1
-            self.view.layoutIfNeeded()
-            
-        }
- */
-        
-    }
-
     //Toggle Functions
-    func toggleCamera(completion: @escaping (Bool) -> ()){
+    func toggleCamera(type: String, chatType: String, completion: @escaping (Bool) -> ()){
+        
+        self.cameraContainerCenterOutlet.constant = 0
         
         var cameraAlpha: CGFloat = 0
         UIApplication.shared.isStatusBarHidden = false
@@ -364,10 +209,35 @@ class MainRootController: UIViewController {
         cameraController?.cameraButtonOutlet.setTitleColor(UIColor.init(netHex: 0x077AFF), for: .normal)
         cameraController?.videoButtonOutlet.setTitleColor(UIColor.white, for: .normal)
         
+        cameraController?.flashState = 2
+        cameraController?.flashButtonOutlet.setImage(UIImage(named: "autoFlash"), for: .normal)
+        
         cameraController?.captureImage = true
         cameraController?.isRecording = false
         cameraController?.videoTimeViewOutlet.alpha = 0
-        cameraController?.tapToTakeOutlet.text = "Tap to take a photo!"
+        
+        cameraController?.cameraType = type
+        cameraController?.chatType = chatType
+        
+        
+        if type == "feed" {
+            
+            if let myCity = self.selfData["city"] as? String {
+                
+                cameraController?.tapToTakeOutlet.text = "Show off YOUR \(myCity)!"
+                
+            }
+
+            
+        } else {
+            
+            cameraController?.tapToTakeOutlet.text = ""
+
+            
+        }
+        
+        
+        
         cameraController?.flipCameraButtonOutlet.alpha = 1
         cameraController?.videoTimeLabelOutlet.text = "10s"
         
@@ -376,31 +246,31 @@ class MainRootController: UIViewController {
         if !cameraRevealed {
             
             cameraAlpha = 1
-
+            
             //UIApplication.shared.isStatusBarHidden = true
             
         } else {
             
             //UIApplication.shared.isStatusBarHidden = false
-
+            
         }
-
+        
         cameraRevealed = !cameraRevealed
         
         UIView.animate(withDuration: 0.3, animations: {
             
             self.cameraContainer.alpha = cameraAlpha
-        
+            
             self.view.layoutIfNeeded()
             
         }) { (bool) in
             
-            self.cameraController?.initializeCamera()
             completion(bool)
-            
+            self.cameraController?.initializeCamera()
+
         }
     }
-
+    
     func toggleAddFromFacebook(completion: @escaping (Bool) -> ()) {
         
         var offset: CGFloat = 0
@@ -410,9 +280,9 @@ class MainRootController: UIViewController {
             offset = self.view.bounds.height
             
         } else {
-
+            
             facebookController?.loadFacebookFriends()
-
+            
         }
         
         addFromFacebookIsRevealed = !addFromFacebookIsRevealed
@@ -424,10 +294,10 @@ class MainRootController: UIViewController {
             
             self.view.layoutIfNeeded()
             
-            }) { (bool) in
-                
-                completion(bool)
-                
+        }) { (bool) in
+            
+            completion(bool)
+            
         }
     }
     
@@ -451,11 +321,11 @@ class MainRootController: UIViewController {
             
             self.view.layoutIfNeeded()
             
-            }, completion: { (bool) in
-                
-                completion(bool)
-                
-        }) 
+        }, completion: { (bool) in
+            
+            completion(bool)
+            
+        })
     }
     
     
@@ -479,11 +349,11 @@ class MainRootController: UIViewController {
             
             self.view.layoutIfNeeded()
             
-            }, completion: { (bool) in
-                
-                completion(bool)
-                
-        }) 
+        }, completion: { (bool) in
+            
+            completion(bool)
+            
+        })
     }
     
     
@@ -512,17 +382,19 @@ class MainRootController: UIViewController {
             
             self.view.layoutIfNeeded()
             
-            }, completion: { (bool) in
-                
-                completion(bool)
-                
-        }) 
+        }, completion: { (bool) in
+            
+            completion(bool)
+            
+        })
     }
     
     
     func toggleHome(_ completion: @escaping (Bool) -> ()) {
-
+        
         homeIsVisible = true
+        
+        self.navIsShown = true
         
         let screenHeight = self.view.bounds.height
         
@@ -532,8 +404,6 @@ class MainRootController: UIViewController {
         self.menuController?.view.endEditing(true)
         self.snapchatController?.view.endEditing(true)
         
-        self.vibesFeedController?.navHidden = false
-
         var searchAlpha: CGFloat = 0
         var scopeSearchRevealed = false
         
@@ -574,7 +444,7 @@ class MainRootController: UIViewController {
                     
                     self.squadTopConstOutlet.constant = -screenHeight
                     self.squadBottomConstOutlet.constant = screenHeight
-
+                    
                     
                 } else if self.squadCountRevealed {
                     
@@ -586,7 +456,7 @@ class MainRootController: UIViewController {
                     
                 }
             }
-
+            
             
             if self.squadCountRevealed || self.requestsRevealed || (self.chatRevealed && self.profileRevealed) {
                 
@@ -670,14 +540,14 @@ class MainRootController: UIViewController {
             }
             
             if self.profileRevealed {
-
+                
                 if let profileUID = self.profileController?.userData["uid"] as? String {
                     
                     self.profileController?.retrieveUserData(profileUID)
                     
                 }
             }
-
+            
             self.chatRevealed = false
             
             if self.currentTab != 1 {
@@ -688,12 +558,12 @@ class MainRootController: UIViewController {
                     
                 }
             }
- 
+            
             completion(complete)
             
-        }) 
+        })
     }
-
+    
     
     func toggleNearby(_ completion: @escaping (Bool) -> ()) {
         
@@ -779,7 +649,7 @@ class MainRootController: UIViewController {
             
             completion(complete)
             
-        }) 
+        })
     }
     
     
@@ -793,7 +663,7 @@ class MainRootController: UIViewController {
         self.chatController?.view.endEditing(true)
         self.menuController?.view.endEditing(true)
         self.snapchatController?.view.endEditing(true)
-
+        
         let mainDrawerWidthConstant: CGFloat = (self.view.bounds.width) * 0.8
         
         var notificationOffset: CGFloat = 0
@@ -825,7 +695,7 @@ class MainRootController: UIViewController {
             
             completion(complete)
             
-        }) 
+        })
     }
     
     
@@ -846,7 +716,7 @@ class MainRootController: UIViewController {
         self.snapchatController?.view.endEditing(true)
         
         profileRevealed = true
-
+        
         profileController?.userData.removeAll()
         
         profileController?.globCollectionCell.reloadData()
@@ -857,7 +727,7 @@ class MainRootController: UIViewController {
         profileController?.currentPicture = 1
         profileController?.currentUID = uid
         profileController?.selfProfile = selfProfile
-
+        
         profileController?.retrieveUserData(uid)
         
         let screenHeight = self.view.bounds.height
@@ -875,7 +745,7 @@ class MainRootController: UIViewController {
             self.topNavConstOutlet.constant = 0
             self.bottomProfileConstOutlet.constant = 0
             self.topProfileConstOutlet.constant = 0
-
+            
             
             self.view.layoutIfNeeded()
             
@@ -885,13 +755,13 @@ class MainRootController: UIViewController {
             
             self.requestsRevealed = false
             self.squadCountRevealed = false
-        }) 
+        })
     }
     
     
     
     func openSquadCount(_ userData: [AnyHashable: Any], completion: @escaping (Bool) -> ()){
-
+        
         UIApplication.shared.isStatusBarHidden = false
         
         homeIsVisible = false
@@ -931,7 +801,7 @@ class MainRootController: UIViewController {
             self.squadCountController?.globTableViewOutlet.reloadData()
             
         }
-
+        
         if let userUID = userData["uid"] as? String, let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
             squadCountController?.uid = userUID
@@ -964,10 +834,10 @@ class MainRootController: UIViewController {
                 
                 completion(bool)
                 
-            }) 
+            })
         }
     }
-
+    
     
     func openRequests(_ completion: @escaping (Bool) -> ()){
         
@@ -978,7 +848,7 @@ class MainRootController: UIViewController {
         requestsRevealed = true
         
         requestsController?.globTableViewOutlet.reloadData()
-
+        
         UIView.animate(withDuration: 0.3, animations: {
             
             self.requestsTopConstOutlet.constant = 0
@@ -990,10 +860,10 @@ class MainRootController: UIViewController {
             
             completion(bool)
             
-        }) 
+        })
     }
     
-
+    
     func revealMatch(_ uid: String!, completion: @escaping (Bool) -> ()) {
         
         self.chatController?.view.endEditing(true)
@@ -1089,11 +959,11 @@ class MainRootController: UIViewController {
             
             completion(complete)
             
-        }) 
+        })
     }
     
     func closeMatch(_ uid: String, profile: String, firstName: String, lastName: String, keepPlaying: Bool, completion: (Bool) -> ()){
-
+        
         if let myUID = FIRAuth.auth()?.currentUser?.uid {
             
             let ref = FIRDatabase.database().reference()
@@ -1106,19 +976,19 @@ class MainRootController: UIViewController {
                 let myMatchData: [AnyHashable : Any] = ["uid" : myUID, "lastActivity" : activityTime, "firstName" : myFirstName, "lastName" : myLastName]
                 ref.child("users").child(uid).child("matches").child(myUID).updateChildValues(myMatchData)
             }
-
+            
             ref.child("users").child(myUID).child("matches").child(uid).updateChildValues(yourMatchData)
             ref.child("users").child(myUID).child("matchesDisplayed").updateChildValues([uid : true])
             
             var notificationItem = [AnyHashable: Any]()
-
+            
             notificationItem["firstName"] = firstName
             notificationItem["lastName"] = lastName
             notificationItem["type"] = "likesYou"
             notificationItem["timeStamp"] = activityTime
             notificationItem["read"] = false
             notificationItem["uid"] = uid
-
+            
             ref.child("users").child(myUID).child("notifications").child(uid).child("likesYou").setValue(notificationItem)
             
             UIView.animate(withDuration: 0.3, animations: {
@@ -1126,33 +996,33 @@ class MainRootController: UIViewController {
                 self.itsAMatchContainerOutlet.alpha = 0
                 self.view.layoutIfNeeded()
                 
-                }, completion: { (bool) in
-
-                    if keepPlaying {
+            }, completion: { (bool) in
+                
+                if keepPlaying {
+                    
+                    print("back to last screen")
+                    self.matchIsRevealed = false
+                    
+                } else {
+                    
+                    self.toggleMessages({ (bool) in
                         
-                        print("back to last screen")
-                        self.matchIsRevealed = false
-                        
-                    } else {
-                        
-                        self.toggleMessages({ (bool) in
-
-                            self.toggleChat("matches", key: uid, city: nil, firstName: firstName, lastName: lastName, profile: profile, completion: { (bool) in
-                                
-                                print("chat toggled")
-                                
-                                self.matchIsRevealed = false
-                                
-                            })
+                        self.toggleChat("matches", key: uid, city: nil, firstName: firstName, lastName: lastName, profile: profile, completion: { (bool) in
+                            
+                            print("chat toggled")
+                            
+                            self.matchIsRevealed = false
                             
                         })
-                    }
+                        
+                    })
+                }
             })
         }
     }
     
     func toggleChat(_ type: String, key: String?, city: String?, firstName: String?, lastName: String?, profile: String?, completion: @escaping (Bool) -> ()) {
-
+        
         homeIsVisible = false
         
         clearVibesPlayers()
@@ -1175,7 +1045,7 @@ class MainRootController: UIViewController {
             topChatController?.settingsButtonOutlet.isEnabled = true
             
         }
-
+        
         if let selfUID = FIRAuth.auth()?.currentUser?.uid {
             
             if type == "matches" {
@@ -1188,7 +1058,7 @@ class MainRootController: UIViewController {
                     refToPass = "/users/\(selfUID)/matches/\(uid)"
                     
                 }
-
+                
                 topChatController?.iconOutlet.image = UIImage(named: "chatHeartIcon")
                 
                 topChatController?.type = "matches"
@@ -1207,7 +1077,7 @@ class MainRootController: UIViewController {
                     refToPass = "/users/\(selfUID)/squad/\(uid)"
                     
                 }
-
+                
                 topChatController?.iconOutlet.image = UIImage(named: "sendSquad")
                 
                 topChatController?.type = "squad"
@@ -1301,21 +1171,38 @@ class MainRootController: UIViewController {
             
             completion(complete)
             
-        }) 
+        })
     }
     
-    func toggleHandlePost(_ image: UIImage?, videoURL: URL?, isImage: Bool, completion: (Bool) -> ()) {
-
+    func toggleHandlePost(_ image: UIImage?, videoURL: URL?, isImage: Bool, completion: @escaping (Bool) -> ()) {
+        
         print("handlePostIsRevealed: \(handlePostIsRevealed)")
         
-        if !handlePostIsRevealed {
+        cameraController?.cameraButtonOutlet.setTitleColor(UIColor.init(netHex: 0x077AFF), for: .normal)
+        cameraController?.videoButtonOutlet.setTitleColor(UIColor.white, for: .normal)
+        
+        cameraController?.flashState = 2
+        cameraController?.flashButtonOutlet.setImage(UIImage(named: "autoFlash"), for: .normal)
+        
+        cameraController?.captureImage = true
+        cameraController?.isRecording = false
+        cameraController?.videoTimeViewOutlet.alpha = 0
 
+        cameraController?.flipCameraButtonOutlet.alpha = 1
+        cameraController?.videoTimeLabelOutlet.text = "10s"
+        
+        cameraController?.captureButtonOutlet.setImage(UIImage(named: "cameraIcon"), for: .normal)
+        
+        
+        if !handlePostIsRevealed {
+            
             if let myCity = selfData["city"] as? String {
                 
                 handlePostController?.postToCurrentCityOutlet.text = "Post to \(myCity) feed?"
                 
             }
             
+            handlePostController?.shouldUpload = false
             handlePostController?.postToFacebookSelected = false
             handlePostController?.facebookButtonViewOutlet.backgroundColor = UIColor.lightGray
             handlePostController?.postToFacebookLabelOutlet.text = "NO"
@@ -1334,25 +1221,46 @@ class MainRootController: UIViewController {
                 handlePostController?.videoOutlet.alpha = 1
                 
             }
-    
+            
             handlePostController?.image = image
             
             handlePostController?.videoURL = videoURL
             
             handlePostController?.handleCall()
-            completion(true)
             
+            let width = self.view.bounds.width
+            
+            UIView.animate(withDuration: 0.3, animations: {
+                
+                self.cameraContainerCenterOutlet.constant = -width
+                self.view.layoutIfNeeded()
+                
+            }, completion: { (bool) in
+                
+                self.cameraContainer.alpha = 0
+                completion(true)
+                
+            })
+
         } else {
             
             print("handle close")
             
-            homeIsVisible = true
-            handlePostController?.image = nil
-            handlePostController?.videoOutlet.alpha = 0
-            
-            self.handlePostContainer.alpha = 0
-            
-                        
+            UIView.animate(withDuration: 0.3, animations: {
+                
+                self.cameraContainerCenterOutlet.constant = 0
+                self.view.layoutIfNeeded()
+                
+            }, completion: { (bool) in
+                
+                self.homeIsVisible = true
+                self.handlePostController?.image = nil
+                self.handlePostController?.videoOutlet.alpha = 0
+
+                self.handlePostContainer.alpha = 0
+                
+            })
+
         }
         
         handlePostIsRevealed = !handlePostIsRevealed
@@ -1379,7 +1287,6 @@ class MainRootController: UIViewController {
         
         //HANDLE SNAPS
         snapchatController?.nextEnabled = true
-        snapchatController?.mostRecentTimeInterval = nil
         snapchatController?.firstImageLoaded = false
         
         if let start = startingi {
@@ -1393,15 +1300,15 @@ class MainRootController: UIViewController {
                 snapchatController?.currentIndex = start - 1
                 
             }
-
+            
         } else {
             
             snapchatController?.currentIndex = 0
             
         }
-
+        
         snapchatController?.snapchatChatController?.currentPostKey = ""
-
+        
         if let snapController = snapchatController, let chatController = snapController.snapchatChatController {
             
             NotificationCenter.default.addObserver(chatController, selector: #selector(chatController.hideKeyboard), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
@@ -1409,8 +1316,41 @@ class MainRootController: UIViewController {
             NotificationCenter.default.addObserver(chatController, selector: #selector(chatController.showKeyboard), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
             
         }
+        
+        DispatchQueue.main.async {
+            
+            UIApplication.shared.isStatusBarHidden = true
+            
+            UIView.animate(withDuration: 0.3, animations: {
+                
+                self.snapchatContainerOutlet.alpha = 1
+                self.view.layoutIfNeeded()
+                
+            }, completion: { (bool) in
+                
+                self.snapchatController?.screenIsCircle = false
+                self.snapchatController?.isPanning = false
+                self.snapchatController?.longPressEnabled = false
+                
+                self.snapchatController?.hideChat()
+                
+                self.snapXOutlet.constant = 0
+                self.snapYOutlet.constant = 0
+                
+                self.snapchatController?.view.layer.cornerRadius = 0
+                
+                self.snapWidthConstOutlet.constant = self.view.bounds.width
+                
+                self.snapWidthConstOutlet.constant = self.view.bounds.width
+                self.snapHeightConstOutlet.constant = self.view.bounds.height
+                
+            })
+        }
 
+        
         if let given = givenPosts, let givenIndex = startingi {
+            
+            
             
             self.snapchatController?.posts = given as [[NSObject : AnyObject]]
             
@@ -1418,76 +1358,21 @@ class MainRootController: UIViewController {
                 
                 print("start content loaded")
                 
-                DispatchQueue.main.async {
-                    
-                    UIApplication.shared.isStatusBarHidden = true
-                    
-                    UIView.animate(withDuration: 0.3, animations: {
-  
-                        self.snapchatContainerOutlet.alpha = 1
-                        self.view.layoutIfNeeded()
-                        
-                        }, completion: { (bool) in
-
-                            self.snapchatController?.screenIsCircle = false
-                            self.snapchatController?.isPanning = false
-                            self.snapchatController?.longPressEnabled = false
-                            
-                            self.snapchatController?.hideChat()
-                            
-                            self.snapXOutlet.constant = 0
-                            self.snapYOutlet.constant = 0
-                            
-                            self.snapchatController?.view.layer.cornerRadius = 0
-                            
-                            self.snapWidthConstOutlet.constant = self.view.bounds.width
-                            
-                            self.snapWidthConstOutlet.constant = self.view.bounds.width
-                            self.snapHeightConstOutlet.constant = self.view.bounds.height
-                            
-                    })
-                }
-            })
+                            })
+            
             
             
         } else {
-            
+
             self.snapchatController?.observePosts(100, completion: { (bool) in
                 
-                DispatchQueue.main.async {
-                    
-                    UIApplication.shared.isStatusBarHidden = true
-                    
-                    UIView.animate(withDuration: 0.3, animations: {
-                        
-                        self.snapchatContainerOutlet.alpha = 1
-                        self.view.layoutIfNeeded()
-                        
-                        }, completion: { (bool) in
-
-                            self.snapchatController?.screenIsCircle = false
-                            self.snapchatController?.isPanning = false
-                            self.snapchatController?.longPressEnabled = false
-                            
-                            self.snapchatController?.hideChat()
-                            
-                            self.snapXOutlet.constant = 0
-                            self.snapYOutlet.constant = 0
-                            
-                            self.snapchatController?.view.layer.cornerRadius = 0
-                            
-                            self.snapWidthConstOutlet.constant = self.view.bounds.width
-                            self.snapHeightConstOutlet.constant = self.view.bounds.height
-                            
-                            
-                            completion(bool)
-                            
-                    })
-                }
-            })
+                print("posts observed")
+                
+                
+                            })
         }
     }
-
+    
     func toggleAddToChat(_ members: [String]?, chatKey: String?, completion: ((Bool) -> ())){
         
         homeIsVisible = false
@@ -1509,7 +1394,7 @@ class MainRootController: UIViewController {
             
             addToChatController?.globTableViewOutlet.reloadData()
             addToChatController?.globCollectionViewOutlet.reloadData()
-
+            
         } else {
             
             if let memberValue = members, let key = chatKey {
@@ -1522,16 +1407,16 @@ class MainRootController: UIViewController {
         
         addToChatRevealed = !addToChatRevealed
         
-        UIView.animate(withDuration: 0.3, animations: { 
+        UIView.animate(withDuration: 0.3, animations: {
             
             self.addToChatTopConstOutlet.constant = topConstOutlet
             self.addToChatBottomConstOutlet.constant = bottomConstOutlet
             
             self.view.layoutIfNeeded()
-
-        }) 
+            
+        })
     }
-
+    
     
     func toggleSearch(_ completion: @escaping (Bool) -> ()){
         
@@ -1544,8 +1429,6 @@ class MainRootController: UIViewController {
         
         searchController?.searchBarOutlet.text = nil
         searchController?.searchBarActive = false
-        searchController?.userController?.globCollectionView.reloadData()
-        searchController?.cityController?.globCollectionView.reloadData()
         
         self.showNav(0.3) { (bool) in
             
@@ -1579,30 +1462,30 @@ class MainRootController: UIViewController {
                 self.requestsRevealed = false
                 completion(bool)
                 
-            }) 
+            })
         }
     }
     
     
     
     func composeChat(_ open: Bool, completion: @escaping (Bool) -> ()) {
-
+        
         homeIsVisible = false
         
         self.composedRevealed = open
         
         var topConst: CGFloat = 0
         var bottomConst: CGFloat = 0
-
+        
         if !open {
             
             let screenHeight = self.view.bounds.height
             
             topConst = screenHeight
             bottomConst = -screenHeight
-
+            
         }
-
+        
         composeChatController?.globTableViewOutlet.setContentOffset(CGPoint.zero, animated: false)
         
         UIView.animate(withDuration: 0.3, animations: {
@@ -1611,24 +1494,25 @@ class MainRootController: UIViewController {
             self.composeContainerBottomConstOutlet.constant = bottomConst
             
             self.view.layoutIfNeeded()
-
-            }, completion: { (bool) in
-                
-                self.composeChatController?.selectedSquad.removeAll()
-                self.composeChatController?.userSelected.removeAll()
-                self.composeChatController?.getTalkinOutlet.isEnabled = false
-                
-                self.composeChatController?.globCollectionViewOutlet.reloadData()
-                self.composeChatController?.globTableViewOutlet.reloadData()
-
-                completion(bool)
-                
-        }) 
+            
+        }, completion: { (bool) in
+            
+            self.composeChatController?.selectedSquad.removeAll()
+            self.composeChatController?.userSelected.removeAll()
+            self.composeChatController?.getTalkinOutlet.isEnabled = false
+            
+            self.composeChatController?.globCollectionViewOutlet.reloadData()
+            self.composeChatController?.globTableViewOutlet.reloadData()
+            
+            completion(bool)
+            
+        })
     }
-
+    
     
     func hideAllNav(_ completion: @escaping (Bool) -> ()) {
         
+        self.navIsShown = false
         UIApplication.shared.isStatusBarHidden = true
         
         UIView.animate(withDuration: 0.3, animations: {
@@ -1640,25 +1524,12 @@ class MainRootController: UIViewController {
             
             completion(complete)
             
-        }) 
-    }
-    
-    func hideTopNav(_ completion: @escaping (Bool) -> ()){
-        
-        UIView.animate(withDuration: 0.3, animations: {
-            
-            self.bottomNavConstOutlet.constant = -40
-            
-            self.view.layoutIfNeeded()
-            
-        }, completion: { (complete) in
-            
-            completion(complete)
-            
-        }) 
+        })
     }
     
     func showNav(_ animatingTime: TimeInterval, completion: @escaping (Bool) -> ()){
+        
+        self.navIsShown = true
         
         if !self.profileRevealed {
             
@@ -1669,7 +1540,7 @@ class MainRootController: UIViewController {
             UIApplication.shared.isStatusBarHidden = true
             
         }
- 
+        
         UIView.animate(withDuration: animatingTime, animations: {
             
             self.topNavConstOutlet.constant = 0
@@ -1678,14 +1549,12 @@ class MainRootController: UIViewController {
             self.view.layoutIfNeeded()
             
         }, completion: { (complete) in
-            
-            
+
             self.vibesFeedController?.transitioning = false
-            self.vibesFeedController?.navHidden = false
             
             completion(complete)
             
-        }) 
+        })
     }
     
     
@@ -1703,7 +1572,7 @@ class MainRootController: UIViewController {
             vibesFeedController?.globCollectionView.reloadData()
             
         }
-
+        
         let vibesConst = self.view.bounds.width
         
         self.showNav(0.6, completion: { (bool) in
@@ -1755,7 +1624,7 @@ class MainRootController: UIViewController {
             
             print("slid")
             
-        }) 
+        })
     }
     
     func loadSelfData(_ completion: @escaping ([AnyHashable: Any]) -> ()){
@@ -1765,7 +1634,7 @@ class MainRootController: UIViewController {
             let ref = FIRDatabase.database().reference().child("users").child(selfUID)
             
             ref.observe(.value, with: { (snapshot) in
-
+                
                 if let value = snapshot.value as? [AnyHashable: Any]{
                     
                     if let appDelegate = UIApplication.shared.delegate as? AppDelegate {
@@ -1781,9 +1650,9 @@ class MainRootController: UIViewController {
                         self.snapchatController?.checkSquad(currentSnapID, selfUID: selfUID)
                         
                     }
-
+                    
                     self.messagesController?.sortMessages(value)
-
+                    
                     if self.profileController?.currentUID == selfUID {
                         
                         self.profileController?.userData.removeAll()
@@ -1805,9 +1674,9 @@ class MainRootController: UIViewController {
                                 self.menuController?.charactersOutlet.text = "\(currentStatus.characters.count)/30 Characters"
                                 
                             }
-                        } 
+                        }
                     }
-    
+                    
                     
                     if let city = value["city"] as? String {
                         
@@ -1836,10 +1705,10 @@ class MainRootController: UIViewController {
                     }
                     
                     self.menuController?.setMenu()
-
+                    
                     //NOTIFICATIONS - selfLoadData
                     if let notifications = value["notifications"] as? [AnyHashable: Any] {
-
+                        
                         var sortedNotifications = [[AnyHashable: Any]]()
                         
                         var index = 0
@@ -1866,7 +1735,7 @@ class MainRootController: UIViewController {
                                 }
                             }
                         }
-        
+                        
                         sortedNotifications.sort(by: { (a: [AnyHashable: Any], b: [AnyHashable: Any]) -> Bool in
                             
                             if a["timeStamp"] as? TimeInterval > b["timeStamp"] as? TimeInterval {
@@ -1879,7 +1748,7 @@ class MainRootController: UIViewController {
                                 
                             }
                         })
- 
+                        
                         if index == 0 {
                             
                             self.topNavController?.numberOfNotificationsViewOutlet.alpha = 0
@@ -1890,7 +1759,7 @@ class MainRootController: UIViewController {
                             self.topNavController?.numberOfNotificationsOutlet.text = "\(index)"
                             
                         }
-
+                        
                         self.notificationController?.globNotifications = sortedNotifications as [[NSObject : AnyObject]]
                         
                     } else {
@@ -1898,9 +1767,9 @@ class MainRootController: UIViewController {
                         self.topNavController?.numberOfNotificationsViewOutlet.alpha = 0
                         self.notificationController?.globNotifications.removeAll()
                         
-
+                        
                     }
-
+                    
                     //Requests
                     if let requests = value["squadRequests"] as? [AnyHashable: Any] {
                         
@@ -1938,18 +1807,18 @@ class MainRootController: UIViewController {
                         
                         self.requestsController?.numberOfRequestsOutlet.text = "Requests: 0"
                         self.requestsController?.requests.removeAll()
-
+                        
                     }
-
+                    
                     if self.vibesLoadedFromSelf == false {
                         
                         self.vibesLoadedFromSelf = true
-
+                        
                         if value["interestedIn"] != nil {
-
+                            
                             self.nearbyController?.requestWhenInUseAuthorization()
                             self.nearbyController?.updateLocation()
-
+                            
                         } else {
                             
                             self.askInterestedIn()
@@ -1970,16 +1839,16 @@ class MainRootController: UIViewController {
                         } else {
                             
                             for gender in interestedIn {
-
+                                
                                 if gender == "male" {
                                     
                                     self.settingsController?.toggleInterestedInColor(1)
-
+                                    
                                     
                                 } else if gender == "female" {
                                     
                                     self.settingsController?.toggleInterestedInColor(2)
-
+                                    
                                     
                                 }
                             }
@@ -1999,7 +1868,7 @@ class MainRootController: UIViewController {
                         }
                     }
                     
-
+                    
                     if let squad = value["squad"] as? [AnyHashable: Any] {
                         
                         self.composeChatController?.loadTableView(squad)
@@ -2011,7 +1880,7 @@ class MainRootController: UIViewController {
                         self.searchController?.cityController?.observeCities()
                         
                     }
-
+                    
                     self.profileController?.globCollectionCell.reloadData()
                     self.squadCountController?.globTableViewOutlet.reloadData()
                     self.facebookController?.globTableViewOutlet.reloadData()
@@ -2025,11 +1894,11 @@ class MainRootController: UIViewController {
     }
     
     func checkForMatches(){
-
+        
         var uidToShow: String?
-
+        
         if let displayed = selfData["matchesDisplayed"] as? [String : Bool] {
-
+            
             for (key, value) in displayed {
                 
                 if value == false {
@@ -2055,7 +1924,7 @@ class MainRootController: UIViewController {
                         }
                     }
                 })
-
+                
                 
                 self.revealMatch(uidToShow, completion: { (bool) in
                     
@@ -2108,7 +1977,7 @@ class MainRootController: UIViewController {
                                         }
                                         
                                     })
-     
+                                    
                                     usersLocRef.child(myUID).child("matchesDisplayed").child(key).setValue(false)
                                     
                                     
@@ -2181,7 +2050,7 @@ class MainRootController: UIViewController {
                 
                 ref.child("users").child(uid).updateChildValues(["interestedIn" : ["male"]])
                 self.selfData["interestedIn"] = ["male"]
-
+                
                 self.nearbyController?.requestWhenInUseAuthorization()
                 self.nearbyController?.updateLocation()
                 
@@ -2201,7 +2070,7 @@ class MainRootController: UIViewController {
                 
                 ref.child("users").child(uid).updateChildValues(["interestedIn" : ["female"]])
                 self.selfData["interestedIn"] = ["female"]
-    
+                
                 self.nearbyController?.requestWhenInUseAuthorization()
                 self.nearbyController?.updateLocation()
                 
@@ -2221,7 +2090,7 @@ class MainRootController: UIViewController {
                 
                 ref.child("users").child(uid).updateChildValues(["interestedIn" : ["male", "female"]])
                 self.selfData["interestedIn"] = ["male", "female"]
-
+                
                 self.nearbyController?.requestWhenInUseAuthorization()
                 self.nearbyController?.updateLocation()
                 
@@ -2272,9 +2141,15 @@ class MainRootController: UIViewController {
                 profile.videoPlayers[i] = nil
                 profile.videoLayers[i] = nil
                 profile.videoAssets.removeAll()
-
+                
                 
             }
+            
+            profile.userData.removeAll()
+            profile.userPosts.removeAll()
+            
+            profile.globCollectionCell.reloadData()
+            
         }
     }
     
@@ -2319,7 +2194,7 @@ class MainRootController: UIViewController {
                     vibes.videoPlayers[i] = nil
                     vibes.videoLayers[i] = nil
                     vibes.videoAssets.removeAll()
-
+                    
                 }
             }
         }
@@ -2337,7 +2212,7 @@ class MainRootController: UIViewController {
             self.snapchatController?.topContentToHeaderOutlet.constant = -50
             self.snapchatController?.contentHeightConstOutlet.constant = screenHeight
             self.snapchatController?.commentStuffOutlet.alpha = 0
-
+            
             self.snapchatController?.alphaHeaderOutlet.alpha = 0.4
             self.snapchatController?.alphaHeaderOutlet.backgroundColor = UIColor.lightGray
             
@@ -2374,7 +2249,7 @@ class MainRootController: UIViewController {
             self.facebookTopConstOutlet.constant = screenHeight
             self.facebookBottomConstOutlet.constant = -screenHeight
             
-
+            
             self.menuWidthConstOutlet.constant = screenWidth * 0.8
             self.leadingMenu.constant = -(screenWidth * 0.8)
             
@@ -2383,7 +2258,7 @@ class MainRootController: UIViewController {
             
             self.vibesLeading.constant = screenWidth
             self.vibesTrailing.constant = -screenWidth
-
+            
             self.bottomNavController?.toggleColour(1)
             
             self.topChatContainerOutlet.alpha = 1
@@ -2511,7 +2386,7 @@ class MainRootController: UIViewController {
             let handlePost = segue.destination as? HandlePostController
             handlePostController = handlePost
             handlePostController?.rootController = self
-
+            
         } else if segue.identifier == "snapchatSegue" {
             
             let snapchat = segue.destination as? SnapchatViewController
@@ -2553,7 +2428,7 @@ class MainRootController: UIViewController {
             let composeChat = segue.destination as? ComposeChatController
             composeChatController = composeChat
             composeChatController?.rootController = self
-
+            
         } else if segue.identifier == "addToChatSegue" {
             
             let addToChat = segue.destination as? AddToChatController

@@ -183,47 +183,36 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
     
     
     //ScrollView Delegates
-    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        
-        searchController?.rootController?.alpha0actionBar()
-        
-    }
-    
-    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        
-        if !decelerate {
-            
-            searchController?.rootController?.alpha1actionBar()
-            
-        }
-    }
-    
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        
-        searchController?.rootController?.alpha1actionBar()
-        
-    }
-
     func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
         
-        if velocity.y > 0 {
+        if let navShown = self.searchController?.rootController?.navIsShown {
             
-            if globUsers.count > 6 {
+            if velocity.y > 0 {
                 
-                searchController?.rootController?.hideAllNav({ (bool) in
+                if globUsers.count > 6 {
                     
-                    print("all nav hided", terminator: "")
+                    if navShown {
+                        
+                        searchController?.rootController?.hideAllNav({ (bool) in
+                            
+                            print("all nav hided", terminator: "")
+                            
+                        })
+                        
+                    }
+                }
+                
+            } else if velocity.y < 0 {
+                
+                if !navShown {
                     
-                })
+                    searchController?.rootController?.showNav(0.3, completion: { (bool) in
+                        
+                        print("nav shown", terminator: "")
+                        
+                    })
+                }
             }
-            
-        } else if velocity.y < 0 {
-            
-            searchController?.rootController?.showNav(0.3, completion: { (bool) in
-                
-                print("nav shown", terminator: "")
-                
-            })
         }
     }
     
@@ -233,6 +222,8 @@ class UserController: UIViewController, UICollectionViewDelegate, UICollectionVi
         searchController?.toggleColour(1)
         
     }
+    
+   
     
     
     override func viewDidLoad() {

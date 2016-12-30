@@ -15,7 +15,7 @@ import SDWebImage
 import AWSS3
 import AVFoundation
 
-class TopChatController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UITextFieldDelegate {
+class TopChatController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout, UITextFieldDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
     var asset: AVAsset?
     var item: AVPlayerItem?
@@ -30,7 +30,7 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
     
     
     //SingleChat
-    @IBOutlet weak var profilePicOutlet: TopChatProfileView!
+    @IBOutlet weak var profilePicOutlet: UIImageView!
     @IBOutlet weak var iconOutlet: UIImageView!
     @IBOutlet weak var nameOutlet: UILabel!
     @IBOutlet weak var singleTitleViewOutlet: UIView!
@@ -40,10 +40,10 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
     @IBOutlet weak var squadMembersTitleOutlet: UILabel!
     @IBOutlet weak var groupTopViewOutlet: UIView!
     @IBOutlet weak var chatTitleOutlet: UILabel!
-    @IBOutlet weak var groupPhotoOutlet: TopChatProfileView!
+    @IBOutlet weak var groupPhotoOutlet: UIImageView!
     
     //Posts
-    @IBOutlet weak var postProfileOutlet: TopChatProfileView!
+    @IBOutlet weak var postProfileOutlet: UIImageView!
     @IBOutlet weak var postNameOutlet: UILabel!
     @IBOutlet weak var postCityOutlet: UILabel!
     @IBOutlet weak var postCaptionOutlet: UILabel!
@@ -340,6 +340,73 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
         })
     }
     
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingImage image: UIImage, editingInfo: [String : AnyObject]?) {
+        
+        
+        
+        
+        let scopeMembers = members
+        let scopeKey = chatKey
+        
+        DispatchQueue.main.async(execute: {
+            
+            let imageView = UIImageView(image: image)
+            imageView.clipsToBounds = true
+            imageView.addConstraint(NSLayoutConstraint(item: imageView, attribute: .height, relatedBy: .equal, toItem: imageView, attribute: .width, multiplier: 0.75, constant: 0))
+            
+            imageView.contentMode = .scaleAspectFill
+            
+            if let alertController = self.globAlertController {
+                
+                alertController.alertViewContentView = imageView
+                self.groupPhotoOutlet.image = image
+                self.dismiss(animated: true, completion: nil)
+                
+            }
+        })
+        
+        
+        
+        self.imageUploadRequest(image) { (url, uploadRequest) in
+            
+            let transferManager = AWSS3TransferManager.default()
+            
+            transferManager?.upload(uploadRequest).continue({ (task) -> Any? in
+                
+                if task.error == nil {
+                    
+                    print("successful image upload")
+                    
+                    FIRDatabase.database().reference().child("groupChats").child(scopeKey).child("groupPhoto").setValue(url)
+                    
+                    if let selfUID = FIRAuth.auth()?.currentUser?.uid {
+                        
+                        FIRDatabase.database().reference().child("users").child(selfUID).child("groupChats").child(scopeKey).child("groupPhoto").setValue(url)
+                        
+                    }
+                    
+                    for member in scopeMembers {
+                        
+                        FIRDatabase.database().reference().child("users").child(member).child("groupChats").child(scopeKey).child("groupPhoto").setValue(url)
+                        
+                    }
+                    
+                } else {
+                    print("error uploading: \(task.error)")
+                    
+                    let alertController = UIAlertController(title: "Sorry", message: "Error uploading profile picture, please try again later", preferredStyle:  UIAlertControllerStyle.alert)
+                    alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.cancel, handler: nil))
+                    self.present(alertController, animated: true, completion: nil)
+                    
+                }
+                
+                return nil
+                
+            })
+        }
+    }
+
+    
     /*
     
     func presentFusuma(){
@@ -499,6 +566,12 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
         return cell
     }
     
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        
+        return CGSize(width: 66, height: 78)
+        
+    }
+    
     
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -625,6 +698,42 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
                 //Edit Chat Photo
                 self.dismiss(animated: true, completion: {
                    // self.presentFusuma()
+                    
+                    DispatchQueue.main.async {
+                        
+                        let cameraProfile = UIImagePickerController()
+                        
+                        cameraProfile.delegate = self
+                        cameraProfile.allowsEditing = false
+                        
+                        let alertController = UIAlertController(title: "Edit profile picture", message: "Take a pic or choose from gallery?", preferredStyle:  UIAlertControllerStyle.alert)
+                        
+                        alertController.addAction(UIAlertAction(title: "Gallery", style: UIAlertActionStyle.default, handler: { (UIAlertAction) -> Void in
+                            
+                            cameraProfile.sourceType = UIImagePickerControllerSourceType.photoLibrary
+                            
+                            self.present(cameraProfile, animated: true, completion: nil)
+                            
+                        }))
+                        
+                        alertController.addAction(UIAlertAction(title: "Camera", style: UIAlertActionStyle.default, handler: { (UIAlertAction) -> Void in
+                            
+                            if UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.camera) {
+                                cameraProfile.sourceType = UIImagePickerControllerSourceType.camera
+                            }
+                            
+                            self.present(cameraProfile, animated: true, completion: nil)
+                            
+                        }))
+                        
+                        
+                        
+                        self.present(alertController, animated: true, completion: nil)
+
+                        
+                        
+                    }
+                    
                 })
                 
             }))
@@ -918,6 +1027,10 @@ class TopChatController: UIViewController, UICollectionViewDataSource, UICollect
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        self.profilePicOutlet.layer.cornerRadius = 17
+        self.groupPhotoOutlet.layer.cornerRadius = 17
+        self.postProfileOutlet.layer.cornerRadius = 17
         
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidShow), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardDidHide), name: NSNotification.Name.UIKeyboardWillHide, object: nil)

@@ -140,167 +140,18 @@ class SnapchatChatController: JSQMessagesViewController, UIGestureRecognizerDele
         
         
     }
-    
-    
-    
-    
-    
+
     //Did press accessory button
     override func didPressAccessoryButton(_ sender: UIButton!) {
         
-        //presentFusumaCamera()
-        
-        
-    }
-    
-    
-    //Fusuma Delegates
-    func fusumaImageSelected(_ image: UIImage) {
-        
-        print("image selected")
-        
-    }
-    
-    func fusumaDismissedWithImage(_ image: UIImage) {
-        
-        let postKey = currentPostKey
-        let scopePassedRef = self.passedRef
-        
-        //Call Upload Function
-        uploadMedia(true, image: image, videoURL: nil) { (date, fileName, messageData) in
-            
-            let request = self.uploadRequest(image)
-            
-            let transferManager = AWSS3TransferManager.default()
-            
-            transferManager?.upload(request).continue({ (task) -> AnyObject? in
-                
-                if task.error == nil {
-                    
-                    print("succesful upload!")
-                    
-                    let ref = FIRDatabase.database().reference()
-                    
-                    if let key = request.key {
-                        
-                        let timeStamp = Date().timeIntervalSince1970
-                        
-                        let messageItem = [
-                            
-                            "key" : fileName,
-                            "text" : "sent a photo!",
-                            "senderId": self.senderId,
-                            "timeStamp" : timeStamp,
-                            "senderDisplayName" : self.senderDisplayName,
-                            "isMedia" : true,
-                            "isImage" : true,
-                            "media" : "https://s3.amazonaws.com/cityscapebucket/" + key,
-                            "postChildKey" : postKey
-                            
-                        ] as [String : Any]
-                        
-                        ref.child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
-                        ref.child("users").child(self.senderId).child("posts").child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
-                        
-                    }
-                    
-                } else {
-                    
-                    print("failed upload")
-                    //Upload Failed
-                }
-                
-                return nil
-            })
-        }
-        
-        print("fusuma dismissed with image")
-    }
-    
-    func fusumaVideoCompleted(withFileURL fileURL: URL) {
-        
-        let scopePassedRef = self.passedRef
-        let postKey = currentPostKey
-        
-        uploadMedia(false, image: nil, videoURL: fileURL) { (date, fileName, messageData) in
-            
-            self.convertVideoToLowQualityWithInputURL(fileURL, handler: { (exportSession, outputURL) in
-                
-                if exportSession.status == .completed {
-                    
-                    //Call Upload Function
-                    let request = AWSS3TransferManagerUploadRequest()
-                    request?.body = outputURL
-                    request?.key = fileName
-                    request?.bucket = "cityscapebucket"
-                    
-                    let transferManager = AWSS3TransferManager.default()
-                    
-                    transferManager?.upload(request).continue({ (task) -> AnyObject? in
-                        
-                        let ref = FIRDatabase.database().reference()
-                        
-                        if let key = request?.key {
-                            
-                            let timeStamp = Date().timeIntervalSince1970
-                            
-                            let messageItem = [
-                                "key" : fileName,
-                                "text" : "sent a video!",
-                                "senderId": self.senderId,
-                                "timeStamp" : timeStamp,
-                                "senderDisplayName" : self.senderDisplayName,
-                                "isMedia" : true,
-                                "isImage" : false,
-                                "media" : "https://s3.amazonaws.com/cityscapebucket/" + key,
-                                "postChildKey" : postKey
-                                
-                            ] as [String : Any]
-                            
-                            ref.child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
-                            ref.child("users").child(self.senderId).child("posts").child(scopePassedRef).child("messages").childByAutoId().setValue(messageItem)
-                            
-                        }
-                        
-                        return nil
-                    })
-                    
-                    print("good convert")
-                    
-                } else {
-                    
-                    print("bad convert")
-                    
-                }
-            })
-        }
-    }
-    
-    /*
-    func presentFusumaCamera(){
-        
-        let fusuma = FusumaViewController()
-        fusuma.delegate = self
-        fusuma.hasVideo = true
-        fusuma.modalTransitionStyle = UIModalTransitionStyle.crossDissolve
-        
-        self.snapchatController?.present(fusuma, animated: true, completion: {
+        self.snapchatController?.rootController?.toggleCamera(type: "posts", chatType: "snapchat", completion: { (bool) in
             
             print("camera presented")
             
         })
+        
     }
     
-    func fusumaCameraRollUnauthorized() {
-        
-        let alertController = UIAlertController(title: "Sorry", message: "Camera not authorized", preferredStyle:  UIAlertControllerStyle.alert)
-        alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.cancel, handler: nil))
-        self.present(alertController, animated: true, completion: nil)
-        
-        print("camera unauthorized")
-        
-    }
-    */
     func beganTyping(){
         
         let ref = FIRDatabase.database().reference()

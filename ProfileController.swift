@@ -76,8 +76,10 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
     
     //Actions
     @IBAction func close(_ sender: AnyObject) {
-        
+
         rootController?.toggleHome({ (bool) in
+            
+            self.rootController?.clearProfilePlayers()
             
             print("home toggled")
             
@@ -1112,6 +1114,7 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
             if (indexPath as NSIndexPath).row == 0 {
                 
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "statusCell", for: indexPath) as! StatusCell
+                cell.profileController = self
                 cell.loadCell(userData)
                 return cell
                 
@@ -1745,7 +1748,7 @@ class ProfileController: UIViewController, UICollectionViewDataSource, UICollect
                     
                 } else if (indexPath as NSIndexPath).row == 1 {
                     
-                    return CGSize(width: width, height: 65)
+                    return CGSize(width: width, height: 55)
                     
                 } else if (indexPath as NSIndexPath).row == 2 {
                     

@@ -64,8 +64,6 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     var contentOffsetToShowNavAt: CGFloat = 0
     
     var scrollingUp = false
-    var showingNav = false
-    var navHidden = false
     
     //Outlets
     @IBOutlet weak var globCollectionView: UICollectionView!
@@ -892,13 +890,12 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        
+
         var reusableView = UICollectionReusableView()
         
         if kind == UICollectionElementKindSectionHeader {
             
             let cell = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionElementKindSectionHeader, withReuseIdentifier: "headerCell", for: indexPath) as! VibeHeaderCollectionCell
-            
             cell.vibesController = self
             cell.loadCell(newPosts[(indexPath as NSIndexPath).section])
             
@@ -907,7 +904,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
         }
         
         return reusableView
-        
+
     }
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -1193,121 +1190,135 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
         endedDisplaying = (indexPath as NSIndexPath).section
         
     }
-    
-    
-    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        
-        rootController?.alpha0actionBar()
-        
-    }
-    
-    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        
-        if !decelerate {
-            
-            rootController?.alpha1actionBar()
-            
-        }
-    }
-    
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        
-        rootController?.alpha1actionBar()
-        
-    }
-    
+ 
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
-        if scrollingUp && (scrollView.contentOffset.y < 75) {
+        if let navShown = self.rootController?.navIsShown {
             
-            rootController?.showNav(0.3, completion: { (bool) in
+            if scrollingUp && (scrollView.contentOffset.y < 75) {
                 
-                print("nav shown")
-                
-                self.navHidden = false
-                self.showingNav = false
-                
-            })
-        }
-        
-        
-        if scrollView.contentOffset.y < contentOffset {
-            
-            scrollingUp = true
-            
-            if beganDisplaying == 0 && scrollView.contentOffset.y == 0 {
-                
-                if !showingNav {
+                rootController?.showNav(0.3, completion: { (bool) in
                     
-                    showingNav = true
+                    print("nav shown")
                     
-                    rootController?.showNav(0.3, completion: { (bool) in
-                        
-                        print("nav shown")
-                        
-                        self.navHidden = false
-                        self.showingNav = false
-                        
-                    })
                     
-                }
-                
-            } else if contentOffsetToShowNavAt >= scrollView.contentOffset.y + 120 && navHidden && beganDisplaying != 0 {
-                
-                if !showingNav {
-                    
-                    showingNav = true
-                    
-                    rootController?.showNav(0.3, completion: { (bool) in
-                        
-                        print("nav shown")
-                        
-                        self.navHidden = false
-                        self.showingNav = false
-                        
-                    })
-                }
-                
-            } else {
-                
-                //print("dont show nav")
+                })
             }
             
             
-        } else if scrollView.contentOffset.y > contentOffset {
+            if scrollView.contentOffset.y < contentOffset {
+                
+                scrollingUp = true
+                
+                if beganDisplaying == 0 && scrollView.contentOffset.y == 0 {
+                    
+                    if !navShown {
+                        
+                        rootController?.showNav(0.3, completion: { (bool) in
+                            
+                            print("nav shown")
+                            
+                            
+                        })
+                        
+                    }
+                    
+                } else if contentOffsetToShowNavAt >= scrollView.contentOffset.y + 120 && beganDisplaying != 0 {
+                    
+                    if !navShown {
+                        
+                        rootController?.showNav(0.3, completion: { (bool) in
+                            
+                            print("nav shown")
+                            
+                        })
+                    }
+
+                    
+                }
+                
+            } else if scrollView.contentOffset.y > contentOffset {
+                
+                scrollingUp = false
+                
+            }
             
-            scrollingUp = false
-            
+            contentOffset = scrollView.contentOffset.y
+
         }
-        
-        contentOffset = scrollView.contentOffset.y
-        
     }
     
     
     
     func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
         
-        if velocity.y > 0 {
+        if let navShown = self.rootController?.navIsShown {
             
-            if !transitioning && !navHidden {
+            if self.newPosts.count > 1 {
                 
-                rootController?.hideAllNav({ (bool) in
+                if velocity.y > 0 {
                     
-                    self.navHidden = true
+                    if !transitioning {
+                        
+                        if let navShown = self.rootController?.navIsShown {
+                            
+                            if navShown {
+                                
+                                rootController?.hideAllNav({ (bool) in
+ 
+                                    print("top nav hidded")
+                                    
+                                })
+                            }
+                        }
+                    }
                     
-                    print("top nav hidded")
-                    
-                })
+                } else {
+                    print("velocity negative")
+                }
             }
-            
-        } else {
-            print("velocity negative")
         }
     }
     
-    
+    func getMessageData(posts: [[AnyHashable:Any]], completion: @escaping ([[AnyHashable : Any]]) -> ()) {
+        
+        let ref = FIRDatabase.database().reference().child("posts")
+        ref.keepSynced(true)
+        
+        var messages = [[AnyHashable:Any]]()
+        
+        var messagesGathered = 0
+        
+        for i in 0..<posts.count {
+            
+            messages.append([AnyHashable:Any]())
+            
+            if let city = posts[i]["city"] as? String, let key = posts[i]["postChildKey"] as? String {
+                
+                ref.child(city).child(key).child("messages").observeSingleEvent(of: .value, with: { (snapshot) in
+                    
+                    if snapshot.exists() {
+                        
+                        if let value = snapshot.value as? [AnyHashable : Any] {
+                            
+                            messages[i] = value
+
+                        }
+                    }
+                    
+                    messagesGathered += 1
+
+                    if messagesGathered == posts.count {
+   
+                        completion(messages)
+                        
+                    }
+                    
+                })
+            }
+        }
+    }
     
     //Functions
     var observingCity: String = ""
@@ -1317,64 +1328,100 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
         
         self.refresher.endRefreshing()
         
-        observingCity = currentCity
-        let scopeCity = currentCity
-        
-        self.rootController?.bottomNavController?.torontoOutlet.text = scopeCity
+        self.rootController?.bottomNavController?.torontoOutlet.text = "The World"
         
         self.newPosts.removeAll()
         self.addedPosts.removeAll()
-        //self.videoPlayers.removeAll()
         
-        if scopeCity != "" {
-            
-            self.rootController?.bottomNavController?.torontoOutlet.text = self.currentCity
-            
-            let ref = FIRDatabase.database().reference().child("posts").child(self.currentCity)
-            
-            ref.queryLimited(toLast: 100).observe(.value, with: { (snapshot) in
+        let ref = FIRDatabase.database().reference().child("allPosts")
+        ref.keepSynced(true)
+        
+        ref.queryLimited(toLast: 100).observeSingleEvent(of: .value, with: { (snapshot) in
+        
+            if !snapshot.exists() {
                 
-                if !snapshot.exists() {
+                self.noPostsOutlet.alpha = 1
+                
+            } else {
+                
+                self.noPostsOutlet.alpha = 0
+ 
+            }
+            
+            var scopeData = [[AnyHashable : Any]]()
+            
+            if let value = snapshot.value as? [AnyHashable : Any] {
+                
+                for (_, snapValue) in value {
                     
-                    self.noPostsOutlet.alpha = 1
-                    
-                } else {
-                    
-                    self.noPostsOutlet.alpha = 0
-                    
-                }
+                    if let valueToAdd = snapValue as? [AnyHashable : Any] {
 
-                var scopeData = [[AnyHashable: Any]]()
-                
-                if let value = snapshot.value as? [AnyHashable: Any] {
-                    
-                    if self.observingCity != scopeCity {
+                       if let uid = valueToAdd["userUID"] as? String, let myReported = self.rootController?.selfData["reportedUsers"] as? [String : Bool] {
+                            
+                            if myReported[uid] == nil {
+         
+                                scopeData.append(valueToAdd)
+
+                            }
                         
-                        ref.removeAllObservers()
+                       } else {
+
+                            scopeData.append(valueToAdd)
+  
+                        }
+                    }
+                }
+                
+                scopeData.sort(by: { (a: [AnyHashable: Any], b: [AnyHashable: Any]) -> Bool in
+                    
+                    if a["timeStamp"] as? TimeInterval > b["timeStamp"] as? TimeInterval {
+                        
+                        return true
                         
                     } else {
                         
-                        for (_, snapValue) in value {
+                        return false
+                        
+                    }
+                })
+                
+                var firstMessages = [[AnyHashable: Any]]()
+                var secondMessages = [[AnyHashable: Any]]()
+                var thirdMessages = [[AnyHashable: Any]]()
+                
+                for _ in 0..<scopeData.count {
+                    
+                    firstMessages.append([AnyHashable:Any]())
+                    secondMessages.append([AnyHashable:Any]())
+                    thirdMessages.append([AnyHashable:Any]())
+                    
+                }
+                
+                self.globFirstMessages = firstMessages
+                self.globSecondMessages = secondMessages
+                self.globThirdMessages = thirdMessages
+                
+                self.newPosts = scopeData
+                self.globCollectionView.reloadData()
+            
+                self.getMessageData(posts: scopeData, completion: { (messages) in
+                    
+                    
+                    
+                    for message in messages {
+                        
+                        var messageArray = [[AnyHashable: Any]]()
+                        
+                        for singleMessage in message {
                             
-                            if let valueToAdd = snapValue as? [AnyHashable: Any] {
+                            if let messageToAdd = singleMessage.1 as? [AnyHashable: Any] {
                                 
-                                if let uid = valueToAdd["userUID"] as? String, let myReported = self.rootController?.selfData["reportedUsers"] as? [String : Bool] {
-                                    
-                                    if myReported[uid] == nil {
-                                        
-                                        scopeData.append(valueToAdd)
-                                        
-                                    }
-                                    
-                                } else {
-                                    
-                                    scopeData.append(valueToAdd)
- 
-                                }
+                                messageArray.append(messageToAdd)
+                                
                             }
                         }
                         
-                        scopeData.sort(by: { (a: [AnyHashable: Any], b: [AnyHashable: Any]) -> Bool in
+                        messageArray.sort(by: { (a: [AnyHashable: Any], b: [AnyHashable: Any]) -> Bool in
                             
                             if a["timeStamp"] as? TimeInterval > b["timeStamp"] as? TimeInterval {
                                 
@@ -1387,74 +1434,21 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                             }
                         })
                         
-                        var messages = [[AnyHashable: Any]]()
-                        
-                        for post in scopeData {
+                        if messageArray.count > 0 {
                             
-                            if let message = post["messages"] as? [AnyHashable: Any] {
-                                
-                                messages.append(message)
-                                
-                            } else {
-                                
-                                messages.append([AnyHashable: Any]())
-                                
-                            }
-                        }
-                        
-                        var firstMessages = [[AnyHashable: Any]]()
-                        var secondMessages = [[AnyHashable: Any]]()
-                        var thirdMessages = [[AnyHashable: Any]]()
-                        
-                        for message in messages {
+                            thirdMessages.append(messageArray[0])
                             
-                            var messageArray = [[AnyHashable: Any]]()
-                            
-                            for singleMessage in message {
+                            if messageArray.count > 1 {
                                 
-                                if let messageToAdd = singleMessage.1 as? [AnyHashable: Any] {
-                                    
-                                    messageArray.append(messageToAdd)
-                                    
-                                }
-                            }
-                            
-                            messageArray.sort(by: { (a: [AnyHashable: Any], b: [AnyHashable: Any]) -> Bool in
+                                secondMessages.append(messageArray[1])
                                 
-                                if a["timeStamp"] as? TimeInterval > b["timeStamp"] as? TimeInterval {
+                                if messageArray.count > 2 {
                                     
-                                    return true
-                                    
-                                } else {
-                                    
-                                    return false
-                                    
-                                }
-                            })
-                            
-                            
-                            if messageArray.count > 0 {
-                                
-                                thirdMessages.append(messageArray[0])
-                                
-                                if messageArray.count > 1 {
-                                    
-                                    secondMessages.append(messageArray[1])
-                                    
-                                    if messageArray.count > 2 {
-                                        
-                                        firstMessages.append(messageArray[2])
-                                        
-                                    } else {
-                                        
-                                        firstMessages.append([AnyHashable: Any]())
-                                        
-                                    }
+                                    firstMessages.append(messageArray[2])
                                     
                                 } else {
                                     
                                     firstMessages.append([AnyHashable: Any]())
-                                    secondMessages.append([AnyHashable: Any]())
                                     
                                 }
                                 
@@ -1462,29 +1456,32 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                                 
                                 firstMessages.append([AnyHashable: Any]())
                                 secondMessages.append([AnyHashable: Any]())
-                                thirdMessages.append([AnyHashable: Any]())
                                 
                             }
-                        }
-                        
-                        self.globFirstMessages = firstMessages
-                        self.globSecondMessages = secondMessages
-                        self.globThirdMessages = thirdMessages
-                        
-                        self.newPosts = scopeData
-                        
-                        self.rootController?.clearVibesPlayers()
-                        
-                        if self.globCollectionView.contentOffset == CGPoint.zero {
                             
-                            self.globCollectionView.reloadData()
-                            self.globCollectionView.setContentOffset(CGPoint.zero, animated: true)
+                        } else {
+                            
+                            firstMessages.append([AnyHashable: Any]())
+                            secondMessages.append([AnyHashable: Any]())
+                            thirdMessages.append([AnyHashable: Any]())
                             
                         }
                     }
-                }
-            })
-        }
+                    
+                    self.globFirstMessages = firstMessages
+                    self.globSecondMessages = secondMessages
+                    self.globThirdMessages = thirdMessages
+                    
+                    
+                    
+                    self.rootController?.clearVibesPlayers()
+                    
+                    self.globCollectionView.reloadData()
+                    self.globCollectionView.setContentOffset(CGPoint.zero, animated: true)
+
+                })
+            }
+        })
     }
     
     
@@ -1505,8 +1502,9 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
             self.rootController?.bottomNavController?.torontoOutlet.text = scopeCity
             
             let ref = FIRDatabase.database().reference().child("posts").child(scopeCity)
-            
-            ref.queryLimited(toLast: 100).observe(.value, with: { (snapshot) in
+            ref.keepSynced(true)
+
+            ref.queryLimited(toLast: 100).observeSingleEvent(of: .value, with: { (snapshot) in
                 
                 if !snapshot.exists() {
                     
@@ -1559,6 +1557,9 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                                     
                                 }
                             })
+                            
+                            self.newPosts = scopeData
+                            self.globCollectionView.reloadData()
                             
                             var messages = [[AnyHashable: Any]]()
                             
@@ -1645,16 +1646,13 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
                             self.globSecondMessages = secondMessages
                             self.globThirdMessages = thirdMessages
                             
-                            self.newPosts = scopeData
+                            
                             
                             self.rootController?.clearVibesPlayers()
                             
-                            if self.globCollectionView.contentOffset == CGPoint.zero {
-                                
-                                self.globCollectionView.reloadData()
-                                self.globCollectionView.setContentOffset(CGPoint.zero, animated: true)
-                                
-                            }
+                            self.globCollectionView.reloadData()
+                            self.globCollectionView.setContentOffset(CGPoint.zero, animated: true)
+                            
                         }
                     }
                 }
@@ -1663,11 +1661,6 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     }
     
     func addGestureRecognizers(){
-        
-        let downSwipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(showNav))
-        downSwipeGestureRecognizer.direction = UISwipeGestureRecognizerDirection.down
-        downSwipeGestureRecognizer.delegate = self
-        
         
         let leftSwipeGestureRecognizer = UISwipeGestureRecognizer(target: self, action: #selector(showMessages))
         leftSwipeGestureRecognizer.direction = UISwipeGestureRecognizerDirection.left
@@ -1679,7 +1672,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
         
         self.view.addGestureRecognizer(rightSwipeGestureRecognizer)
         self.view.addGestureRecognizer(leftSwipeGestureRecognizer)
-        //self.view.addGestureRecognizer(downSwipeGestureRecognizer)
+
         
     }
     
@@ -1690,11 +1683,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
             
             print("nav shown")
             
-            self.navHidden = false
-            self.showingNav = false
-            
         })
-        
     }
     
     func showNearby(){
@@ -1706,8 +1695,7 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
         rootController?.toggleNearby({ (bool) in
             
             self.globCollectionView.isScrollEnabled = true
-            
-            self.navHidden = false
+
             self.transitioning = false
             print("nearby toggled")
             
@@ -1723,8 +1711,6 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
         rootController?.toggleMessages({ (bool) in
             
             self.globCollectionView.isScrollEnabled = true
-            
-            self.navHidden = false
             self.transitioning = false
             print("messages toggled")
             
@@ -1761,10 +1747,16 @@ class NewVibesController: UIViewController, UIGestureRecognizerDelegate, UIColle
     func loadData(){
         
         self.refresher.endRefreshing()
-        self.globCollectionView.reloadData()
-        self.globCollectionView.setContentOffset(CGPoint.zero, animated: true)
         
-
+        if self.rootController?.bottomNavController?.torontoOutlet.text == "The World" {
+            
+            self.observeCurrentCityPosts()
+            
+        } else {
+            
+            self.observePosts()
+            
+        }
     }
     
     

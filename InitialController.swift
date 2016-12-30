@@ -34,7 +34,7 @@ class InitialController: UIViewController {
                         
                     })
                     
-                    vc.toggleNearby({ (bool) in
+                    vc.toggleVibes({ (bool) in
                         
                         print("nearby toggled")
                         

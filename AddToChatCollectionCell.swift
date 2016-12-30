@@ -22,6 +22,8 @@ class AddToChatCollectionCell: UICollectionViewCell {
     
     func loadCell(_ data: [AnyHashable: Any]) {
         
+        onlineIndicatorOutlet.alpha = 0.75
+        
         if let firstName = data["firstName"] as? String {
             
             self.firstNameOutlet.text = firstName

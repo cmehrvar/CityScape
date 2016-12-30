@@ -38,10 +38,10 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
     //Collection View Delegates
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
-        let width = (self.view.bounds.width/2)
+        let width = (self.view.bounds.width)/2
         let height = width*1.223
         
-        let size = CGSize(width: width, height: height)
+        let size = CGSize(width: width, height: width + 34)
         
         return size
         
@@ -393,11 +393,17 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
     
     func showNav(){
         
-        rootController?.showNav(0.3, completion: { (bool) in
+        if let navShown = rootController?.navIsShown {
             
-            print("nav shown")
-            
-        })
+            if !navShown {
+                
+                rootController?.showNav(0.3, completion: { (bool) in
+                    
+                    print("nav shown")
+                    
+                })
+            }
+        }
     }
     
     func showVibes(){
@@ -430,51 +436,32 @@ class NearbyController: UIViewController, UICollectionViewDataSource, UICollecti
     
     
     //ScrollViewDelegates
-    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        
-        rootController?.alpha0actionBar()
-
-    }
-
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        
-        rootController?.alpha1actionBar()
-        
-    }
-    
-    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        
-        if !decelerate {
-            
-            rootController?.alpha1actionBar()
-            
-        } 
-    }
-    
-
     func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
         
-        if velocity.y > 0 {
+        if let navShown = self.rootController?.navIsShown {
             
-            if !transitioning {
+            if navShown {
                 
-                rootController?.hideAllNav({ (bool) in
+                if velocity.y > 0 {
                     
-                    print("top nav hidden")
+                    if !transitioning {
+                        
+                        rootController?.hideAllNav({ (bool) in
+                            
+                            print("top nav hidden")
+                            
+                        })
+                    }
                     
-                })
+                } else {
+                    print("velocity negative")
+                }
+
+                print("did end dragging")
+                print(velocity)
                 
             }
-            
-        } else {
-            print("velocity negative")
         }
-        
-        
-        print("did end dragging")
-        print(velocity)
-        
-        
     }
     
     

@@ -15,12 +15,14 @@ class IncomingCollectionCell: UICollectionViewCell {
     
     var uid = ""
     
-    @IBOutlet weak var profileOutlet: TopChatProfileView!
+    @IBOutlet weak var profileOutlet: UIImageView!
     @IBOutlet weak var messageBubbleOutlet: UIView!
     @IBOutlet weak var textOutlet: UILabel!
     @IBOutlet weak var nameOutlet: UILabel!
     
     func loadData(_ loadName: Bool, data: [AnyHashable: Any]){
+        
+        self.profileOutlet.layer.cornerRadius = 17
         
         messageBubbleOutlet.layer.cornerRadius = 8
         

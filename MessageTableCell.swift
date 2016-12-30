@@ -119,7 +119,7 @@ class MessageTableCell: UITableViewCell {
   
         } else {
             
-            self.onlineIndicatorOutlet.alpha = 1
+            self.onlineIndicatorOutlet.alpha = 0.75
             
             if let text = data["text"] as? String {
                 

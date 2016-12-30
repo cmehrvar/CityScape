@@ -353,10 +353,19 @@ class HandlePostController: UIViewController, UITextViewDelegate, UITableViewDel
     
     @IBAction func backButton(_ sender: AnyObject) {
         
+        rootController?.cameraContainer.alpha = 1
+        
         shouldUpload = false
         uploadingViewOutlet.alpha = 0
         
         clearPlayers()
+        
+        if let myCity = self.rootController?.selfData["city"] as? String {
+            
+            self.rootController?.cameraController?.tapToTakeOutlet.text = "Show off YOUR \(myCity)!"
+            
+        }
+
         
         rootController?.toggleHandlePost(nil, videoURL: nil, isImage: true, completion: { (bool) in
             
@@ -435,18 +444,39 @@ class HandlePostController: UIViewController, UITextViewDelegate, UITableViewDel
         if !isImage {
             
             shareOutlet.isEnabled = false
+            
+            let asset = AVURLAsset(url: videoURL, options: nil)
+            let imgGenerator = AVAssetImageGenerator(asset: asset)
+            
+            var cgImage: CGImage?
+            
+            do {
+                
+                try cgImage = imgGenerator.copyCGImage(at: CMTimeMake(0, 1), actualTime: nil)
+                
+            } catch let error {
+                
+                print(error)
+                
+            }
+            
+            if let scopeImage  = cgImage {
+                
+                self.image = UIImage(cgImage: scopeImage)
+                
+            }
+
             convertVideoToLowQualityWithInputURL(videoURL, handler: { (exportSession, outputURL) in
                 
                 if exportSession.status == .completed {
                     
-                    DispatchQueue.main.async(execute: {
+                    DispatchQueue.main.async {
                         
                         self.shareOutlet.isEnabled = true
                         self.exportedVideoURL = outputURL
                         
-                    })
-                    
-                    
+                    }
+
                     print("good convert")
                     
                 } else {
@@ -482,9 +512,9 @@ class HandlePostController: UIViewController, UITextViewDelegate, UITableViewDel
             DispatchQueue.main.async(execute: {
                 
                 self.asset = AVAsset(url: self.videoURL)
-                
+
                 if let asset = self.asset {
-                    
+
                     self.item = AVPlayerItem(asset: asset)
                     
                     if let item = self.item {
@@ -710,6 +740,7 @@ class HandlePostController: UIViewController, UITextViewDelegate, UITableViewDel
             self.uploadingViewOutlet.alpha = 1
         }) 
         
+        
         self.imageUploadRequest(image) { (imageUrl, imageUploadRequest) in
             
             let imageTransferManager = AWSS3TransferManager.default()
@@ -733,7 +764,6 @@ class HandlePostController: UIViewController, UITextViewDelegate, UITableViewDel
                                     print("save thumbnail & video to firebase")
                                     
                                     self.setToFirebase(imageUrl, caption: captionString, FIRVideoURL: FIRVideoURL, scopeSelectedSquad: scopeSelectedSquad)
-
 
                                     return nil
                                 })
@@ -899,6 +929,7 @@ class HandlePostController: UIViewController, UITextViewDelegate, UITableViewDel
     //TextView Delegates
     func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
         
+        /*
         if velocity.y > 1 {
             
             print("up")
@@ -923,6 +954,7 @@ class HandlePostController: UIViewController, UITextViewDelegate, UITableViewDel
             })
             
         }
+ */
     }
     
     

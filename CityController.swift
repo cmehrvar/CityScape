@@ -18,7 +18,7 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
     weak var searchController: SearchController?
     var globCities = [[AnyHashable: Any]]()
     var dataSourceForSearchResult = [[AnyHashable: Any]]()
-
+    
     
     //Functions
     func observeCities(){
@@ -83,24 +83,24 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
             }
         })
     }
-
+    
     
     //CollectionView Delegates
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         
         if let vc = searchController {
-
-                if vc.searchBarActive {
-                    
-                    return dataSourceForSearchResult.count
-                    
-                } else {
-                    
-                    return globCities.count
-                    
-                }
+            
+            if vc.searchBarActive {
+                
+                return dataSourceForSearchResult.count
+                
+            } else {
+                
+                return globCities.count
+                
             }
-
+        }
+        
         return 0
     }
     
@@ -115,12 +115,12 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
             if vc.searchBarActive {
                 
                 cell.updateUI(dataSourceForSearchResult[(indexPath as NSIndexPath).row])
-
+                
             } else {
                 cell.updateUI(globCities[(indexPath as NSIndexPath).row])
             }
         }
-
+        
         return cell
         
     }
@@ -151,7 +151,7 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
         return reusableView
         
     }
-
+    
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
         
@@ -163,7 +163,7 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
     
     
     
-
+    
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         
@@ -172,54 +172,39 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
         return CGSize(width: width/2, height: width/2)
         
     }
-
-
+    
+    
     //ScrollView Delegates
-    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        
-        searchController?.rootController?.alpha0actionBar()
-        
-    }
-    
-    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        
-        if !decelerate {
-            
-            searchController?.rootController?.alpha1actionBar()
-            
-        }
-    }
-    
-    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        
-        searchController?.rootController?.alpha1actionBar()
-        
-    }
-    
-    
     func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
         
-        
-        if velocity.y > 0 {
-            
-            if globCities.count > 6 {
+        if let navShown = searchController?.rootController?.navIsShown {
+
+            if velocity.y > 0 {
                 
-                searchController?.rootController?.hideAllNav({ (bool) in
+                if globCities.count > 6 {
                     
-                    print("all nav hided", terminator: "")
+                    if  navShown {
+                        
+                        searchController?.rootController?.hideAllNav({ (bool) in
+                            
+                            print("all nav hided", terminator: "")
+                            
+                        })
+                    }
+                }
+                
+            } else if velocity.y < 0 {
+                
+                
+                if !navShown {
                     
-                })
+                    searchController?.rootController?.showNav(0.3, completion: { (bool) in
+                        
+                        print("nav shown", terminator: "")
+                        
+                    })
+                }
             }
-            
-            
-            
-        } else if velocity.y < 0 {
-            
-            searchController?.rootController?.showNav(0.3, completion: { (bool) in
-                
-                print("nav shown", terminator: "")
-                
-            })
         }
     }
     
@@ -234,7 +219,13 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
         self.view.endEditing(true)
         
     }
-
+    
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        
+        return true
+        
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -244,27 +235,28 @@ class CityController: UIViewController, UICollectionViewDataSource, UICollection
         self.globCollectionView.addGestureRecognizer(leftSwipeGesture)
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tapGesture.delegate = self
         self.globCollectionView.addGestureRecognizer(tapGesture)
         
         
         
         // Do any additional setup after loading the view.
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     
-
+    
     /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
+     // MARK: - Navigation
+     
+     // In a storyboard-based application, you will often want to do a little preparation before navigation
+     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+     // Get the new view controller using segue.destinationViewController.
+     // Pass the selected object to the new view controller.
+     }
+     */
+    
 }

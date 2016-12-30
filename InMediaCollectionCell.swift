@@ -16,7 +16,7 @@ class InMediaCollectionCell: UICollectionViewCell {
     
     @IBOutlet weak var imageOutlet: UIImageView!
     @IBOutlet weak var videoOutlet: UIView!
-    @IBOutlet weak var profileOutlet: TopChatProfileView!
+    @IBOutlet weak var profileOutlet: UIImageView!
     @IBOutlet weak var nameOutlet: UILabel!
     
     var player = 0
@@ -24,6 +24,8 @@ class InMediaCollectionCell: UICollectionViewCell {
     var key = ""
     
     func loadCell(_ showName: Bool, message: [AnyHashable: Any]) {
+        
+        self.profileOutlet.layer.cornerRadius = 17
         
         imageOutlet.layer.borderWidth = 1
         videoOutlet.layer.borderWidth = 1

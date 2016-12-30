@@ -44,6 +44,11 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
     @IBOutlet weak var indicator4WidthConstOutlet: NSLayoutConstraint!
     @IBOutlet weak var indicator5WidthConstOutlet: NSLayoutConstraint!
     
+    @IBOutlet weak var indicator1TrailingOutlet: NSLayoutConstraint!
+    @IBOutlet weak var indicator2TrailingOutlet: NSLayoutConstraint!
+    @IBOutlet weak var indicator3TrailingOutlet: NSLayoutConstraint!
+    @IBOutlet weak var indicator4TrailingOutlet: NSLayoutConstraint!
+
     
     @IBOutlet weak var indicator1Outlet: UIView!
     @IBOutlet weak var indicator2Outlet: UIView!
@@ -59,6 +64,8 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
     
     @IBOutlet weak var editButtonOutlet: UIButton!
     @IBOutlet weak var editImageOutlet: UIImageView!
+    
+    @IBOutlet weak var indicatorOutlet: UIView!
     
     
     //Actions
@@ -327,11 +334,15 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
     
     func loadImages(_ data: [AnyHashable: Any], screenWidth: CGFloat){
         
-        indicator1Outlet.layer.cornerRadius = 7
-        indicator2Outlet.layer.cornerRadius = 7
-        indicator3Outlet.layer.cornerRadius = 7
-        indicator4Outlet.layer.cornerRadius = 7
-        indicator5Outlet.layer.cornerRadius = 7
+        indicatorOutlet.alpha = 1
+        
+        indicatorOutlet.layer.cornerRadius = 10
+        
+        indicator1Outlet.layer.cornerRadius = 8
+        indicator2Outlet.layer.cornerRadius = 8
+        indicator3Outlet.layer.cornerRadius = 8
+        indicator4Outlet.layer.cornerRadius = 8
+        indicator5Outlet.layer.cornerRadius = 8
 
         if let profilePicture = data["profilePicture"] as? String, let url = URL(string: profilePicture) {
             
@@ -400,44 +411,69 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
 
                     profilePic2Outlet.image = nil
                     
-                    indicator2WidthConstOutlet.constant = 14
+                    indicator2WidthConstOutlet.constant = 16
                     indicator3WidthConstOutlet.constant = 0
                     indicator4WidthConstOutlet.constant = 0
                     indicator5WidthConstOutlet.constant = 0
+                    
+                    indicator1TrailingOutlet.constant = 5
+                    indicator2TrailingOutlet.constant = 0
+                    indicator3TrailingOutlet.constant = 0
+                    indicator4TrailingOutlet.constant = 0
                     
                 } else if pictures == 2 {
 
                     profilePic3Outlet.image = nil
                     
-                    indicator2WidthConstOutlet.constant = 14
-                    indicator3WidthConstOutlet.constant = 14
+                    indicator2WidthConstOutlet.constant = 16
+                    indicator3WidthConstOutlet.constant = 16
                     indicator4WidthConstOutlet.constant = 0
                     indicator5WidthConstOutlet.constant = 0
+                    
+                    indicator1TrailingOutlet.constant = 5
+                    indicator2TrailingOutlet.constant = 5
+                    indicator3TrailingOutlet.constant = 0
+                    indicator4TrailingOutlet.constant = 0
                     
                 } else if pictures == 3 {
                     
                     profilePic4Outlet.image = nil
                     
-                    indicator2WidthConstOutlet.constant = 14
-                    indicator3WidthConstOutlet.constant = 14
-                    indicator4WidthConstOutlet.constant = 14
+                    indicator2WidthConstOutlet.constant = 16
+                    indicator3WidthConstOutlet.constant = 16
+                    indicator4WidthConstOutlet.constant = 16
                     indicator5WidthConstOutlet.constant = 0
+                    
+                    indicator1TrailingOutlet.constant = 5
+                    indicator2TrailingOutlet.constant = 5
+                    indicator3TrailingOutlet.constant = 5
+                    indicator4TrailingOutlet.constant = 0
                     
                 } else if pictures == 4 {
 
                     profilePic5Outlet.image = nil
                     
-                    indicator2WidthConstOutlet.constant = 14
-                    indicator3WidthConstOutlet.constant = 14
-                    indicator4WidthConstOutlet.constant = 14
-                    indicator5WidthConstOutlet.constant = 14
+                    indicator2WidthConstOutlet.constant = 16
+                    indicator3WidthConstOutlet.constant = 16
+                    indicator4WidthConstOutlet.constant = 16
+                    indicator5WidthConstOutlet.constant = 16
+                    
+                    indicator1TrailingOutlet.constant = 5
+                    indicator2TrailingOutlet.constant = 5
+                    indicator3TrailingOutlet.constant = 5
+                    indicator4TrailingOutlet.constant = 5
                     
                 } else if pictures == 5 {
 
-                    indicator2WidthConstOutlet.constant = 14
-                    indicator3WidthConstOutlet.constant = 14
-                    indicator4WidthConstOutlet.constant = 14
-                    indicator5WidthConstOutlet.constant = 14
+                    indicator2WidthConstOutlet.constant = 16
+                    indicator3WidthConstOutlet.constant = 16
+                    indicator4WidthConstOutlet.constant = 16
+                    indicator5WidthConstOutlet.constant = 16
+                    
+                    indicator1TrailingOutlet.constant = 5
+                    indicator2TrailingOutlet.constant = 5
+                    indicator3TrailingOutlet.constant = 5
+                    indicator4TrailingOutlet.constant = 5
                     
                 }
                 
@@ -455,38 +491,65 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                 
                 if pictures == 1 {
 
+                    indicatorOutlet.alpha = 0
+                    
                     indicator2WidthConstOutlet.constant = 0
                     indicator3WidthConstOutlet.constant = 0
                     indicator4WidthConstOutlet.constant = 0
                     indicator5WidthConstOutlet.constant = 0
                     
+                    indicator1TrailingOutlet.constant = 0
+                    indicator2TrailingOutlet.constant = 0
+                    indicator3TrailingOutlet.constant = 0
+                    indicator4TrailingOutlet.constant = 0
+                    
                 } else if pictures == 2 {
 
-                    indicator2WidthConstOutlet.constant = 14
+                    indicator2WidthConstOutlet.constant = 16
                     indicator3WidthConstOutlet.constant = 0
                     indicator4WidthConstOutlet.constant = 0
                     indicator5WidthConstOutlet.constant = 0
                     
+                    indicator1TrailingOutlet.constant = 5
+                    indicator2TrailingOutlet.constant = 0
+                    indicator3TrailingOutlet.constant = 0
+                    indicator4TrailingOutlet.constant = 0
+                    
                 } else if pictures == 3 {
 
-                    indicator2WidthConstOutlet.constant = 14
-                    indicator3WidthConstOutlet.constant = 14
+                    indicator2WidthConstOutlet.constant = 16
+                    indicator3WidthConstOutlet.constant = 16
                     indicator4WidthConstOutlet.constant = 0
                     indicator5WidthConstOutlet.constant = 0
                     
+                    indicator1TrailingOutlet.constant = 5
+                    indicator2TrailingOutlet.constant = 5
+                    indicator3TrailingOutlet.constant = 0
+                    indicator4TrailingOutlet.constant = 0
+                    
                 } else if pictures == 4 {
 
-                    indicator2WidthConstOutlet.constant = 14
-                    indicator3WidthConstOutlet.constant = 14
-                    indicator4WidthConstOutlet.constant = 14
+                    indicator2WidthConstOutlet.constant = 16
+                    indicator3WidthConstOutlet.constant = 16
+                    indicator4WidthConstOutlet.constant = 16
                     indicator5WidthConstOutlet.constant = 0
+                    
+                    indicator1TrailingOutlet.constant = 5
+                    indicator2TrailingOutlet.constant = 5
+                    indicator3TrailingOutlet.constant = 5
+                    indicator4TrailingOutlet.constant = 0
                     
                 } else if pictures == 5 {
 
-                    indicator2WidthConstOutlet.constant = 14
-                    indicator3WidthConstOutlet.constant = 14
-                    indicator4WidthConstOutlet.constant = 14
-                    indicator5WidthConstOutlet.constant = 14
+                    indicator2WidthConstOutlet.constant = 16
+                    indicator3WidthConstOutlet.constant = 16
+                    indicator4WidthConstOutlet.constant = 16
+                    indicator5WidthConstOutlet.constant = 16
+                    
+                    indicator1TrailingOutlet.constant = 5
+                    indicator2TrailingOutlet.constant = 5
+                    indicator3TrailingOutlet.constant = 5
+                    indicator4TrailingOutlet.constant = 5
                     
                 }
             }
@@ -548,9 +611,136 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
         addSwipeGesture()
         
     }
+    
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingImage image: UIImage, editingInfo: [String : AnyObject]?) {
+
+        let scopeEditedImage = editedPhoto
+        
+        if editedPhoto == "profilePicture" {
+            
+            self.profilePicOutlet.image = image
+            
+        } else if editedPhoto == "profilePicture2" {
+            
+            self.profilePic2Outlet.image = image
+            
+        } else if editedPhoto == "profilePicture3" {
+            
+            self.profilePic3Outlet.image = image
+            
+        } else if editedPhoto == "profilePicture4" {
+            
+            self.profilePic4Outlet.image = image
+            
+        } else if editedPhoto == "profilePicture5" {
+            
+            self.profilePic5Outlet.image = image
+            
+        }
+        
+        profileController?.dismiss(animated: true) {
+            
+            self.imageUploadRequest(image) { (url, uploadRequest) in
+                
+                let transferManager = AWSS3TransferManager.default()
+                
+                transferManager?.upload(uploadRequest).continue({ (task) -> Any? in
+                    
+                    if task.error == nil {
+                        
+                        print("successful image upload")
+                        let ref = FIRDatabase.database().reference()
+                        
+                        if let uid = FIRAuth.auth()?.currentUser?.uid {
+                            ref.child("users").child(uid).updateChildValues([scopeEditedImage: url])
+                        }
+                        
+                    } else {
+                        print("error uploading: \(task.error)")
+                        
+                        let alertController = UIAlertController(title: "Sorry", message: "Error uploading profile picture, please try again later", preferredStyle:  UIAlertControllerStyle.alert)
+                        alertController.addAction(UIAlertAction(title: "Ok", style: UIAlertActionStyle.cancel, handler: nil))
+                        self.profileController?.present(alertController, animated: true, completion: nil)
+                        
+                    }
+                    
+                    return nil
+                })
+            }
+        }
+    }
+    
+    func imageUploadRequest(_ image: UIImage, completion: @escaping (_ url: String, _ uploadRequest: AWSS3TransferManagerUploadRequest) -> ()) {
+        
+        let fileName = ProcessInfo.processInfo.globallyUniqueString + ".jpeg"
+        let fileURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("upload").appendingPathComponent(fileName)
+        let filePath = fileURL.path
+        
+        let imageData = UIImageJPEGRepresentation(image, 0.5)
+        
+        //SEGMENTATION BUG, IF FAULT 11 - COMMENT OUT AND REWRITE
+        DispatchQueue.main.async {
+            try? imageData?.write(to: URL(fileURLWithPath: filePath), options: [.atomic])
+            
+            let uploadRequest = AWSS3TransferManagerUploadRequest()
+            uploadRequest?.body = fileURL
+            uploadRequest?.key = fileName
+            uploadRequest?.bucket = "cityscapebucket"
+            
+            var imageUrl = ""
+            
+            if let key = uploadRequest?.key {
+                imageUrl = "https://s3.amazonaws.com/cityscapebucket/" + key
+                
+            }
+            
+            completion(imageUrl, uploadRequest!)
+        }
+    }
+
 
     
+    func presentImagePicker(){
+        
+    
+        
+        let cameraProfile = UIImagePickerController()
+        
+        cameraProfile.delegate = self
+        cameraProfile.allowsEditing = false
+        
+        let alertController = UIAlertController(title: "Edit Profile Picture", message: "Take a pic or choose from gallery?", preferredStyle:  UIAlertControllerStyle.alert)
+        
+        alertController.addAction(UIAlertAction(title: "Gallery", style: UIAlertActionStyle.default, handler: { (UIAlertAction) -> Void in
+            
+            cameraProfile.sourceType = UIImagePickerControllerSourceType.photoLibrary
+            
+            self.profileController?.present(cameraProfile, animated: true, completion: nil)
+            
+        }))
+
+        
+        alertController.addAction(UIAlertAction(title: "Camera", style: UIAlertActionStyle.default, handler: { (UIAlertAction) -> Void in
+            
+            if UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.camera) {
+                cameraProfile.sourceType = UIImagePickerControllerSourceType.camera
+            }
+            
+            self.profileController?.present(cameraProfile, animated: true, completion: nil)
+            
+        }))
+        
+        
+        self.profileController?.present(alertController, animated: true, completion: nil)
+
+        
+    }
+    
+    
     func callCamera(_ imageToEdit: String){
+        
+        editedPhoto = imageToEdit
         
         let scopeCurrentPicture = currentPicture
         let scopePictures = pictures
@@ -594,6 +784,11 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                     
                     self.profileController?.dismiss(animated: true, completion: {
                         
+                        DispatchQueue.main.async {
+                            
+                            self.presentImagePicker()
+                            
+                        }
                         
                         
                         //PRESENT CAMERA
@@ -610,11 +805,11 @@ class ProfilePicCollectionCell: UICollectionViewCell, UIGestureRecognizerDelegat
                     
                     self.profileController?.dismiss(animated: true, completion: {
                         
-                        
-                        //PRESENT FUSUMA
-                        
-                        
-                        
+                        DispatchQueue.main.async {
+                            
+                            self.presentImagePicker()
+                            
+                        }
                     })
                 }))
 

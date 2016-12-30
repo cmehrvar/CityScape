@@ -27,6 +27,9 @@ class TopGroupChatCollectionCell: UICollectionViewCell {
         
         self.uid = uid
         
+        self.profilePicOutlet.layer.cornerRadius = 27
+        self.onlineIndicatorOutlet.layer.cornerRadius = 6
+        
         let ref = FIRDatabase.database().reference().child("users").child(uid)
         
         ref.child("firstName").observeSingleEvent(of: .value, with: { (snapshot) in
@@ -93,7 +96,7 @@ class TopGroupChatCollectionCell: UICollectionViewCell {
         let scopeUID = uid
         let name = firstName + " " + lastName
 
-        let alertController = UIAlertController(title: "\(name)", message: "Go to \(name)'s profile?", preferredStyle: .actionSheet)
+        let alertController = UIAlertController(title: "\(name)", message: nil, preferredStyle: .actionSheet)
 
         alertController.addAction(UIAlertAction(title: "Go to profile", style: .default, handler: { (action) in
             

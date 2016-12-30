@@ -124,6 +124,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+        
         FIRApp.configure()
         FBSDKProfile.enableUpdates(onAccessTokenChange: true)
         FBSDKApplicationDelegate.sharedInstance().application(application, didFinishLaunchingWithOptions: launchOptions)
@@ -133,11 +134,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let configuration = AWSServiceConfiguration(region:.usEast1, credentialsProvider:credentialsProvider)
         AWSServiceManager.default().defaultServiceConfiguration = configuration
         
-        AWSNetworkingConfiguration().timeoutIntervalForRequest = 0
+        //AWSNetworkingConfiguration().timeoutIntervalForRequest = 0
         
-        AWSNetworkingConfiguration().timeoutIntervalForResource = 15
+        //AWSNetworkingConfiguration().timeoutIntervalForResource = 15
         
-        //AdobeUXAuthManager.shared().setAuthenticationParametersWithClientID(CLIENT_ID, withClientSecret: CLIENT_SECRET)
+        
         
         do {
             try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryAmbient)
@@ -211,6 +212,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func applicationDidBecomeActive(_ application: UIApplication) {
+        
         FBSDKAppEvents.activateApp()
         
         nearbyController?.requestWhenInUseAuthorization()

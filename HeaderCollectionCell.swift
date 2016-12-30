@@ -19,19 +19,28 @@ class HeaderCollectionCell: UICollectionViewCell {
         
         if let user = userController {
             
-            user.searchController?.rootController?.toggleSnapchat(nil, startingi: nil, completion: { (bool) in
+            userController?.searchController?.rootController?.vibesFeedController?.observeCurrentCityPosts()
+            
+            userController?.searchController?.rootController?.searchRevealed = false
+            
+            userController?.searchController?.rootController?.toggleVibes({ (bool) in
                 
-                print("snapchat toggled", terminator: "")
+                self.cityController?.searchController?.rootController?.vibesFeedController?.globCollectionView.setContentOffset(CGPoint.zero, animated: true)
+                
+            })
+            
+        } else if let city = cityController {
+
+            cityController?.searchController?.rootController?.vibesFeedController?.observeCurrentCityPosts()
+            
+            cityController?.searchController?.rootController?.searchRevealed = false
+            
+            cityController?.searchController?.rootController?.toggleVibes({ (bool) in
+                
+                self.cityController?.searchController?.rootController?.vibesFeedController?.globCollectionView.setContentOffset(CGPoint.zero, animated: true)
                 
             })
 
-        } else if let city = cityController {
-            
-            city.searchController?.rootController?.toggleSnapchat(nil, startingi: nil, completion: { (bool) in
-                
-                print("snapchat toggled", terminator: "")
-                
-            })
         }
     }
     

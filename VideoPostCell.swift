@@ -53,23 +53,26 @@ class UserVideoPostCell: UICollectionViewCell {
                 alertController.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { (action) in
                     
                     print("delete post")
-                    
-                    FIRDatabase.database().reference().child("posts").child(scopeCity).child(scopeChildKey).removeValue()
-                    FIRDatabase.database().reference().child("users").child(selfUID).child("posts").child(scopeChildKey).removeValue()
-                    FIRDatabase.database().reference().child("allPosts").child(scopeChildKey).removeValue()
-                    
-                    FIRDatabase.database().reference().child("posts").child(scopeCity).queryLimited(toLast: 1).observeSingleEvent(of: .value, with: { (snapshot) in
+  
+                    DispatchQueue.main.async {
+            
+
+                        FIRDatabase.database().reference().child("posts").child(scopeCity).child(scopeChildKey).removeValue()
+                        FIRDatabase.database().reference().child("users").child(selfUID).child("posts").child(scopeChildKey).removeValue()
+                        FIRDatabase.database().reference().child("allPosts").child(scopeChildKey).removeValue()
                         
-                        if !snapshot.exists() {
+                        FIRDatabase.database().reference().child("posts").child(scopeCity).queryLimited(toLast: 1).observeSingleEvent(of: .value, with: { (snapshot) in
                             
-                            FIRDatabase.database().reference().child("cityLocations").child(scopeCity).removeValue()
-                            
-                        }
+                            if !snapshot.exists() {
+                                
+                                FIRDatabase.database().reference().child("cityLocations").child(scopeCity).removeValue()
+                                
+                            }
+                        })
                         
-                    })
-                    
-                    self.profileController?.rootController?.vibesFeedController?.observeCurrentCityPosts()
-                    
+                        self.profileController?.rootController?.vibesFeedController?.observeCurrentCityPosts()
+                        
+                    }
                 }))
             }
         }

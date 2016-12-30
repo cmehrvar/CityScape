@@ -14,6 +14,7 @@ import FirebaseAuth
 import SDWebImage
 import AVFoundation
 import NYAlertViewController
+import NVActivityIndicatorView
 
 fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
     switch (lhs, rhs) {
@@ -69,7 +70,12 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     
     @IBOutlet weak var videoOutlet: UIView!
     
-    var mostRecentTimeInterval: TimeInterval?
+    @IBOutlet weak var leftViewOutlet: UIView!
+    @IBOutlet weak var rightViewOutlet: UIView!
+    
+    
+    @IBOutlet weak var loadingIndicatorOutlet: UIView!
+
     
     var singlePost = false
     
@@ -121,6 +127,66 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     //Actions
+    func tapLeft(){
+        
+        if let chatEnlarged = snapchatChatController?.chatEnlarged {
+            
+            if chatEnlarged {
+                
+                snapchatChatController?.shrinkChat()
+                
+            } else if nextEnabled && !longPressEnabled && !singlePost {
+                
+                let scopeIndex = currentIndex
+                
+                nextEnabled = false
+                
+                loadSecondaryContent("right", i: scopeIndex, completion: { (bool) in
+                    
+                    self.loadPrimary("right", i: scopeIndex, completion: { (Bool) in
+                        
+                    })
+                })
+                
+            } else if singlePost {
+                
+                closeWithDirection(0, y: self.view.bounds.height, animationTime: 0.3)
+                
+            }
+        }
+        
+        
+    }
+    
+    
+    func tapRight() {
+        
+        if let chatEnlarged = snapchatChatController?.chatEnlarged {
+            
+            if chatEnlarged {
+                
+                snapchatChatController?.shrinkChat()
+                
+            } else if nextEnabled && !longPressEnabled && !singlePost {
+                
+                let scopeIndex = currentIndex
+                
+                nextEnabled = false
+                
+                loadSecondaryContent("left", i: scopeIndex, completion: { (bool) in
+                    
+                    self.loadPrimary("left", i: scopeIndex, completion: { (Bool) in
+                        
+                    })
+                })
+            } else if singlePost {
+                
+                closeWithDirection(0, y: self.view.bounds.height, animationTime: 0.3)
+                
+            }
+        }
+    }
+    
     @IBAction func report(_ sender: AnyObject) {
         
         let scopeUID = currentUID
@@ -142,6 +208,22 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
         
         alertController.buttonColor = UIColor.red
         alertController.buttonTitleColor = UIColor.white
+        
+        if let imageToAdd = profilePicOutlet.image {
+            
+            DispatchQueue.main.async(execute: {
+                
+                let imageView = UIImageView(image: imageToAdd)
+                imageView.clipsToBounds = true
+                imageView.addConstraint(NSLayoutConstraint(item: imageView, attribute: .height, relatedBy: .equal, toItem: imageView, attribute: .width, multiplier: 1, constant: 0))
+                
+                imageView.contentMode = .scaleAspectFill
+                
+                alertController.alertViewContentView = imageView
+                
+            })
+        }
+        
         
         alertController.addAction(NYAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
             
@@ -289,6 +371,23 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
             nyAlertController.buttonColor = UIColor.red
             nyAlertController.buttonTitleColor = UIColor.white
             
+            if let imageToAdd = profilePicOutlet.image {
+                
+                DispatchQueue.main.async(execute: {
+                    
+                    let imageView = UIImageView(image: imageToAdd)
+                    imageView.clipsToBounds = true
+                    imageView.addConstraint(NSLayoutConstraint(item: imageView, attribute: .height, relatedBy: .equal, toItem: imageView, attribute: .width, multiplier: 1, constant: 0))
+                    
+                    imageView.contentMode = .scaleAspectFill
+                    
+                    nyAlertController.alertViewContentView = imageView
+                    
+                })
+            }
+            
+            
+            
             nyAlertController.addAction(NYAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
                 
                 self.dismiss(animated: true, completion: nil)
@@ -340,12 +439,28 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
             nyAlertController.cancelButtonColor = UIColor.red
             nyAlertController.cancelButtonTitleColor = UIColor.white
             
+            if let imageToAdd = profilePicOutlet.image {
+                
+                DispatchQueue.main.async(execute: {
+                    
+                    let imageView = UIImageView(image: imageToAdd)
+                    imageView.clipsToBounds = true
+                    imageView.addConstraint(NSLayoutConstraint(item: imageView, attribute: .height, relatedBy: .equal, toItem: imageView, attribute: .width, multiplier: 1, constant: 0))
+                    
+                    imageView.contentMode = .scaleAspectFill
+                    
+                    nyAlertController.alertViewContentView = imageView
+                    
+                })
+            }
+            
+            
             nyAlertController.addAction(NYAlertAction(title: "Add to Squad", style: .default, handler: { (action) in
                 
                 self.dismiss(animated: true, completion: {
                     
                     if let selfUID = FIRAuth.auth()?.currentUser?.uid, let selfData = self.rootController?.selfData, let myFirstName = selfData["firstName"] as? String, let myLastName = selfData["lastName"] as? String {
-
+                        
                         let ref =  FIRDatabase.database().reference().child("users").child(selfUID)
                         ref.child("notifications").child(scopeUserUID).child("squadRequest").updateChildValues(["status" : "approved"])
                         ref.child("squadRequests").child(scopeUserUID).updateChildValues(["status" : 1])
@@ -370,7 +485,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                         yourRef.child("notifications").child(selfUID).child("squadRequest").setValue(["firstName" : myFirstName, "lastName" : myLastName, "type" : "addedYou", "timeStamp" : timeInterval, "uid" : selfUID, "read" : false])
                         
                         yourRef.child("squad").child(selfUID).setValue(["firstName" : myFirstName, "lastName" : myLastName, "uid" : selfUID])
-
+                        
                     }
                     
                     
@@ -409,14 +524,14 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                 self.dismiss(animated: true, completion: nil)
                 
             }))
-
+            
             self.present(nyAlertController, animated: true, completion: {
                 
                 print("alert controller presented")
                 
                 
             })
-
+            
         } else {
             
             //Send a request
@@ -433,6 +548,22 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
             nyAlertController.cancelButtonTitleColor = UIColor.white
             nyAlertController.buttonColor = UIColor.red
             nyAlertController.buttonTitleColor = UIColor.white
+            
+            if let imageToAdd = profilePicOutlet.image {
+                
+                DispatchQueue.main.async(execute: {
+                    
+                    let imageView = UIImageView(image: imageToAdd)
+                    imageView.clipsToBounds = true
+                    imageView.addConstraint(NSLayoutConstraint(item: imageView, attribute: .height, relatedBy: .equal, toItem: imageView, attribute: .width, multiplier: 1, constant: 0))
+                    
+                    imageView.contentMode = .scaleAspectFill
+                    
+                    nyAlertController.alertViewContentView = imageView
+                    
+                })
+            }
+            
             
             nyAlertController.addAction(NYAlertAction(title: "Cancel", style: .cancel, handler: { (action) in
                 
@@ -489,8 +620,10 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     func observePosts(_ lastNumber: UInt, completion: @escaping (Bool) -> ()){
         
         let ref = FIRDatabase.database().reference()
+        ref.keepSynced(true)
         
-        ref.child("allPosts").queryLimited(toLast: lastNumber).observe(.value, with: { (snapshot) in
+        
+        ref.child("allPosts").queryLimited(toLast: lastNumber).observeSingleEvent(of: .value, with: { (snapshot) in
             
             if let value = snapshot.value as? [AnyHashable: Any]{
                 
@@ -504,32 +637,13 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                             
                             if myReported[uid] == nil {
                                 
-                                if self.mostRecentTimeInterval == nil {
-                                    scopePosts.append(valueToAdd)
-                                } else {
-                                    
-                                    if let postTimeStamp = valueToAdd["timeStamp"] as? TimeInterval {
-                                        
-                                        if postTimeStamp <= self.mostRecentTimeInterval {
-                                            scopePosts.append(valueToAdd)
-                                        }
-                                    }
-                                }
+                                scopePosts.append(valueToAdd)
+                                
                             }
+                            
                         } else {
                             
-                            if self.mostRecentTimeInterval == nil {
-                                scopePosts.append(valueToAdd)
-                            } else {
-                                
-                                if let postTimeStamp = valueToAdd["timeStamp"] as? TimeInterval {
-                                    
-                                    if postTimeStamp <= self.mostRecentTimeInterval {
-                                        scopePosts.append(valueToAdd)
-                                    }
-                                }
-                            }
-
+                            scopePosts.append(valueToAdd)
                             
                         }
                     }
@@ -552,15 +666,6 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                 })
                 
                 self.posts = scopePosts
-                
-                if self.mostRecentTimeInterval == nil {
-                    
-                    if let timeInterval = self.posts[0]["timeStamp"] as? TimeInterval {
-                        
-                        self.mostRecentTimeInterval = timeInterval
-                        
-                    }
-                }
                 
                 if !self.firstImageLoaded {
                     
@@ -594,21 +699,21 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                 
                 self.view.layoutIfNeeded()
                 
-                }, completion: { (bool) in
+            }, completion: { (bool) in
+                
+                self.isPanning = false
+                self.longPressEnabled = false
+                
+                self.chatIsRevealed = true
+                self.snapchatChatController?.finishReceivingMessage()
+                
+                if let playerLayer = self.layer {
                     
-                    self.isPanning = false
-                    self.longPressEnabled = false
+                    playerLayer.frame = self.videoOutlet.bounds
                     
-                    self.chatIsRevealed = true
-                    self.snapchatChatController?.finishReceivingMessage()
                     
-                    if let playerLayer = self.layer {
-                        
-                        playerLayer.frame = self.videoOutlet.bounds
-                        
-                        
-                    }
-                    
+                }
+                
             })
         }
     }
@@ -628,19 +733,19 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                 
                 self.view.layoutIfNeeded()
                 
-                }, completion: { (bool) in
+            }, completion: { (bool) in
+                
+                self.chatIsRevealed = false
+                self.snapchatChatController?.chatEnlarged = false
+                self.isPanning = false
+                self.longPressEnabled = false
+                
+                if let playerLayer = self.layer {
                     
-                    self.chatIsRevealed = false
-                    self.snapchatChatController?.chatEnlarged = false
-                    self.isPanning = false
-                    self.longPressEnabled = false
+                    playerLayer.frame = self.videoOutlet.bounds
                     
-                    if let playerLayer = self.layer {
-                        
-                        playerLayer.frame = self.videoOutlet.bounds
-                        
-                    }
-                    
+                }
+                
             })
         }
     }
@@ -689,10 +794,10 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                 self.rootController?.view.layoutIfNeeded()
                 self.view.layoutIfNeeded()
                 
-                }, completion: { (bool) in
-                    
-                    self.isPanning = false
-                    self.longPressEnabled = false
+            }, completion: { (bool) in
+                
+                self.isPanning = false
+                self.longPressEnabled = false
             })
             
             
@@ -754,30 +859,30 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                 
                 self.rootController?.view.layoutIfNeeded()
                 
-                }, completion: { (bool) in
+            }, completion: { (bool) in
+                
+                self.rootController?.snapXOutlet.constant = 0
+                self.rootController?.snapYOutlet.constant = 0
+                
+                if let rootWidth = self.rootController?.view.bounds.width {
                     
-                    self.rootController?.snapXOutlet.constant = 0
-                    self.rootController?.snapYOutlet.constant = 0
+                    self.rootController?.snapWidthConstOutlet.constant = rootWidth
                     
-                    if let rootWidth = self.rootController?.view.bounds.width {
-                        
-                        self.rootController?.snapWidthConstOutlet.constant = rootWidth
-                        
-                    }
+                }
+                
+                if let rootHeight = self.rootController?.view.bounds.height {
                     
-                    if let rootHeight = self.rootController?.view.bounds.height {
-                        
-                        self.rootController?.snapHeightConstOutlet.constant = rootHeight
-                        
-                    }
+                    self.rootController?.snapHeightConstOutlet.constant = rootHeight
                     
-                    self.view.layer.cornerRadius = 0
-                    
-                    self.rootController?.snapchatContainerOutlet.alpha = 0
-                    
-                    print("snapchat close")
-                    
-                    
+                }
+                
+                self.view.layer.cornerRadius = 0
+                
+                self.rootController?.snapchatContainerOutlet.alpha = 0
+                
+                print("snapchat close")
+                
+                
             })
         }
     }
@@ -1144,6 +1249,8 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     
     func loadSecondaryContent(_ direction: String, i: Int, completion: @escaping (Bool) -> ()){
         
+        self.loadingIndicatorOutlet.alpha = 0
+        
         if let playerLayer = layer {
             
             playerLayer.removeFromSuperlayer()
@@ -1241,16 +1348,16 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                 self.videoOutlet.layoutIfNeeded()
                 self.view.layoutIfNeeded()
                 
-                }, completion: { (bool) in
-                    
-                    self.imageOutlet.alpha = 0
-                    self.primaryImageTrailingOutlet.constant = 0
-                    self.primaryImageLeadingConstant.constant = 0
-                    
-                    completion(bool)
-                    
-                    print("left image")
-                    
+            }, completion: { (bool) in
+                
+                self.imageOutlet.alpha = 0
+                self.primaryImageTrailingOutlet.constant = 0
+                self.primaryImageLeadingConstant.constant = 0
+                
+                completion(bool)
+                
+                print("left image")
+                
             })
             
             
@@ -1262,16 +1369,16 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                 self.primaryImageTrailingOutlet.constant = -rootWidth
                 self.view.layoutIfNeeded()
                 
-                }, completion: { (bool) in
-                    
-                    self.imageOutlet.alpha = 0
-                    self.primaryImageTrailingOutlet.constant = 0
-                    self.primaryImageLeadingConstant.constant = 0
-                    
-                    completion(bool)
-                    
-                    print("right image")
-                    
+            }, completion: { (bool) in
+                
+                self.imageOutlet.alpha = 0
+                self.primaryImageTrailingOutlet.constant = 0
+                self.primaryImageLeadingConstant.constant = 0
+                
+                completion(bool)
+                
+                print("right image")
+                
             })
         }
         
@@ -1282,30 +1389,6 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
         
         print(singlePost)
         
-        if let chatEnlarged = snapchatChatController?.chatEnlarged {
-            
-            if chatEnlarged {
-                
-                snapchatChatController?.shrinkChat()
-                
-            } else if nextEnabled && !longPressEnabled && !singlePost {
-                
-                let scopeIndex = currentIndex
-                
-                nextEnabled = false
-                
-                loadSecondaryContent("left", i: scopeIndex, completion: { (bool) in
-                    
-                    self.loadPrimary("left", i: scopeIndex, completion: { (Bool) in
-                        
-                    })
-                })
-            } else if singlePost {
-                
-                closeWithDirection(0, y: self.view.bounds.height, animationTime: 0.3)
-                
-            }
-        }
     }
     
     
@@ -1505,7 +1588,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                     cityRankOutlet.text = "#" + String(rank)
                     
                 }
-
+                
                 if let imageString = post["imageURL"] as? String, let imageURL = URL(string: imageString) {
                     
                     imageOutlet.sd_setImage(with: imageURL, placeholderImage: nil)
@@ -1518,7 +1601,7 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                     if !isImage {
                         
                         print("load video")
-
+                        
                         if let urlString = post["videoURL"] as? String, let url = URL(string: urlString) {
                             
                             DispatchQueue.main.async(execute: {
@@ -1608,6 +1691,8 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
                 self.isPanning = false
                 self.longPressEnabled = false
                 
+                self.loadingIndicatorOutlet.alpha = 1
+                
                 completion(true)
             }
         }
@@ -1616,17 +1701,25 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
     
     func addGestureRecognizers(){
         
-        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(panGestureHandler))
-        panGesture.delegate = self
-        self.contentViewOutlet.addGestureRecognizer(panGesture)
+        let rightPanGesture = UIPanGestureRecognizer(target: self, action: #selector(panGestureHandler))
+        rightPanGesture.delegate = self
+        self.rightViewOutlet.addGestureRecognizer(rightPanGesture)
+        
+        let leftPanGesture = UIPanGestureRecognizer(target: self, action: #selector(panGestureHandler))
+        leftPanGesture.delegate = self
+        self.leftViewOutlet.addGestureRecognizer(leftPanGesture)
         
         let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(longPressHandler))
         longPressGesture.delegate = self
         self.view.addGestureRecognizer(longPressGesture)
         
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapHandler))
-        tapGesture.delegate = self
-        self.contentViewOutlet.addGestureRecognizer(tapGesture)
+        let leftTap = UITapGestureRecognizer(target: self, action: #selector(tapLeft))
+        leftTap.delegate = self
+        self.leftViewOutlet.addGestureRecognizer(leftTap)
+        
+        let rightTap = UITapGestureRecognizer(target: self, action: #selector(tapRight))
+        rightTap.delegate = self
+        self.rightViewOutlet.addGestureRecognizer(rightTap)
         
     }
     
@@ -1637,6 +1730,16 @@ class SnapchatViewController: UIViewController, UIGestureRecognizerDelegate {
         captionOutlet.adjustsFontSizeToFitWidth = true
         
         addGestureRecognizers()
+
+        let x = (self.view.bounds.width / 2) - 100
+        let y = (self.view.bounds.height / 2) - 100
+    
+        let frame = CGRect(x: x, y: y, width: 200, height: 200)
+        
+        let activityIndicator = NVActivityIndicatorView(frame: frame, type: .ballClipRotatePulse, color: UIColor.red, padding: 0)
+        loadingIndicatorOutlet.addSubview(activityIndicator)
+        activityIndicator.startAnimation()
+        
         
         // Do any additional setup after loading the view.
     }
